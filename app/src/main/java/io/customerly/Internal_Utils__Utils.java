@@ -1,0 +1,370 @@
+package io.customerly;
+
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.support.annotation.ColorRes;
+import android.support.annotation.Dimension;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.Px;
+import android.text.Editable;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.xml.sax.XMLReader;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Locale;
+
+import static android.os.Build.VERSION_CODES.N;
+
+/**
+ * Created by Gianni on 31/05/16.
+ * Project: CustomerlySDK
+ */
+class Internal_Utils__Utils {
+
+    @SuppressWarnings("deprecation")
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    static boolean checkConnection(@Nullable Context c) {
+        if(c == null)
+            return false;
+        ConnectivityManager manager = (ConnectivityManager) c
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Network[] nets = manager.getAllNetworks();
+            for (Network net : nets) {
+                info = manager.getNetworkInfo(net);
+                if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
+                    return true;
+            }
+            return false;
+        } else {
+            info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
+                return true;
+            info = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
+                return true;
+            info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIMAX);
+            return info != null && info.getState() == NetworkInfo.State.CONNECTED;
+        }
+    }
+
+    private static float _CachedDpi = 0;
+    @Px static int DP_to_PX(@NonNull Resources res, @Dimension(unit = Dimension.DP) float pDP) {
+        if(Internal_Utils__Utils._CachedDpi == 0) {
+            Internal_Utils__Utils._CachedDpi = res.getDisplayMetrics().densityDpi;
+            Internal_Utils__Utils._CachedDpi = Internal_Utils__Utils._CachedDpi > 100/*120, 160, 213, 240, 320, 480 or 640 dpi*/ ? Internal_Utils__Utils._CachedDpi / 160f : Internal_Utils__Utils._CachedDpi;
+            if (Internal_Utils__Utils._CachedDpi == 0)
+                Internal_Utils__Utils._CachedDpi = 1;
+        }
+        return (int) (Internal_Utils__Utils._CachedDpi * pDP);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    static void intentUrl(@NonNull Activity activity, @NonNull String url) {
+        if (!url.startsWith("https://") && !url.startsWith("http://"))
+            url = "http://" + url;
+        try {
+            //noinspection deprecation
+            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? Intent.FLAG_ACTIVITY_NEW_DOCUMENT : Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET) | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
+        } catch (SecurityException ignored) { }
+    }
+
+    static int alterColor(int color, float factor) {
+        int a = (color & (0xFF << 24)) >> 24;
+        int r = (int) (((color & (0xFF << 16)) >> 16) * factor);
+        int g = (int) (((color & (0xFF << 8)) >> 8) * factor);
+        int b = (int) ((color & 0xFF) * factor);
+        return Color.argb(a, r, g, b);
+    }
+
+    @SuppressWarnings("deprecation")
+    @TargetApi(Build.VERSION_CODES.M)
+    static int getColorFromResource(@NonNull Resources resources, @ColorRes int colorResID) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ? resources.getColor(colorResID, null)
+                : resources.getColor(colorResID);
+    }
+
+    @SuppressWarnings("deprecation")
+    @TargetApi(Build.VERSION_CODES.M)
+    static ColorStateList getColorStateListFromResource(@NonNull Resources resources, @ColorRes int colorStateListResID) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ? resources.getColorStateList(colorStateListResID, null)
+                : resources.getColorStateList(colorStateListResID);
+    }
+
+    private final static String EMOJI_TAG_START = "<emoji>", EMOJI_TAG_END = "</emoji>";
+    @Nullable static SpannableStringBuilder decodeHtmlStringWithEmojiTag(@Nullable String message) {
+        if(message == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        int start = 0, startEmojiTag, endEmojiTag;
+        while(start < message.length()) {
+            startEmojiTag = message.indexOf(EMOJI_TAG_START, start);
+            if(startEmojiTag != -1) {
+                endEmojiTag = message.indexOf(EMOJI_TAG_END, start);
+                if(start < startEmojiTag)
+                    sb.append(message.substring(start, startEmojiTag));
+                sb.append(Character.toChars(Integer.decode("0x" + message.substring(startEmojiTag + EMOJI_TAG_START.length(), endEmojiTag).trim())));
+                start = endEmojiTag + EMOJI_TAG_END.length();
+            } else {
+                sb.append(message.substring(start));
+                break;
+            }
+        }
+
+        Html.TagHandler tagHandler = new Html.TagHandler() {
+            boolean ol = false;
+            int olCount;
+            @Override
+            public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+                 /*
+                <ol> -> 1. 2. 3.
+                <li>rf</li>
+                <li>f</li>
+                <li>f</li>
+                </ol>
+
+                <ul> -> • • •
+                <li>f</li>
+                <li>f</li>
+                <li>f</li>
+                </ul>
+            */
+                switch (tag) {
+                    case "ol":
+                        if(opening) {
+                            this.ol = true;
+                            this.olCount = 1;
+                        }
+                        break;
+                    case "ul":
+                        if(opening) {
+                            this.ol = false;
+                        }
+                        break;
+                    case "li":
+                        if(opening) {
+                            if(this.ol) {
+                                output.append(String.format(Locale.UK, this.olCount > 9 ? "\n%d. " : "\n  %d. ", this.olCount++));
+                            } else {
+                                output.append("   •  ");
+                            }
+                        } else {
+                            output.append("\n");
+                        }
+                        break;
+                    default:
+                }
+            }
+        };
+
+        Spanned spannedMessage;
+        if(Build.VERSION.SDK_INT >= N) {
+            spannedMessage = Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_LEGACY, _SpanImage_ImageGetter, tagHandler);
+        } else {
+            //noinspection deprecation
+            spannedMessage = Html.fromHtml(sb.toString(), _SpanImage_ImageGetter, tagHandler);
+        }
+
+        if(spannedMessage instanceof SpannableStringBuilder) {
+            SpannableStringBuilder ssb = (SpannableStringBuilder)spannedMessage;
+            int startSSB = 0;
+            while(startSSB < ssb.length()) {                            //Scorre carattere per carattere
+                if(ssb.charAt(startSSB) == '\n') {                      //Se trova un \n
+                    startSSB++;                                         //Si posiziona al carattere successivo
+                    int endCut = 0;                                     //Contatore di '\n' successivi al primo
+                    while(startSSB + endCut < ssb.length() && ssb.charAt(startSSB + endCut) == '\n') {               //Finchè trova ulteriori '\n' successivi al primo
+                        endCut++;                                       //Li conta
+                    }
+                    if(endCut != 0) {                                   //Se ne ha trovato almeno 1
+                        ssb.delete(startSSB, startSSB + endCut);        //Li elimina tutti lasciando quindi solo un '\n'
+                    }
+                }
+                startSSB++;                                             //Se il carattere non era '\n' o comunque anche se lo era, il successivo comunque non lo è altrimenti lo avrebbe eliminato con la delete, quindi vado a quello ancora successivo
+            }
+            if(ssb.length() != 0 && ssb.charAt(ssb.length() - 1) == '\n') { //Se l'ultimo carattere è un '\n'
+                ssb.delete(ssb.length() - 1, ssb.length());             //Lo cancella
+            }
+            /* Vecchio ciclo che semplicemente eliminava tutti gli '\n' alla fine del messaggio
+            int backN_count = 0;
+            while(ssb.length() - backN_count - 1 >= 0 && ssb.charAt(ssb.length() - backN_count - 1) == '\n') {
+                backN_count++;
+            }
+            ssb = ssb.delete(ssb.length() - backN_count, ssb.length());
+            spannedMessage = ssb; */
+            return ssb;
+        }
+        return null;
+    }
+
+    private static final Html.ImageGetter _SpanImage_ImageGetter = source -> {
+        Drawable d = null;
+        try {
+            InputStream src = new URL(source).openStream();
+            d = Drawable.createFromStream(src, "src");
+            if(d != null){
+                d.setBounds(0, 0, Customerly.px(150), Customerly.px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return d;
+    };
+
+    static String getNameFromUri(@NonNull Context context, @NonNull Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            if(cursor != null) {
+                //noinspection TryFinallyCanBeTryWithResources
+                try {
+                    if (cursor.moveToFirst()) {
+                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+    
+    static long getFileSizeFromUri(@NonNull Context context, @NonNull Uri uri) {
+        try {
+            String filePath = getPath(context, uri);
+            return filePath == null ? 0 : new File(filePath).length();
+        } catch (Exception no_dovrebbe_succedere_mai) {
+            return 0;
+        }
+    }
+
+    private static String getPath(@NonNull Context context, @NonNull Uri uri) {
+        // DocumentProvider
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {
+            // ExternalStorageProvider
+            if ("com.android.externalstorage.documents".equals(uri.getAuthority())) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+                // TODO handle non-primary volumes
+            }
+            // DownloadsProvider
+            else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                return getDataColumn(context, contentUri, null, null);
+            }
+            // MediaProvider
+            else
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {split[1]};
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            // Return the remote address
+            if ("com.google.android.apps.photos.content".equals(uri.getAuthority()))
+                return uri.getLastPathSegment();
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
+    }
+
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+        Cursor cursor = null;
+        final String column = "_data";
+        final String[] projection = { column };
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int index = cursor.getColumnIndexOrThrow(column);
+                return cursor.getString(index);
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    interface JSONObjectTo<OBJ> {    @NonNull OBJ from(@NonNull JSONObject obj) throws JSONException;  }
+    @Nullable static <OBJ> ArrayList<OBJ> fromJSONdataToList(@Nullable JSONObject data, @NonNull String pArrayKey, @NonNull JSONObjectTo<OBJ> pJSONObjectToOBJ) {
+        if (data != null) {
+            try {
+                JSONArray array = data.getJSONArray(pArrayKey);
+                ArrayList<OBJ> list = new ArrayList<>(array.length());
+                JSONObject obj;
+                for(int i = 0; i < array.length(); i++) {
+                    try {
+                        obj = array.getJSONObject(i);
+                        if(obj != null) {
+                            list.add(pJSONObjectToOBJ.from(obj));
+                        }
+                    } catch (JSONException ignored) { }
+                }
+                return list;
+            } catch (JSONException ignored) { }
+        }
+        return null;
+    }
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="io_customerly__progressview" />
+    <item type="id" name="io_customerly__first_contact_swiperefresh" />
+    <item type="id" name="io_customerly__layout_first_contact__welcomecard" />
+    <item type="id" name="io_customerly__layout_first_contact__admincontainer" />
+    <item type="id" name="io_customerly__layout_first_contact__welcomecard__lastactivity" />
+    <item type="id" name="io_customerly__layout_first_contact__welcomecard__welcome" />
+    <item type="id" name="io_customerly__recyclerview_swiperefresh" />
+    <item type="id" name="io_customerly__recyclerview" />
+    <item type="id" name="io_customerly__input_layout" />
+    <item type="id" name="io_customerly__input_edittext" />
+    <item type="id" name="io_customerly__input_button_attach" />
+    <item type="id" name="io_customerly__input_button_send" />
+    <item type="id" name="io_customerly__input_attachments" />
+    <item type="id" name="io_customerly__input_email_layout" />
+    <item type="id" name="io_customerly__input_email_edittext" />
+    <item type="id" name="io_customerly__input_email_button" />
+    <item type="id" name="io_customerly__new_conversation_layout" />
+    <item type="id" name="io_customerly__new_conversation_button" />
+    <item type="id" name="io_customerly__offerto_da" />
+    <item type="id" name="io_customerly__icona" />
+    <item type="id" name="io_customerly__nome" />
+    <item type="id" name="io_customerly__last_message" />
+    <item type="id" name="io_customerly__time" />
+    <item type="id" name="io_customerly__content" />
+    <item type="id" name="io_customerly__attachment_layout" />
+    <item type="id" name="io_customerly__content_layout__onlyuserli" />
+    <item type="id" name="io_customerly__content_sending__onlyuserli" />
+    <item type="id" name="io_customerly__menu__download" />
+</resources>

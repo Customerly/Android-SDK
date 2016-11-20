@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.customerly">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application >
+
+        <activity android:name="io.customerly.Internal_activity__CustomerlyList_Activity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/io_customerly__Activity"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity android:name="io.customerly.Internal_activity__CustomerlyChat_Activity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/io_customerly__Activity"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity android:name="io.customerly.Internal_activity__FullScreenImage_Activity"
+            android:configChanges="orientation|screenSize|keyboard"
+            android:theme="@style/io_customerly__Activity"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <meta-data android:name="io.customerly.GlideConfiguration"
+            android:value="GlideModule" />
+
+    </application>
+</manifest>

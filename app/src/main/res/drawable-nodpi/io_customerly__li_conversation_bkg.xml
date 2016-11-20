@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true" >
+        <layer-list >
+            <item
+                android:bottom="-3dp"
+                android:left="0dp"
+                android:right="-3dp"
+                android:top="-3dp">
+
+                <shape android:shape="rectangle" >
+
+                    <stroke android:width="3dp" android:color="@color/io_customerly__blue2" />
+
+                    <solid android:color="@color/io_customerly__lightblue1" />
+
+                </shape>
+            </item>
+
+        </layer-list>
+    </item>
+    <item android:drawable="@android:color/white" />
+
+</selector>

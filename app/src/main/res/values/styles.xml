@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="io_customerly__Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/io_customerly__grey99</item>
+    </style>
+
+    <style name="io_customerly__ListActivity_EditTextBlue" parent="Base.V7.Widget.AppCompat.EditText">
+        <item name="colorControlNormal">@color/io_customerly__blue1</item>
+    </style>
+
+</resources>

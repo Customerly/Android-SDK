@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/io_customerly__input_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="5dp"
+    android:gravity="center_vertical"
+    tools:ignore="RtlHardcoded,RtlSymmetry">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical" >
+
+        <EditText android:id="@id/io_customerly__input_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:textColorHint="@color/io_customerly__grey99"
+            android:textColor="@color/io_customerly__dark_text"
+            android:singleLine="false"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:maxLines="3"
+            android:inputType="text|textCapSentences|textMultiLine|textImeMultiLine"
+            android:hint="@string/io_customerly__scrivi_la_tua_domanda"
+            tools:ignore="Deprecated"
+            android:lineSpacingExtra="5dp"
+            android:background="@android:color/transparent" />
+
+        <ImageView android:id="@id/io_customerly__input_button_attach"
+            android:layout_width="45dp"
+            android:layout_height="55dp"
+            android:paddingLeft="12.5dp"
+            android:paddingStart="12.5dp"
+            android:paddingRight="12.5dp"
+            android:paddingEnd="12.5dp"
+            android:paddingTop="17.5dp"
+            android:paddingBottom="17.5dp"
+            android:clickable="true"
+            android:background="@android:color/white"
+            android:foreground="?attr/selectableItemBackground"
+            android:src="@drawable/io_customerly__ic_attach_account"
+            android:contentDescription="@string/io_customerly__attach_file" />
+
+        <ImageView android:id="@id/io_customerly__input_button_send"
+            android:layout_width="45dp"
+            android:layout_height="50dp"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:clickable="true"
+            android:background="@android:color/white"
+            android:foreground="?attr/selectableItemBackground"
+            android:src="@drawable/io_customerly__ic_send"
+            android:contentDescription="@string/io_customerly__attach_file" />
+
+    </LinearLayout>
+
+    <io.customerly.Internal_Utils__MaxHeightScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:overScrollMode="never"
+        app:maxHeight="100dp">
+
+        <LinearLayout android:id="@id/io_customerly__input_attachments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </io.customerly.Internal_Utils__MaxHeightScrollView>
+
+</LinearLayout>

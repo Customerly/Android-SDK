@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical" >
+
+    <TextView android:id="@id/io_customerly__time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/io_customerly__grey99"
+        android:layout_centerHorizontal="true"
+        android:padding="7.5dp"
+        android:visibility="gone"/>
+
+    <ImageView android:id="@id/io_customerly__icona"
+        android:layout_width="@dimen/io_customerly__chat_li_iconsize"
+        android:layout_height="@dimen/io_customerly__chat_li_iconsize"
+        android:scaleType="fitCenter"
+        android:layout_marginRight="@dimen/io_customerly__chat_li_margin_icon_screenborder"
+        android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_icon_screenborder"
+        android:contentDescription="@string/io_customerly__icona"
+
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/io_customerly__time"
+        android:layout_alignWithParentIfMissing="true"  />
+
+    <LinearLayout
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_marginRight="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="right|end"
+        tools:ignore="RtlHardcoded"
+        android:elevation="1dp"
+        tools:targetApi="lollipop"
+        android:layout_below="@id/io_customerly__time"
+        android:layout_alignWithParentIfMissing="true" >
+
+        <LinearLayout android:id="@id/io_customerly__content_layout__onlyuserli"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/io_customerly__bkg_chatmessage_user_rounded"
+            android:layout_marginBottom="3dp" >
+
+            <TextView android:id="@id/io_customerly__content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:drawablePadding="5dp" />
+
+            <ProgressBar android:id="@id/io_customerly__content_sending__onlyuserli"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"
+
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@id/io_customerly__attachment_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="right|end"
+            tools:ignore="RtlHardcoded"
+            android:layout_marginBottom="3dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

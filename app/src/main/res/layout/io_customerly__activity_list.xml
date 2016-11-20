@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:background="@android:color/white" >
+
+    <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__first_contact_swiperefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        android:foreground="@drawable/io_customerly__foreground_bottomshadowed" >
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:background="@color/io_customerly__greyf0" >
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.CardView android:id="@id/io_customerly__layout_first_contact__welcomecard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:padding="30dp"
+                    card_view:cardCornerRadius="4dp"
+                    card_view:cardUseCompatPadding="true"
+                    android:visibility="gone" >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginEnd="20dp" >
+
+                        <LinearLayout android:id="@id/io_customerly__layout_first_contact__admincontainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal" />
+
+                        <TextView android:id="@id/io_customerly__layout_first_contact__welcomecard__lastactivity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/io_customerly__grey99"
+                            android:textSize="13sp"
+                            android:visibility="gone" />
+
+                        <TextView android:id="@id/io_customerly__layout_first_contact__welcomecard__welcome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:textColor="@color/io_customerly__grey99"
+                            android:textSize="14sp"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:padding="30dp"
+                    card_view:cardCornerRadius="4dp"
+                    card_view:cardUseCompatPadding="true" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/io_customerly__grey99"
+                        android:textSize="14sp"
+                        android:text="@string/io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto" />
+
+                </android.support.v7.widget.CardView>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__recyclerview_swiperefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:foreground="@drawable/io_customerly__foreground_bottomshadowed" >
+
+        <android.support.v7.widget.RecyclerView android:id="@id/io_customerly__recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <include layout="@layout/io_customerly__layout_input_layout" />
+
+    <LinearLayout android:id="@id/io_customerly__input_email_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingBottom="5dp"
+        android:visibility="gone" >
+
+        <EditText android:id="@id/io_customerly__input_email_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:paddingEnd="15dp"
+            android:paddingRight="15dp"
+            android:paddingStart="15dp"
+            android:paddingLeft="15dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColorHint="@color/io_customerly__grey99"
+            android:textColor="@color/io_customerly__dark_text"
+            android:inputType="textEmailAddress"
+            android:hint="@string/io_customerly__inserisci_la_tua_email"
+            android:theme="@style/io_customerly__ListActivity_EditTextBlue"
+            android:background="@android:color/transparent" />
+
+        <Button android:id="@id/io_customerly__input_email_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:paddingEnd="15dp"
+            android:paddingRight="15dp"
+            android:paddingStart="15dp"
+            android:paddingLeft="15dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:background="@drawable/io_customerly__button_blue"
+            android:foreground="?attr/selectableItemBackground"
+            android:textColor="@android:color/white"
+            android:text="@string/io_customerly__inizia_conversazione"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@id/io_customerly__new_conversation_layout"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:gravity="center_horizontal"
+        android:visibility="gone" >
+
+        <Button android:id="@id/io_customerly__new_conversation_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="0dp"
+            android:gravity="center"
+            android:background="@drawable/io_customerly__button_blue"
+            android:foreground="?attr/selectableItemBackground"
+            android:textColor="@android:color/white"
+            android:text="@string/io_customerly__inizia_nuova_conversazione"/>
+
+    </LinearLayout>
+
+    <include layout="@layout/io_customerly__layout_offerto_da" />
+
+</LinearLayout>

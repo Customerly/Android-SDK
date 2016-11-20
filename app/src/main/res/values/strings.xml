@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources> <!-- TODO Localization -->
+    <string name="io_customerly__offerto_da_">Offerto da&#160;</string>
+    <string name="io_customerly__crmhero">CRMHero</string>
+
+    <string name="io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto">Contatta l\'assistenza scrivendo la tua domanda qui sotto.</string>
+    <string name="io_customerly__scrivi_la_tua_domanda">Scrivi la tua domanda…</string>
+    <string name="io_customerly__attach_file">Allega file</string>
+    <string name="io_customerly__send">Invia</string>
+    <string name="io_customerly__url_offerto_da_crmhero">https://www.crmhero.io/</string>
+    <string name="io_customerly__inserisci_la_tua_email">Inserisci la tua email</string>
+    <string name="io_customerly__inizia_conversazione">Inizia Conversazione</string>
+    <string name="io_customerly__inizia_nuova_conversazione">Inizia nuova Conversazione</string>
+    <string name="io_customerly__installa_un_file_manager">Devi prima installare un File Manager</string>
+    <string name="io_customerly__scegli_file">Scegli un file da allegare</string>
+    <string name="io_customerly__allegato">Scegli un file da allegare</string>
+    <string name="io_customerly__cancel_allegato">Vuoi eliminare l\'allegato %s?</string>
+    <string name="io_customerly__cancel">Cancella</string>
+    <string name="io_customerly__annulla">Annulla</string>
+    <string name="io_customerly__you">Tu</string>
+    <string name="io_customerly__permission_request">Richiesta permesso</string>
+    <string name="io_customerly__permission_request_explanation_write">Il permesso di accesso alla memoria esterna è necessario per memorizzare gli allegati</string>
+    <string name="io_customerly__permission_request_explanation_read">Il permesso di accesso alla memoria esterna è necessario per caricare gli allegati</string>
+    <string name="io_customerly__permission_denied_write">Hai negato il permesso necessario a scaricare gli allegati. Puoi autorizzarlo nuovamente dalle impostazioni di sistema dell\'app</string>
+    <string name="io_customerly__permission_denied_read">Hai negato il permesso necessario a caricare gli allegati. Puoi autorizzarlo nuovamente dalle impostazioni di sistema dell\'app</string>
+    <string name="io_customerly__download_completo">Download Completo</string>
+    <string name="io_customerly__nuova_conversazione">Nuova Conversazione</string>
+    <string name="io_customerly__invio_messaggio_in_corso">Invio messaggio in corso</string>
+    <string name="io_customerly__errore_connessione_probabile">Si è verificato un errore! Verifica la tua connessione</string>
+    <string name="io_customerly__download">Download</string>
+    <string name="io_customerly__avvio_download">Avviare il download del file?</string>
+
+    <string name="io_customerly__attachments_maxcount_error">Massimo numero di file raggiunto</string>
+    <string name="io_customerly__attachments_alreadyattached_error">Hai già allegato questo file</string>
+    <string name="io_customerly__attachments_maxsize_error">Non puoi allegare file così grandi</string>
+
+    <string name="io_customerly__last_activity_now">Adesso in linea</string>
+    <string name="io_customerly__icona">Icona</string>
+    <plurals name="io_customerly__last_activity_XXm_ago">
+        <item quantity="one">Ultima attivit&#225; %1$d minuto fa</item>
+        <item quantity="other">Ultima attivit&#225; %1$d minuti fa</item>
+    </plurals>
+    <plurals name="io_customerly__last_activity_XXh_ago">
+        <item quantity="one">Ultima attivit&#225; %1$d ora fa</item>
+        <item quantity="other">Ultima attivit&#225; %1$d ore fa</item>
+    </plurals>
+    <plurals name="io_customerly__last_activity_XXd_ago">
+        <item quantity="one">Ultima attivit&#225; %1$d giorno fa</item>
+        <item quantity="other">Ultima attivit&#225; %1$d giorni fa</item>
+    </plurals>
+
+    <string name="io_customerly__XXs_ago">%1$ds fa</string>
+    <string name="io_customerly__XXm_ago">%1$dm fa</string>
+    <string name="io_customerly__XXh_ago">%1$do fa</string>
+    <string name="io_customerly__XXd_ago">%1$dg fa</string>
+    <string name="io_customerly__failed">Failed</string>
+
+</resources>

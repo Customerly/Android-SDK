@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="top">
+
+    <TextView android:id="@id/io_customerly__time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/io_customerly__grey99"
+        android:layout_centerHorizontal="true"
+        android:padding="7.5dp"
+        android:visibility="gone"/>
+
+    <ImageView android:id="@id/io_customerly__icona"
+        android:layout_width="@dimen/io_customerly__chat_li_iconsize"
+        android:layout_height="@dimen/io_customerly__chat_li_iconsize"
+        android:scaleType="fitCenter"
+        android:layout_marginStart="@dimen/io_customerly__chat_li_margin_icon_screenborder"
+        android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_icon_screenborder"
+        android:contentDescription="@string/io_customerly__icona"
+        android:layout_below="@id/io_customerly__time"
+        android:layout_alignWithParentIfMissing="true" />
+
+    <LinearLayout
+        android:layout_marginRight="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_marginStart="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_bubble_screenborder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="left|start"
+        tools:ignore="RtlHardcoded"
+        android:elevation="1dp"
+        tools:targetApi="lollipop"
+        android:layout_marginBottom="3dp"
+        android:layout_below="@id/io_customerly__time"
+        android:layout_alignWithParentIfMissing="true"   >
+
+        <TextView android:id="@id/io_customerly__content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/io_customerly__grey99"
+            android:background="@drawable/io_customerly__bkg_chatmessage_account_rounded"
+            android:textSize="15sp" />
+
+        <LinearLayout android:id="@id/io_customerly__attachment_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="left|start"
+            tools:ignore="RtlHardcoded" />
+
+    </LinearLayout>
+
+</RelativeLayout>
