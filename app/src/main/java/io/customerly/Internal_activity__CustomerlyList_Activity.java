@@ -51,13 +51,12 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final Customerly crm = this.onCreateLayout(R.layout.io_customershero__activity_list);
-        if(crm != null) {
-            this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customershero__first_contact_swiperefresh);
-            this.input_email_layout = this.findViewById(R.id.io_customershero__input_email_layout);
-            this.new_conversation_layout = this.findViewById(R.id.io_customershero__new_conversation_layout);
-            this._RecyclerView_SRL = (SwipeRefreshLayout) this.findViewById(R.id.io_customershero__recyclerview_swiperefresh);
-            this._ListRecyclerView = (RecyclerView) this.findViewById(R.id.io_customershero__recyclerview);
+        if(this.onCreateLayout(R.layout.io_customerly__activity_list, true)) {
+            this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customerly__first_contact_swiperefresh);
+            this.input_email_layout = this.findViewById(R.id.io_customerly__input_email_layout);
+            this.new_conversation_layout = this.findViewById(R.id.io_customerly__new_conversation_layout);
+            this._RecyclerView_SRL = (SwipeRefreshLayout) this.findViewById(R.id.io_customerly__recyclerview_swiperefresh);
+            this._ListRecyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recyclerview);
             this._ListRecyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
             this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
             this._ListRecyclerView.setHasFixedSize(true);
@@ -65,7 +64,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
             this._ListRecyclerView.setAdapter(new ConversationAdapter());
 
             this.input_layout.setVisibility(View.GONE);
-            this.findViewById(R.id.io_customershero__new_conversation_button).setOnClickListener(btn -> {
+            this.findViewById(R.id.io_customerly__new_conversation_button).setOnClickListener(btn -> {
                 this.new_conversation_layout.setVisibility(View.GONE);
                 this.restoreAttachments();
                 this.input_layout.setVisibility(View.VISIBLE);
@@ -78,13 +77,12 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                     .opt_receiver((responseState, list) -> {
                         if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED
                             || responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                            this.displayInterface(crm, list);
+                            this.displayInterface(list);
                         } else {
                             this.finish();
-                            Toast.makeText(getApplicationContext(), R.string.io_customershero__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
                         }
                     })
-                    .opt_crm(crm)
                     .opt_trials(2)
                         .start();
             this._RecyclerView_SRL.setOnRefreshListener(this._OnRefreshListener);
@@ -96,7 +94,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
     @Override
     protected void onResume() {
         super.onResume();
-        Customerly._do(crm -> crm.__SOCKET_RECEIVE_Message(pNewMessages -> {
+        Customerly._Instance.__SOCKET_RECEIVE_Message(pNewMessages -> {
             ArrayList<Internal_entity__Message> filtrati = new ArrayList<>(pNewMessages.size());
             nextNuovo: for(Internal_entity__Message nuovo : pNewMessages) {
                 for(Internal_entity__Message gia_filtrato : filtrati) {
@@ -130,12 +128,12 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                 this._Conversations = conversazioni;
                 this._ListRecyclerView.getAdapter().notifyDataSetChanged();
             });
-        }));
+        });
     }
 
     @Override
     public void onBackPressed() {
-        Customerly._do(crm -> crm.__SOCKET_RECEIVE_Message(null));
+        Customerly._Instance.__SOCKET_RECEIVE_Message(null);
         super.onBackPressed();
     }
 
@@ -156,7 +154,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         }
     }
 
-    private void displayInterface(@NonNull Customerly crm, @Nullable ArrayList<Internal_entity__Conversation> pConversations) {
+    private void displayInterface(@Nullable ArrayList<Internal_entity__Conversation> pConversations) {
         if(pConversations != null && pConversations.size() != 0) {
             this._FirstContact_SRL.setVisibility(View.GONE);
             this._ListRecyclerView.post(() -> {
@@ -179,13 +177,13 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
             this._FirstContact_SRL.setRefreshing(false);
             boolean showWelcomeCard = false;
 
-            LinearLayout layout_first_contact__admincontainer = (LinearLayout) this.findViewById(R.id.io_customershero__layout_first_contact__admincontainer);
+            LinearLayout layout_first_contact__admincontainer = (LinearLayout) this.findViewById(R.id.io_customerly__layout_first_contact__admincontainer);
 
-            final int adminIconSizePX = Customerly.px(45/* dp */);
+            final int adminIconSizePX = Internal_Utils__Utils.px(45/* dp */);
             long last_time_active_in_seconds = Long.MIN_VALUE;
             layout_first_contact__admincontainer.removeAllViews();
 
-            Internal_entity__Admin[] admins = crm.__PING__LAST_active_admins;
+            Internal_entity__Admin[] admins = Customerly.get().__PING__LAST_active_admins;
             if(admins != null) {
                 for (Internal_entity__Admin admin : admins) {
                     if (admin != null) {
@@ -195,16 +193,16 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
 
                         final ImageView icon = new ImageView(this);
                         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(adminIconSizePX, adminIconSizePX);
-                        lp.topMargin = Customerly.px(10);
-                        lp.bottomMargin = Customerly.px(5);
+                        lp.topMargin = Internal_Utils__Utils.px(10);
+                        lp.bottomMargin = lp.topMargin;
                         icon.setLayoutParams(lp);
 
-                        Customerly.loadImage(icon, admin.getImageUrl(adminIconSizePX), adminIconSizePX, R.drawable.io_customershero__ic_default_admin);
+                        Internal_Utils__Utils.loadImageWithGlide(icon, admin.getImageUrl(adminIconSizePX), adminIconSizePX, R.drawable.io_customerly__ic_default_admin);
                         layout_first_contact__admincontainer.addView(icon);
 
                         final TextView name = new TextView(this);
                         name.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        name.setTextColor(Internal_Utils__Utils.getColorFromResource(this.getResources(), R.color.io_customershero__grey99));
+                        name.setTextColor(Internal_Utils__Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey99));
                         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
                         name.setText(admin.name);
                         layout_first_contact__admincontainer.addView(name);
@@ -213,25 +211,25 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
             }
 
             if(last_time_active_in_seconds != Long.MIN_VALUE) {
-                final TextView layout_first_contact__welcomecard__lastactivity = (TextView) this.findViewById(R.id.io_customershero__layout_first_contact__welcomecard__lastactivity);
+                final TextView layout_first_contact__welcomecard__lastactivity = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcomecard__lastactivity);
                 layout_first_contact__welcomecard__lastactivity.setText(
                         Internal_Utils__TimeAgoUtils.calculate(last_time_active_in_seconds,
-                                seconds -> this.getString(R.string.io_customershero__last_activity_now),
-                                minutes -> this.getResources().getQuantityString(R.plurals.io_customershero__last_activity_XXm_ago, (int)minutes, minutes),
-                                hours -> this.getResources().getQuantityString(R.plurals.io_customershero__last_activity_XXh_ago, (int)hours, hours),
-                                days -> this.getResources().getQuantityString(R.plurals.io_customershero__last_activity_XXd_ago, (int)days, days)));
+                                seconds -> this.getString(R.string.io_customerly__last_activity_now),
+                                minutes -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, (int)minutes, minutes),
+                                hours -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXh_ago, (int)hours, hours),
+                                days -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXd_ago, (int)days, days)));
                 layout_first_contact__welcomecard__lastactivity.setVisibility(View.VISIBLE);
             }
 
-            final Spanned welcome = crm.__WELCOME__getMessage();
+            final Spanned welcome = Customerly.get().__WELCOME__getMessage();
             if(welcome != null && welcome.length() != 0){
-                final TextView layout_first_contact__welcomecard__welcome = (TextView) this.findViewById(R.id.io_customershero__layout_first_contact__welcomecard__welcome);
+                final TextView layout_first_contact__welcomecard__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcomecard__welcome);
                 layout_first_contact__welcomecard__welcome.setText(welcome);
                 layout_first_contact__welcomecard__welcome.setVisibility(View.VISIBLE);
                 showWelcomeCard = true;
             }
             if(showWelcomeCard) {
-                this.findViewById(R.id.io_customershero__layout_first_contact__welcomecard).setVisibility(View.VISIBLE);
+                this.findViewById(R.id.io_customerly__layout_first_contact__welcomecard).setVisibility(View.VISIBLE);
             }
 
             this._FirstContact_SRL.setVisibility(View.VISIBLE);
@@ -239,22 +237,22 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
     }
 
     @Override
-    protected void onInputActionSend_PerformSend(@NonNull Customerly pCustomerly, @NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        if(pCustomerly.__USER__get() != null || ghostToVisitorEmail != null) {
-            this.okSend(pCustomerly, pMessage, pAttachments, ghostToVisitorEmail);
+    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
+        if(Customerly._Instance.__USER__get() != null || ghostToVisitorEmail != null) {
+            this.okSend(pMessage, pAttachments, ghostToVisitorEmail);
         } else {
             this.input_layout.setVisibility(View.GONE);
             this.input_email_layout.setVisibility(View.VISIBLE);
 
-            final EditText input_email_edittext = (EditText) this.findViewById(R.id.io_customershero__input_email_edittext);
+            final EditText input_email_edittext = (EditText) this.findViewById(R.id.io_customerly__input_email_edittext);
             input_email_edittext.requestFocus();
-            this.findViewById(R.id.io_customershero__input_email_button).setOnClickListener(btn -> {
+            this.findViewById(R.id.io_customerly__input_email_button).setOnClickListener(btn -> {
                 final String email = input_email_edittext.getText().toString().trim().toLowerCase(Locale.ITALY);
                 if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                     this.input_email_layout.setVisibility(View.GONE);
                     input_email_edittext.setText(null);
                     this.input_layout.setVisibility(View.VISIBLE);
-                    this.onInputActionSend_PerformSend(pCustomerly, pMessage, pAttachments, email);
+                    this.onInputActionSend_PerformSend(pMessage, pAttachments, email);
                 } else {
                     if(input_email_edittext.getTag() == null) {
                         input_email_edittext.setTag(new Object[0]);
@@ -277,15 +275,15 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
 
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.N)
-    private void okSend(@NonNull Customerly pCustomerly, @NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customershero__nuova_conversazione), this.getString(R.string.io_customershero__invio_messaggio_in_corso), true, false);
+    private void okSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
+        final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__nuova_conversazione), this.getString(R.string.io_customerly__invio_messaggio_in_corso), true, false);
         new Internal_api__CustomerlyRequest.Builder<long[]>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
                 .opt_converter(data -> {
                     long timestamp = data.optLong("timestamp");
                     data = data.getJSONObject("conversation");
                     long[] conversationID_assignerID = new long[] { data.getLong("conversation_id"), data.getLong("assigner_id") };
-                    pCustomerly.__SOCKET_SEND_Message(conversationID_assignerID[1], timestamp);
+                    Customerly._Instance.__SOCKET_SEND_Message(conversationID_assignerID[1], timestamp);
                     return conversationID_assignerID;
                 })
                 .opt_receiver((responseState, conversationID_assignerID) -> {
@@ -305,10 +303,9 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                                 a.addAttachmentToInput(this);
                             } catch (JSONException ignored) { }
                         }
-                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customershero__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
                     }
                 })
-                .opt_crm(pCustomerly)
                 .opt_trials(2)
                 .param("visitor_email", ghostToVisitorEmail)
                 .param("message", pMessage)
@@ -331,15 +328,15 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         private long _ConversationID, _AssignerID;
         @NonNull private final ImageView _Icon;
         @NonNull private final TextView _Nome, _LastMessage, _Time;
-        private final int _IconaSize = Customerly.px(50);
+        private final int _IconaSize = Internal_Utils__Utils.px(50);
         private ConversationVH() {
-            super(getLayoutInflater().inflate(R.layout.io_customershero__li_conversation, _ListRecyclerView, false));
-            this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customershero__icona);
+            super(getLayoutInflater().inflate(R.layout.io_customerly__li_conversation, _ListRecyclerView, false));
+            this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icona);
             ViewGroup.LayoutParams lp = this._Icon.getLayoutParams();
             lp.width = lp.height = _IconaSize;
-            this._Nome = (TextView)this.itemView.findViewById(R.id.io_customershero__nome);
-            this._LastMessage = (TextView)this.itemView.findViewById(R.id.io_customershero__last_message);
-            this._Time = (TextView)this.itemView.findViewById(R.id.io_customershero__time);
+            this._Nome = (TextView)this.itemView.findViewById(R.id.io_customerly__nome);
+            this._LastMessage = (TextView)this.itemView.findViewById(R.id.io_customerly__last_message);
+            this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
             this.itemView.setOnClickListener(itemview -> {
                 if(this._ConversationID != 0) {
                     if(Internal_Utils__Utils.checkConnection(Internal_activity__CustomerlyList_Activity.this)) {
@@ -347,7 +344,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                                 .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, this._ConversationID)
                                 .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, this._AssignerID), RESULT_CODE_REFRESH_LIST);
                     } else {
-                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customershero__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -355,7 +352,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         private void apply(@NonNull Internal_entity__Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
             this._AssignerID = pConversation.assigner_id;
-            Customerly.loadImage(this._Icon, pConversation.getImageUrl(this._IconaSize), this._IconaSize, R.drawable.io_customershero__ic_default_admin);
+            Internal_Utils__Utils.loadImageWithGlide(this._Icon, pConversation.getImageUrl(this._IconaSize), this._IconaSize, R.drawable.io_customerly__ic_default_admin);
             this._Nome.setText(pConversation.getConversationLastWriter(this._Nome.getContext()));
             this._LastMessage.setText(pConversation.getLastMessage());
             this._Time.setText(pConversation.getFormattedLastMessageTime(getResources()));

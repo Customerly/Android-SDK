@@ -8,7 +8,7 @@ import android.view.animation.ScaleAnimation;
 
 /**
  * Created by Gianni on 18/05/16.
- * Project: CRMHero Android SDK
+ * Project: Customerly Android SDK
  */
 @SuppressWarnings({"unused"})
 class Internal_Utils__ScaleAnimationEvo {

@@ -62,7 +62,6 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
     static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED = 403;
 
-    @NonNull private Customerly _Customerly;
     @NonNull @Endpoint private String _Endpoint;
     @NonNull private final ResponseConverter<RES> _ResponseConverter;
     @NonNull private final ResponseReceiver<RES> _ResponseReceiver;
@@ -71,9 +70,8 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     @ResponseState private int _ResponseState = RESPONSE_STATE__PENDING;
 
     @RequiresPermission(Manifest.permission.INTERNET)
-    private Internal_api__CustomerlyRequest(@NonNull Customerly pCustomerly, @Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials) {
+    private Internal_api__CustomerlyRequest(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials) {
         super();
-        this._Customerly = pCustomerly;
         this._Endpoint = pEndpoint;
         this._ResponseConverter = pResponseConverter;
         this._ResponseReceiver = pResponseReceiver;
@@ -83,7 +81,6 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     static class Builder<RES> {
         @NonNull @Endpoint private final String _Endpoint;
         @Nullable private Context _Context;
-        @Nullable private Customerly _Customerly;
         @Nullable private ResponseConverter<RES> _ResponseConverter;
         @Nullable private ResponseReceiver<RES> _ResponseReceiver;
         @IntRange(from=1, to=5) private int _Trials = 1;
@@ -101,10 +98,6 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
         @CheckResult Builder<RES> opt_receiver(@NonNull ResponseReceiver<RES> pResponseReceiver) {
             this._ResponseReceiver = pResponseReceiver;
-            return this;
-        }
-        @CheckResult Builder<RES> opt_crm(@NonNull Customerly pCustomerly) {
-            this._Customerly = pCustomerly;
             return this;
         }
         @CheckResult Builder<RES> opt_trials(@IntRange(from=1, to=5) int pTrials) {
@@ -132,20 +125,17 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             return this;
         }
         void start() {
-            if(this._Customerly == null) {
-                this._Customerly = Customerly._do(crm -> crm, null);
-                if(this._Customerly == null) {
-                    throw new IllegalStateException("CRMHero is null");
+            if(Customerly._Instance._isConfigured()) {
+                if (this._Context == null || Internal_Utils__Utils.checkConnection(this._Context)) {
+                    new Internal_api__CustomerlyRequest<>(this._Endpoint,
+                            this._ResponseConverter != null ? this._ResponseConverter : data -> null,
+                            this._ResponseReceiver != null ? this._ResponseReceiver : (statusCode, result) -> {
+                            },
+                            this._Trials)
+                            .execute(this._Params);
+                } else if (this._ResponseReceiver != null) {
+                    this._ResponseReceiver.onResponse(RESPONSE_STATE__ERROR_NO_CONNECTION, null);
                 }
-            }
-            if(this._Context == null || Internal_Utils__Utils.checkConnection(this._Context)) {
-                new Internal_api__CustomerlyRequest<>(this._Customerly, this._Endpoint,
-                        this._ResponseConverter != null ? this._ResponseConverter : data -> null,
-                        this._ResponseReceiver != null ? this._ResponseReceiver : (statusCode, result) -> {},
-                        this._Trials)
-                        .execute(this._Params);
-            } else if(this._ResponseReceiver != null) {
-                this._ResponseReceiver.onResponse(RESPONSE_STATE__ERROR_NO_CONNECTION, null);
             }
         }
     }
@@ -155,18 +145,18 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         JSONObject postObject;
         try {
             JSONObject settings = new JSONObject()
-                    .put("app_id", this._Customerly._AppID)
+                    .put("app_id", Customerly._Instance._AppID)
                     .put("device", new JSONObject()
                             .put("os", "Android")
-                            .put("app_name", this._Customerly._ApplicationName)
-                            .put("app_version", this._Customerly._ApplicationVersionCode)
+                            .put("app_name", Customerly._Instance._ApplicationName)
+                            .put("app_version", Customerly._Instance._ApplicationVersionCode)
                             .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
                             .put("os_version", Build.VERSION.SDK_INT)
                             .put("sdk_version", BuildConfig.VERSION_CODE)
-                            .put("api_version", Customerly.SDK_API_VERSION)
-                            .put("socket_version", Customerly.SDK_SOCKET_VERSION));
+                            .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
+                            .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION));
 
-            Customerly_User user = this._Customerly.__USER__get();
+            Customerly_User user = Customerly._Instance.__USER__get();
             if(user != null) {
                 user.fillSettingsJSON(settings);
             }
@@ -174,7 +164,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             postObject = new JSONObject()
                     .put("settings", settings)
                     .put("params", pParams[0])
-                    .put("cookies", this._Customerly.__COOKIES__get());
+                    .put("cookies", Customerly._Instance.__COOKIES__get());
 
         } catch (JSONException error) {
             this._ResponseState = RESPONSE_STATE__ERROR_BAD_REQUEST;
@@ -222,7 +212,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                         data = new JSONObject();
                     }
                     if (data != null) {
-                        this._Customerly.__COOKIES__update(root.optJSONObject("cookies"));
+                        Customerly._Instance.__COOKIES__update(root.optJSONObject("cookies"));
 
                         JSONObject user = data.optJSONObject("user");
                         if (user != null) {
@@ -230,7 +220,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                                 user = user.optJSONObject("data");
                             }
                             if (user != null) {
-                                this._Customerly.__USER__onNewUser(Customerly_User.from(user));
+                                Customerly._Instance.__USER__onNewUser(Customerly_User.from(user));
                             }
                         }
 
@@ -238,14 +228,14 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                         if (websocket != null) {
                             /*
                                 "websocket": {
-                                  "endpoint": "https://ws2.crmhero.io",
+                                  "endpoint": "https://ws2.customerly.io",
                                   "port": "8080"
                                 }
                              */
-                            this._Customerly.__SOCKET_setEndpoint(websocket.optString("endpoint", null), websocket.optString("port", null));
+                            Customerly._Instance.__SOCKET_setEndpoint(websocket.optString("endpoint", null), websocket.optString("port", null));
                         }
 
-                        this._Customerly.__SOCKET__connect();
+                        Customerly._Instance.__SOCKET__connect();
 
                         this._ResponseState = RESPONSE_STATE__OK;
                         return this._ResponseConverter.convert(data);

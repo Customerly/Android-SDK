@@ -86,39 +86,33 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
         }
         if(this._ConversationID == 0) {
             this.finish();
-        } else {
-            final Customerly crm = this.onCreateLayout(R.layout.io_customershero__activity_chat);
-            if (crm != null) {
-                this._ListRecyclerView = (RecyclerView) this.findViewById(R.id.io_customershero__recyclerview);
-                this._LinearLayoutManager = new LinearLayoutManager(this.getApplicationContext());
-                this._LinearLayoutManager.setStackFromEnd(true);
-                this._ListRecyclerView.setLayoutManager(this._LinearLayoutManager);
-                this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
-                this._ListRecyclerView.setHasFixedSize(true);
-                this._ListRecyclerView.setAdapter(this._Adapter = new ChatAdapter());
+        } else if(this.onCreateLayout(R.layout.io_customerly__activity_chat, false)) {
+            this._ListRecyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recyclerview);
+            this._LinearLayoutManager = new LinearLayoutManager(this.getApplicationContext());
+            this._LinearLayoutManager.setStackFromEnd(true);
+            this._ListRecyclerView.setLayoutManager(this._LinearLayoutManager);
+            this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            this._ListRecyclerView.setHasFixedSize(true);
+            this._ListRecyclerView.setAdapter(this._Adapter = new ChatAdapter());
 
-                this.input_input.addTextChangedListener(new TextWatcher() {
-                    boolean _TypingSent = false;
-                    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                    @Override public void afterTextChanged(Editable s) { }
-                    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if(s.length() == 0) {
-                            if(this._TypingSent) {
-                                crm.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, false);
-                                this._TypingSent = false;
-                            }
-                        } else {
-                            if(! this._TypingSent) {
-                                crm.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, true);
-                                this._TypingSent = true;
-                            }
+            this.input_input.addTextChangedListener(new TextWatcher() {
+                boolean _TypingSent = false;
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void afterTextChanged(Editable s) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if(s.length() == 0) {
+                        if(this._TypingSent) {
+                            Customerly._Instance.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, false);
+                            this._TypingSent = false;
+                        }
+                    } else {
+                        if(! this._TypingSent) {
+                            Customerly._Instance.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, true);
+                            this._TypingSent = true;
                         }
                     }
-                });
-
-            } else {
-                this.finish();
-            }
+                }
+            });
         }
     }
 
@@ -130,9 +124,9 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
     @Override
     protected void onReconnection() {
-        Customerly._do(crm -> {
-            final ProgressBar progressview = (ProgressBar) this.findViewById(R.id.io_customershero__progressview);
-            progressview.getIndeterminateDrawable().setColorFilter(crm.__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
+        if(Customerly._Instance._isConfigured()) {
+            final ProgressBar progressview = (ProgressBar) this.findViewById(R.id.io_customerly__progressview);
+            progressview.getIndeterminateDrawable().setColorFilter(Customerly._Instance.__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
 
             new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Message>>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGERETRIEVE)
                     .opt_checkConn(this)
@@ -152,7 +146,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 this._Adapter.notifyDataSetChanged();
                                 this._ListRecyclerView.setVisibility(View.VISIBLE);
                             });
-                            crm.__SOCKET_RECEIVE_Typing(((pConversationID, pTyping) -> {
+                            Customerly._Instance.__SOCKET_RECEIVE_Typing(((pConversationID, pTyping) -> {
                                 if (pTyping == _Typing)
                                     return;
                                 if (this._ConversationID == pConversationID) {
@@ -175,7 +169,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 }
                             }));
 
-                            crm.__SOCKET_RECEIVE_Message((pNewMessages -> {
+                            Customerly._Instance.__SOCKET_RECEIVE_Message((pNewMessages -> {
                                 final ArrayList<Internal_entity__Message> lista = new ArrayList<>(this._ChatList);
 
                                 //Ordina la lista iniziale (necessario per velocizzare la ricerca duplicati)
@@ -217,7 +211,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 });
 
                                 if (mostRecentMessageId != -1) {
-                                    sendSeen(crm, mostRecentMessageId);
+                                    this.sendSeen(mostRecentMessageId);
                                 }
                             }));
 
@@ -229,27 +223,25 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                             }
 
                             if (messageID_seen != -1) {
-                                sendSeen(crm, messageID_seen);
+                                this.sendSeen(messageID_seen);
                             }
                         } else {
                             this.finish();
-                            Toast.makeText(getApplicationContext(), R.string.io_customershero__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
                         }
                     })
-                    .opt_crm(crm)
                     .opt_trials(2)
                     .param("conversation_id", this._ConversationID)
                     .start();
-        });
+        }
     }
 
-    private void sendSeen(@NonNull Customerly crm, long messageID_seen) {
+    private void sendSeen(long messageID_seen) {
         final long seenDate = System.currentTimeMillis() / 1000;
-        crm.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, seenDate); //TODO seenTimestamp localization
+        Customerly._Instance.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, seenDate); //TODO seenTimestamp localization
 
         new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEEN)
                 .opt_checkConn(this)
-                .opt_crm(crm)
                 .param("conversation_message_id", messageID_seen)
                 .param("seen_date", seenDate)
                 .start();
@@ -261,18 +253,16 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
         for(BroadcastReceiver br : this._BroadcastReceiver) {
             this.unregisterReceiver(br);
         }
-        Customerly._do(crm -> {
-            crm.__SOCKET_RECEIVE_Typing(null);
-            crm.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, false);
-        });
+        Customerly._Instance.__SOCKET_RECEIVE_Typing(null);
+        Customerly._Instance.__SOCKET_SEND_Typing(this._AssignerID, this._ConversationID, false);
         super.onDestroy();
     }
 
     @Override
-    protected void onInputActionSend_PerformSend(@NonNull Customerly pCustomerly, @NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        Customerly_User user = pCustomerly.__USER__get();
+    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
+        Customerly_User user = Customerly._Instance.__USER__get();
         if(user != null) {
-            Internal_entity__Message message = new Internal_entity__Message(user.crmhero_user_id, this._ConversationID, pMessage, pAttachments);
+            Internal_entity__Message message = new Internal_entity__Message(user.customerly_user_id, this._ConversationID, pMessage, pAttachments);
             this._ListRecyclerView.post(() -> {
                 int visibleItemCount = this._LinearLayoutManager.getChildCount();
                 int totalItemCount = this._LinearLayoutManager.getItemCount();
@@ -284,19 +274,19 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                     //End of list
                     this._LinearLayoutManager.scrollToPosition(_Adapter.getItemCount() - 1);
                 }
-                this.startSendMessageRequest(pCustomerly, message);
+                this.startSendMessageRequest(message);
             });
         }
     }
 
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.N)
-    private void startSendMessageRequest(@NonNull Customerly crm, @NonNull Internal_entity__Message message) {
+    private void startSendMessageRequest(@NonNull Internal_entity__Message message) {
         new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
                 .opt_converter(data -> {
                     Internal_entity__Message messageSent = new Internal_entity__Message(data);
-                    crm.__SOCKET_SEND_Message(messageSent.assigner_id, data.getLong("timestamp"));
+                    Customerly._Instance.__SOCKET_SEND_Message(messageSent.assigner_id, data.getLong("timestamp"));
                     return messageSent;
                 })
                 .opt_receiver((responseState, messageSent) ->
@@ -307,12 +297,11 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 this._ChatList.set(pos, messageSent);
                             } else {
                                 message.setFailed();
-                                Toast.makeText(getApplicationContext(), R.string.io_customershero__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
                             }
                             this._Adapter.notifyItemChanged(pos);
                         }
                     }))
-                .opt_crm(crm)
                 .opt_trials(2)
                 .param("conversation_id", this._ConversationID)
                 .param("message", message.content == null ? "" : Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ? Html.toHtml(message.content, 0) : Html.toHtml(message.content))
@@ -362,7 +351,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                                 PendingIntent.FLAG_UPDATE_CURRENT
                                         )).build());
 
-                        Toast toast = Toast.makeText(Internal_activity__CustomerlyChat_Activity.this, R.string.io_customershero__download_completo, Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(Internal_activity__CustomerlyChat_Activity.this, R.string.io_customerly__download_completo, Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.TOP, 25, 400);
                         toast.show();
                     }
@@ -378,8 +367,8 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
             this._PermissionRequest__pendingPath = fullpath;
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.io_customershero__permission_request)
-                        .setMessage(R.string.io_customershero__permission_request_explanation_write)
+                        .setTitle(R.string.io_customerly__permission_request)
+                        .setMessage(R.string.io_customerly__permission_request_explanation_write)
                         .setPositiveButton(android.R.string.ok, (dlg, which) ->
                                 ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE))
                             .show();
@@ -402,7 +391,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                         this._PermissionRequest__pendingPath = null;
                     }
                 } else {
-                    Toast.makeText(this, R.string.io_customershero__permission_denied_write, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.io_customerly__permission_denied_write, Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -414,11 +403,11 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
         final int _IconaSize;
         private A_ChatVH(@LayoutRes int pLayourRes) {
             super(getLayoutInflater().inflate(pLayourRes, _ListRecyclerView, false));
-            this._Data = (TextView)this.itemView.findViewById(R.id.io_customershero__time);
-            this._Content = (TextView)this.itemView.findViewById(R.id.io_customershero__content);
-            this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customershero__icona);
+            this._Data = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
+            this._Content = (TextView)this.itemView.findViewById(R.id.io_customerly__content);
+            this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icona);
             ViewGroup.LayoutParams lp = this._Icon.getLayoutParams();
-            lp.width = lp.height = _IconaSize = getResources().getDimensionPixelSize(R.dimen.io_customershero__chat_li_iconsize);
+            lp.width = lp.height = _IconaSize = getResources().getDimensionPixelSize(R.dimen.io_customerly__chat_li_iconsize);
         }
         void clearAnimation() {
             this.itemView.clearAnimation();
@@ -430,13 +419,13 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
     private class ChatTypingVH extends A_ChatVH {
         private static final long DOTS_SPEED = 500;
         private ChatTypingVH() {
-            super(R.layout.io_customershero__li_message_account_typing);
+            super(R.layout.io_customerly__li_message_account_typing);
             this.startAnimation();
         }
 
         protected void apply(@Nullable Internal_entity__Message __null, @Nullable String _NonSiMostraNelTyping, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             if (pIsFirstMessageOfSender) {
-                Customerly.loadImage(this._Icon, Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize), this._IconaSize, R.drawable.io_customershero__ic_default_admin);
+                Internal_Utils__Utils.loadImageWithGlide(this._Icon, Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize), this._IconaSize, R.drawable.io_customerly__ic_default_admin);
                 this._Icon.setVisibility(View.VISIBLE);
             } else {
                 this._Icon.setVisibility(View.INVISIBLE);
@@ -461,8 +450,8 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
     private class ChatUserMessageVH extends A_ChatMessageVH {
         @NonNull private final View _IfUserMessage_ContentLayout;
         private ChatUserMessageVH() {
-            super(R.layout.io_customershero__li_message_user, R.drawable.io_customershero__bkg_chatmessage_user_rounded, R.drawable.io_customershero__ic_attach_user, 0.9f);
-            this._IfUserMessage_ContentLayout = this.itemView.findViewById(R.id.io_customershero__content_layout__onlyuserli);
+            super(R.layout.io_customerly__li_message_user, R.drawable.io_customerly__bkg_chatmessage_user_rounded, R.drawable.io_customerly__ic_attach_user, 0.9f);
+            this._IfUserMessage_ContentLayout = this.itemView.findViewById(R.id.io_customerly__content_layout__onlyuserli);
         }
         @Override protected void setContentVisibility(@ContentVisibility int visibility, boolean isSending) {
             if(visibility == View.VISIBLE) {
@@ -478,7 +467,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
     private class ChatAccountMessageVH extends A_ChatMessageVH {
         private ChatAccountMessageVH() {
-            super(R.layout.io_customershero__li_message_account, R.drawable.io_customershero__bkg_chatmessage_account_rounded, R.drawable.io_customershero__ic_attach_account, -0.9f);
+            super(R.layout.io_customerly__li_message_account, R.drawable.io_customerly__bkg_chatmessage_account_rounded, R.drawable.io_customerly__ic_attach_account, -0.9f);
         }
         @Override protected void setContentVisibility(@ContentVisibility int visibility, boolean isSending) {
             this._Content.setVisibility(visibility);
@@ -493,9 +482,9 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
         private A_ChatMessageVH(@LayoutRes int pLayourRes, @DrawableRes int pBubbleBkgRedID, @DrawableRes int pIcAttachResID, @FloatRange(from=-1, to=1) float pItemFromXValueRelative) {
             super(pLayourRes);
-            this._Sending = this.itemView.findViewById(R.id.io_customershero__content_sending__onlyuserli);
+            this._Sending = this.itemView.findViewById(R.id.io_customerly__content_sending__onlyuserli);
             this._Content.setMovementMethod(LinkMovementMethod.getInstance());
-            this._AttachmentLayout = (LinearLayout)this.itemView.findViewById(R.id.io_customershero__attachment_layout);
+            this._AttachmentLayout = (LinearLayout)this.itemView.findViewById(R.id.io_customerly__attachment_layout);
             this._BubbleBkgResID = pBubbleBkgRedID;
             this._IcAttachResID = pIcAttachResID;
             this._ItemFromXValueRelative = pItemFromXValueRelative;
@@ -510,7 +499,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                 }
 
                 if (pIsFirstMessageOfSender) {
-                    Customerly.loadImage(this._Icon, pMessage.getImageUrl(this._IconaSize), this._IconaSize, R.drawable.io_customershero__ic_default_admin);
+                    Internal_Utils__Utils.loadImageWithGlide(this._Icon, pMessage.getImageUrl(this._IconaSize), this._IconaSize, R.drawable.io_customerly__ic_default_admin);
                     this._Icon.setVisibility(View.VISIBLE);
                 } else {
                     this._Icon.setVisibility(View.GONE);
@@ -545,15 +534,17 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                 }
 
                 if (pMessage.isFailed()) {
-                    this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.io_customershero__ic_error, 0);
-                    this.itemView.setOnClickListener(v -> Customerly._do(crm -> {
-                        pMessage.setSending();
-                        int pos = _ChatList.indexOf(pMessage);
-                        if(pos != -1) {
-                            _Adapter.notifyItemChanged(pos);
+                    this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.io_customerly__ic_error, 0);
+                    this.itemView.setOnClickListener(v -> {
+                        if(Customerly._Instance._isConfigured()) {
+                            pMessage.setSending();
+                            int pos = _ChatList.indexOf(pMessage);
+                            if (pos != -1) {
+                                _Adapter.notifyItemChanged(pos);
+                            }
+                            startSendMessageRequest(pMessage);
                         }
-                        startSendMessageRequest(crm, pMessage);
-                    }));
+                    });
                 } else {
                     this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
                     this.itemView.setOnClickListener(null);
@@ -572,12 +563,12 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                         ImageView iv = new ImageView(Internal_activity__CustomerlyChat_Activity.this);
                         if(attachment.isImage()) {
                             //Immagine
-                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Customerly.px(80)));
+                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(80)));
                             Glide.with(Internal_activity__CustomerlyChat_Activity.this)
                                     .load(attachment.getFullPath())
                                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                                     .centerCrop()
-                                    .placeholder(R.drawable.io_customershero__pic_placeholder)
+                                    .placeholder(R.drawable.io_customerly__pic_placeholder)
                                     .into(iv);
                             ll.setOnClickListener(layout -> {
                                 if (attachment.hasPath()) {
@@ -585,14 +576,14 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                             .putExtra(Internal_activity__FullScreenImage_Activity.EXTRA_IMAGESOURCE, attachment.getFullPath()));
                                 }});
                         } else { //Allegato non immagine
-                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Customerly.px(80)));
+                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(80)));
                             iv.setImageResource(this._IcAttachResID);
 
                             ll.setOnClickListener(layout -> {
                                 if (attachment.hasPath()) {
                                     new AlertDialog.Builder(Internal_activity__CustomerlyChat_Activity.this)
-                                            .setTitle(R.string.io_customershero__download)
-                                            .setMessage(R.string.io_customershero__avvio_download)
+                                            .setTitle(R.string.io_customerly__download)
+                                            .setMessage(R.string.io_customerly__avvio_download)
                                             .setPositiveButton(android.R.string.ok, (dlg, which) -> Internal_activity__CustomerlyChat_Activity.this.startAttachmentDownload(attachment.name, attachment.getFullPath()))
                                             .setNegativeButton(android.R.string.cancel, null)
                                             .setCancelable(true)
@@ -604,15 +595,15 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
                         TextView tv = new TextView(Internal_activity__CustomerlyChat_Activity.this);
                         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        tv.setTextColor(Internal_Utils__Utils.getColorStateListFromResource(getResources(), R.color.io_customershero__textcolor_blue2_grey));
+                        tv.setTextColor(Internal_Utils__Utils.getColorStateListFromResource(getResources(), R.color.io_customerly__textcolor_blue2_grey));
                         tv.setLines(1);
                         tv.setSingleLine();
                         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
                         tv.setText(attachment.name);
-                        tv.setPadding(0, Customerly.px(10), 0, 0);
+                        tv.setPadding(0, Internal_Utils__Utils.px(10), 0, 0);
                         ll.addView(tv);
                         this._AttachmentLayout.addView(ll);
-                        ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = Customerly.px(3);
+                        ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = Internal_Utils__Utils.px(3);
                     }
                     this._AttachmentLayout.setVisibility(View.VISIBLE);
                 } else {
@@ -645,17 +636,17 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
     public @interface ContentVisibility {}
 
     private class ChatAdapter extends RecyclerView.Adapter<A_ChatVH> {
-        final int _5dp = Customerly.px(5), _FirstMessageOfSenderTopPadding = Customerly.px(15);
+        final int _5dp = Internal_Utils__Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
         int lastPositionAnimated = Integer.MAX_VALUE;
         int firstPositionAnimated = -1;
         private long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);//TODO Localization?
         @Override
         public int getItemViewType(int position) {
-            return (_Typing && position == this.getItemCount() - 1) ? 0 : _ChatList.get(position).isUserMessage() ? R.layout.io_customershero__li_message_user : R.layout.io_customershero__li_message_account;
+            return (_Typing && position == this.getItemCount() - 1) ? 0 : _ChatList.get(position).isUserMessage() ? R.layout.io_customerly__li_message_user : R.layout.io_customerly__li_message_account;
         }
         @Override
         public A_ChatVH onCreateViewHolder(ViewGroup parent, int viewType) {
-            return viewType == 0 ? new ChatTypingVH() : viewType == R.layout.io_customershero__li_message_user ? new ChatUserMessageVH() : new ChatAccountMessageVH();
+            return viewType == 0 ? new ChatTypingVH() : viewType == R.layout.io_customerly__li_message_user ? new ChatUserMessageVH() : new ChatAccountMessageVH();
         }
         @Override
         public void onBindViewHolder(A_ChatVH holder, @SuppressLint("RecyclerView") int position) {

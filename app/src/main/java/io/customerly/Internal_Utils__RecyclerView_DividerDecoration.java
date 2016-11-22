@@ -20,12 +20,12 @@ abstract class Internal_Utils__RecyclerView_DividerDecoration extends RecyclerVi
     protected float _1_dp = 0;
 
     private Internal_Utils__RecyclerView_DividerDecoration(@NonNull Resources resources) {
-        this(resources, R.color.io_customershero__greycc);
+        this(resources, R.color.io_customerly__greycc);
     }
 
     private Internal_Utils__RecyclerView_DividerDecoration(@NonNull Resources resources, @ColorRes int colorRes) {
         this(Internal_Utils__Utils.getColorFromResource(resources, colorRes));
-        this._1_dp = Math.max(1, Customerly.px(1));
+        this._1_dp = Math.max(1, Internal_Utils__Utils.px(1));
     }
 
     private Internal_Utils__RecyclerView_DividerDecoration(@ColorInt int colorInt) {
@@ -75,7 +75,7 @@ abstract class Internal_Utils__RecyclerView_DividerDecoration extends RecyclerVi
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             if(this._1_dp == 0)
-                this._1_dp = Math.max(1, Customerly.px(1));
+                this._1_dp = Math.max(1, Internal_Utils__Utils.px(1));
 
             int top, left = parent.getPaddingLeft(), right = parent.getWidth() - parent.getPaddingRight();
             int childCount = parent.getChildCount() - (this._DividerWhere == DIVIDER_WHERE.CENTER ? 1 : 0);
@@ -141,7 +141,7 @@ abstract class Internal_Utils__RecyclerView_DividerDecoration extends RecyclerVi
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             if(this._1_dp == 0)
-                this._1_dp = Math.max(1, Customerly.px(1));
+                this._1_dp = Math.max(1, Internal_Utils__Utils.px(1));
 
             int top = parent.getPaddingTop(), left, bottom = parent.getHeight() - parent.getPaddingBottom();
             int childCount = parent.getChildCount() - (this._DividerWhere == DIVIDER_WHERE.CENTER ? 1 : 0);

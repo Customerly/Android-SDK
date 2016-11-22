@@ -56,19 +56,17 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                             .load(this._SourceUrl)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .fitCenter()
-                            .placeholder(R.drawable.io_customershero__pic_placeholder)
+                            .placeholder(R.drawable.io_customerly__pic_placeholder)
                             .into(_ImageView);
                     super.setContentView(_ImageView);
 
-                    Customerly._do(crm -> {
-                        final ActionBar actionBar = this.getSupportActionBar();
-                        if (actionBar != null) {
-                            actionBar.setDisplayHomeAsUpEnabled(true);
-                            actionBar.setBackgroundDrawable(new ColorDrawable(crm.__PING__LAST_widget_color));
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(crm.__PING__LAST_widget_color, 0.8f));
-                        }
-                    });
+                    final ActionBar actionBar = this.getSupportActionBar();
+                    if (actionBar != null) {
+                        actionBar.setDisplayHomeAsUpEnabled(true);
+                        actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
+                    }
                     return;
                 } catch (Exception glideException) {
                     Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
@@ -80,14 +78,14 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.getMenuInflater().inflate(R.menu.io_customershero__menu_downloadimage, menu);
+        this.getMenuInflater().inflate(R.menu.io_customerly__menu_downloadimage, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item != null) {
-            if (item.getItemId() == R.id.io_customershero__menu__download) {
+            if (item.getItemId() == R.id.io_customerly__menu__download) {
                 this.startAttachmentDownload();
                 return true;
             }
@@ -130,7 +128,7 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                                                 PendingIntent.FLAG_UPDATE_CURRENT
                                         )).build());
 
-                        Toast toast = Toast.makeText(Internal_activity__FullScreenImage_Activity.this, R.string.io_customershero__download_completo, Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(Internal_activity__FullScreenImage_Activity.this, R.string.io_customerly__download_completo, Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.TOP, 25, 400);
                         toast.show();
                     }
@@ -139,8 +137,8 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.io_customershero__permission_request)
-                        .setMessage(R.string.io_customershero__permission_request_explanation_write)
+                        .setTitle(R.string.io_customerly__permission_request)
+                        .setMessage(R.string.io_customerly__permission_request_explanation_write)
                         .setPositiveButton(android.R.string.ok, (dlg, which) ->
                                 ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE))
                         .show();
@@ -159,7 +157,7 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.startAttachmentDownload();
                 } else {
-                    Toast.makeText(this, R.string.io_customershero__permission_denied_write, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.io_customerly__permission_denied_write, Toast.LENGTH_LONG).show();
                 }
             }
         }

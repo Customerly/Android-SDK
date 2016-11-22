@@ -19,8 +19,11 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Dimension;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
@@ -28,7 +31,12 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
+import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,17 +85,6 @@ class Internal_Utils__Utils {
         }
     }
 
-    private static float _CachedDpi = 0;
-    @Px static int DP_to_PX(@NonNull Resources res, @Dimension(unit = Dimension.DP) float pDP) {
-        if(Internal_Utils__Utils._CachedDpi == 0) {
-            Internal_Utils__Utils._CachedDpi = res.getDisplayMetrics().densityDpi;
-            Internal_Utils__Utils._CachedDpi = Internal_Utils__Utils._CachedDpi > 100/*120, 160, 213, 240, 320, 480 or 640 dpi*/ ? Internal_Utils__Utils._CachedDpi / 160f : Internal_Utils__Utils._CachedDpi;
-            if (Internal_Utils__Utils._CachedDpi == 0)
-                Internal_Utils__Utils._CachedDpi = 1;
-        }
-        return (int) (Internal_Utils__Utils._CachedDpi * pDP);
-    }
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     static void intentUrl(@NonNull Activity activity, @NonNull String url) {
         if (!url.startsWith("https://") && !url.startsWith("http://"))
@@ -99,7 +96,7 @@ class Internal_Utils__Utils {
         } catch (SecurityException ignored) { }
     }
 
-    static int alterColor(int color, float factor) {
+    @ColorInt static int alterColor(@ColorInt int color, @FloatRange(from = 0, to = 1)float factor) {
         int a = (color & (0xFF << 24)) >> 24;
         int r = (int) (((color & (0xFF << 16)) >> 16) * factor);
         int g = (int) (((color & (0xFF << 8)) >> 8) * factor);
@@ -234,7 +231,7 @@ class Internal_Utils__Utils {
             InputStream src = new URL(source).openStream();
             d = Drawable.createFromStream(src, "src");
             if(d != null){
-                d.setBounds(0, 0, Customerly.px(150), Customerly.px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
+                d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -330,7 +327,7 @@ class Internal_Utils__Utils {
         return null;
     }
 
-    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+    @Nullable private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = { column };
@@ -347,7 +344,37 @@ class Internal_Utils__Utils {
         return null;
     }
 
+    static void loadImageWithGlide(@NonNull ImageView pIV, @NonNull String pImageUrl, int pSquaredSize, @DrawableRes int pPlaceholderResID) {
+        try {
+            Glide.with(pIV.getContext())
+                    .load(pImageUrl)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .override(pSquaredSize, pSquaredSize)
+                    .fitCenter()
+                    .transform(new Internal_Utils__CircleTransform(pIV.getContext()))
+                    .placeholder(pPlaceholderResID)
+                    .into(pIV);
+        } catch (Exception glideException) {
+            Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading", glideException);
+        }
+    }
+
+    @Contract(pure = true)
+    @Px static int px(@Dimension(unit = Dimension.DP) int dp) {
+        float dpi = Resources.getSystem().getDisplayMetrics().density;
+        dpi = dpi > 100/*120, 160, 213, 240, 320, 480 or 640 dpi*/ ? dpi / 160f : dpi;
+        dpi = dpi == 0 ? 1f : dpi;
+        return (int) (dp * dpi);
+    }
+
+    @ColorInt
+    public static int getContrastColor(@ColorInt int color) {
+        return (((0.299 * Color.red(color)) + ((0.587 * Color.green(color)) + (0.114 * Color.blue(color))))) > 186
+                ? Color.BLACK : Color.WHITE;
+    }
+
     interface JSONObjectTo<OBJ> {    @NonNull OBJ from(@NonNull JSONObject obj) throws JSONException;  }
+    @Contract("null, _, _ -> null")
     @Nullable static <OBJ> ArrayList<OBJ> fromJSONdataToList(@Nullable JSONObject data, @NonNull String pArrayKey, @NonNull JSONObjectTo<OBJ> pJSONObjectToOBJ) {
         if (data != null) {
             try {

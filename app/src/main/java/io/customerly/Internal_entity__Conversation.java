@@ -76,7 +76,7 @@ class Internal_entity__Conversation {
     }
 
     @NonNull String getConversationLastWriter(@NonNull Context pContext) {
-        return this.last_account__name != null ? this.last_account__name : pContext.getString(R.string.io_customershero__you);
+        return this.last_account__name != null ? this.last_account__name : pContext.getString(R.string.io_customerly__you);
     }
 
     @Nullable Spanned getLastMessage() {
@@ -85,10 +85,10 @@ class Internal_entity__Conversation {
 
     @NonNull String getFormattedLastMessageTime(@NonNull Resources resources) {//TODO Localization
         return Internal_Utils__TimeAgoUtils.calculate(this.last_message_date,
-                seconds -> resources.getString(R.string.io_customershero__XXs_ago, seconds),
-                minutes -> resources.getString(R.string.io_customershero__XXm_ago, minutes),
-                hours -> resources.getString(R.string.io_customershero__XXh_ago, hours),
-                days -> resources.getString(R.string.io_customershero__XXd_ago, days));
+                seconds -> resources.getString(R.string.io_customerly__XXs_ago, seconds),
+                minutes -> resources.getString(R.string.io_customerly__XXm_ago, minutes),
+                hours -> resources.getString(R.string.io_customerly__XXh_ago, hours),
+                days -> resources.getString(R.string.io_customerly__XXd_ago, days));
     }
 
 }

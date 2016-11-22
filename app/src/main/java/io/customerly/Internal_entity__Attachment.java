@@ -51,19 +51,20 @@ class Internal_entity__Attachment {
         pA_Customerly_Activity._Attachments.add(this);
         TextView tv = new TextView(pA_Customerly_Activity);
         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customershero__ld_chat_attachment, 0, 0, 0);
-        tv.setCompoundDrawablePadding(Customerly.px(5));
-        tv.setPadding(Customerly.px(5), 0, 0, 0);
-        tv.setTextColor(Internal_Utils__Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customershero__textcolor_blue2_grey));
+        tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customerly__ld_chat_attachment, 0, 0, 0);
+        int _5dp = Internal_Utils__Utils.px(5);
+        tv.setCompoundDrawablePadding(_5dp);
+        tv.setPadding(_5dp, 0, 0, 0);
+        tv.setTextColor(Internal_Utils__Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_blue2_grey));
         tv.setLines(1);
         tv.setSingleLine();
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         tv.setText(this.name);
         tv.setOnClickListener(textview -> new AlertDialog.Builder(pA_Customerly_Activity)
-                .setTitle(R.string.io_customershero__allegato)
-                .setMessage(pA_Customerly_Activity.getString(R.string.io_customershero__cancel_allegato, tv.getText()))
-                .setNegativeButton(R.string.io_customershero__annulla, null)
-                .setPositiveButton(R.string.io_customershero__cancel, (dlg, which) -> {
+                .setTitle(R.string.io_customerly__allegato)
+                .setMessage(pA_Customerly_Activity.getString(R.string.io_customerly__cancel_allegato, tv.getText()))
+                .setNegativeButton(R.string.io_customerly__annulla, null)
+                .setPositiveButton(R.string.io_customerly__cancel, (dlg, which) -> {
                     ViewGroup vg = (ViewGroup)tv.getParent();
                     if(vg != null) {
                         vg.removeView(tv);
@@ -93,7 +94,7 @@ class Internal_entity__Attachment {
         return array;
     }
 
-    @Nullable String loadBase64FromMemory(@NonNull Context pContext) throws IllegalStateException {
+    private @Nullable String loadBase64FromMemory(@NonNull Context pContext) throws IllegalStateException {
         if(this.base64 == null && this.uri != null) {
             InputStream is = null;
             try {

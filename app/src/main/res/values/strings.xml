@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources> <!-- TODO Localization -->
     <string name="io_customerly__offerto_da_">Offerto da&#160;</string>
-    <string name="io_customerly__crmhero">CRMHero</string>
 
     <string name="io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto">Contatta l\'assistenza scrivendo la tua domanda qui sotto.</string>
     <string name="io_customerly__scrivi_la_tua_domanda">Scrivi la tua domanda…</string>
     <string name="io_customerly__attach_file">Allega file</string>
     <string name="io_customerly__send">Invia</string>
-    <string name="io_customerly__url_offerto_da_crmhero">https://www.crmhero.io/</string>
+    <string name="io_customerly__url_offerto_da_customerly">https://www.customerly.io/</string>
     <string name="io_customerly__inserisci_la_tua_email">Inserisci la tua email</string>
     <string name="io_customerly__inizia_conversazione">Inizia Conversazione</string>
     <string name="io_customerly__inizia_nuova_conversazione">Inizia nuova Conversazione</string>
