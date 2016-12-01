@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public abstract class Internal_activity__A_Customerly_Activity extends AppCompatActivity {
+public abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatActivity {
 
     private static final int FILE_SELECT_CODE = 5;
 
@@ -72,14 +72,14 @@ public abstract class Internal_activity__A_Customerly_Activity extends AppCompat
     protected void onResume() {
         super.onResume();
         this.registerReceiver(this._BroadcastReceiver, this._IntentFilter);
-        Customerly._Instance._IsCustomerlyActivityActive = true;
+        Customerly.get().onActivityResumed(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         this.unregisterReceiver(this._BroadcastReceiver);
-        Customerly._Instance._IsCustomerlyActivityActive = false;
+        Customerly.get().onActivityPaused(this);
     }
 
     /**
@@ -176,7 +176,7 @@ public abstract class Internal_activity__A_Customerly_Activity extends AppCompat
                 try {
                     this.startActivityForResult(
                             Intent.createChooser(new Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
-                                    this.getString(R.string.io_customerly__scegli_file)), FILE_SELECT_CODE);
+                                    this.getString(R.string.io_customerly__scegli_file_da_allegare)), FILE_SELECT_CODE);
                 } catch (ActivityNotFoundException ex) {
                     Toast.makeText(this, this.getString(R.string.io_customerly__installa_un_file_manager), Toast.LENGTH_SHORT).show();
                 }

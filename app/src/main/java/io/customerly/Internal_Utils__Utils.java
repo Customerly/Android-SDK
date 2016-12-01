@@ -27,7 +27,6 @@ import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
-import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -40,7 +39,6 @@ import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.XMLReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,58 +138,124 @@ class Internal_Utils__Utils {
             }
         }
 
-        Html.TagHandler tagHandler = new Html.TagHandler() {
-            boolean ol = false;
-            int olCount;
-            @Override
-            public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
-                 /*
-                <ol> -> 1. 2. 3.
-                <li>rf</li>
-                <li>f</li>
-                <li>f</li>
-                </ol>
+//        Html.TagHandler tagHandler = new Html.TagHandler() {
+//            boolean ol = false;
+//            int olCount;
+//            @Override
+//            public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+//                 /*
+//                <ol> -> 1. 2. 3.
+//                <li>rf</li>
+//                <li>f</li>
+//                <li>f</li>
+//                </ol>
+//
+//                <ul> -> • • •
+//                <li>f</li>
+//                <li>f</li>
+//                <li>f</li>
+//                </ul>
+//            */
+//                switch (tag) {
+//                    case "ol":
+//                        if(opening) {
+//                            this.ol = true;
+//                            this.olCount = 1;
+//                        }
+//                        break;
+//                    case "ul":
+//                        if(opening) {
+//                            this.ol = false;
+//                        }
+//                        break;
+//                    case "li":
+//                        if(opening) {
+//                            if(this.ol) {
+//                                output.append(String.format(Locale.UK, this.olCount > 9 ? "\n%d. " : "\n  %d. ", this.olCount++));
+//                            } else {
+//                                output.append("   •  ");
+//                            }
+//                        } else {
+//                            output.append("\n");
+//                        }
+//                        break;
+//                    default:
+//                }
+//            }
+//        };
 
-                <ul> -> • • •
-                <li>f</li>
-                <li>f</li>
-                <li>f</li>
-                </ul>
-            */
-                switch (tag) {
-                    case "ol":
-                        if(opening) {
-                            this.ol = true;
-                            this.olCount = 1;
-                        }
-                        break;
-                    case "ul":
-                        if(opening) {
-                            this.ol = false;
-                        }
-                        break;
-                    case "li":
-                        if(opening) {
-                            if(this.ol) {
-                                output.append(String.format(Locale.UK, this.olCount > 9 ? "\n%d. " : "\n  %d. ", this.olCount++));
-                            } else {
-                                output.append("   •  ");
-                            }
-                        } else {
-                            output.append("\n");
-                        }
-                        break;
-                    default:
+        //Gestione tag <ol> <ul> <li> e relative chiusure
+        int i = 0;
+        boolean in_ol = false, in_ul = false;
+        int ol_count = 1;
+        final String TAG_OL_OPEN = "<ol>";
+        final String TAG_OL_CLOSE = "</ol>";
+        final String TAG_UL_OPEN = "<ul>";
+        final String TAG_UL_CLOSE = "</ul>";
+        final String TAG_LI_OPEN = "<li>";
+        final String TAG_LI_CLOSE = "</li>";
+        final String NEW_LINE = "<br>";
+        final String REPLACE_OL_LI_COUNT_MORE_THAN_9 = NEW_LINE + "%d. ";
+        final String REPLACE_OL_LI_COUNT_LESS_THAN_9 = NEW_LINE + "  %d. ";
+        final String REPLACE_UL_LI = NEW_LINE + "   •  ";
+
+        while(i < sb.length()) {
+            if(in_ol) {
+                int end_ol = sb.indexOf(TAG_OL_CLOSE, i);
+                int li = sb.indexOf(TAG_LI_OPEN, i);
+                if(li != -1 && (li < end_ol || end_ol == -1)) {
+                    int li_end = sb.indexOf(TAG_LI_CLOSE, i);
+                    sb.replace(li_end, li_end + TAG_LI_CLOSE.length(), NEW_LINE);
+                    String replace_string = String.format(Locale.UK, ol_count > 9 ? REPLACE_OL_LI_COUNT_MORE_THAN_9 : REPLACE_OL_LI_COUNT_LESS_THAN_9, ol_count++);
+                    sb.replace(li, li + TAG_LI_OPEN.length(), replace_string);
+                    i = li_end + NEW_LINE.length() - TAG_LI_OPEN.length() + replace_string.length();
+                } else if(end_ol != -1){
+                    sb.delete(end_ol, end_ol + TAG_OL_CLOSE.length());
+                    i = end_ol;
+                    in_ol = false;
+                } else {
+                    break;
+                }
+            } else if(in_ul) {
+                int end_ul = sb.indexOf(TAG_UL_CLOSE, i);
+                int li = sb.indexOf(TAG_LI_OPEN, i);
+                if(li != -1 && (li < end_ul || end_ul == -1)) {
+                    int li_end = sb.indexOf(TAG_LI_CLOSE, i);
+                    sb.replace(li_end, li_end + TAG_LI_CLOSE.length(), NEW_LINE);
+                    sb.replace(li, li + TAG_LI_OPEN.length(), REPLACE_UL_LI);
+                    i = li_end + NEW_LINE.length() - TAG_LI_OPEN.length() + REPLACE_UL_LI.length();
+                } else if(end_ul != -1){
+                    sb.delete(end_ul, end_ul + TAG_UL_CLOSE.length());
+                    i = end_ul;
+                    in_ul = false;
+                } else {
+                    break;
+                }
+            } else {
+                int start_ol = sb.indexOf(TAG_OL_OPEN, i);
+                int start_ul = sb.indexOf(TAG_UL_OPEN, i);
+                if(start_ol != -1 && (start_ol < start_ul || start_ul == -1)) {
+                    sb.delete(start_ol, start_ol + TAG_OL_OPEN.length());
+                    in_ol = true;
+                    ol_count = 1;
+                    //i = i;//ho cancellato i 4 caratteri
+                } else if(start_ul != -1){
+                    sb.delete(start_ul, start_ul + TAG_UL_OPEN.length());
+                    in_ul = true;
+                    //i = i;//ho cancellato i 4 caratteri
+                } else {
+                    break;
                 }
             }
-        };
+
+        }
 
         Spanned spannedMessage;
         if(Build.VERSION.SDK_INT >= N) {
-            spannedMessage = Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_LEGACY, _SpanImage_ImageGetter, tagHandler);
+            spannedMessage = Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_LEGACY, _SpanImage_ImageGetter, null);
         } else {
             //noinspection deprecation
-            spannedMessage = Html.fromHtml(sb.toString(), _SpanImage_ImageGetter, tagHandler);
+            spannedMessage = Html.fromHtml(sb.toString(), _SpanImage_ImageGetter, null);
         }
 
         if(spannedMessage instanceof SpannableStringBuilder) {
@@ -345,7 +409,7 @@ class Internal_Utils__Utils {
     }
 
     static void loadImageWithGlide(@NonNull ImageView pIV, @NonNull String pImageUrl, int pSquaredSize, @DrawableRes int pPlaceholderResID) {
-        try {
+        try { //TODO Cache expire 24h, use HandlerThread
             Glide.with(pIV.getContext())
                     .load(pImageUrl)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

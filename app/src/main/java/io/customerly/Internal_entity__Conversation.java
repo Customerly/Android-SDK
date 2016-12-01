@@ -44,20 +44,19 @@ class Internal_entity__Conversation {
     Internal_entity__Conversation(@NonNull JSONObject pConversationItem) throws JSONException {
         super();
 
-        JSONObject conversation = pConversationItem.getJSONObject("conversation");
+        this.conversation_id = pConversationItem.getLong("conversation_id");
+        this.last_message_abstract = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(pConversationItem.getString("last_message_abstract"));
+        this.assigner_id = pConversationItem.getLong("assigner_id");
 
-        this.conversation_id = conversation.getLong("conversation_id");
-        this.last_message_abstract = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(conversation.getString("last_message_abstract"));
-        this.assigner_id = conversation.getLong("assigner_id");
+        this.last_message_date = pConversationItem.getLong("last_message_date");
+        this.last_message_writer = pConversationItem.optLong("last_message_writer");
+        this.last_message_writer_type = pConversationItem.optInt("last_message_writer_type");
 
-        this.last_message_date = conversation.getLong("last_message_date");
-        this.last_message_writer = conversation.optLong("last_message_writer");
-        this.last_message_writer_type = conversation.optInt("last_message_writer_type");
+        this.unread = pConversationItem.optInt("unread", 0) == 1;
 
-        this.unread = conversation.optInt("unread", 0) == 1;
-
-        JSONObject last_account = pConversationItem.optJSONObject("last_account");
-        this.last_account__name = last_account == null ? null : last_account.optString("name", null);
+        pConversationItem = pConversationItem.optJSONObject("last_account");
+//        pConversationItem diventa pConversationItem.last_account
+        this.last_account__name = pConversationItem == null ? null : pConversationItem.optString("name", null);
     }
 
     void onNewMessage(@NonNull Internal_entity__Message pNuovoMessaggio) {

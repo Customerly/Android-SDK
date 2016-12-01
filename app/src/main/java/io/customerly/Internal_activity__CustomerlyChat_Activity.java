@@ -60,7 +60,7 @@ import java.util.Collections;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public class Internal_activity__CustomerlyChat_Activity extends Internal_activity__A_Customerly_Activity {
+public class Internal_activity__CustomerlyChat_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final String EXTRA_CONVERSATION_ID = "EXTRA_CONVERSATION_ID";
     static final String EXTRA_ASSIGNER_ID = "EXTRA_ASSIGNER_ID";

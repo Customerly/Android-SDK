@@ -1,6 +1,7 @@
 package io.customerly;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.support.annotation.Size;
 import android.support.annotation.StringDef;
+import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -34,7 +37,8 @@ import static io.customerly.Internal_errorhandler__CustomerlyErrorHandler.ERROR_
 class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, RES> {
 
     @StringDef({ENDPOINT_PINGINDEX, ENDPOINT_CONVERSATIONRETRIEVE, ENDPOINT_MESSAGESEEN, ENDPOINT_MESSAGENEWS,
-            ENDPOINT_MESSAGERETRIEVE, ENDPOINT_MESSAGESEND, ENDPOINT_EVENTTRACKING, ENDPOINT_REPORT_CRASH})
+            ENDPOINT_MESSAGERETRIEVE, ENDPOINT_MESSAGESEND, ENDPOINT_EVENTTRACKING, ENDPOINT_REPORT_CRASH,
+            ENDPOINT_SURVEY_SUBMIT, ENDPOINT_SURVEY_SEEN, ENDPOINT_SURVEY_BACK, ENDPOINT_SURVEY_REJECT})
     @Retention(RetentionPolicy.SOURCE)
     @interface Endpoint {}
 
@@ -53,6 +57,10 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING + "/message/send/";
     static final String ENDPOINT_EVENTTRACKING = ENDPOINT_TRACKING + "/event/";
     static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING + "/crash/";
+    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING + "/survey/submit/";
+    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING + "/survey/seen/";
+    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING + "/survey/back/";
+    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING + "/survey/reject/";
 
     static final byte RESPONSE_STATE__PENDING = 0;
     static final byte RESPONSE_STATE__OK = -1;
@@ -85,6 +93,13 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         @Nullable private ResponseReceiver<RES> _ResponseReceiver;
         @IntRange(from=1, to=5) private int _Trials = 1;
         @NonNull private final JSONObject _Params = new JSONObject();
+        @Nullable private CharSequence _ProgressDialog_Title, _ProgressDialog_Message;
+        @Nullable private WeakReference<View> _ProgressView;
+        @Nullable private Runnable _OnPreExecute;
+
+        @IntDef({View.GONE, View.INVISIBLE}) @Retention(RetentionPolicy.SOURCE) @interface HiddenVisibilityType {}
+        @HiddenVisibilityType private int _ProgressView_HiddenVisibilityType;
+
         Builder(@Endpoint @NonNull String pEndpoint) {
             this._Endpoint = pEndpoint;
         }
@@ -102,6 +117,21 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
         @CheckResult Builder<RES> opt_trials(@IntRange(from=1, to=5) int pTrials) {
             this._Trials = pTrials;
+            return this;
+        }
+        @CheckResult Builder<RES> opt_progressdialog(@NonNull Context pContext, @NonNull CharSequence title, @NonNull CharSequence message) {
+            this._Context = pContext;
+            this._ProgressDialog_Title = title;
+            this._ProgressDialog_Message = message;
+            return this;
+        }
+        @CheckResult Builder<RES> opt_progressview(@NonNull View progressView, @HiddenVisibilityType int progressView_hiddenVisibilityType) {
+            this._ProgressView = new WeakReference<>(progressView);
+            this._ProgressView_HiddenVisibilityType = progressView_hiddenVisibilityType;
+            return this;
+        }
+        @CheckResult Builder<RES> opt_onPreExecute(@NonNull Runnable onPreExecute) {
+            this._OnPreExecute = onPreExecute;
             return this;
         }
         @CheckResult Builder<RES> param(@Nullable String pKey, @Nullable Object pValue) {
@@ -127,9 +157,34 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         void start() {
             if(Customerly._Instance._isConfigured()) {
                 if (this._Context == null || Internal_Utils__Utils.checkConnection(this._Context)) {
+                    ProgressDialog pd_tmp = null;
+                    if(this._Context != null && this._ProgressDialog_Title != null && this._ProgressDialog_Message != null) {
+                        try {
+                            pd_tmp = ProgressDialog.show(this._Context, this._ProgressDialog_Title, this._ProgressDialog_Message, true, false);
+                        } catch (Exception ignored) { }
+                    }
+                    if(this._OnPreExecute != null) {
+                        this._OnPreExecute.run();
+                    }
+                    final View progressView = this._ProgressView == null ? null : this._ProgressView.get();
+                    if(progressView != null) {
+                        progressView.post(() -> progressView.setVisibility(View.VISIBLE));
+                    }
+                    final ProgressDialog pd = pd_tmp;
                     new Internal_api__CustomerlyRequest<>(this._Endpoint,
                             this._ResponseConverter != null ? this._ResponseConverter : data -> null,
-                            this._ResponseReceiver != null ? this._ResponseReceiver : (statusCode, result) -> {
+                            (statusCode, result) -> {
+                                if(pd != null) {
+                                    try {
+                                        pd.dismiss();
+                                    } catch (Exception ignored) { }
+                                }
+                                if(progressView != null) {
+                                    progressView.post(() -> progressView.setVisibility(this._ProgressView_HiddenVisibilityType));
+                                }
+                                if(this._ResponseReceiver != null) {
+                                    this._ResponseReceiver.onResponse(statusCode, result);
+                                }
                             },
                             this._Trials)
                             .execute(this._Params);

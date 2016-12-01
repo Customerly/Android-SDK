@@ -28,4 +28,8 @@
     <item type="id" name="io_customerly__content_layout__onlyuserli" />
     <item type="id" name="io_customerly__content_sending__onlyuserli" />
     <item type="id" name="io_customerly__menu__download" />
+    <item type="id" name="io_customerly__back" />
+    <item type="id" name="io_customerly__close" />
+    <item type="id" name="io_customerly__title" />
+    <item type="id" name="io_customerly__subtitle" />
 </resources>

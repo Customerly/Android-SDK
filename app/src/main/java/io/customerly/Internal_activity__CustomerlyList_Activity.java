@@ -37,7 +37,7 @@ import java.util.Locale;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public class Internal_activity__CustomerlyList_Activity extends Internal_activity__A_Customerly_Activity {
+public class Internal_activity__CustomerlyList_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 

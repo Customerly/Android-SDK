@@ -47,7 +47,7 @@ class Internal_entity__Attachment {
         this.path = null;
     }
 
-    void addAttachmentToInput(@NonNull Internal_activity__A_Customerly_Activity pA_Customerly_Activity) throws JSONException {
+    void addAttachmentToInput(@NonNull Internal_activity__AInput_Customerly_Activity pA_Customerly_Activity) throws JSONException {
         pA_Customerly_Activity._Attachments.add(this);
         TextView tv = new TextView(pA_Customerly_Activity);
         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -61,10 +61,10 @@ class Internal_entity__Attachment {
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         tv.setText(this.name);
         tv.setOnClickListener(textview -> new AlertDialog.Builder(pA_Customerly_Activity)
-                .setTitle(R.string.io_customerly__allegato)
+                .setTitle(R.string.io_customerly__scegli_file_da_allegare)
                 .setMessage(pA_Customerly_Activity.getString(R.string.io_customerly__cancel_allegato, tv.getText()))
                 .setNegativeButton(R.string.io_customerly__annulla, null)
-                .setPositiveButton(R.string.io_customerly__cancel, (dlg, which) -> {
+                .setPositiveButton(R.string.io_customerly__remove, (dlg, which) -> {
                     ViewGroup vg = (ViewGroup)tv.getParent();
                     if(vg != null) {
                         vg.removeView(tv);

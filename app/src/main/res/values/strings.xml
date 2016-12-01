@@ -1,57 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources> <!-- TODO Localization -->
-    <string name="io_customerly__offerto_da_">Offerto da&#160;</string>
+<resources>
 
-    <string name="io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto">Contatta l\'assistenza scrivendo la tua domanda qui sotto.</string>
-    <string name="io_customerly__scrivi_la_tua_domanda">Scrivi la tua domanda…</string>
-    <string name="io_customerly__attach_file">Allega file</string>
-    <string name="io_customerly__send">Invia</string>
-    <string name="io_customerly__url_offerto_da_customerly">https://www.customerly.io/</string>
-    <string name="io_customerly__inserisci_la_tua_email">Inserisci la tua email</string>
-    <string name="io_customerly__inizia_conversazione">Inizia Conversazione</string>
-    <string name="io_customerly__inizia_nuova_conversazione">Inizia nuova Conversazione</string>
-    <string name="io_customerly__installa_un_file_manager">Devi prima installare un File Manager</string>
-    <string name="io_customerly__scegli_file">Scegli un file da allegare</string>
-    <string name="io_customerly__allegato">Scegli un file da allegare</string>
-    <string name="io_customerly__cancel_allegato">Vuoi eliminare l\'allegato %s?</string>
-    <string name="io_customerly__cancel">Cancella</string>
-    <string name="io_customerly__annulla">Annulla</string>
-    <string name="io_customerly__you">Tu</string>
-    <string name="io_customerly__permission_request">Richiesta permesso</string>
-    <string name="io_customerly__permission_request_explanation_write">Il permesso di accesso alla memoria esterna è necessario per memorizzare gli allegati</string>
-    <string name="io_customerly__permission_request_explanation_read">Il permesso di accesso alla memoria esterna è necessario per caricare gli allegati</string>
-    <string name="io_customerly__permission_denied_write">Hai negato il permesso necessario a scaricare gli allegati. Puoi autorizzarlo nuovamente dalle impostazioni di sistema dell\'app</string>
-    <string name="io_customerly__permission_denied_read">Hai negato il permesso necessario a caricare gli allegati. Puoi autorizzarlo nuovamente dalle impostazioni di sistema dell\'app</string>
-    <string name="io_customerly__download_completo">Download Completo</string>
-    <string name="io_customerly__nuova_conversazione">Nuova Conversazione</string>
-    <string name="io_customerly__invio_messaggio_in_corso">Invio messaggio in corso</string>
-    <string name="io_customerly__errore_connessione_probabile">Si è verificato un errore! Verifica la tua connessione</string>
-    <string name="io_customerly__download">Download</string>
-    <string name="io_customerly__avvio_download">Avviare il download del file?</string>
+    <!-- Not translatable -->
+    <string name="io_customerly__url_offerto_da_customerly" translatable="false">https://www.customerly.io/</string>
+    <string name="io_customerly__download" translatable="false">Download</string>
 
-    <string name="io_customerly__attachments_maxcount_error">Massimo numero di file raggiunto</string>
-    <string name="io_customerly__attachments_alreadyattached_error">Hai già allegato questo file</string>
-    <string name="io_customerly__attachments_maxsize_error">Non puoi allegare file così grandi</string>
-
-    <string name="io_customerly__last_activity_now">Adesso in linea</string>
-    <string name="io_customerly__icona">Icona</string>
+    <!-- Plurals (Non gestite da Translations Editor -->
     <plurals name="io_customerly__last_activity_XXm_ago">
-        <item quantity="one">Ultima attivit&#225; %1$d minuto fa</item>
-        <item quantity="other">Ultima attivit&#225; %1$d minuti fa</item>
+        <item quantity="one">Last activity %1$d minute ago</item>
+        <item quantity="other">Last activity %1$d minutes ago</item>
     </plurals>
     <plurals name="io_customerly__last_activity_XXh_ago">
-        <item quantity="one">Ultima attivit&#225; %1$d ora fa</item>
-        <item quantity="other">Ultima attivit&#225; %1$d ore fa</item>
+        <item quantity="one">Last activity %1$d hour ago</item>
+        <item quantity="other">Last activity %1$d hours ago</item>
     </plurals>
     <plurals name="io_customerly__last_activity_XXd_ago">
-        <item quantity="one">Ultima attivit&#225; %1$d giorno fa</item>
-        <item quantity="other">Ultima attivit&#225; %1$d giorni fa</item>
+        <item quantity="one">Last activity %1$d day ago</item>
+        <item quantity="other">Last activity %1$d days ago</item>
     </plurals>
 
-    <string name="io_customerly__XXs_ago">%1$ds fa</string>
-    <string name="io_customerly__XXm_ago">%1$dm fa</string>
-    <string name="io_customerly__XXh_ago">%1$do fa</string>
-    <string name="io_customerly__XXd_ago">%1$dg fa</string>
-    <string name="io_customerly__failed">Failed</string>
+    <!-- Localized -->
+    <string name="io_customerly__offerto_da_">Powered by&#160;</string>
+    <string name="io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto">Contact the suppor writing your question below</string>
+    <string name="io_customerly__scrivi_la_tua_domanda">Write your question…</string>
+    <string name="io_customerly__attach_file">Attach file</string>
+    <string name="io_customerly__send">Send</string>
+    <string name="io_customerly__inserisci_la_tua_email">Insert your email</string>
+    <string name="io_customerly__inizia_conversazione">Start a conversation</string>
+    <string name="io_customerly__inizia_nuova_conversazione">Begin a new Conversation</string>
+    <string name="io_customerly__installa_un_file_manager">You need to install a File Manager first</string>
+    <string name="io_customerly__scegli_file_da_allegare">Choose a file to attach</string>
+    <string name="io_customerly__cancel_allegato">Do you want to remove the attachment %s?</string>
+    <string name="io_customerly__remove">Remove</string>
+    <string name="io_customerly__annulla">Cancel</string>
+    <string name="io_customerly__you">You</string>
+    <string name="io_customerly__permission_request">Permission Request</string>
+    <string name="io_customerly__permission_request_explanation_write">The permission to access the external memory is needed to store the attachments</string>
+    <string name="io_customerly__permission_request_explanation_read">The permission to access the external memory is needed to upload the attachments</string>
+    <string name="io_customerly__permission_denied_write">You denied the permission necessary to store the attachments. You can authorize it from the system settings of the app</string>
+    <string name="io_customerly__permission_denied_read">You denied the permission necessary to upload the attachments. You can authorize it from the system settings of the app</string>
+    <string name="io_customerly__download_completo">Download Complete</string>
+    <string name="io_customerly__nuova_conversazione">New Conversation</string>
+    <string name="io_customerly__invio_messaggio_in_corso">Sending message</string>
+    <string name="io_customerly__errore_connessione_probabile">An error occours! Please check your connection</string>
+    <string name="io_customerly__avvio_download">Download the file?</string>
+    <string name="io_customerly__attachments_maxcount_error">You\'ve reached the max number of files allowed</string>
+    <string name="io_customerly__attachments_alreadyattached_error">You\'ve already attached this file</string>
+    <string name="io_customerly__attachments_maxsize_error">This file is too big to be attached</string>
+    <string name="io_customerly__last_activity_now">Online</string>
+    <string name="io_customerly__icona">Icon</string>
+    <string name="io_customerly__XXs_ago">%1$ds ago</string>
+    <string name="io_customerly__XXm_ago">%1$dm ago</string>
+    <string name="io_customerly__XXh_ago">%1$dh ago</string>
+    <string name="io_customerly__XXd_ago">%1$dd ago</string>
+    <string name="io_customerly__survey">Survey</string>
+    <string name="io_customerly__invio_la_risposta">Send the answer</string>
+    <string name="io_customerly__scegli_una_risposta">Choose an answer</string>
+    <string name="io_customerly__conferma">Confirm</string>
+    <string name="io_customerly__conferma_x">Confirm %1$d</string>
+    <string name="io_customerly__hint_inserisci_un_numero">Insert a number</string>
+    <string name="io_customerly__hint_inserisci_un_testo">Insert a text</string>
 
 </resources>

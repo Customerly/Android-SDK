@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.Log;
@@ -19,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -74,6 +78,7 @@ public class Customerly {
     @SuppressWarnings("NullableProblems") @NonNull String _AppID, _ApplicationName;
     @SuppressWarnings("NullableProblems") @NonNull private SharedPreferences _SharedPreferences;
     @SuppressWarnings("NullableProblems") @NonNull private JSONObject cookies;
+    @NonNull private WeakReference<Activity> _ActiveActivity = new WeakReference<>(null);
 
 
 
@@ -87,7 +92,6 @@ public class Customerly {
 
     @Nullable private Customerly_User customerly_user;
     @Nullable private Socket _Socket;
-    boolean _IsCustomerlyActivityActive = false;
 
     @ColorInt int __PING__LAST_widget_color = Customerly.DEF_WIDGETCOLOR_INT;
     private long __PING__LAST_widget_icon;
@@ -106,6 +110,7 @@ public class Customerly {
     /************************************************************************************************************************************************** Singleton *****/
     /******************************************************************************************************************************************************************/
     @NonNull static final Customerly _Instance = new Customerly();
+
     private Customerly() { super(); }
     @NonNull public static Customerly get() {
         return Customerly._Instance;
@@ -135,6 +140,46 @@ public class Customerly {
         this.__WELCOME__NeverShown = this.__WELCOME__restoreFromDisk();
 
         this.__PING__restoreFromDisk(this._SharedPreferences);
+
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            pApplicationContext.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+                @Override
+                public void onActivityResumed(@NonNull Activity activity) {
+                    __onActivityResumed(activity);
+                }
+                @Override public void onActivityPaused(@NonNull Activity activity) {
+                    __onActivityPaused(activity);
+                }
+                @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
+                @Override public void onActivityStarted(Activity activity) { }
+                @Override public void onActivityStopped(Activity activity) { }
+                @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
+                @Override public void onActivityDestroyed(Activity activity) { }
+            });
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public void onActivityResumed(@NonNull Activity activity) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            this.__onActivityResumed(activity);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public void onActivityPaused(@NonNull Activity activity) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            this.__onActivityPaused(activity);
+        }
+    }
+
+    private void __onActivityResumed(@NonNull Activity activity) {
+        this._ActiveActivity = new WeakReference<>(activity);
+        //TODO
+    }
+    private void __onActivityPaused(@NonNull Activity activity) {
+        this._ActiveActivity.clear();
+        //TODO
     }
 
     boolean _isConfigured() {
@@ -370,7 +415,10 @@ public class Customerly {
     @NonNull private final Runnable __SOCKET__ping = () -> {
         Socket socket = this._Socket;
         if(socket != null && socket.connected()) {
-            socket.emit(this._IsCustomerlyActivityActive ? SOCKET_EVENT__PINGACTIVE : SOCKET_EVENT__PING);
+            Activity activity = this._ActiveActivity.get();
+            socket.emit(activity instanceof Internal_activity__CustomerlyChat_Activity
+                    || activity instanceof Internal_activity__CustomerlyList_Activity
+                    ? SOCKET_EVENT__PINGACTIVE : SOCKET_EVENT__PING);
             this._Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
         }
     };
@@ -454,15 +502,13 @@ public class Customerly {
                                                     .start();
                                         }
                                     }
-                                } catch (JSONException ignored) {
-                                }
+                                } catch (JSONException ignored) { }
                             }
                         });
 
                         socket.connect();
                         this._Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
-                    } catch (URISyntaxException ignored) {
-                    }
+                    } catch (URISyntaxException ignored) { }
                 }
             }
         }
@@ -548,6 +594,15 @@ public class Customerly {
                 .opt_trials(2)
                 .param("name", pEventName)
                 .start();
+    }
+
+    public void openSurvey(@NonNull FragmentManager fm) {//TODO
+        Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;//Invalidare i surveys altrimenti anche se lo copmleto fino alla successiva ping rimane lì
+        if(surveys != null && surveys.length != 0) {
+            Internal_dialogfragment__Survey_DialogFragment.open(fm, "SURVEYS", surveys[0]);
+        } else {
+            this._log("No surveys available");
+        }
     }
 
 }

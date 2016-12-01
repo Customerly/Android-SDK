@@ -55,8 +55,6 @@ class Internal_entity__Message {
         super();
         this._STATE = STATE.COMPLETE;
 
-        pMessageItem = pMessageItem.getJSONObject("message");
-
         this.conversation_id = pMessageItem.optLong("conversation_id", 0);
         this.conversation_message_id = pMessageItem.optLong("conversation_message_id", 0);
         this.user_id = pMessageItem.optLong("user_id", 0);

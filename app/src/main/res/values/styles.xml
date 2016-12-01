@@ -6,7 +6,35 @@
     </style>
 
     <style name="io_customerly__ListActivity_EditTextBlue" parent="Base.V7.Widget.AppCompat.EditText">
-        <item name="colorControlNormal">@color/io_customerly__blue1</item>
+        <item name="colorControlNormal">@color/io_customerly__blue2</item>
+    </style>
+
+    <style name="io_customerly__selectableItemBackgroundBorderless__onWhite_theme">
+        <item name="colorControlHighlight">@color/io_customerly__greycc</item>
+    </style>
+
+    <style name="io_customerly__selectableItemBackgroundBorderless__onWhite">
+        <item name="android:theme">@style/io_customerly__selectableItemBackgroundBorderless__onWhite_theme</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="io_customerly__RadioButton_Blue1" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/io_customerly__blue2</item>
+        <item name="colorControlActivated">@color/io_customerly__blue1</item>
+    </style>
+
+    <style name="io_customerly__SeekBar_Blue2" parent="Widget.AppCompat.SeekBar" >
+        <item name="colorAccent">@color/io_customerly__blue2</item>
+    </style>
+
+    <style name="io_customerly__RatingBar_Blue2" parent="Widget.AppCompat.RatingBar" >
+        <item name="colorAccent">@color/io_customerly__blue2</item>
+        <item name="colorControlNormal">@color/io_customerly__blue2</item>
+    </style>
+
+    <style name="io_customerly__EditText_Blue2" parent="Widget.AppCompat.EditText" >
+        <item name="colorAccent">@color/io_customerly__blue2</item>
+        <item name="colorControlNormal">@color/io_customerly__blue2</item>
     </style>
 
 </resources>

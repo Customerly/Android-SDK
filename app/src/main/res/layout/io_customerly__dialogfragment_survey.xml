@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="300dp"
+    android:minHeight="200dp"
+    android:gravity="start|left"
+    android:background="@android:color/white"
+    android:padding="25dp"
+    android:animateLayoutChanges="true"
+    tools:ignore="RtlHardcoded,UnusedAttribute" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp" >
+
+        <ImageView android:id="@id/io_customerly__back"
+            style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
+            android:layout_width="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_gravity="center"
+            android:src="@drawable/io_customerly__ic_arrow_back_black_24dp"
+            android:contentDescription="back"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/io_customerly__survey"
+            android:textColor="@android:color/black"
+            android:textSize="22sp" />
+
+        <ImageView android:id="@id/io_customerly__close"
+            style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
+            android:layout_width="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_gravity="center"
+            android:src="@drawable/io_customerly__ic_clear_black_24dp"
+            android:contentDescription="back"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+    <TextView android:id="@id/io_customerly__title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:paddingBottom="10dp" />
+
+    <TextView android:id="@id/io_customerly__subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:paddingBottom="5dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never" >
+
+        <LinearLayout android:id="@id/io_customerly__input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+    <ProgressBar android:id="@id/io_customerly__progressview"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        android:indeterminateDrawable="@drawable/io_customerly__progressimage_blue2" />
+
+</LinearLayout>

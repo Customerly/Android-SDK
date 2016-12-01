@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<selector xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true" >
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle" >
+                    <solid android:color="@android:color/white"/>
+                    <corners android:radius="4dp" />
+                    <stroke android:color="@color/io_customerly__blue1" android:width="1dp"/>
+                    <padding android:right="39dp" />
+                </shape>
+            </item>
+            <item android:right="-29dp" android:end="-29dp" tools:ignore="UnusedAttribute">
+                <bitmap
+                    android:gravity="center_vertical|right"
+                    android:src="@drawable/io_customerly__ic_expand_more_blue1_24dp" />
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:drawable="@drawable/io_customerly__edittext_blue2_bkg" />
+            <item android:right="-29dp" android:end="-29dp" tools:ignore="UnusedAttribute">
+                <bitmap
+                    android:gravity="center_vertical|right"
+                    android:src="@drawable/io_customerly__ic_expand_more_blue2_24dp" />
+            </item>
+        </layer-list>
+    </item>
+</selector>

@@ -10,9 +10,9 @@ import java.util.Locale;
  */
 class Internal_entity__Account {
     @NonNull static String getAccountImageUrl(long pAccountID, int pSizePX) {
-        return String.format(Locale.UK, "http://pictures.customerly.io/accounts/%d/%d", pAccountID, pSizePX);
+        return String.format(Locale.UK, "http://pictures.cdn.customerly.io/accounts/%d/%d", pAccountID, pSizePX);
     }
     @NonNull static String getUserImageUrl(long pAccountID, int pSizePX) {
-        return String.format(Locale.UK, "http://pictures.customerly.io/users/%d/%d", pAccountID, pSizePX);
+        return String.format(Locale.UK, "http://pictures.cdn.customerly.io/users/%d/%d", pAccountID, pSizePX);
     }
 }
