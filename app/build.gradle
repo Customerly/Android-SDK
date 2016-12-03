@@ -44,9 +44,6 @@ android {
 }
 
 dependencies {
-
-    compile 'com.github.bumptech.glide:glide:3.5.2'
-
     compile 'com.squareup.okhttp3:okhttp-ws:3.4.1'
     compile ('io.socket:socket.io-client:0.7.0') {
         // excluding org.json which is provided by Android

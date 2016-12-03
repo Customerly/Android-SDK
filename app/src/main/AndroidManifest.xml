@@ -24,8 +24,5 @@
             android:theme="@style/io_customerly__Activity"
             android:windowSoftInputMode="adjustResize"/>
 
-        <meta-data android:name="io.customerly.GlideConfiguration"
-            android:value="GlideModule" />
-
     </application>
 </manifest>

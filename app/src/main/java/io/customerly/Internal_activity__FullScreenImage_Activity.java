@@ -29,9 +29,6 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
 /**
  * Created by Gianni on 23/09/16.
  * Project: CustomerlySDK
@@ -52,12 +49,11 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 try {
-                    Glide.with(this)
-                            .load(this._SourceUrl)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
                             .fitCenter()
-                            .placeholder(R.drawable.io_customerly__pic_placeholder)
-                            .into(_ImageView);
+                            .load(this._SourceUrl)
+                            .into(_ImageView)
+                            .placeholder(R.drawable.io_customerly__pic_placeholder));
                     super.setContentView(_ImageView);
 
                     final ActionBar actionBar = this.getSupportActionBar();

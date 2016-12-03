@@ -48,9 +48,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -425,7 +422,13 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
         protected void apply(@Nullable Internal_entity__Message __null, @Nullable String _NonSiMostraNelTyping, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             if (pIsFirstMessageOfSender) {
-                Internal_Utils__Utils.loadImageWithGlide(this._Icon, Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize), this._IconaSize, R.drawable.io_customerly__ic_default_admin);
+                Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                        .fitCenter()
+                        .transformCircle()
+                        .load(Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize))
+                        .into(this._Icon)
+                        .override(this._IconaSize, this._IconaSize)
+                        .placeholder(R.drawable.io_customerly__ic_default_admin));
                 this._Icon.setVisibility(View.VISIBLE);
             } else {
                 this._Icon.setVisibility(View.INVISIBLE);
@@ -499,7 +502,13 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                 }
 
                 if (pIsFirstMessageOfSender) {
-                    Internal_Utils__Utils.loadImageWithGlide(this._Icon, pMessage.getImageUrl(this._IconaSize), this._IconaSize, R.drawable.io_customerly__ic_default_admin);
+                    Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                            .fitCenter()
+                            .transformCircle()
+                            .load(pMessage.getImageUrl(this._IconaSize))
+                            .into(this._Icon)
+                            .override(this._IconaSize, this._IconaSize)
+                            .placeholder(R.drawable.io_customerly__ic_default_admin));
                     this._Icon.setVisibility(View.VISIBLE);
                 } else {
                     this._Icon.setVisibility(View.GONE);
@@ -564,12 +573,11 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                         if(attachment.isImage()) {
                             //Immagine
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(80)));
-                            Glide.with(Internal_activity__CustomerlyChat_Activity.this)
-                                    .load(attachment.getFullPath())
-                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
                                     .centerCrop()
-                                    .placeholder(R.drawable.io_customerly__pic_placeholder)
-                                    .into(iv);
+                                    .load(attachment.getFullPath())
+                                    .into(iv)
+                                    .placeholder(R.drawable.io_customerly__pic_placeholder));
                             ll.setOnClickListener(layout -> {
                                 if (attachment.hasPath()) {
                                     startActivity(new Intent(Internal_activity__CustomerlyChat_Activity.this, Internal_activity__FullScreenImage_Activity.class)

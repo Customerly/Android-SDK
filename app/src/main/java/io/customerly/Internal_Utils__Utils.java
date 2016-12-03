@@ -22,7 +22,6 @@ import android.provider.OpenableColumns;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Dimension;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,10 +29,6 @@ import android.support.annotation.Px;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.widget.ImageView;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
@@ -406,21 +401,6 @@ class Internal_Utils__Utils {
                 cursor.close();
         }
         return null;
-    }
-
-    static void loadImageWithGlide(@NonNull ImageView pIV, @NonNull String pImageUrl, int pSquaredSize, @DrawableRes int pPlaceholderResID) {
-        try { //TODO Cache expire 24h, use HandlerThread
-            Glide.with(pIV.getContext())
-                    .load(pImageUrl)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .override(pSquaredSize, pSquaredSize)
-                    .fitCenter()
-                    .transform(new Internal_Utils__CircleTransform(pIV.getContext()))
-                    .placeholder(pPlaceholderResID)
-                    .into(pIV);
-        } catch (Exception glideException) {
-            Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading", glideException);
-        }
     }
 
     @Contract(pure = true)

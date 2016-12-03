@@ -197,7 +197,14 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                         lp.bottomMargin = lp.topMargin;
                         icon.setLayoutParams(lp);
 
-                        Internal_Utils__Utils.loadImageWithGlide(icon, admin.getImageUrl(adminIconSizePX), adminIconSizePX, R.drawable.io_customerly__ic_default_admin);
+                        Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                                .fitCenter()
+                                .transformCircle()
+                                .load(admin.getImageUrl(adminIconSizePX))
+                                .into(icon)
+                                .override(adminIconSizePX, adminIconSizePX)
+                                .placeholder(R.drawable.io_customerly__ic_default_admin));
+
                         layout_first_contact__admincontainer.addView(icon);
 
                         final TextView name = new TextView(this);
@@ -352,7 +359,13 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         private void apply(@NonNull Internal_entity__Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
             this._AssignerID = pConversation.assigner_id;
-            Internal_Utils__Utils.loadImageWithGlide(this._Icon, pConversation.getImageUrl(this._IconaSize), this._IconaSize, R.drawable.io_customerly__ic_default_admin);
+            Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                    .fitCenter()
+                    .transformCircle()
+                    .load(pConversation.getImageUrl(this._IconaSize))
+                    .into(this._Icon)
+                    .override(this._IconaSize, this._IconaSize)
+                    .placeholder(R.drawable.io_customerly__ic_default_admin));
             this._Nome.setText(pConversation.getConversationLastWriter(this._Nome.getContext()));
             this._LastMessage.setText(pConversation.getLastMessage());
             this._Time.setText(pConversation.getFormattedLastMessageTime(getResources()));

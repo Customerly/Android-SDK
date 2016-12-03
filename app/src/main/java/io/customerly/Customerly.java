@@ -61,6 +61,7 @@ public class Customerly {
     private static final String SOCKET_EVENT__KEY__seen_date = "seen_date";
     private static final String SOCKET_EVENT__KEY__timestamp = "timestamp";
     private static final String SOCKET_EVENT__KEY__user_id = "user_id";
+    @NonNull private final Internal_Utils__RemoteImageHandler _RemoteImageHandler = new Internal_Utils__RemoteImageHandler();
     @NonNull private final Handler _Handler = new Handler();
     @NonNull private final Runnable _HandlePingRun = () -> {
         //TODO dev listeners
@@ -403,6 +404,10 @@ public class Customerly {
         return this.customerly_user;
     }
 
+    void loadRemoteImage(@NonNull Internal_Utils__RemoteImageHandler.Request request) {
+        Customerly.get()._RemoteImageHandler.request(request);
+    }
+
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Socket ********/
     /******************************************************************************************************************************************************************/
@@ -570,7 +575,7 @@ public class Customerly {
         }
     }
 
-    public void logoutUser() {//TODO Rimuovere?
+    public void logoutUser() {//TODO Rimuovere? altrimenti deve cancellare ultima ping e user da disco
         if(this._isConfigured()) {
             this.customerly_user = null;
             this.__COOKIES__delete();
