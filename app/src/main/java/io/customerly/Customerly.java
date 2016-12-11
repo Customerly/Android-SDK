@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.TypedValue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +44,6 @@ public class Customerly {
     private static final String PREF_WELCOME_NEVER_SHOWN = "PREF_WELCOME_NEVER_SHOWN";
     private static final String PREFS__COOKIES_customerly_cookies = "PREFS__COOKIES_customerly_cookies";
     private static final String PREFS_PINGRESPONSE__WIDGET_COLOR = "PREFS_PINGRESPONSE__WIDGET_COLOR";
-    private static final String PREFS_PINGRESPONSE__WIDGET_ICONTYPE = "PREFS_PINGRESPONSE__WIDGET_ICONTYPE";
     private static final String PREFS_PINGRESPONSE__POWEREDBY = "PREFS_PINGRESPONSE__POWEREDBY";
     private static final String PREFS_PINGRESPONSE__WELCOME_USERS = "PREFS_PINGRESPONSE__WELCOME_USERS";
     private static final String PREFS_PINGRESPONSE__WELCOME_VISITORS = "PREFS_PINGRESPONSE__WELCOME_VISITORS";
@@ -66,9 +66,7 @@ public class Customerly {
     @NonNull private final Runnable _HandlePingRun = () -> {
         //TODO dev listeners
     };
-
-    @ColorInt static final int DEF_WIDGETCOLOR_INT = 0xffd60022;
-    private static final int DEF_WIDGET_ICONTYPE = 1;
+    @ColorInt private static final int DEF_WIDGETCOLOR_INT = 0xffd60022;
 
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** State fields **/
@@ -76,6 +74,7 @@ public class Customerly {
 
     //Diventano NonNull con la configure
     long _ApplicationVersionCode;
+    @ColorInt private int __Fallback_Widget_color = DEF_WIDGETCOLOR_INT;
     @SuppressWarnings("NullableProblems") @NonNull String _AppID, _ApplicationName;
     @SuppressWarnings("NullableProblems") @NonNull private SharedPreferences _SharedPreferences;
     @SuppressWarnings("NullableProblems") @NonNull private JSONObject cookies;
@@ -94,8 +93,7 @@ public class Customerly {
     @Nullable private Customerly_User customerly_user;
     @Nullable private Socket _Socket;
 
-    @ColorInt int __PING__LAST_widget_color = Customerly.DEF_WIDGETCOLOR_INT;
-    private long __PING__LAST_widget_icon;
+    @ColorInt int __PING__LAST_widget_color;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable Internal_entity__Admin[] __PING__LAST_active_admins;
@@ -111,8 +109,8 @@ public class Customerly {
     /************************************************************************************************************************************************** Singleton *****/
     /******************************************************************************************************************************************************************/
     @NonNull static final Customerly _Instance = new Customerly();
-
     private Customerly() { super(); }
+
     @NonNull public static Customerly get() {
         return Customerly._Instance;
     }
@@ -133,6 +131,23 @@ public class Customerly {
             this._ApplicationVersionCode = 0;
         }
         this._SharedPreferences = pApplicationContext.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE);
+
+        @ColorInt int color;
+        try {
+            int colorAttr;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                colorAttr = android.R.attr.colorAccent;
+            } else {
+                //Get colorAccent defined for AppCompat
+                colorAttr = pApplicationContext.getResources().getIdentifier("colorAccent", "attr", pApplicationContext.getPackageName());
+            }
+            TypedValue outValue = new TypedValue();
+            pApplicationContext.getTheme().resolveAttribute(colorAttr, outValue, true);
+            color = outValue.data;
+        } catch (Exception some_error) {
+            color = DEF_WIDGETCOLOR_INT;
+        }
+        this.__PING__LAST_widget_color = this.__Fallback_Widget_color = color;
 
         this.__USER__onNewUser(Customerly_User.from(this._SharedPreferences));
 
@@ -160,14 +175,12 @@ public class Customerly {
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
     public void onActivityResumed(@NonNull Activity activity) {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             this.__onActivityResumed(activity);
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
     public void onActivityPaused(@NonNull Activity activity) {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             this.__onActivityPaused(activity);
@@ -258,16 +271,14 @@ public class Customerly {
                         this.__PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
                     } catch (IllegalArgumentException notCorrectColor) {
                         Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
-                        this.__PING__LAST_widget_color = Customerly.DEF_WIDGETCOLOR_INT;
+                        this.__PING__LAST_widget_color = this.__Fallback_Widget_color;
                     }
                 }
-                this.__PING__LAST_widget_icon = obj.optLong("widget_icon", Customerly.DEF_WIDGET_ICONTYPE);
                 this.__PING__LAST_powered_by = 1 == obj.optLong("powered_by", 0);
                 this.__PING__LAST_welcome_message_users = obj.optString("welcome_message_users", null);
                 this.__PING__LAST_welcome_message_visitors = obj.optString("welcome_message_visitors", null);
             } else {
-                this.__PING__LAST_widget_color = Customerly.DEF_WIDGETCOLOR_INT;
-                this.__PING__LAST_widget_icon = Customerly.DEF_WIDGET_ICONTYPE;
+                this.__PING__LAST_widget_color = this.__Fallback_Widget_color;
                 this.__PING__LAST_powered_by = false;
                 this.__PING__LAST_welcome_message_users = null;
                 this.__PING__LAST_welcome_message_visitors = null;
@@ -297,8 +308,7 @@ public class Customerly {
             this.__PING__LAST_surveys = Internal_entity__Survey.from(data.optJSONArray("last_surveys"));
 
         } else {
-            this.__PING__LAST_widget_color = Customerly.DEF_WIDGETCOLOR_INT;
-            this.__PING__LAST_widget_icon = Customerly.DEF_WIDGET_ICONTYPE;
+            this.__PING__LAST_widget_color = this.__Fallback_Widget_color;
             this.__PING__LAST_powered_by = false;
             this.__PING__LAST_welcome_message_users = null;
             this.__PING__LAST_welcome_message_visitors = null;
@@ -311,15 +321,13 @@ public class Customerly {
 
         this._SharedPreferences.edit()
                 .putInt(PREFS_PINGRESPONSE__WIDGET_COLOR, this.__PING__LAST_widget_color)
-                .putLong(PREFS_PINGRESPONSE__WIDGET_ICONTYPE, this.__PING__LAST_widget_icon)//TODO non serve più
                 .putBoolean(PREFS_PINGRESPONSE__POWEREDBY, this.__PING__LAST_powered_by)
                 .putString(PREFS_PINGRESPONSE__WELCOME_USERS, this.__PING__LAST_welcome_message_users)
                 .putString(PREFS_PINGRESPONSE__WELCOME_VISITORS, this.__PING__LAST_welcome_message_visitors)
                 .apply();
     }
     private void __PING__restoreFromDisk(@NonNull SharedPreferences pSharedPreferences) {
-        this.__PING__LAST_widget_color = pSharedPreferences.getInt(PREFS_PINGRESPONSE__WIDGET_COLOR, Customerly.DEF_WIDGETCOLOR_INT);
-        this.__PING__LAST_widget_icon = pSharedPreferences.getLong(PREFS_PINGRESPONSE__WIDGET_ICONTYPE, Customerly.DEF_WIDGET_ICONTYPE);
+        this.__PING__LAST_widget_color = pSharedPreferences.getInt(PREFS_PINGRESPONSE__WIDGET_COLOR, this.__Fallback_Widget_color);
         this.__PING__LAST_powered_by = pSharedPreferences.getBoolean(PREFS_PINGRESPONSE__POWEREDBY, false);
         this.__PING__LAST_welcome_message_users = pSharedPreferences.getString(PREFS_PINGRESPONSE__WELCOME_USERS, null);
         this.__PING__LAST_welcome_message_visitors = pSharedPreferences.getString(PREFS_PINGRESPONSE__WELCOME_VISITORS, null);
@@ -566,6 +574,13 @@ public class Customerly {
     public void openSupport(@NonNull Activity activity) {
         if(this._isConfigured()) {
             activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+        }
+    }
+
+    public void openSupportConversation(@NonNull Activity activity, int pConversationId) {
+        if(this._isConfigured()) {
+            activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+            //TODO pending open chat by conversationId
         }
     }
 
