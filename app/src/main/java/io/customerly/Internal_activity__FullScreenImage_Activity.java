@@ -73,6 +73,18 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Customerly.get().setCurrentActivity(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Customerly.get().setCurrentActivity(null);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.getMenuInflater().inflate(R.menu.io_customerly__menu_downloadimage, menu);
         return true;

@@ -75,6 +75,13 @@ public class Customerly {
     @SuppressWarnings("NullableProblems") @NonNull private SharedPreferences _SharedPreferences;
     @SuppressWarnings("NullableProblems") @NonNull private JSONObject cookies;
     @NonNull private WeakReference<Activity> _ActiveActivity = new WeakReference<>(null);
+    void setCurrentActivity(@Nullable Activity activity) {
+        if(activity == null) {
+            this._ActiveActivity.clear();
+        } else {
+            this._ActiveActivity = new WeakReference<>(activity);
+        }
+    }
 
 
 

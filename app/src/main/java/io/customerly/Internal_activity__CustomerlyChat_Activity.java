@@ -299,7 +299,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
         new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
                 .opt_converter(data -> {
-                    Internal_entity__Message messageSent = new Internal_entity__Message(data);
+                    Internal_entity__Message messageSent = new Internal_entity__Message(data.optJSONObject("message"));
                     Customerly._Instance.__SOCKET_SEND_Message(messageSent.assigner_id, data.getLong("timestamp"));
                     return messageSent;
                 })

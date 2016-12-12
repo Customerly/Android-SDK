@@ -71,12 +71,14 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
     @Override
     protected void onResume() {
         super.onResume();
+        Customerly.get().setCurrentActivity(this);
         this.registerReceiver(this._BroadcastReceiver, this._IntentFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Customerly.get().setCurrentActivity(null);
         this.unregisterReceiver(this._BroadcastReceiver);
     }
 
