@@ -40,6 +40,8 @@ import java.util.Locale;
 public class Internal_activity__CustomerlyList_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
+    static final String EXTRA_OPEN_CONVERSATION__CONVERSATION_ID = "EXTRA_OPEN_CONVERSATION__CONVERSATION_ID";
+    static final String EXTRA_OPEN_CONVERSATION__ASSIGNER_ID = "EXTRA_OPEN_CONVERSATION__ASSIGNER_ID";
 
     private View input_email_layout, new_conversation_layout;
     private SwipeRefreshLayout _FirstContact_SRL, _RecyclerView_SRL;
@@ -51,6 +53,9 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(this.getIntent() != null) {
+            this.openConversationById(this.getIntent().getIntExtra(EXTRA_OPEN_CONVERSATION__CONVERSATION_ID, 0), this.getIntent().getIntExtra(EXTRA_OPEN_CONVERSATION__ASSIGNER_ID, 0));
+        }
         if(this.onCreateLayout(R.layout.io_customerly__activity_list, true)) {
             this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customerly__first_contact_swiperefresh);
             this.input_email_layout = this.findViewById(R.id.io_customerly__input_email_layout);
@@ -197,7 +202,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                         lp.bottomMargin = lp.topMargin;
                         icon.setLayoutParams(lp);
 
-                        Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                        Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                                 .fitCenter()
                                 .transformCircle()
                                 .load(admin.getImageUrl(adminIconSizePX))
@@ -300,9 +305,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                         } catch (IllegalStateException ignored) { }
                     }
                     if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                        this.startActivityForResult(new Intent(Internal_activity__CustomerlyList_Activity.this, Internal_activity__CustomerlyChat_Activity.class)
-                                .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, conversationID_assignerID[0])
-                                .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, conversationID_assignerID[1]), RESULT_CODE_REFRESH_LIST);
+                        this.openConversationById(conversationID_assignerID[0], conversationID_assignerID[1]);
                     } else {
                         this.input_input.setText(pMessage);
                         for(Internal_entity__Attachment a : pAttachments) {
@@ -331,6 +334,17 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         }
     }
 
+    private void openConversationById(long id, long assignerID_or0) {
+        if(id != 0) {
+            if(Internal_Utils__Utils.checkConnection(Internal_activity__CustomerlyList_Activity.this)) {
+                Internal_activity__CustomerlyList_Activity.this.startActivityForResult(new Intent(Internal_activity__CustomerlyList_Activity.this, Internal_activity__CustomerlyChat_Activity.class)
+                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, id)
+                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, assignerID_or0), RESULT_CODE_REFRESH_LIST);
+            } else {
+                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
     private class ConversationVH extends RecyclerView.ViewHolder {
         private long _ConversationID, _AssignerID;
         @NonNull private final ImageView _Icon;
@@ -344,22 +358,12 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
             this._Nome = (TextView)this.itemView.findViewById(R.id.io_customerly__nome);
             this._LastMessage = (TextView)this.itemView.findViewById(R.id.io_customerly__last_message);
             this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
-            this.itemView.setOnClickListener(itemview -> {
-                if(this._ConversationID != 0) {
-                    if(Internal_Utils__Utils.checkConnection(Internal_activity__CustomerlyList_Activity.this)) {
-                        Internal_activity__CustomerlyList_Activity.this.startActivityForResult(new Intent(Internal_activity__CustomerlyList_Activity.this, Internal_activity__CustomerlyChat_Activity.class)
-                                .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, this._ConversationID)
-                                .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, this._AssignerID), RESULT_CODE_REFRESH_LIST);
-                    } else {
-                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+            this.itemView.setOnClickListener(itemview -> openConversationById(this._ConversationID, this._AssignerID));
         }
         private void apply(@NonNull Internal_entity__Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
             this._AssignerID = pConversation.assigner_id;
-            Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+            Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                     .fitCenter()
                     .transformCircle()
                     .load(pConversation.getImageUrl(this._IconaSize))

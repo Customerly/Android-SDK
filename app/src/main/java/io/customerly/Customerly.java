@@ -1,5 +1,6 @@
 package io.customerly;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -8,13 +9,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
@@ -41,7 +40,6 @@ public class Customerly {
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Finals ********/
     /******************************************************************************************************************************************************************/
-    private static final String PREF_WELCOME_NEVER_SHOWN = "PREF_WELCOME_NEVER_SHOWN";
     private static final String PREFS__COOKIES_customerly_cookies = "PREFS__COOKIES_customerly_cookies";
     private static final String PREFS_PINGRESPONSE__WIDGET_COLOR = "PREFS_PINGRESPONSE__WIDGET_COLOR";
     private static final String PREFS_PINGRESPONSE__POWEREDBY = "PREFS_PINGRESPONSE__POWEREDBY";
@@ -61,11 +59,9 @@ public class Customerly {
     private static final String SOCKET_EVENT__KEY__seen_date = "seen_date";
     private static final String SOCKET_EVENT__KEY__timestamp = "timestamp";
     private static final String SOCKET_EVENT__KEY__user_id = "user_id";
-    @NonNull private final Internal_Utils__RemoteImageHandler _RemoteImageHandler = new Internal_Utils__RemoteImageHandler();
+    @NonNull
+    final Internal_Utils__RemoteImageHandler _RemoteImageHandler = new Internal_Utils__RemoteImageHandler();
     @NonNull private final Handler _Handler = new Handler();
-    @NonNull private final Runnable _HandlePingRun = () -> {
-        //TODO dev listeners
-    };
     @ColorInt private static final int DEF_WIDGETCOLOR_INT = 0xffd60022;
 
     /******************************************************************************************************************************************************************/
@@ -74,7 +70,7 @@ public class Customerly {
 
     //Diventano NonNull con la configure
     long _ApplicationVersionCode;
-    @ColorInt private int __Fallback_Widget_color = DEF_WIDGETCOLOR_INT;
+    @ColorInt private int __Fallback_Widget_color = DEF_WIDGETCOLOR_INT, __InApp_Hardcoded_WidgetColor = Color.TRANSPARENT;
     @SuppressWarnings("NullableProblems") @NonNull String _AppID, _ApplicationName;
     @SuppressWarnings("NullableProblems") @NonNull private SharedPreferences _SharedPreferences;
     @SuppressWarnings("NullableProblems") @NonNull private JSONObject cookies;
@@ -97,18 +93,15 @@ public class Customerly {
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable Internal_entity__Admin[] __PING__LAST_active_admins;
-    private long __PING__LAST_message_conversation_id;
-    private long __PING__LAST_message_account_id;
-    @Nullable private SpannableStringBuilder __PING__LAST_message_content;
-    @Nullable private Internal_entity__Survey[] __PING__LAST_surveys;
-    private boolean __PING__AlreadyPinging = false;
-    private boolean __WELCOME__NeverShown = true;
-
+    private long __PING__LAST_message_conversation_id = 0;
+    private long __PING__LAST_message_account_id = 0;
+    @Nullable Internal_entity__Survey[] __PING__LAST_surveys;
 
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Singleton *****/
     /******************************************************************************************************************************************************************/
     @NonNull static final Customerly _Instance = new Customerly();
+
     private Customerly() { super(); }
 
     @NonNull public static Customerly get() {
@@ -118,7 +111,21 @@ public class Customerly {
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Initializer ***/
     /******************************************************************************************************************************************************************/
+    /**
+     * @param pApplicationContext The Application Context
+     * @param pCustomerlyAppID The appid found in your Customerly console
+     * @param pWidgetColor if Color.TRANSPARENT, it will be ignored
+     */
+    public void configure(@NonNull Application pApplicationContext, @NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
+        this.__InApp_Hardcoded_WidgetColor = pWidgetColor;
+        this.configure(pApplicationContext, pCustomerlyAppID);
+    }
+    /**
+     * @param pApplicationContext The Application Context
+     * @param pCustomerlyAppID The appid found in your Customerly console
+     */
     public void configure(@NonNull Application pApplicationContext, @NonNull String pCustomerlyAppID) {
+
         this._AppID = pCustomerlyAppID;
         try {
             this._ApplicationName = pApplicationContext.getApplicationInfo().loadLabel(pApplicationContext.getPackageManager()).toString();
@@ -132,68 +139,34 @@ public class Customerly {
         }
         this._SharedPreferences = pApplicationContext.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE);
 
-        @ColorInt int color;
-        try {
-            int colorAttr;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                colorAttr = android.R.attr.colorAccent;
-            } else {
-                //Get colorAccent defined for AppCompat
-                colorAttr = pApplicationContext.getResources().getIdentifier("colorAccent", "attr", pApplicationContext.getPackageName());
+        if(this.__InApp_Hardcoded_WidgetColor == Color.TRANSPARENT) {
+            @ColorInt int color;
+            try {
+                int colorAttr;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    colorAttr = android.R.attr.colorAccent;
+                } else {
+                    //Get colorAccent defined for AppCompat
+                    colorAttr = pApplicationContext.getResources().getIdentifier("colorAccent", "attr", pApplicationContext.getPackageName());
+                }
+                TypedValue outValue = new TypedValue();
+                pApplicationContext.getTheme().resolveAttribute(colorAttr, outValue, true);
+                color = outValue.data;
+            } catch (Exception some_error) {
+                color = DEF_WIDGETCOLOR_INT;
             }
-            TypedValue outValue = new TypedValue();
-            pApplicationContext.getTheme().resolveAttribute(colorAttr, outValue, true);
-            color = outValue.data;
-        } catch (Exception some_error) {
-            color = DEF_WIDGETCOLOR_INT;
+
+            this.__PING__LAST_widget_color = this.__Fallback_Widget_color = color;
+
+        } else {
+            this.__PING__LAST_widget_color = this.__Fallback_Widget_color = this.__InApp_Hardcoded_WidgetColor;
         }
-        this.__PING__LAST_widget_color = this.__Fallback_Widget_color = color;
 
         this.__USER__onNewUser(Customerly_User.from(this._SharedPreferences));
 
         this.cookies = this.__COOKIES__restoreFromDisk();
 
-        this.__WELCOME__NeverShown = this.__WELCOME__restoreFromDisk();
-
         this.__PING__restoreFromDisk(this._SharedPreferences);
-
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            pApplicationContext.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
-                @Override
-                public void onActivityResumed(@NonNull Activity activity) {
-                    __onActivityResumed(activity);
-                }
-                @Override public void onActivityPaused(@NonNull Activity activity) {
-                    __onActivityPaused(activity);
-                }
-                @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
-                @Override public void onActivityStarted(Activity activity) { }
-                @Override public void onActivityStopped(Activity activity) { }
-                @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
-                @Override public void onActivityDestroyed(Activity activity) { }
-            });
-        }
-    }
-
-    public void onActivityResumed(@NonNull Activity activity) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            this.__onActivityResumed(activity);
-        }
-    }
-
-    public void onActivityPaused(@NonNull Activity activity) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            this.__onActivityPaused(activity);
-        }
-    }
-
-    private void __onActivityResumed(@NonNull Activity activity) {
-        this._ActiveActivity = new WeakReference<>(activity);
-        //TODO
-    }
-    private void __onActivityPaused(@NonNull Activity activity) {
-        this._ActiveActivity.clear();
-        //TODO
     }
 
     boolean _isConfigured() {
@@ -221,57 +194,24 @@ public class Customerly {
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Ping Logic ****/
     /******************************************************************************************************************************************************************/
-    @NonNull private final Runnable __PING__PingRun = () ->
-            new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
-                .opt_converter(data -> {
-                    if(data != null) {
-                        this.__PING__onPingResult(data);
-                        this.__PING__scheduleHandlePingResult();
-                        this.__PING__stopPinging();
-                        this._Handler.postDelayed(this.__PING__PingRun, 60000);
-                    }
-                    return null;
-                })
-                .opt_receiver((responseState, data) -> {
-                    if(responseState != Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                        this.__PING__stopPinging();
-                        this._Handler.postDelayed(this.__PING__PingRun, 60000);
-                    }
-                })
-                .start();
-    private void __PING__stopPinging() {
-        this._Handler.removeCallbacks(this.__PING__PingRun);
-    }
-    private void __PING__resumePinging() {
-        synchronized (this.__PING__PingRun) {
-            if (this.__PING__AlreadyPinging)
-                return;
-            else
-                this.__PING__AlreadyPinging = true;
-        }
-        this.__PING__stopPinging();
-        this._Handler.post(this.__PING__PingRun);
-    }
-    private void __PING__scheduleHandlePingResult() {
-        this._Handler.removeCallbacks(this._HandlePingRun);
-        this._Handler.postDelayed(this._HandlePingRun, 3000);
-    }
     private void __PING__onPingResult(@Nullable JSONObject data) {
         if(data != null) {
             JSONObject obj;
 
             if((obj = data.optJSONObject("apps")) != null
                     && (obj = obj.optJSONObject("app_config")) != null) {
-                String pingWidgetColor = obj.optString("widget_color", null);
-                if(pingWidgetColor != null && pingWidgetColor.length() != 0) {
-                    if(pingWidgetColor.charAt(0) != '#') {
-                        pingWidgetColor = '#' + pingWidgetColor;
-                    }
-                    try {
-                        this.__PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
-                    } catch (IllegalArgumentException notCorrectColor) {
-                        Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
-                        this.__PING__LAST_widget_color = this.__Fallback_Widget_color;
+                if(this.__InApp_Hardcoded_WidgetColor == Color.TRANSPARENT) {
+                    String pingWidgetColor = obj.optString("widget_color", null);
+                    if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
+                        if (pingWidgetColor.charAt(0) != '#') {
+                            pingWidgetColor = '#' + pingWidgetColor;
+                        }
+                        try {
+                            this.__PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
+                        } catch (IllegalArgumentException notCorrectColor) {
+                            Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
+                            this.__PING__LAST_widget_color = this.__Fallback_Widget_color;
+                        }
                     }
                 }
                 this.__PING__LAST_powered_by = 1 == obj.optLong("powered_by", 0);
@@ -289,7 +229,6 @@ public class Customerly {
             JSONArray last_messages_array = data.optJSONArray("last_messages");
             this.__PING__LAST_message_conversation_id = 0;
             this.__PING__LAST_message_account_id = 0;
-            this.__PING__LAST_message_content = null;
             if(last_messages_array != null && last_messages_array.length() != 0) {
                 JSONObject message;
                 for (int i = 0; i < last_messages_array.length(); i++) {
@@ -299,7 +238,6 @@ public class Customerly {
                             continue;
                         this.__PING__LAST_message_conversation_id = message.optLong("conversation_id");
                         this.__PING__LAST_message_account_id = message.optLong("account_id");
-                        this.__PING__LAST_message_content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(message.optString("content"));
                         break;
                     } catch (JSONException ignored) { }
                 }
@@ -315,7 +253,6 @@ public class Customerly {
             this.__PING__LAST_active_admins = null;
             this.__PING__LAST_message_conversation_id = 0;
             this.__PING__LAST_message_account_id = 0;
-            this.__PING__LAST_message_content = null;
             this.__PING__LAST_surveys = null;
         }
 
@@ -334,20 +271,12 @@ public class Customerly {
         this.__PING__LAST_active_admins = null;
         this.__PING__LAST_message_conversation_id = 0;
         this.__PING__LAST_message_account_id = 0;
-        this.__PING__LAST_message_content = null;
         this.__PING__LAST_surveys = null;
     }
 
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Welcome Msg. **/
     /******************************************************************************************************************************************************************/
-    private boolean __WELCOME__restoreFromDisk() {
-        return this._SharedPreferences.getBoolean(PREF_WELCOME_NEVER_SHOWN, true);
-    }
-    boolean __WELCOME__hasNeverShownWelcome() {
-        return this.__WELCOME__NeverShown;
-    }
-    void __WELCOME__setShownWelcome() { this._SharedPreferences.edit().putBoolean(PREF_WELCOME_NEVER_SHOWN, this.__WELCOME__NeverShown = false).apply(); }
     @Nullable Spanned __WELCOME__getMessage() {
         return this._isConfigured()
                 ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(this.customerly_user == null ? this.__PING__LAST_welcome_message_visitors : this.__PING__LAST_welcome_message_users)
@@ -398,22 +327,51 @@ public class Customerly {
     /************************************************************************************************************************************************** User **********/
     /******************************************************************************************************************************************************************/
     void __USER__onNewUser(@Nullable Customerly_User user) {
+        if(user != null && ! user.equals(this.customerly_user)) {
+            this.customerly_user = user;
+            user.store(this._SharedPreferences);
+        }
+    }
+    private void __USER__delete() {
+        Customerly_User user = this.customerly_user;
         if(user != null) {
-            synchronized (Customerly.class) {
-                if(this.customerly_user == null || this.customerly_user.customerly_user_id != user.customerly_user_id) {
-                    this.customerly_user = user;
-                    user.store(this._SharedPreferences);
-                }
-            }
-            this.__PING__resumePinging();
+            this.customerly_user = null;
+            user.delete(this._SharedPreferences);
         }
     }
     @Nullable Customerly_User __USER__get() {
         return this.customerly_user;
     }
 
-    void loadRemoteImage(@NonNull Internal_Utils__RemoteImageHandler.Request request) {
-        Customerly.get()._RemoteImageHandler.request(request);
+    private void registerUser(@NonNull Customerly_User pUser, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+        if(this._isConfigured()) {
+            this.__USER__onNewUser(pUser);
+            if(this.__ATTRIBUTES__check_and_setPending(pAttributes, pCallback)) {
+                this.update(pCallback);
+            }
+        }
+    }
+
+    /******************************************************************************************************************************************************************/
+    /************************************************************************************************************************************************** Attribute *****/
+    /******************************************************************************************************************************************************************/
+    @Nullable JSONObject __ATTRIBUTES_pending;
+
+    private boolean __ATTRIBUTES__check_and_setPending(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+        if(pAttributes != null) {
+            JSONArray keys = pAttributes.names();
+            for(int i = 0; i < keys.length(); i++) {
+                try {
+                    Object obj = keys.get(i);
+                    if(obj instanceof JSONObject || obj instanceof  JSONArray) {
+                        pCallback.onResponse(false, false, false);
+                        return false;
+                    }
+                } catch (JSONException ignored) { }
+            }
+            this.__ATTRIBUTES_pending = pAttributes;
+        }
+        return true;
     }
 
     /******************************************************************************************************************************************************************/
@@ -447,6 +405,7 @@ public class Customerly {
             if (user != null && user.customerly_user_id != 0) {
                 if(this.__SOCKET__CurrentConfiguration == null || ! this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, user.customerly_user_id))) {
 
+                    this.__SOCKET__disconnect();
                     this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, user.customerly_user_id);
 
                     String query;
@@ -526,6 +485,16 @@ public class Customerly {
             }
         }
     }
+    private void __SOCKET__disconnect() {
+        Socket socket = this._Socket;
+        if (socket != null) {
+            if (socket.connected()) {
+                socket.disconnect();
+            }
+            this._Socket = null;
+        }
+        this._Handler.removeCallbacks(this.__SOCKET__ping);
+    }
     private void __SOCKET__SEND(@NonNull String event, @NonNull JSONObject payloadJson) {
         Socket socket = this._Socket;
         if(socket != null && socket.connected()) {
@@ -571,58 +540,88 @@ public class Customerly {
         } catch (JSONException ignored) { }
     }
 
+    public interface Callback {
+        void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
+    }
+    public void update(@NonNull Callback pCallback) {
+        new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
+                .opt_converter(data -> {
+                    if(data != null) {
+                        this.__PING__onPingResult(data);
+                    }
+                    return null;
+                })
+                .opt_receiver((responseState, data) -> {
+                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                        Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
+                        pCallback.onResponse(true, surveys != null && surveys.length != 0, this.__PING__LAST_message_conversation_id != 0);
+                    } else {
+                        pCallback.onResponse(false, false, false);
+                    }
+                })
+                .start();
+    }
+
+    public void registerUser(int user_id, @NonNull String email, @Nullable String name, @NonNull Callback pCallback) {
+        this.registerUser(user_id, email, name, null, pCallback);
+    }
+
+    public void registerUser(int user_id, @NonNull String email, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+        this.registerUser(new Customerly_User(true, Customerly_User.UNKNOWN_CUSTOMERLY_USER_ID, user_id, email, name), pAttributes, pCallback);
+    }
+
+    private void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+        if(this._isConfigured()) {
+            if(this.__ATTRIBUTES__check_and_setPending(pAttributes, pCallback)) {
+                this.update(pCallback);
+            }
+        }
+    }
+
     public void openSupport(@NonNull Activity activity) {
         if(this._isConfigured()) {
             activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
         }
     }
 
-    public void openSupportConversation(@NonNull Activity activity, int pConversationId) {
+    public void openLastSupportConversation(@NonNull Activity activity) {
         if(this._isConfigured()) {
-            activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
-            //TODO pending open chat by conversationId
+            long lastMessage_ConversationID = this.__PING__LAST_message_conversation_id;
+            long lastMessage_AssignerID = this.__PING__LAST_message_account_id;
+            activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class)
+                .putExtra(Internal_activity__CustomerlyList_Activity.EXTRA_OPEN_CONVERSATION__CONVERSATION_ID, lastMessage_ConversationID)
+                .putExtra(Internal_activity__CustomerlyList_Activity.EXTRA_OPEN_CONVERSATION__ASSIGNER_ID, lastMessage_AssignerID));
         }
     }
 
-    public void registerUser(@NonNull Customerly_User userSettings) {//TODO Rimuovere? no vedrai no
+    public void logoutUser() {
         if(this._isConfigured()) {
-            this.__USER__onNewUser(userSettings);
-        }
-    }
-
-    public void logoutUser() {//TODO Rimuovere? altrimenti deve cancellare ultima ping e user da disco
-        if(this._isConfigured()) {
-            this.customerly_user = null;
+            this.__USER__delete();
+            this.__ATTRIBUTES_pending = null;
             this.__COOKIES__delete();
-            Socket socket = this._Socket;
-            if (socket != null) {
-                if (socket.connected()) {
-                    socket.disconnect();
-                }
-                this._Socket = null;
-            }
-            //TODO Ripristina icona widget se era admin
-            //Cancella task schedulati
-            this.__PING__stopPinging();
-            this._Handler.removeCallbacks(this._HandlePingRun);
+            this.__SOCKET__disconnect();
         }
     }
 
     public void trackEvent(@NonNull String pEventName) {
-        //TODO In caso di connessione assente perdiamo l'evento
         new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_EVENTTRACKING)
                 .opt_trials(2)
                 .param("name", pEventName)
                 .start();
     }
 
-    public void openSurvey(@NonNull FragmentManager fm) {//TODO
-        Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;//Invalidare i surveys altrimenti anche se lo copmleto fino alla successiva ping rimane lì
-        if(surveys != null && surveys.length != 0) {
-            Internal_dialogfragment__Survey_DialogFragment.open(fm, "SURVEYS", surveys[0]);
-        } else {
-            this._log("No surveys available");
+    @SuppressLint("CommitTransaction")
+    public void openSurvey(@NonNull FragmentManager fm) {
+        Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
+        if(surveys != null) {
+            for (Internal_entity__Survey survey : surveys) {
+                if (survey != null && !survey.isRejected) {
+                    new Internal_dialogfragment__Survey_DialogFragment().show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
+                    return;
+                }
+            }
         }
+        this._log("No surveys available");
     }
 
 }

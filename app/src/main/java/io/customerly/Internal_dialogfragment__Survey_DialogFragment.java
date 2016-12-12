@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
@@ -38,76 +36,71 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     private LinearLayout _SurveyContainer;
     private TextView _Title, _Subtitle;
     private View _ProgressView, _Back;
-    private int _CurrentSurveyID;
+    @Nullable private Internal_entity__Survey _CurrentSurvey;
     private boolean _RejectEnabled = false;
 
-    /** Do not instantiate this fragment directly but call the {@link Internal_dialogfragment__Survey_DialogFragment#open(FragmentManager, String, Internal_entity__Survey)} */
-    @Deprecated public Internal_dialogfragment__Survey_DialogFragment() { super(); }
-    static void open(@NonNull FragmentManager fm, @NonNull String tag, @NonNull Internal_entity__Survey survey) {
-        //noinspection deprecation
-        Internal_dialogfragment__Survey_DialogFragment f = new Internal_dialogfragment__Survey_DialogFragment();
-        Bundle args = new Bundle();
-        args.putParcelable("SURVEY", survey);
-        f.setArguments(args);
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.addToBackStack(null);
-        f.show(ft, tag);
-    }
     @SuppressLint("RtlHardcoded")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Bundle args = this.getArguments();
-        if(args != null) {
-            Internal_entity__Survey survey = args.getParcelable("SURVEY");
-            if (survey != null) {
-                View view = inflater.inflate(R.layout.io_customerly__dialogfragment_survey, container, false);
-                this._Back = view.findViewById(R.id.io_customerly__back);
-                this._Back.setOnClickListener(v -> {
-                    if(this._Back.getVisibility() == View.VISIBLE && this._ProgressView.getVisibility() == View.GONE) {
-                        this._SurveyContainer.removeAllViews();
-                        new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_BACK)
-                                .opt_checkConn(this.getContext())
-                                .opt_trials(2)
-                                .opt_onPreExecute(() -> {
-                                    this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
-                                    this._Title.setVisibility(View.GONE);
-                                    this._Subtitle.setVisibility(View.GONE);
-                                    this._SurveyContainer.removeAllViews();
-                                    this._ProgressView.setVisibility(View.VISIBLE);
-                                })
-                                .opt_converter(Internal_entity__Survey::from)
-                                .opt_receiver((responseState, surveyBack) -> {
-                                    this.applySurvey(surveyBack);
-                                    this._ProgressView.setVisibility(View.GONE);
-                                })
-                                .param("survey_id", this._CurrentSurveyID)
-                                .start();
-                    }
-                });
-                view.findViewById(R.id.io_customerly__close).setOnClickListener(v -> {
-                    if(this._RejectEnabled && this._ProgressView.getVisibility() == View.GONE) {
-                        new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
-                                .opt_checkConn(this.getContext())
-                                .opt_progressdialog(this.getContext(), this.getString(R.string.io_customerly__survey), this.getString(R.string.io_customerly__invio_la_risposta))
-                                .opt_trials(2)
-                                .opt_receiver((responseState, surveyBack) -> this.dismissAllowingStateLoss())
-                                .param("survey_id", this._CurrentSurveyID)
-                                .start();
-                    } else {
-                        this.dismissAllowingStateLoss();
-                    }
-                });
-                this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
-                this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
-                this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
-                this._ProgressView = view.findViewById(R.id.io_customerly__progressview);
+        Internal_entity__Survey[] surveys = Customerly._Instance.__PING__LAST_surveys;
+        if(surveys != null) {
+            for (Internal_entity__Survey survey : surveys) {
+                if (survey != null && !survey.isRejected) {
+                    View view = inflater.inflate(R.layout.io_customerly__dialogfragment_survey, container, false);
+                    this._Back = view.findViewById(R.id.io_customerly__back);
+                    this._Back.setOnClickListener(v -> {
+                        Internal_entity__Survey currentSurvey = this._CurrentSurvey;
+                        if (currentSurvey != null && this._Back.getVisibility() == View.VISIBLE && this._ProgressView.getVisibility() == View.GONE) {
+                            this._SurveyContainer.removeAllViews();
+                            new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_BACK)
+                                    .opt_checkConn(this.getContext())
+                                    .opt_trials(2)
+                                    .opt_onPreExecute(() -> {
+                                        this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
+                                        this._Title.setVisibility(View.GONE);
+                                        this._Subtitle.setVisibility(View.GONE);
+                                        this._SurveyContainer.removeAllViews();
+                                        this._ProgressView.setVisibility(View.VISIBLE);
+                                    })
+                                    .opt_converter(Internal_entity__Survey::from)
+                                    .opt_receiver((responseState, surveyBack) -> {
+                                        this.applySurvey(surveyBack);
+                                        this._ProgressView.setVisibility(View.GONE);
+                                    })
+                                    .param("survey_id", currentSurvey.survey_id)
+                                    .start();
+                        }
+                    });
+                    view.findViewById(R.id.io_customerly__close).setOnClickListener(v -> {
+                        if (this._ProgressView.getVisibility() == View.GONE) {
+                            Internal_entity__Survey currentSurvey = this._CurrentSurvey;
+                            if (this._RejectEnabled && currentSurvey != null) {
+                                currentSurvey.isRejected = true;
+                                new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
+                                        .opt_checkConn(this.getContext())
+                                        .opt_trials(2)
+                                        .opt_receiver((responseState, surveyBack) -> {
+                                        })
+                                        .param("survey_id", currentSurvey.survey_id)
+                                        .start();
+                            }
+                            this.dismissAllowingStateLoss();
+                        }
+                    });
+                    this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
+                    this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
+                    this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
+                    this._ProgressView = view.findViewById(R.id.io_customerly__progressview);
 
-                this.applySurvey(survey);
+                    this.applySurvey(survey);
 
-                return view;
+                    return view;
+                }
             }
         }
+        Customerly._Instance._log("No surveys available");
+        this.dismissAllowingStateLoss();
         return null;
     }
 
@@ -116,7 +109,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             this.dismissAllowingStateLoss();
             return;
         }
-        this._CurrentSurveyID = survey.survey_id;
+        this._CurrentSurvey = survey;
         if(survey.type == Internal_entity__Survey.TYPE_END_SURVEY) {
             this._Back.setVisibility(View.INVISIBLE);
             this._RejectEnabled = false;
@@ -150,7 +143,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(40));
                                 lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
                                 b.setLayoutParams(lp);
-                                b.setOnClickListener(v -> this.nextSurvey(survey.survey_id, c.survey_choice_id, null));
+                                b.setOnClickListener(v -> this.nextSurvey(survey, c.survey_choice_id, null));
                             }
                             this._SurveyContainer.addView(b);
                         }
@@ -168,7 +161,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(40));
                                 lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
                                 rb.setLayoutParams(lp);
-                                rb.setOnClickListener(v -> this.nextSurvey(survey.survey_id, c.survey_choice_id, null));
+                                rb.setOnClickListener(v -> this.nextSurvey(survey, c.survey_choice_id, null));
                             }
                             this._SurveyContainer.addView(rb);
                         }
@@ -186,7 +179,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 @Override
                                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                     if (id != 0) {
-                                        nextSurvey(survey.survey_id, (int) id, null);
+                                        nextSurvey(survey, (int) id, null);
                                     }
                                 }
 
@@ -323,7 +316,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Internal_Utils__Utils.px(160), Internal_Utils__Utils.px(40));
                             lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
                             confirm.setLayoutParams(lp);
-                            confirm.setOnClickListener(v -> this.nextSurvey(survey.survey_id, -1, String.valueOf(confirm.getTag())));
+                            confirm.setOnClickListener(v -> this.nextSurvey(survey, -1, String.valueOf(confirm.getTag())));
                         }
                         ll_root.addView(confirm);
                     }
@@ -338,7 +331,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                         ratingbar.setLayoutParams(lp);
                         ratingbar.setNumStars(5);
                         ratingbar.setStepSize(1);
-                        ratingbar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> this.nextSurvey(survey.survey_id, -1, String.valueOf(rating)));
+                        ratingbar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
                     }
                     this._SurveyContainer.addView(ratingbar);
                     break;
@@ -401,7 +394,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             confirm.setLayoutParams(lp);
                             confirm.setOnClickListener(v -> {
                                 if(edittext.getText().length() != 0) {
-                                    this.nextSurvey(survey.survey_id, -1, edittext.getText().toString().trim());
+                                    this.nextSurvey(survey, -1, edittext.getText().toString().trim());
                                 }
                             });
                         }
@@ -423,7 +416,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
         }
     }
 
-    private void nextSurvey(int survey_id, int choice_id, @Nullable String answer) {
+    private void nextSurvey(Internal_entity__Survey pSurvey, int choice_id, @Nullable String answer) {
         Internal_api__CustomerlyRequest.Builder builder = new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_SUBMIT)
                 .opt_checkConn(this.getContext())
                 .opt_progressview(this._ProgressView, View.GONE)
@@ -434,13 +427,13 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     this._SurveyContainer.removeAllViews();
                     this._ProgressView.setVisibility(View.VISIBLE);
                 })
-                .opt_converter(Internal_entity__Survey::from)
+                .opt_converter(pSurvey::updateFrom)
                 .opt_receiver((responseState, survey) -> {
                     this.applySurvey(survey);
                     this._ProgressView.setVisibility(View.GONE);
                 })
                 .opt_trials(2)
-                .param("survey_id", survey_id);
+                .param("survey_id", pSurvey.survey_id);
         if(choice_id != -1) {
             builder = builder.param("choice_id", choice_id);
         } else {

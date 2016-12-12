@@ -49,7 +49,7 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 try {
-                    Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                    Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(_ImageView)

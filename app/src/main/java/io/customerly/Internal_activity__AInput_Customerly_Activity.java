@@ -72,14 +72,12 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
     protected void onResume() {
         super.onResume();
         this.registerReceiver(this._BroadcastReceiver, this._IntentFilter);
-        Customerly.get().onActivityResumed(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         this.unregisterReceiver(this._BroadcastReceiver);
-        Customerly.get().onActivityPaused(this);
     }
 
     /**

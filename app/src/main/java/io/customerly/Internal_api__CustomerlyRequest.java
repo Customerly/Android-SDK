@@ -189,6 +189,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                             this._Trials)
                             .execute(this._Params);
                 } else if (this._ResponseReceiver != null) {
+                    Customerly._Instance._log("Check your connection");
                     this._ResponseReceiver.onResponse(RESPONSE_STATE__ERROR_NO_CONNECTION, null);
                 }
             }
@@ -214,6 +215,12 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             Customerly_User user = Customerly._Instance.__USER__get();
             if(user != null) {
                 user.fillSettingsJSON(settings);
+            }
+
+            JSONObject attributes = Customerly._Instance.__ATTRIBUTES_pending;
+            Customerly._Instance.__ATTRIBUTES_pending = null;
+            if(attributes != null) {
+                settings.put("attributes", attributes);
             }
 
             postObject = new JSONObject()
@@ -297,6 +304,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                     }
                     data = root.optJSONObject("error");
                     if(data != null) {
+                        Customerly._Instance._log(data.optString("message", "The server received the request but an error has come"));
                         int error_code = data.optInt("code", -1);
                         if(error_code != -1) {
                             switch(error_code) {
@@ -306,14 +314,18 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                                 return null;
                             }
                         }
+                    } else {
+                        Customerly._Instance._log("The server received the request but an error has come");
                     }
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
                     Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, "Http wrong response format for trial " + this._Trials + " of " + this._Endpoint + " -> " + responseStrBuilder.toString());
                 } catch (JSONException error) {
+                    Customerly._Instance._log("The server received the request but an error has come");
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
                     Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, "Http response error for for trial " + this._Trials + " of " + this._Endpoint + " -> " + responseStrBuilder.toString(), error);
                 }
             } catch (IOException error) {
+                Customerly._Instance._log("An error occours during the connection to server");
                 this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
                 Internal_errorhandler__CustomerlyErrorHandler.sendError(ERROR_CODE__IO_ERROR, "Http IOException error for for trial " + this._Trials + " of " + this._Endpoint, error);
             } finally {

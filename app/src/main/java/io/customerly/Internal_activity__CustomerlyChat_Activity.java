@@ -130,6 +130,14 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                     .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "messages", Internal_entity__Message::new))
                     .opt_receiver((responseState, list) -> {
                         if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && list != null) {
+                            if(this._AssignerID == 0) {
+                                for (Internal_entity__Message m : list) {
+                                    if (m.assigner_id != 0) {
+                                        this._AssignerID = m.assigner_id;
+                                        break;
+                                    }
+                                }
+                            }
                             this._ListRecyclerView.post(() -> {
                                 progressview.setVisibility(View.GONE);
                                 int visibleItemCount = this._LinearLayoutManager.getChildCount();
@@ -167,6 +175,15 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                             }));
 
                             Customerly._Instance.__SOCKET_RECEIVE_Message((pNewMessages -> {
+                                if(this._AssignerID == 0) {
+                                    for (Internal_entity__Message m : pNewMessages) {
+                                        if (m.assigner_id != 0) {
+                                            this._AssignerID = m.assigner_id;
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 final ArrayList<Internal_entity__Message> lista = new ArrayList<>(this._ChatList);
 
                                 //Ordina la lista iniziale (necessario per velocizzare la ricerca duplicati)
@@ -422,7 +439,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
         protected void apply(@Nullable Internal_entity__Message __null, @Nullable String _NonSiMostraNelTyping, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             if (pIsFirstMessageOfSender) {
-                Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
                         .load(Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize))
@@ -502,7 +519,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                 }
 
                 if (pIsFirstMessageOfSender) {
-                    Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                    Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                             .fitCenter()
                             .transformCircle()
                             .load(pMessage.getImageUrl(this._IconaSize))
@@ -573,7 +590,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                         if(attachment.isImage()) {
                             //Immagine
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(80)));
-                            Customerly.get().loadRemoteImage(new Internal_Utils__RemoteImageHandler.Request()
+                            Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                                     .centerCrop()
                                     .load(attachment.getFullPath())
                                     .into(iv)
