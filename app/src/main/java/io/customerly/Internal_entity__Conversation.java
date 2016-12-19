@@ -82,7 +82,7 @@ class Internal_entity__Conversation {
         return this.last_message_abstract;
     }
 
-    @NonNull String getFormattedLastMessageTime(@NonNull Resources resources) {//TODO Localization
+    @NonNull String getFormattedLastMessageTime(@NonNull Resources resources) {
         return Internal_Utils__TimeAgoUtils.calculate(this.last_message_date,
                 seconds -> resources.getString(R.string.io_customerly__XXs_ago, seconds),
                 minutes -> resources.getString(R.string.io_customerly__XXm_ago, minutes),

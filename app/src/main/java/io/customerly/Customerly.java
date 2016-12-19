@@ -14,10 +14,12 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.text.Spannable;
 import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
 
+import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,6 +77,7 @@ public class Customerly {
     @SuppressWarnings("NullableProblems") @NonNull private SharedPreferences _SharedPreferences;
     @SuppressWarnings("NullableProblems") @NonNull private JSONObject cookies;
     @NonNull private WeakReference<Activity> _ActiveActivity = new WeakReference<>(null);
+
     void setCurrentActivity(@Nullable Activity activity) {
         if(activity == null) {
             this._ActiveActivity.clear();
@@ -96,13 +99,16 @@ public class Customerly {
     @Nullable private Customerly_User customerly_user;
     @Nullable private Socket _Socket;
 
+    private long __PING__next_ping_allowed = 0L;
     @ColorInt int __PING__LAST_widget_color;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable Internal_entity__Admin[] __PING__LAST_active_admins;
-    private long __PING__LAST_message_conversation_id = 0;
+    long __PING__LAST_message_conversation_id = 0;
     private long __PING__LAST_message_account_id = 0;
     @Nullable Internal_entity__Survey[] __PING__LAST_surveys;
+
+    @Nullable private RealTimeMessagesCallback __SOCKET__RealTimeMessagesCallback;
 
     /******************************************************************************************************************************************************************/
     /************************************************************************************************************************************************** Singleton *****/
@@ -111,6 +117,7 @@ public class Customerly {
 
     private Customerly() { super(); }
 
+    @Contract(pure = true)
     @NonNull public static Customerly get() {
         return Customerly._Instance;
     }
@@ -364,6 +371,7 @@ public class Customerly {
     /******************************************************************************************************************************************************************/
     @Nullable JSONObject __ATTRIBUTES_pending;
 
+    @Contract("null, _ -> true")
     private boolean __ATTRIBUTES__check_and_setPending(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
         if(pAttributes != null) {
             JSONArray keys = pAttributes.names();
@@ -409,15 +417,15 @@ public class Customerly {
     void __SOCKET__connect() {
         if(this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
             Customerly_User user = this.customerly_user;
-            if (user != null && user.customerly_user_id != 0) {
-                if(this.__SOCKET__CurrentConfiguration == null || ! this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, user.customerly_user_id))) {
+            if (user != null && user.internal_user_id != 0) {
+                if(this.__SOCKET__CurrentConfiguration == null || ! this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, user.internal_user_id))) {
 
                     this.__SOCKET__disconnect();
-                    this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, user.customerly_user_id);
+                    this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, user.internal_user_id);
 
                     String query;
                     try {
-                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.customerly_user_id).toString();
+                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.internal_user_id).toString();
                     } catch (JSONException errore) {
                         return;
                     }
@@ -443,7 +451,7 @@ public class Customerly {
                                     payloadJson = payloadJson.getJSONObject(SOCKET_EVENT__KEY__conversation);
                                     if (payloadJson != null) {
                                         Customerly_User usr = this.customerly_user;
-                                        if (usr != null && usr.customerly_user_id == payloadJson.getLong(SOCKET_EVENT__KEY__user_id) && !payloadJson.optBoolean(SOCKET_EVENT__KEY__is_note, false)) {
+                                        if (usr != null && usr.internal_user_id == payloadJson.getLong(SOCKET_EVENT__KEY__user_id) && !payloadJson.optBoolean(SOCKET_EVENT__KEY__is_note, false)) {
                                             long conversation_id = payloadJson.optLong(SOCKET_EVENT__KEY__conversation_id, 0);
                                             __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
                                             if (conversation_id != 0 && listener != null) {
@@ -466,15 +474,23 @@ public class Customerly {
                                     long crm_user_id = payloadJson.optLong(SOCKET_EVENT__KEY__user_id);
                                     Customerly_User usr = this.customerly_user;
 
-                                    if (timestamp != 0 && crm_user_id != 0 && crm_user_id == usr.customerly_user_id
+                                    if (timestamp != 0 && crm_user_id != 0 && crm_user_id == usr.internal_user_id
                                             && !payloadJson.getJSONObject(SOCKET_EVENT__KEY__conversation).optBoolean(SOCKET_EVENT__KEY__is_note, false)) {
                                         final __SOCKET__IMessage_listener listener = this.__SOCKET__Message_listener;
-                                        if (listener != null) {
+                                        final RealTimeMessagesCallback rtcCallback = this.__SOCKET__RealTimeMessagesCallback;
+                                        if (listener != null || rtcCallback != null) {
                                             new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Message>>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGENEWS)
                                                     .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "messages", Internal_entity__Message::new))
                                                     .opt_receiver((responseState, newsResponse) -> {
                                                         if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && newsResponse != null) {
-                                                            listener.onMessageEvent(newsResponse);
+                                                            if(listener != null) {
+                                                                listener.onMessageEvent(newsResponse);
+                                                            } else if(/*rtcCallback != null && */newsResponse.size() != 0) {
+                                                                Internal_entity__Message last_message = newsResponse.get(0);
+                                                                this.__PING__LAST_message_conversation_id = last_message.conversation_id;
+                                                                this.__PING__LAST_message_account_id = last_message.assigner_id;
+                                                                rtcCallback.onMessage(last_message.content);
+                                                            }
                                                         }
                                                     })
                                                     .param("timestamp", timestamp)
@@ -551,35 +567,39 @@ public class Customerly {
         void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
     }
     public void update(@NonNull Callback pCallback) {
-        new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
-                .opt_converter(data -> {
-                    if(data != null) {
-                        this.__PING__onPingResult(data);
-                    }
-                    return null;
-                })
-                .opt_receiver((responseState, data) -> {
-                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+        if(System.currentTimeMillis() < this.__PING__next_ping_allowed) {
+            this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) /1000 + " seconds.");
+            Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
+            pCallback.onResponse(false, surveys != null && surveys.length != 0, this.__PING__LAST_message_conversation_id != 0);
+        } else {
+            new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
+                    .opt_converter(data -> {
+                        if (data != null) {
+                            this.__PING__next_ping_allowed = data.optLong("next-ping-allowed", 0);
+                            this.__PING__onPingResult(data);
+                        }
+                        return null;
+                    })
+                    .opt_receiver((responseState, _void) -> {
                         Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
-                        pCallback.onResponse(true, surveys != null && surveys.length != 0, this.__PING__LAST_message_conversation_id != 0);
-                    } else {
-                        pCallback.onResponse(false, false, false);
-                    }
-                })
-                .start();
+                        pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, surveys != null && surveys.length != 0, this.__PING__LAST_message_conversation_id != 0);
+                    })
+                    .start();
+        }
     }
 
-    public void registerUser(int user_id, @NonNull String email, @Nullable String name, @NonNull Callback pCallback) {
+    public void registerUser(String user_id, @NonNull String email, @Nullable String name, @NonNull Callback pCallback) {
         this.registerUser(user_id, email, name, null, pCallback);
     }
 
-    public void registerUser(int user_id, @NonNull String email, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+    public void registerUser(String user_id, @NonNull String email, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
         this.registerUser(new Customerly_User(true, Customerly_User.UNKNOWN_CUSTOMERLY_USER_ID, user_id, email, name), pAttributes, pCallback);
     }
 
-    private void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+    public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
         if(this._isConfigured()) {
             if(this.__ATTRIBUTES__check_and_setPending(pAttributes, pCallback)) {
+                this.__PING__next_ping_allowed = 0L;
                 this.update(pCallback);
             }
         }
@@ -629,6 +649,14 @@ public class Customerly {
             }
         }
         this._log("No surveys available");
+    }
+
+    public interface RealTimeMessagesCallback {
+        void onMessage(Spannable messageContent);
+    }
+
+    public void registerRealTimeMessagesCallback(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {
+        this.__SOCKET__RealTimeMessagesCallback = pRealTimeMessagesCallback;
     }
 
 }

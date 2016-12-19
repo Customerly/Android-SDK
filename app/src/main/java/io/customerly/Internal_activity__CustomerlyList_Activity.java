@@ -56,6 +56,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         if(this.getIntent() != null) {
             this.openConversationById(this.getIntent().getIntExtra(EXTRA_OPEN_CONVERSATION__CONVERSATION_ID, 0), this.getIntent().getIntExtra(EXTRA_OPEN_CONVERSATION__ASSIGNER_ID, 0));
         }
+        Customerly.get().__PING__LAST_message_conversation_id = Customerly.get().__PING__LAST_message_conversation_id = 0;
         if(this.onCreateLayout(R.layout.io_customerly__activity_list, true)) {
             this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customerly__first_contact_swiperefresh);
             this.input_email_layout = this.findViewById(R.id.io_customerly__input_email_layout);

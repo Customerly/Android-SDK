@@ -42,8 +42,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import static android.os.Build.VERSION_CODES.N;
-
 /**
  * Created by Gianni on 31/05/16.
  * Project: CustomerlySDK
@@ -246,7 +244,7 @@ class Internal_Utils__Utils {
         }
 
         Spanned spannedMessage;
-        if(Build.VERSION.SDK_INT >= N) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             spannedMessage = Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_LEGACY, _SpanImage_ImageGetter, null);
         } else {
             //noinspection deprecation
@@ -345,7 +343,7 @@ class Internal_Utils__Utils {
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
-                // TODO handle non-primary volumes
+                // TO DO handle non-primary volumes
             }
             // DownloadsProvider
             else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
@@ -412,7 +410,7 @@ class Internal_Utils__Utils {
     }
 
     @ColorInt
-    public static int getContrastColor(@ColorInt int color) {
+    static int getContrastColor(@ColorInt int color) {
         return (((0.299 * Color.red(color)) + ((0.587 * Color.green(color)) + (0.114 * Color.blue(color))))) > 186
                 ? Color.BLACK : Color.WHITE;
     }

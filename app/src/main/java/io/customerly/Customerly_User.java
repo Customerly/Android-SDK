@@ -12,40 +12,43 @@ import org.json.JSONObject;
  * Created by Gianni on 31/05/16.
  * Project: CustomerlySDK
  */
-public class Customerly_User {
+class Customerly_User {
     static final long UNKNOWN_CUSTOMERLY_USER_ID = 0;
     private final boolean is_user;
-    final long customerly_user_id;
-    private final long user_id;
+    final long internal_user_id;
+    private final String user_id;
     @Nullable private final String email;
     @Nullable private final String name;
 
-    Customerly_User(boolean isUser, long customerly_user_id, long user_id, @Nullable String email, @Nullable String name) {
+    Customerly_User(boolean isUser, long internal_user_id, String user_id, @Nullable String email, @Nullable String name) {
         super();
         this.is_user = isUser;
-        this.customerly_user_id = customerly_user_id;
+        this.internal_user_id = internal_user_id;
         this.user_id = user_id;
         this.email = email;
         this.name = name;
     }
 
-    static Customerly_User from(@NonNull JSONObject pUserData) {
-        long crmhero_user_id = pUserData.optLong("customerly_user_id"),
-                user_id = pUserData.optLong("user_id");
-        return crmhero_user_id == 0 && user_id == 0 ? null : new Customerly_User(pUserData.optInt("is_user") == 1, crmhero_user_id, user_id, pUserData.optString("email"), pUserData.optString("name"));
+    @Nullable static Customerly_User from(@NonNull JSONObject pUserData) {
+        long internal_user_id = pUserData.optLong("internal_user_id");
+        if(internal_user_id == 0) {//TODO per ora è crmhero_user_id ma dovrebbe refactorizzare a internal_user_id
+            internal_user_id = pUserData.optLong("crmhero_user_id");
+        }
+        String user_id = pUserData.optString("user_id", null);
+        return internal_user_id == 0 && user_id == null ? null : new Customerly_User(pUserData.optInt("is_user") == 1, internal_user_id, user_id, pUserData.optString("email"), pUserData.optString("name"));
     }
 
-    static Customerly_User from(@NonNull SharedPreferences pPrefs) {
-        long crmhero_user_id = pPrefs.getLong("customerly_user_id", 0),
-                user_id = pPrefs.getLong("user_id", 0);
-        return crmhero_user_id == 0 && user_id == 0 ? null : new Customerly_User(pPrefs.getBoolean("is_user", true), crmhero_user_id, user_id, pPrefs.getString("email", null), pPrefs.getString("name", null));
+    @Nullable static Customerly_User from(@NonNull SharedPreferences pPrefs) {
+        long crmhero_user_id = pPrefs.getLong("internal_user_id", 0);
+        String user_id = pPrefs.getString("user_id", null);
+        return crmhero_user_id == 0 && user_id == null ? null : new Customerly_User(pPrefs.getBoolean("is_user", true), crmhero_user_id, user_id, pPrefs.getString("email", null), pPrefs.getString("name", null));
     }
 
     void store(@NonNull SharedPreferences pPrefs) {
         pPrefs.edit()
                 .putBoolean("is_user", this.is_user)
-                .putLong("customerly_user_id", this.customerly_user_id)
-                .putLong("user_id", this.user_id)
+                .putLong("internal_user_id", this.internal_user_id)
+                .putString("user_id", this.user_id)
                 .putString("email", this.email)
                 .putString("name", this.name)
                 .apply();
@@ -53,12 +56,7 @@ public class Customerly_User {
 
     void fillSettingsJSON(@NonNull JSONObject pSettingsJSON) {
         if(this.is_user) {
-            if (this.customerly_user_id != UNKNOWN_CUSTOMERLY_USER_ID) {
-                try {
-                    pSettingsJSON.put("customerly_user_id", this.customerly_user_id);
-                } catch (JSONException ignored) { }
-            }
-            if (this.user_id != 0) {
+            if (this.user_id != null) {
                 try {
                     pSettingsJSON.put("user_id", this.user_id);
                 } catch (JSONException ignored) { }
@@ -79,7 +77,7 @@ public class Customerly_User {
     void delete(@NonNull SharedPreferences pPrefs) {
         pPrefs.edit()
                 .remove("is_user")
-                .remove("customerly_user_id")
+                .remove("internal_user_id")
                 .remove("user_id")
                 .remove("email")
                 .remove("name")
@@ -88,6 +86,6 @@ public class Customerly_User {
 
     @Override
     public boolean equals(@Nullable Object other) {
-        return other != null && other instanceof Customerly_User && ((Customerly_User)other).customerly_user_id == this.customerly_user_id;
+        return other != null && other instanceof Customerly_User && ((Customerly_User)other).internal_user_id == this.internal_user_id;
     }
 }

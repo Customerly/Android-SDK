@@ -175,15 +175,6 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                             }));
 
                             Customerly._Instance.__SOCKET_RECEIVE_Message((pNewMessages -> {
-                                if(this._AssignerID == 0) {
-                                    for (Internal_entity__Message m : pNewMessages) {
-                                        if (m.assigner_id != 0) {
-                                            this._AssignerID = m.assigner_id;
-                                            break;
-                                        }
-                                    }
-                                }
-
                                 final ArrayList<Internal_entity__Message> lista = new ArrayList<>(this._ChatList);
 
                                 //Ordina la lista iniziale (necessario per velocizzare la ricerca duplicati)
@@ -193,6 +184,9 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 messaggio_gia_in_lista__non_viene_aggiunto:
                                 for (Internal_entity__Message message : pNewMessages) {
                                     if (message.conversation_id == this._ConversationID) {//Filtra per conversazioneID
+                                        if (message.assigner_id != 0 && this._AssignerID == 0) {
+                                            this._AssignerID = message.assigner_id;
+                                        }
                                         if (message.conversation_message_id > mostRecentMessageId) {
                                             mostRecentMessageId = message.conversation_message_id;
                                         }
@@ -252,7 +246,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
     private void sendSeen(long messageID_seen) {
         final long seenDate = System.currentTimeMillis() / 1000;
-        Customerly._Instance.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, seenDate); //TODO seenTimestamp localization
+        Customerly._Instance.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, seenDate);
 
         new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEEN)
                 .opt_checkConn(this)
@@ -276,7 +270,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
         Customerly_User user = Customerly._Instance.__USER__get();
         if(user != null) {
-            Internal_entity__Message message = new Internal_entity__Message(user.customerly_user_id, this._ConversationID, pMessage, pAttachments);
+            Internal_entity__Message message = new Internal_entity__Message(user.internal_user_id, this._ConversationID, pMessage, pAttachments);
             this._ListRecyclerView.post(() -> {
                 int visibleItemCount = this._LinearLayoutManager.getChildCount();
                 int totalItemCount = this._LinearLayoutManager.getItemCount();
@@ -664,7 +658,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
         final int _5dp = Internal_Utils__Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
         int lastPositionAnimated = Integer.MAX_VALUE;
         int firstPositionAnimated = -1;
-        private long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);//TODO Localization?
+        private long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);
         @Override
         public int getItemViewType(int position) {
             return (_Typing && position == this.getItemCount() - 1) ? 0 : _ChatList.get(position).isUserMessage() ? R.layout.io_customerly__li_message_user : R.layout.io_customerly__li_message_account;
