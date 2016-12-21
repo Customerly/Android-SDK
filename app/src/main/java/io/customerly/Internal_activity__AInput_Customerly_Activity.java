@@ -102,38 +102,43 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
             if (actionBar != null) {
 
                 String title;
-                if(Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
-                    actionBar.setHomeAsUpIndicator(homeAsUp_closeIcon ? R.drawable.io_customerly__ic_clear_black_24dp : R.drawable.io_customerly__ic_arrow_back_black_24dp);
-                    title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
+                if(Customerly._Instance.__PING__LAST_widget_color != 0) {
+                    actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
+                    }
 
-                } else {
-                    actionBar.setHomeAsUpIndicator(homeAsUp_closeIcon ? R.drawable.io_customerly__ic_clear_white_24dp : R.drawable.io_customerly__ic_arrow_back_white_24dp);
-                    title = String.format("<font color='#ffffff'>%1$s</font>", actionBar.getTitle());
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    actionBar.setTitle(Html.fromHtml(title, 0));
-                } else {
-                    //noinspection deprecation
-                    actionBar.setTitle(Html.fromHtml(title));
-                }
+                    if (Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
+                        actionBar.setHomeAsUpIndicator(homeAsUp_closeIcon ? R.drawable.io_customerly__ic_clear_black_24dp : R.drawable.io_customerly__ic_arrow_back_black_24dp);
+                        title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
+                    } else {
+                        actionBar.setHomeAsUpIndicator(homeAsUp_closeIcon ? R.drawable.io_customerly__ic_clear_white_24dp : R.drawable.io_customerly__ic_arrow_back_white_24dp);
+                        title = String.format("<font color='#ffffff'>%1$s</font>", actionBar.getTitle());
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        actionBar.setTitle(Html.fromHtml(title, 0));
+                    } else {
+                        //noinspection deprecation
+                        actionBar.setTitle(Html.fromHtml(title));
+                    }
+                }
                 actionBar.setDisplayHomeAsUpEnabled(true);
-                actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
             }
 
             if (Customerly._Instance.__PING__LAST_powered_by) {
                 SpannableStringBuilder ssb = new SpannableStringBuilder(this.getString(R.string.io_customerly__offerto_da_));
                 SpannableString redBoldSpannable= new SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME);
 
-                int linkColor = Customerly._Instance.__PING__LAST_widget_color;
+                if(Customerly._Instance.__PING__LAST_widget_color != 0) {
+                    int linkColor = Customerly._Instance.__PING__LAST_widget_color;
 
-                while(Internal_Utils__Utils.getContrastColor(linkColor) == Color.BLACK) { //Fintanto che ha bisogno di uno sfondo nero per fare contrasto
-                    linkColor = Internal_Utils__Utils.alterColor(linkColor, 0.95f);
+                    while (Internal_Utils__Utils.getContrastColor(linkColor) == Color.BLACK) { //Fintanto che ha bisogno di uno sfondo nero per fare contrasto
+                        linkColor = Internal_Utils__Utils.alterColor(linkColor, 0.95f);
+                    }
+
+                    redBoldSpannable.setSpan(new ForegroundColorSpan(linkColor), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 }
-
-                redBoldSpannable.setSpan(new ForegroundColorSpan(linkColor), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 ssb.append(redBoldSpannable);
                 offerto_da.setText(ssb);

@@ -56,5 +56,6 @@
     <string name="io_customerly__conferma_x">Conferma %1$d</string>
     <string name="io_customerly__hint_inserisci_un_numero">Inserisci un numero</string>
     <string name="io_customerly__hint_inserisci_un_testo">Inserisci un testo</string>
+    <string name="io_customerly__support">Supporto</string>
 
 </resources>

@@ -411,7 +411,7 @@ class Internal_Utils__Utils {
 
     @ColorInt
     static int getContrastColor(@ColorInt int color) {
-        return (((0.299 * Color.red(color)) + ((0.587 * Color.green(color)) + (0.114 * Color.blue(color))))) > 186
+        return color == 0 || ((0.299 * Color.red(color)) + ((0.587 * Color.green(color)) + (0.114 * Color.blue(color)))) > 186
                 ? Color.BLACK : Color.WHITE;
     }
 
