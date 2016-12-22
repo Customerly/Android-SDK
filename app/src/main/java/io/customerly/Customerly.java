@@ -15,7 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
-import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -99,8 +98,6 @@ public class Customerly {
     long __PING__LAST_message_conversation_id = 0;
     private long __PING__LAST_message_account_id = 0;
     @Nullable Internal_entity__Survey[] __PING__LAST_surveys;
-
-    @Nullable private RealTimeMessagesCallback __SOCKET__RealTimeMessagesCallback;
 
     /* ****************************************************************************************************************************************************************/
     /* ************************************************************************************************************************************************ Singleton *****/
@@ -286,7 +283,7 @@ public class Customerly {
     /* ****************************************************************************************************************************************************************/
     /* ************************************************************************************************************************************************ Welcome Msg. **/
     /* ****************************************************************************************************************************************************************/
-    @Nullable Spanned __WELCOME__getMessage() {
+    @Nullable CustomerlyHtmlMessage __WELCOME__getMessage() {
         return this._isConfigured()
                 ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(this.customerly_user == null ? this.__PING__LAST_welcome_message_visitors : this.__PING__LAST_welcome_message_users)
                 : null;
@@ -391,6 +388,7 @@ public class Customerly {
     interface __SOCKET__IMessage_listener {   void onMessageEvent(@NonNull ArrayList<Internal_entity__Message> news);   }
     @Nullable private __SOCKET__ITyping_listener __SOCKET__Typing_listener = null;
     @Nullable private __SOCKET__IMessage_listener __SOCKET__Message_listener = null;
+    @Nullable private RealTimeMessagesCallback __SOCKET__RealTimeMessagesCallback = null;
     @Nullable private String __SOCKET__Endpoint = null, __SOCKET__Port = null;
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     @NonNull private final Runnable __SOCKET__ping = () -> {
@@ -561,11 +559,10 @@ public class Customerly {
     public interface Callback {
         void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
     }
-    public void update(@NonNull Callback pCallback) {
+    public void update(final @NonNull Callback pCallback) {
         if(System.currentTimeMillis() < this.__PING__next_ping_allowed) {
             this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) /1000 + " seconds.");
-            Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
-            pCallback.onResponse(false, surveys != null && surveys.length != 0, this.__PING__LAST_message_conversation_id != 0);
+            pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
         } else {
             new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
                     .opt_converter(data -> {
@@ -573,10 +570,7 @@ public class Customerly {
                         this.__PING__onPingResult(data);
                         return null;
                     })
-                    .opt_receiver((responseState, _void) -> {
-                        Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
-                        pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, surveys != null && surveys.length != 0, this.__PING__LAST_message_conversation_id != 0);
-                    })
+                    .opt_receiver((responseState, _void) -> pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
                     .start();
         }
     }
@@ -604,6 +598,10 @@ public class Customerly {
         }
     }
 
+    public boolean isLastSupportConversationAvailable() {
+        return this.__PING__LAST_message_conversation_id != 0;
+    }
+
     public void openLastSupportConversation(@NonNull Activity activity) {
         if(this._isConfigured()) {
             long lastMessage_ConversationID = this.__PING__LAST_message_conversation_id;
@@ -614,7 +612,7 @@ public class Customerly {
                         .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, lastMessage_ConversationID)
                         .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, lastMessage_AssignerID));
             } else {
-                activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+                this._log("No last support conversation available");
             }
         }
     }
@@ -635,18 +633,25 @@ public class Customerly {
                 .start();
     }
 
-    @SuppressLint("CommitTransaction")
-    public void openSurvey(@NonNull FragmentManager fm) {
+    public boolean isSurveyAvailable() {
         Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
         if(surveys != null) {
             for (Internal_entity__Survey survey : surveys) {
                 if (survey != null && !survey.isRejected) {
-                    new Internal_dialogfragment__Survey_DialogFragment().show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
-                    return;
+                    return true;
                 }
             }
         }
-        this._log("No surveys available");
+        return false;
+    }
+
+    @SuppressLint("CommitTransaction")
+    public void openSurvey(@NonNull FragmentManager fm) {
+        if(this.isSurveyAvailable()) {
+            new Internal_dialogfragment__Survey_DialogFragment().show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
+        } else {
+            this._log("No surveys available");
+        }
     }
 
     public interface RealTimeMessagesCallback {

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
 import org.json.JSONException;
@@ -19,14 +18,14 @@ class Internal_entity__Conversation {
     private static final int /*WRITER_TYPE__USER = 1,*/ WRITER_TYPE__ACCOUNT = 0;
 
     boolean unread;
-    private SpannableStringBuilder last_message_abstract;
+    private CustomerlyHtmlMessage last_message_abstract;
     private long last_message_writer, last_message_writer_type;
     long last_message_date;
     @Nullable private String last_account__name;
 
     final long conversation_id, assigner_id;
 
-    Internal_entity__Conversation(long pConversationID, @Nullable SpannableStringBuilder pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, boolean pUnread, @Nullable String pLastAccountName) {
+    Internal_entity__Conversation(long pConversationID, @Nullable CustomerlyHtmlMessage pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, boolean pUnread, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
         this.last_message_abstract = pLastMessage;

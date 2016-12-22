@@ -2,7 +2,6 @@ package io.customerly;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.SpannableStringBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +19,7 @@ class Internal_entity__Message {
     final long conversation_id, conversation_message_id, sent_date, assigner_id;
     private final long user_id, account_id, seen_date;
 
-    @Nullable final SpannableStringBuilder content;
+    @Nullable final CustomerlyHtmlMessage content;
     @Nullable final String if_account__name;
     @Nullable final Internal_entity__Attachment[] _Attachments;
 

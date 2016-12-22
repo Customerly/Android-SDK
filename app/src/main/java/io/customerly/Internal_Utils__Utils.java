@@ -112,7 +112,7 @@ class Internal_Utils__Utils {
     }
 
     private final static String EMOJI_TAG_START = "<emoji>", EMOJI_TAG_END = "</emoji>";
-    @Nullable static SpannableStringBuilder decodeHtmlStringWithEmojiTag(@Nullable String message) {
+    @Nullable static CustomerlyHtmlMessage decodeHtmlStringWithEmojiTag(@Nullable String message) {
         if(message == null)
             return null;
         StringBuilder sb = new StringBuilder();
@@ -277,7 +277,7 @@ class Internal_Utils__Utils {
             }
             ssb = ssb.delete(ssb.length() - backN_count, ssb.length());
             spannedMessage = ssb; */
-            return ssb;
+            return new CustomerlyHtmlMessage(ssb);
         }
         return null;
     }
@@ -287,7 +287,7 @@ class Internal_Utils__Utils {
         try {
             InputStream src = new URL(source).openStream();
             d = Drawable.createFromStream(src, "src");
-            if(d != null){
+            if(d != null) {
                 d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
             }
         } catch (IOException e) {

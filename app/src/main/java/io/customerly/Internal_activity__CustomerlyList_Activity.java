@@ -229,7 +229,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                 layout_first_contact__welcomecard__lastactivity.setVisibility(View.VISIBLE);
             }
 
-            final Spanned welcome = Customerly.get().__WELCOME__getMessage();
+            final CustomerlyHtmlMessage welcome = Customerly.get().__WELCOME__getMessage();
             if(welcome != null && welcome.length() != 0){
                 final TextView layout_first_contact__welcomecard__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcomecard__welcome);
                 layout_first_contact__welcomecard__welcome.setText(welcome);

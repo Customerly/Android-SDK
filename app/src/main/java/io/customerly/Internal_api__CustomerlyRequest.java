@@ -28,6 +28,7 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -207,6 +208,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                             .put("app_name", Customerly._Instance._ApplicationName)
                             .put("app_version", Customerly._Instance._ApplicationVersionCode)
                             .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
+                            .put("language", Locale.getDefault().toString()) //es: "it_IT"
                             .put("os_version", Build.VERSION.SDK_INT)
                             .put("sdk_version", BuildConfig.VERSION_CODE)
                             .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
