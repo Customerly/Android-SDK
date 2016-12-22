@@ -12,16 +12,19 @@
         <activity android:name="io.customerly.Internal_activity__CustomerlyList_Activity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/io_customerly__Activity"
+            android:label="@string/io_customerly__conversations"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity android:name="io.customerly.Internal_activity__CustomerlyChat_Activity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/io_customerly__Activity"
+            android:label="@string/io_customerly__chat"
             android:windowSoftInputMode="adjustResize"/>
 
         <activity android:name="io.customerly.Internal_activity__FullScreenImage_Activity"
             android:configChanges="orientation|screenSize|keyboard"
             android:theme="@style/io_customerly__Activity"
+            android:label="@string/io_customerly__immagine"
             android:windowSoftInputMode="adjustResize"/>
 
     </application>

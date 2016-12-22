@@ -607,10 +607,15 @@ public class Customerly {
     public void openLastSupportConversation(@NonNull Activity activity) {
         if(this._isConfigured()) {
             long lastMessage_ConversationID = this.__PING__LAST_message_conversation_id;
-            long lastMessage_AssignerID = this.__PING__LAST_message_account_id;
-            activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class)
-                .putExtra(Internal_activity__CustomerlyList_Activity.EXTRA_OPEN_CONVERSATION__CONVERSATION_ID, lastMessage_ConversationID)
-                .putExtra(Internal_activity__CustomerlyList_Activity.EXTRA_OPEN_CONVERSATION__ASSIGNER_ID, lastMessage_AssignerID));
+            if(lastMessage_ConversationID != 0) {
+                long lastMessage_AssignerID = this.__PING__LAST_message_account_id;
+                activity.startActivity(new Intent(activity, Internal_activity__CustomerlyChat_Activity.class)
+                        .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, false)
+                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, lastMessage_ConversationID)
+                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, lastMessage_AssignerID));
+            } else {
+                activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+            }
         }
     }
 

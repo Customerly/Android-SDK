@@ -61,5 +61,8 @@
     <string name="io_customerly__hint_inserisci_un_numero">Insert a number</string>
     <string name="io_customerly__hint_inserisci_un_testo">Insert a text</string>
     <string name="io_customerly__support">Support</string>
+    <string name="io_customerly__chat" translatable="false">Chat</string>
+    <string name="io_customerly__immagine">Image</string>
+    <string name="io_customerly__conversations">Conversations</string>
 
 </resources>

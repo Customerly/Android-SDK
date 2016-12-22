@@ -40,8 +40,6 @@ import java.util.Locale;
 public class Internal_activity__CustomerlyList_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
-    static final String EXTRA_OPEN_CONVERSATION__CONVERSATION_ID = "EXTRA_OPEN_CONVERSATION__CONVERSATION_ID";
-    static final String EXTRA_OPEN_CONVERSATION__ASSIGNER_ID = "EXTRA_OPEN_CONVERSATION__ASSIGNER_ID";
 
     private View input_email_layout, new_conversation_layout;
     private SwipeRefreshLayout _FirstContact_SRL, _RecyclerView_SRL;
@@ -53,11 +51,8 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(this.getIntent() != null) {
-            this.openConversationById(this.getIntent().getIntExtra(EXTRA_OPEN_CONVERSATION__CONVERSATION_ID, 0), this.getIntent().getIntExtra(EXTRA_OPEN_CONVERSATION__ASSIGNER_ID, 0));
-        }
         Customerly.get().__PING__LAST_message_conversation_id = Customerly.get().__PING__LAST_message_conversation_id = 0;
-        if(this.onCreateLayout(R.layout.io_customerly__activity_list, true)) {
+        if(this.onCreateLayout(R.layout.io_customerly__activity_list)) {
             this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customerly__first_contact_swiperefresh);
             this.input_email_layout = this.findViewById(R.id.io_customerly__input_email_layout);
             this.new_conversation_layout = this.findViewById(R.id.io_customerly__new_conversation_layout);
@@ -305,8 +300,8 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                             progressDialog.dismiss();
                         } catch (IllegalStateException ignored) { }
                     }
-                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                        this.openConversationById(conversationID_assignerID[0], conversationID_assignerID[1]);
+                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && conversationID_assignerID != null) {
+                        this.openConversationById(conversationID_assignerID[0], conversationID_assignerID[1], ghostToVisitorEmail != null);
                     } else {
                         this.input_input.setText(pMessage);
                         for(Internal_entity__Attachment a : pAttachments) {
@@ -335,12 +330,16 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
         }
     }
 
-    private void openConversationById(long id, long assignerID_or0) {
+    private void openConversationById(long id, long assignerID_or0, boolean andFinishCurrent) {
         if(id != 0) {
             if(Internal_Utils__Utils.checkConnection(Internal_activity__CustomerlyList_Activity.this)) {
                 Internal_activity__CustomerlyList_Activity.this.startActivityForResult(new Intent(Internal_activity__CustomerlyList_Activity.this, Internal_activity__CustomerlyChat_Activity.class)
+                        .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, ! andFinishCurrent)
                         .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, id)
                         .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, assignerID_or0), RESULT_CODE_REFRESH_LIST);
+                if(andFinishCurrent) {
+                    this.finish();
+                }
             } else {
                 Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
             }
@@ -359,7 +358,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
             this._Nome = (TextView)this.itemView.findViewById(R.id.io_customerly__nome);
             this._LastMessage = (TextView)this.itemView.findViewById(R.id.io_customerly__last_message);
             this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
-            this.itemView.setOnClickListener(itemview -> openConversationById(this._ConversationID, this._AssignerID));
+            this.itemView.setOnClickListener(itemview -> openConversationById(this._ConversationID, this._AssignerID, false));
         }
         private void apply(@NonNull Internal_entity__Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;

@@ -43,6 +43,7 @@ import java.util.ArrayList;
  */
 public abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatActivity {
 
+    static final String EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK";
     private static final int FILE_SELECT_CODE = 5;
 
     protected LinearLayout input_layout, input_attachments;
@@ -88,7 +89,7 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
      * @param pLayoutRes Il resID del layout
      * @return true se l'sdk è configurato e tutto ok altrimenti restituisce false e chiama finish()
      */
-     protected final boolean onCreateLayout(@LayoutRes int pLayoutRes, boolean homeAsUp_closeIcon) {
+     protected final boolean onCreateLayout(@LayoutRes int pLayoutRes) {
         if(Customerly._Instance._isConfigured()) {
             super.setContentView(pLayoutRes);
             //View binding
@@ -109,11 +110,11 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
                     }
 
                     if (Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
-                        actionBar.setHomeAsUpIndicator(homeAsUp_closeIcon ? R.drawable.io_customerly__ic_clear_black_24dp : R.drawable.io_customerly__ic_arrow_back_black_24dp);
+                        actionBar.setHomeAsUpIndicator(this.getIntent() != null && this.getIntent().getBooleanExtra(EXTRA_MUST_SHOW_BACK, false) ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
                         title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
                     } else {
-                        actionBar.setHomeAsUpIndicator(homeAsUp_closeIcon ? R.drawable.io_customerly__ic_clear_white_24dp : R.drawable.io_customerly__ic_arrow_back_white_24dp);
+                        actionBar.setHomeAsUpIndicator(this.getIntent() != null && this.getIntent().getBooleanExtra(EXTRA_MUST_SHOW_BACK, false) ? R.drawable.io_customerly__ic_arrow_back_white_24dp : R.drawable.io_customerly__ic_clear_white_24dp);
                         title = String.format("<font color='#ffffff'>%1$s</font>", actionBar.getTitle());
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -23,6 +23,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,10 +59,29 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
 
                     final ActionBar actionBar = this.getSupportActionBar();
                     if (actionBar != null) {
+                        String title;
+                        if(Customerly._Instance.__PING__LAST_widget_color != 0) {
+                            actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
+                            }
+
+                            if (Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
+                                actionBar.setHomeAsUpIndicator(R.drawable.io_customerly__ic_arrow_back_black_24dp);
+                                title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
+
+                            } else {
+                                actionBar.setHomeAsUpIndicator(R.drawable.io_customerly__ic_arrow_back_white_24dp);
+                                title = String.format("<font color='#ffffff'>%1$s</font>", actionBar.getTitle());
+                            }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                actionBar.setTitle(Html.fromHtml(title, 0));
+                            } else {
+                                //noinspection deprecation
+                                actionBar.setTitle(Html.fromHtml(title));
+                            }
+                        }
                         actionBar.setDisplayHomeAsUpEnabled(true);
-                        actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                            this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
                     }
                     return;
                 } catch (Exception glideException) {

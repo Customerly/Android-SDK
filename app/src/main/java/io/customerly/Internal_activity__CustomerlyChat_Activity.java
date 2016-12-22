@@ -83,7 +83,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
         }
         if(this._ConversationID == 0) {
             this.finish();
-        } else if(this.onCreateLayout(R.layout.io_customerly__activity_chat, false)) {
+        } else if(this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
             this._ListRecyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recyclerview);
             this._LinearLayoutManager = new LinearLayoutManager(this.getApplicationContext());
             this._LinearLayoutManager.setStackFromEnd(true);
