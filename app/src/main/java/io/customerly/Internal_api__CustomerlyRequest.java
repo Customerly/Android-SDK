@@ -215,7 +215,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                             .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION));
 
             Customerly_User user = Customerly._Instance.__USER__get();
-            if(user != null) {
+            if(user != null && user.is_user) {
                 user.fillSettingsJSON(settings);
             }
 

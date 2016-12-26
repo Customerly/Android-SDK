@@ -14,7 +14,7 @@ import org.json.JSONObject;
  */
 class Customerly_User {
     static final long UNKNOWN_CUSTOMERLY_USER_ID = 0;
-    private final boolean is_user;
+    final boolean is_user;
     final long internal_user_id;
     private final String user_id;
     @Nullable private final String email;

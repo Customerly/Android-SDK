@@ -248,9 +248,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        if(Customerly._Instance.__USER__get() != null || ghostToVisitorEmail != null) {
-            this.okSend(pMessage, pAttachments, ghostToVisitorEmail);
-        } else {
+        if(Customerly._Instance.__USER__get() == null && ghostToVisitorEmail == null) {
             this.input_layout.setVisibility(View.GONE);
             this.input_email_layout.setVisibility(View.VISIBLE);
 
@@ -280,6 +278,8 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                     }
                 }
             });
+        } else {
+            this.okSend(pMessage, pAttachments, ghostToVisitorEmail);
         }
     }
 

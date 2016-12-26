@@ -8,7 +8,7 @@
     android:gravity="top" >
 
     <ImageView android:id="@id/io_customerly__icona"
-        android:layout_width="@dimen/io_customerly__chat_li_icon_Size"
+        android:layout_width="@dimen/io_customerly__chat_li_icon_size"
         android:layout_height="@dimen/io_customerly__chat_li_icon_size"
         android:scaleType="fitCenter"
         android:layout_marginStart="@dimen/io_customerly__chat_li_margin_icon_screen_border"

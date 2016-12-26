@@ -287,7 +287,7 @@ public class Customerly {
     /* ****************************************************************************************************************************************************************/
     @Nullable CustomerlyHtmlMessage __WELCOME__getMessage() {
         return this._isConfigured()
-                ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(this.customerly_user == null ? this.__PING__LAST_welcome_message_visitors : this.__PING__LAST_welcome_message_users)
+                ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(this.customerly_user == null || !this.customerly_user.is_user ? this.__PING__LAST_welcome_message_visitors : this.__PING__LAST_welcome_message_users)
                 : null;
     }
 
