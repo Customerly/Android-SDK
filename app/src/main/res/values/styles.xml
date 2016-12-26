@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources >
     <style name="io_customerly__Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorAccent">@color/io_customerly__grey99</item>
+        <item name="colorAccent">@color/io_customerly__grey_99</item>
+        <item name="android:windowBackground">@android:color/white</item><!-- Background color -->
+        <item name="android:colorBackground">@android:color/white</item><!-- Background color -->
     </style>
 
-    <style name="io_customerly__ListActivity_EditTextBlue" parent="Base.V7.Widget.AppCompat.EditText">
-        <item name="colorControlNormal">@color/io_customerly__blue2</item>
+    <style name="io_customerly__SurveyFragment" parent="@style/Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@android:color/white</item><!-- Background color -->
+        <item name="android:colorBackground">@android:color/white</item><!-- Background color -->
     </style>
 
-    <style name="io_customerly__selectableItemBackgroundBorderless__onWhite_theme">
-        <item name="colorControlHighlight">@color/io_customerly__greycc</item>
+    <style name="io_customerly__EditText_Blue2" parent="Widget.AppCompat.EditText" >
+        <item name="colorAccent">@color/io_customerly__blue_2</item>
+        <item name="colorControlNormal">@color/io_customerly__blue_2</item>
+    </style>
+
+    <style name="io_customerly__RadioButton_Blue1" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="colorControlNormal">@color/io_customerly__blue_2</item>
+        <item name="colorControlActivated">@color/io_customerly__blue_1</item>
+    </style>
+
+    <style name="io_customerly__SeekBar_Blue2" parent="Widget.AppCompat.SeekBar" >
+        <item name="colorAccent">@color/io_customerly__blue_2</item>
+    </style>
+
+    <style name="io_customerly__RatingBar_Blue2" parent="Widget.AppCompat.RatingBar" >
+        <item name="colorAccent">@color/io_customerly__blue_2</item>
+        <item name="colorControlNormal">@color/io_customerly__blue_2</item>
     </style>
 
     <style name="io_customerly__selectableItemBackgroundBorderless__onWhite">
@@ -18,23 +36,8 @@
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
     </style>
 
-    <style name="io_customerly__RadioButton_Blue1" parent="Theme.AppCompat.Light">
-        <item name="colorControlNormal">@color/io_customerly__blue2</item>
-        <item name="colorControlActivated">@color/io_customerly__blue1</item>
-    </style>
-
-    <style name="io_customerly__SeekBar_Blue2" parent="Widget.AppCompat.SeekBar" >
-        <item name="colorAccent">@color/io_customerly__blue2</item>
-    </style>
-
-    <style name="io_customerly__RatingBar_Blue2" parent="Widget.AppCompat.RatingBar" >
-        <item name="colorAccent">@color/io_customerly__blue2</item>
-        <item name="colorControlNormal">@color/io_customerly__blue2</item>
-    </style>
-
-    <style name="io_customerly__EditText_Blue2" parent="Widget.AppCompat.EditText" >
-        <item name="colorAccent">@color/io_customerly__blue2</item>
-        <item name="colorControlNormal">@color/io_customerly__blue2</item>
+    <style name="io_customerly__selectableItemBackgroundBorderless__onWhite_theme">
+        <item name="colorControlHighlight">@color/io_customerly__grey_cc</item>
     </style>
 
 </resources>

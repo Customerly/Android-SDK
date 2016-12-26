@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -18,6 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -38,6 +38,12 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     private View _ProgressView, _Back;
     @Nullable private Internal_entity__Survey _CurrentSurvey;
     private boolean _RejectEnabled = false;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.setStyle(DialogFragment.STYLE_NO_TITLE, R.style.io_customerly__SurveyFragment);
+    }
 
     @SuppressLint("RtlHardcoded")
     @Nullable
@@ -151,19 +157,15 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     break;
                 case Internal_entity__Survey.TYPE_RADIO:
                     if(survey.choices != null) {
+                        LayoutInflater inflater = LayoutInflater.from(this.getContext());
                         for (Internal_entity__Survey.Choice c : survey.choices) {
-                            AppCompatRadioButton rb = new AppCompatRadioButton(new ContextThemeWrapper(this.getContext(), R.style.io_customerly__RadioButton_Blue1));
+
+                            AppCompatRadioButton radio = (AppCompatRadioButton) inflater.inflate(R.layout.io_customerly__surveyitem_radio, this._SurveyContainer, false);
                             {
-                                rb.setTextColor(Color.BLACK);
-                                rb.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                                rb.setText(c.value);
-                                rb.setGravity(Gravity.CENTER_VERTICAL);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(40));
-                                lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
-                                rb.setLayoutParams(lp);
-                                rb.setOnClickListener(v -> this.nextSurvey(survey, c.survey_choice_id, null));
+                                radio.setText(c.value);
+                                radio.setOnClickListener(v -> this.nextSurvey(survey, c.survey_choice_id, null));
                             }
-                            this._SurveyContainer.addView(rb);
+                            this._SurveyContainer.addView(radio);
                         }
                     }
                     break;
@@ -211,7 +213,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                         } else {
                                             View v = new TextView(parent.getContext());
                                             v.setTag("VUOTA");
-                                            v.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+                                            v.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
                                             v.setBackgroundColor(Color.WHITE);
                                             return v;
                                         }
@@ -233,7 +235,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                             TextView tv = new TextView(parent.getContext());
                                             tv.setTag("HINT");
                                             tv.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                                            tv.setText(R.string.io_customerly__scegli_una_risposta);
+                                            tv.setText(R.string.io_customerly__choose_an_answer);
                                             tv.setTextColor(Color.GRAY);
                                             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                                             tv.setGravity(Gravity.CENTER);
@@ -275,24 +277,21 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             }
                             ll_seek.addView(min);
 
-                            AppCompatSeekBar seekbar = new AppCompatSeekBar(new ContextThemeWrapper(this.getContext(), R.style.io_customerly__SeekBar_Blue2));
+                            AppCompatSeekBar seekbar = (AppCompatSeekBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
                             {
-                                LinearLayout.LayoutParams lp_seekbar = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-                                lp_seekbar.bottomMargin = lp_seekbar.topMargin = Internal_Utils__Utils.px(5);
-                                seekbar.setLayoutParams(lp_seekbar);
                                 seekbar.setMax(survey.limit_to - survey.limit_from);
                                 seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                                     @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                                         if(fromUser) {
                                             confirm.setTag(survey.limit_from + seekBar.getProgress());
-                                            confirm.setText(seekBar.getContext().getString(R.string.io_customerly__conferma_x, survey.limit_from + progress));
+                                            confirm.setText(seekBar.getContext().getString(R.string.io_customerly__confirm_x, survey.limit_from + progress));
                                         }
                                     }
                                     @Override public void onStartTrackingTouch(SeekBar seekBar) { }
                                     @Override public void onStopTrackingTouch(SeekBar seekBar) { }
                                 });
-                                ll_seek.addView(seekbar);
                             }
+                            ll_seek.addView(seekbar);
 
                             TextView max = new TextView(this.getContext());
                             {
@@ -310,7 +309,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             confirm.setTextColor(Color.WHITE);
                             confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
                             confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                            confirm.setText(this.getContext().getString(R.string.io_customerly__conferma_x, survey.limit_from));
+                            confirm.setText(this.getContext().getString(R.string.io_customerly__confirm_x, survey.limit_from));
                             confirm.setTag(survey.limit_from);
                             confirm.setGravity(Gravity.CENTER);
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Internal_Utils__Utils.px(160), Internal_Utils__Utils.px(40));
@@ -323,14 +322,8 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     this._SurveyContainer.addView(ll_root);
                     break;
                 case Internal_entity__Survey.TYPE_STAR:
-                    AppCompatRatingBar ratingbar = new AppCompatRatingBar(new ContextThemeWrapper(this.getContext(), R.style.io_customerly__RatingBar_Blue2));
+                    AppCompatRatingBar ratingbar = (AppCompatRatingBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
                     {
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                        lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(15);
-                        lp.gravity = Gravity.CENTER_HORIZONTAL;
-                        ratingbar.setLayoutParams(lp);
-                        ratingbar.setNumStars(5);
-                        ratingbar.setStepSize(1);
                         ratingbar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
                     }
                     this._SurveyContainer.addView(ratingbar);
@@ -344,30 +337,20 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                         ll.setOrientation(LinearLayout.VERTICAL);
                         ll.setGravity(Gravity.CENTER_HORIZONTAL);
 
-                        AppCompatEditText edittext = new AppCompatEditText(new ContextThemeWrapper(this.getContext(), R.style.io_customerly__EditText_Blue2));
+                        AppCompatEditText edittext = (AppCompatEditText) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
                         {
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(15);
-                            lp.gravity = Gravity.CENTER_HORIZONTAL;
-                            edittext.setLayoutParams(lp);
-                            edittext.setBackgroundResource(R.drawable.io_customerly__edittext_blue2_bkg);
-                            edittext.setTextColor(Color.BLACK);
-                            edittext.setHintTextColor(Color.GRAY);
-                            int _10dp = Internal_Utils__Utils.px(10);
-                            edittext.setPadding(_10dp, _10dp, _10dp, _10dp);
-
                             switch (survey.type) {
                                 case Internal_entity__Survey.TYPE_NUMBER:
                                     edittext.setInputType(InputType.TYPE_CLASS_NUMBER);
-                                    edittext.setHint(R.string.io_customerly__hint_inserisci_un_numero);
+                                    edittext.setHint(R.string.io_customerly__hint_insert_a_number);
                                     break;
                                 case Internal_entity__Survey.TYPE_TEXTBOX:
                                     edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                                    edittext.setHint(R.string.io_customerly__hint_inserisci_un_testo);
+                                    edittext.setHint(R.string.io_customerly__hint_insert_a_text);
                                     break;
                                 case Internal_entity__Survey.TYPE_TEXTAREA:
                                     edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
-                                    edittext.setHint(R.string.io_customerly__hint_inserisci_un_testo);
+                                    edittext.setHint(R.string.io_customerly__hint_insert_a_text);
                                     break;
                                 case Internal_entity__Survey.TYPE_BUTTON:
                                 case Internal_entity__Survey.TYPE_END_SURVEY:
@@ -386,7 +369,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             confirm.setTextColor(Color.WHITE);
                             confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
                             confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                            confirm.setText(R.string.io_customerly__conferma);
+                            confirm.setText(R.string.io_customerly__confirm);
                             confirm.setTag(survey.limit_from);
                             confirm.setGravity(Gravity.CENTER);
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Internal_Utils__Utils.px(160), Internal_Utils__Utils.px(40));

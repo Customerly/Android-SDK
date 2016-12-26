@@ -50,7 +50,7 @@ class Internal_entity__Message {
         this.if_account__name = null;
     }
 
-    Internal_entity__Message(@NonNull JSONObject pMessageItem) throws JSONException {
+    Internal_entity__Message(@NonNull JSONObject pMessageItem) {
         super();
         this._STATE = STATE.COMPLETE;
 

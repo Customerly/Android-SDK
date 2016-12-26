@@ -63,15 +63,15 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING + "/survey/back/";
     static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING + "/survey/reject/";
 
-    static final byte RESPONSE_STATE__PENDING = 0;
-    static final byte RESPONSE_STATE__OK = -1;
-    static final byte RESPONSE_STATE__ERROR_NO_CONNECTION = -2;
-    static final byte RESPONSE_STATE__ERROR_BAD_REQUEST = -3;
-    static final byte RESPONSE_STATE__ERROR_NETWORK = -4;
-    static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
-    static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED = 403;
+    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__PENDING = 0;
+    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__OK = -1;
+    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_NO_CONNECTION = -2;
+    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_BAD_REQUEST = -3;
+    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_NETWORK = -4;
+    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
+    @SuppressWarnings("WeakerAccess") static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED = 403;
 
-    @NonNull @Endpoint private String _Endpoint;
+    @NonNull @Endpoint private final String _Endpoint;
     @NonNull private final ResponseConverter<RES> _ResponseConverter;
     @NonNull private final ResponseReceiver<RES> _ResponseReceiver;
     @IntRange(from=1, to=5) private int _Trials;
@@ -87,6 +87,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         this._Trials = pTrials;
     }
 
+    @SuppressWarnings("unused")
     static class Builder<RES> {
         @NonNull @Endpoint private final String _Endpoint;
         @Nullable private Context _Context;
@@ -116,7 +117,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             this._ResponseReceiver = pResponseReceiver;
             return this;
         }
-        @CheckResult Builder<RES> opt_trials(@IntRange(from=1, to=5) int pTrials) {
+        @CheckResult Builder<RES> opt_trials(@SuppressWarnings("SameParameterValue") @IntRange(from=1, to=5) int pTrials) {
             this._Trials = pTrials;
             return this;
         }
@@ -126,7 +127,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             this._ProgressDialog_Message = message;
             return this;
         }
-        @CheckResult Builder<RES> opt_progressview(@NonNull View progressView, @HiddenVisibilityType int progressView_hiddenVisibilityType) {
+        @CheckResult Builder<RES> opt_progressview(@NonNull View progressView, @SuppressWarnings("SameParameterValue") @HiddenVisibilityType int progressView_hiddenVisibilityType) {
             this._ProgressView = new WeakReference<>(progressView);
             this._ProgressView_HiddenVisibilityType = progressView_hiddenVisibilityType;
             return this;
@@ -208,7 +209,6 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                             .put("app_name", Customerly._Instance._ApplicationName)
                             .put("app_version", Customerly._Instance._ApplicationVersionCode)
                             .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
-                            .put("language", Locale.getDefault().toString()) //es: "it_IT"
                             .put("os_version", Build.VERSION.SDK_INT)
                             .put("sdk_version", BuildConfig.VERSION_CODE)
                             .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
@@ -244,6 +244,8 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 conn.setDoOutput(true);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept-Language", Locale.getDefault().toString());//es: "it_IT"
+
                 //noinspection TryWithIdenticalCatches
                 try {
                     SSLContext sc = SSLContext.getInstance("TLS");

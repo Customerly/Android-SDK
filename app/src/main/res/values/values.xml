@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="io_customerly__chat_li_iconsize">25dp</dimen>
-    <dimen name="io_customerly__chat_li_margin_icon_screenborder">10dp</dimen>
-    <dimen name="io_customerly__chat_li_margin_bubble_screenborder">45dp</dimen>
-    <dimen name="io_customerly__foreground_bottomshadowed">5dp</dimen>
-    <dimen name="io_customerly__dialogfragment_survey_headerheight">30dp</dimen>
+    <dimen name="io_customerly__chat_li_icon_size">25dp</dimen>
+    <dimen name="io_customerly__chat_li_margin_icon_screen_border">10dp</dimen>
+    <dimen name="io_customerly__chat_li_margin_bubble_screen_border">45dp</dimen>
+    <dimen name="io_customerly__dialogfragment_survey_header_height">30dp</dimen>
 </resources>

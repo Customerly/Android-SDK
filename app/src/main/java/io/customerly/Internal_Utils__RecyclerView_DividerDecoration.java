@@ -20,7 +20,7 @@ abstract class Internal_Utils__RecyclerView_DividerDecoration extends RecyclerVi
     protected float _1_dp = 0;
 
     private Internal_Utils__RecyclerView_DividerDecoration(@NonNull Resources resources) {
-        this(resources, R.color.io_customerly__greycc);
+        this(resources, R.color.io_customerly__grey_cc);
     }
 
     private Internal_Utils__RecyclerView_DividerDecoration(@NonNull Resources resources, @ColorRes int colorRes) {

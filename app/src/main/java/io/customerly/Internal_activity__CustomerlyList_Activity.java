@@ -13,7 +13,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.util.TypedValue;
@@ -26,8 +25,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +34,7 @@ import java.util.Locale;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public class Internal_activity__CustomerlyList_Activity extends Internal_activity__AInput_Customerly_Activity {
+public final class Internal_activity__CustomerlyList_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 
@@ -81,7 +78,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                             this.displayInterface(list);
                         } else {
                             this.finish();
-                            Toast.makeText(getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                         }
                     })
                     .opt_trials(2)
@@ -121,7 +118,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                     }
                 }
                 //Nuovo messaggio di una nuova conversazione
-                conversazioni.add(new Internal_entity__Conversation(nuovo.conversation_id, nuovo.content, nuovo.assigner_id, nuovo.sent_date, nuovo.getWriterID(), nuovo.getWriterType(), true, nuovo.if_account__name));
+                conversazioni.add(new Internal_entity__Conversation(nuovo.conversation_id, nuovo.content, nuovo.assigner_id, nuovo.sent_date, nuovo.getWriterID(), nuovo.getWriterType(), nuovo.if_account__name));
             }
             //Riordino il tutto per data ultimo messaggio INVERSO
             Collections.sort(conversazioni, (c1, c2) -> (int)(c2.last_message_date - c1.last_message_date));
@@ -134,8 +131,13 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
 
     @Override
     public void onBackPressed() {
-        Customerly._Instance.__SOCKET_RECEIVE_Message(null);
-        super.onBackPressed();
+        if(this.input_email_layout.getVisibility() == View.VISIBLE) {
+            this.input_layout.setVisibility(View.VISIBLE);
+            this.input_email_layout.setVisibility(View.GONE);
+        } else {
+            Customerly._Instance.__SOCKET_RECEIVE_Message(null);
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -210,7 +212,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
 
                         final TextView name = new TextView(this);
                         name.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        name.setTextColor(Internal_Utils__Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey99));
+                        name.setTextColor(Internal_Utils__Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey_99));
                         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
                         name.setText(admin.name);
                         layout_first_contact__admincontainer.addView(name);
@@ -284,7 +286,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.N)
     private void okSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__nuova_conversazione), this.getString(R.string.io_customerly__invio_messaggio_in_corso), true, false);
+        final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
         new Internal_api__CustomerlyRequest.Builder<long[]>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
                 .opt_converter(data -> {
@@ -305,11 +307,9 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                     } else {
                         this.input_input.setText(pMessage);
                         for(Internal_entity__Attachment a : pAttachments) {
-                            try {
-                                a.addAttachmentToInput(this);
-                            } catch (JSONException ignored) { }
+                            a.addAttachmentToInput(this);
                         }
-                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                     }
                 })
                 .opt_trials(2)
@@ -318,6 +318,8 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                 .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
                 .start();
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -341,7 +343,7 @@ public class Internal_activity__CustomerlyList_Activity extends Internal_activit
                     this.finish();
                 }
             } else {
-                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
             }
         }
     }

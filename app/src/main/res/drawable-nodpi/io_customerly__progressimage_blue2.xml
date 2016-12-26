@@ -14,8 +14,8 @@
             android:height="70dp"
             android:width="70dp" />
         <gradient
-            android:endColor="@color/io_customerly__blue2"
-            android:startColor="@color/io_customerly__blue2_transparent"
+            android:endColor="@color/io_customerly__blue_2"
+            android:startColor="@color/io_customerly__blue_2_transparent"
             android:type="sweep"
             android:useLevel="false" />
     </shape>

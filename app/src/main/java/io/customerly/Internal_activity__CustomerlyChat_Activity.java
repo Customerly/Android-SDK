@@ -57,7 +57,7 @@ import java.util.Collections;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public class Internal_activity__CustomerlyChat_Activity extends Internal_activity__AInput_Customerly_Activity {
+public final class Internal_activity__CustomerlyChat_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final String EXTRA_CONVERSATION_ID = "EXTRA_CONVERSATION_ID";
     static final String EXTRA_ASSIGNER_ID = "EXTRA_ASSIGNER_ID";
@@ -68,7 +68,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
     private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<Internal_entity__Message> _ChatList = new ArrayList<>(0);
     private long _ConversationID = 0, _AssignerID = 0;
-    @NonNull private ArrayList<BroadcastReceiver> _BroadcastReceiver = new ArrayList<>(1);
+    @NonNull private final ArrayList<BroadcastReceiver> _BroadcastReceiver = new ArrayList<>(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,7 +235,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                             }
                         } else {
                             this.finish();
-                            Toast.makeText(getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                         }
                     })
                     .opt_trials(2)
@@ -305,7 +305,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 this._ChatList.set(pos, messageSent);
                             } else {
                                 message.setFailed();
-                                Toast.makeText(getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                             }
                             this._Adapter.notifyItemChanged(pos);
                         }
@@ -359,7 +359,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                                 PendingIntent.FLAG_UPDATE_CURRENT
                                         )).build());
 
-                        Toast toast = Toast.makeText(Internal_activity__CustomerlyChat_Activity.this, R.string.io_customerly__download_completo, Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(Internal_activity__CustomerlyChat_Activity.this, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.TOP, 25, 400);
                         toast.show();
                     }
@@ -415,7 +415,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
             this._Content = (TextView)this.itemView.findViewById(R.id.io_customerly__content);
             this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icona);
             ViewGroup.LayoutParams lp = this._Icon.getLayoutParams();
-            lp.width = lp.height = _IconaSize = getResources().getDimensionPixelSize(R.dimen.io_customerly__chat_li_iconsize);
+            lp.width = lp.height = _IconaSize = getResources().getDimensionPixelSize(R.dimen.io_customerly__chat_li_icon_size);
         }
         void clearAnimation() {
             this.itemView.clearAnimation();
@@ -491,8 +491,8 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
     private abstract class A_ChatMessageVH extends A_ChatVH {
         @NonNull private final LinearLayout _AttachmentLayout;
         @Nullable private final View _Sending;
-        @DrawableRes private int _BubbleBkgResID, _IcAttachResID;
-        private float _ItemFromXValueRelative;
+        @DrawableRes private final int _BubbleBkgResID, _IcAttachResID;
+        private final float _ItemFromXValueRelative;
 
         private A_ChatMessageVH(@LayoutRes int pLayourRes, @DrawableRes int pBubbleBkgRedID, @DrawableRes int pIcAttachResID, @FloatRange(from=-1, to=1) float pItemFromXValueRelative) {
             super(pLayourRes);
@@ -602,7 +602,7 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
                                 if (attachment.hasPath()) {
                                     new AlertDialog.Builder(Internal_activity__CustomerlyChat_Activity.this)
                                             .setTitle(R.string.io_customerly__download)
-                                            .setMessage(R.string.io_customerly__avvio_download)
+                                            .setMessage(R.string.io_customerly__download_the_file_)
                                             .setPositiveButton(android.R.string.ok, (dlg, which) -> Internal_activity__CustomerlyChat_Activity.this.startAttachmentDownload(attachment.name, attachment.getFullPath()))
                                             .setNegativeButton(android.R.string.cancel, null)
                                             .setCancelable(true)
@@ -652,13 +652,13 @@ public class Internal_activity__CustomerlyChat_Activity extends Internal_activit
 
     @IntDef({View.VISIBLE, View.GONE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ContentVisibility {}
+    @interface ContentVisibility {}
 
     private class ChatAdapter extends RecyclerView.Adapter<A_ChatVH> {
         final int _5dp = Internal_Utils__Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
         int lastPositionAnimated = Integer.MAX_VALUE;
         int firstPositionAnimated = -1;
-        private long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);
+        private final long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);
         @Override
         public int getItemViewType(int position) {
             return (_Typing && position == this.getItemCount() - 1) ? 0 : _ChatList.get(position).isUserMessage() ? R.layout.io_customerly__li_message_user : R.layout.io_customerly__li_message_account;

@@ -39,9 +39,9 @@ class Customerly_User {
     }
 
     @Nullable static Customerly_User from(@NonNull SharedPreferences pPrefs) {
-        long crmhero_user_id = pPrefs.getLong("internal_user_id", 0);
+        long internal_user_id = pPrefs.getLong("internal_user_id", 0);
         String user_id = pPrefs.getString("user_id", null);
-        return crmhero_user_id == 0 && user_id == null ? null : new Customerly_User(pPrefs.getBoolean("is_user", true), crmhero_user_id, user_id, pPrefs.getString("email", null), pPrefs.getString("name", null));
+        return internal_user_id == 0 && user_id == null ? null : new Customerly_User(pPrefs.getBoolean("is_user", true), internal_user_id, user_id, pPrefs.getString("email", null), pPrefs.getString("name", null));
     }
 
     void store(@NonNull SharedPreferences pPrefs) {

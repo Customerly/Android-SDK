@@ -36,9 +36,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -77,7 +74,7 @@ class Internal_Utils__Utils {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    static void intentUrl(@NonNull Activity activity, @NonNull String url) {
+    static void intentUrl(@NonNull Activity activity, @SuppressWarnings("SameParameterValue") @NonNull String url) {
         if (!url.startsWith("https://") && !url.startsWith("http://"))
             url = "http://" + url;
         try {
@@ -88,11 +85,10 @@ class Internal_Utils__Utils {
     }
 
     @ColorInt static int alterColor(@ColorInt int color, @FloatRange(from = 0, to = 1)float factor) {
-        int a = (color & (0xFF << 24)) >> 24;
-        int r = (int) (((color & (0xFF << 16)) >> 16) * factor);
-        int g = (int) (((color & (0xFF << 8)) >> 8) * factor);
-        int b = (int) ((color & 0xFF) * factor);
-        return Color.argb(a, r, g, b);
+        return Color.argb(Color.alpha(color),
+                (int) (Color.red(color) * factor),
+                (int) (Color.green(color) * factor),
+                (int) (Color.blue(color) * factor));
     }
 
     @SuppressWarnings("deprecation")
@@ -283,18 +279,25 @@ class Internal_Utils__Utils {
     }
 
     private static final Html.ImageGetter _SpanImage_ImageGetter = source -> {
-        Drawable d = null;
-        try {
-            InputStream src = new URL(source).openStream();
-            d = Drawable.createFromStream(src, "src");
-            if(d != null) {
-                d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        Drawable d = Customerly.get()._RemoteImageHandler.getHtmlImageSync(source);
+        if(d != null) {
+            d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
         }
-
         return d;
+
+//      private static final Html.ImageGetter _SpanImage_ImageGetter = source -> {
+//        Drawable d = null;
+//        try {
+//            InputStream src = new URL(source).openStream();
+//            d = Drawable.createFromStream(src, "src");
+//            if(d != null) {
+//                d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return d;
     };
 
     static String getNameFromUri(@NonNull Context context, @NonNull Uri uri) {

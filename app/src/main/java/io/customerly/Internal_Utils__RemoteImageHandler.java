@@ -1,11 +1,13 @@
 package io.customerly;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,6 +16,7 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.annotation.WorkerThread;
 import android.support.v4.util.LruCache;
 import android.util.SparseArray;
 import android.widget.ImageView;
@@ -24,6 +27,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
+
+import static io.customerly.BuildConfig.CUSTOMERLY_SDK_NAME;
 
 /**
  * Created by Gianni on 02/12/16.
@@ -53,6 +58,135 @@ class Internal_Utils__RemoteImageHandler {
         }.start();
     }
 
+    @WorkerThread
+    Drawable getHtmlImageSync(@NonNull String url) {
+        final String cache_key = String.format(Locale.UK, "%1$s-HTML-%2$d", CUSTOMERLY_SDK_NAME, url.hashCode());
+        try {
+            //Get Bitmap from LruMemory
+            final Bitmap bmp = this._LruCache.get(cache_key);
+            if (bmp != null && !bmp.isRecycled()) {
+                return new BitmapDrawable(Resources.getSystem(), bmp);
+            }
+        } catch (OutOfMemoryError ignored) {
+        }
+
+        final File appCacheDir = Customerly.get()._AppCacheDir;
+        if(appCacheDir != null) {
+            try {
+                File bitmapFile = new File(new File(appCacheDir, CUSTOMERLY_SDK_NAME).toString(), cache_key);
+                if (bitmapFile.exists()) {
+                    if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
+                        try {
+                            Bitmap bmp = BitmapFactory.decodeFile(bitmapFile.toString());
+                            //Add Bitmap to LruMemory
+                            this._LruCache.put(cache_key, bmp);
+                            return new BitmapDrawable(Resources.getSystem(), bmp);
+                        } catch (OutOfMemoryError ignored) {
+                        }
+                    } else {
+                        //noinspection ResultOfMethodCallIgnored
+                        bitmapFile.delete();
+                    }
+                }
+            } catch (OutOfMemoryError ignored) {
+            }
+        }
+
+        try {
+            Bitmap bmp;
+            //Download bitmap da url
+            try {
+                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.setReadTimeout(5000);
+                connection.setDoInput(true);
+                connection.connect();
+
+                int status = connection.getResponseCode();
+                while (status != HttpURLConnection.HTTP_OK &&
+                        (status == HttpURLConnection.HTTP_MOVED_TEMP
+                                || status == HttpURLConnection.HTTP_MOVED_PERM
+                                || status == HttpURLConnection.HTTP_SEE_OTHER)) {
+                    //Url Redirect
+                    connection = (HttpURLConnection) new URL(connection.getHeaderField("Location")).openConnection();
+                    connection.connect();
+                    status = connection.getResponseCode();
+                }
+
+                bmp = BitmapFactory.decodeStream(connection.getInputStream());
+            } catch (Exception e) {
+                bmp = null;
+            }
+
+            if (bmp != null) {
+                //Add image to LruMemory
+                this._LruCache.put(cache_key, bmp);
+
+                if(appCacheDir != null) {
+                    File fullCacheDir = new File(appCacheDir, BuildConfig.CUSTOMERLY_SDK_NAME);
+                    //Initialize cache dir if needed
+                    if (!fullCacheDir.exists()) {
+                        //noinspection ResultOfMethodCallIgnored
+                        fullCacheDir.mkdirs();
+                        try {
+                            //noinspection ResultOfMethodCallIgnored
+                            new File(fullCacheDir.toString(), ".nomedia").createNewFile();
+                        } catch (IOException ignored) {
+                        }
+                    }
+
+                    //Store on disk cache
+                    FileOutputStream out = null;
+                    try {
+                        File bitmapFile = new File(fullCacheDir.toString(), cache_key);
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out = new FileOutputStream(bitmapFile));
+                        if (this._DiskCacheSize == -1) {
+                            long size = 0;
+                            for (File file : fullCacheDir.listFiles()) {
+                                if (file.isFile()) {
+                                    size += file.length();
+                                } /*else {
+                                        size += getFolderSize(file); Servirebbe la recursione per sottocartelle ma tanto non ce ne sono
+                                    }*/
+                            }
+                            this._DiskCacheSize = size;
+                        } else {
+                            this._DiskCacheSize += bitmapFile.length();
+                        }
+                        if (this._DiskCacheSize > MAX_DISK_CACHE_SIZE) {
+                            long oldestFileLastModifiedDateTime = Long.MAX_VALUE;
+                            File oldestFile = null;
+                            for (File file : fullCacheDir.listFiles()) {
+                                if (file.isFile()) {
+                                    long lastModified = file.lastModified();
+                                    if (lastModified < oldestFileLastModifiedDateTime) {
+                                        oldestFileLastModifiedDateTime = lastModified;
+                                        oldestFile = file;
+                                    }
+                                }
+                            }
+                            if (oldestFile != null) {
+                                long size = oldestFile.length();
+                                if (oldestFile.delete()) {
+                                    this._DiskCacheSize -= size;
+                                }
+                            }
+                        }
+                    } catch (Exception ignored) {
+                    } finally {
+                        if (out != null) {
+                            try {
+                                out.close();
+                            } catch (IOException ignored) {
+                            }
+                        }
+                    }
+                }
+                return new BitmapDrawable(Resources.getSystem(), bmp);
+            }
+        } catch (Exception ignored) { }
+        return null;
+    }
+
     @UiThread
     void request(final @NonNull Request pRequest) {
         if (pRequest.url == null || pRequest.target == null)
@@ -70,9 +204,7 @@ class Internal_Utils__RemoteImageHandler {
                 if (pRequest.scaleType != null) {
                     pRequest.target.setScaleType(pRequest.scaleType);
                 }
-                if (!bmp.isRecycled()) {
-                    pRequest.target.setImageBitmap(bmp);
-                }
+                pRequest.target.setImageBitmap(bmp);
                 return;
             }
         } catch (OutOfMemoryError ignored) { }
@@ -97,83 +229,6 @@ class Internal_Utils__RemoteImageHandler {
         this.handleDisk(pRequest);
     }
 
-    /*
-    @UiThread
-    private void handleLruWithHandler(final @NonNull Request pUser_Request) {
-        //Set placehoder
-        if (pRequest.placeholderResID != 0) {
-            if (pRequest.scaleType != null) {
-                pRequest.target.setScaleType(pRequest.scaleType);
-            }
-            pRequest.target.setImageResource(pRequest.placeholderResID);
-        } else if (pRequest.placeholderBMP != null && !pRequest.placeholderBMP.isRecycled()) {
-            if (pRequest.scaleType != null) {
-                pRequest.target.setScaleType(pRequest.scaleType);
-            }
-            pRequest.target.setImageBitmap(pRequest.placeholderBMP);
-        } else if (pRequest.placeholderDrawable != null) {
-            if (pRequest.scaleType != null) {
-                pRequest.target.setScaleType(pRequest.scaleType);
-            }
-            pRequest.target.setImageDrawable(pRequest.placeholderDrawable);
-        }
-
-        //Declare SparseArray<Request> _PendingLruRequests = new SparseArray<>()
-        //Declare Handler _LruHandler
-        //Aggiungere nell'onLooperPrepared():
-        //new HandlerThread(Internal_Utils__RemoteImageHandler.class.getName() + "-Lru") {
-        //    @Override
-        //    protected void onLooperPrepared() {
-        //        _LruHandler = new Handler(this.getLooper());
-        //    }
-        //}.start();
-        //Aggiungere condizione _PendingLruRequests.get(network_req.target.hashCode()) != null all'if prima di settare la bitmap scaricata nella handleNetwork
-
-        if(this._LruHandler != null) {
-            synchronized (this) {
-                this._PendingLruRequests.put(pUser_Request.target.hashCode(), pUser_Request);
-                this._PendingDiskRequests.remove(pUser_Request.target.hashCode());
-                this._PendingNetworkRequests.remove(pUser_Request.target.hashCode());
-            }
-            this._LruHandler.post(() -> {
-                final Request lru_request;
-                synchronized (this) {
-                    lru_request = _PendingLruRequests.get(pUser_Request.target.hashCode());
-                    if(lru_request != null) {
-                        _PendingLruRequests.remove(pUser_Request.target.hashCode());
-                    }
-
-                //In questo modo anche se nel frattempo c'è stata una successiva richiesta per la stessa ImageView (es: ImageView riciclata da un'adapter di una RecyclerView), viene elaborata la richiesta più recente.
-                //Atomicamente viene anche rimossa la richiesta, quindi il callback pendente nell'handler quando verrà eseguito a questo punto del codice troverà null e al successivo check req != null interromperà l'esecuzione
-                }
-
-                if (lru_request != null) {
-                    String lru_key = lru_request.toString();
-                    if(lru_key != null) {
-                        try {
-                            //Get Bitmap from LruMemory
-                            final Bitmap bmp = this._LruCache.get(lru_key);
-                            if (bmp != null && !bmp.isRecycled()) {
-                                lru_request.target.post(() -> {
-                                    if (lru_request.scaleType != null) {
-                                        lru_request.target.setScaleType(lru_request.scaleType);
-                                    }
-                                    if (!bmp.isRecycled()) {
-                                        lru_request.target.setImageBitmap(bmp);
-                                    }
-                                });
-                                return;
-                            }
-                        } catch (OutOfMemoryError ignored) { }
-
-                        this.handleDisk(lru_request);
-                    }
-                }
-            });
-        }
-    }
-    */
-
     private void handleDisk(final @NonNull Request pLru_Request) {
         if(this._DiskHandler != null) {
             synchronized (this) {
@@ -196,7 +251,7 @@ class Internal_Utils__RemoteImageHandler {
                 if (disk_req != null) {
                     String disk_key = disk_req.toString();
                     try {
-                        File bitmapFile = new File(new File(disk_req.target.getContext().getCacheDir(), BuildConfig.CUSTOMERLY_SDK_NAME).toString(), disk_key);
+                        File bitmapFile = new File(new File(disk_req.target.getContext().getCacheDir(), CUSTOMERLY_SDK_NAME).toString(), disk_key);
                         if (bitmapFile.exists()) {
                             if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
                                 try {
@@ -327,7 +382,7 @@ class Internal_Utils__RemoteImageHandler {
                             //Add image to LruMemory
                             _LruCache.put(network_key, bmp);
 
-                            File fullCacheDir = new File(network_req.target.getContext().getCacheDir(), BuildConfig.CUSTOMERLY_SDK_NAME);
+                            File fullCacheDir = new File(network_req.target.getContext().getCacheDir(), CUSTOMERLY_SDK_NAME);
                             //Initialize cache dir if needed
                             if (!fullCacheDir.exists()) {
                                 //noinspection ResultOfMethodCallIgnored
@@ -483,7 +538,7 @@ class Internal_Utils__RemoteImageHandler {
         }
 
         @Override @NonNull public String toString() {
-            return String.format(Locale.UK, "%1$s-%2$d", BuildConfig.CUSTOMERLY_SDK_NAME, String.format(Locale.UK, "%1$s|%2$b|%3$d|%4$d", this.url, this.transformCircle, this.width, this.height).hashCode());
+            return String.format(Locale.UK, "%1$s-%2$d", CUSTOMERLY_SDK_NAME, String.format(Locale.UK, "%1$s|%2$b|%3$d|%4$d", this.url, this.transformCircle, this.width, this.height).hashCode());
         }
     }
 }

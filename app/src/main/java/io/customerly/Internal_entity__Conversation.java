@@ -25,7 +25,7 @@ class Internal_entity__Conversation {
 
     final long conversation_id, assigner_id;
 
-    Internal_entity__Conversation(long pConversationID, @Nullable CustomerlyHtmlMessage pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, boolean pUnread, @Nullable String pLastAccountName) {
+    Internal_entity__Conversation(long pConversationID, @Nullable CustomerlyHtmlMessage pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
         this.last_message_abstract = pLastMessage;
@@ -35,7 +35,7 @@ class Internal_entity__Conversation {
         this.last_message_writer = pLastMessageWriterID;
         this.last_message_writer_type = pLastMessageWriterType;
 
-        this.unread = pUnread;
+        this.unread = true;
 
         this.last_account__name = pLastAccountName;
     }

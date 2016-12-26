@@ -35,7 +35,7 @@ import android.widget.Toast;
  * Project: CustomerlySDK
  */
 
-public class Internal_activity__FullScreenImage_Activity extends AppCompatActivity {
+public final class Internal_activity__FullScreenImage_Activity extends AppCompatActivity {
     static final String EXTRA_IMAGESOURCE = "EXTRA_IMAGESOURCE";
 
     private String _SourceUrl;
@@ -54,7 +54,7 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(_ImageView)
-                            .placeholder(R.drawable.io_customerly__pic_placeholder));
+                            .placeholder(R.drawable.io_customerly__pic_placeholder_fullscreen));
                     super.setContentView(_ImageView);
 
                     final ActionBar actionBar = this.getSupportActionBar();
@@ -156,7 +156,7 @@ public class Internal_activity__FullScreenImage_Activity extends AppCompatActivi
                                                 PendingIntent.FLAG_UPDATE_CURRENT
                                         )).build());
 
-                        Toast toast = Toast.makeText(Internal_activity__FullScreenImage_Activity.this, R.string.io_customerly__download_completo, Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(Internal_activity__FullScreenImage_Activity.this, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.TOP, 25, 400);
                         toast.show();
                     }

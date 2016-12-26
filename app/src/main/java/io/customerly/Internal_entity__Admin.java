@@ -37,7 +37,7 @@ class Internal_entity__Admin {
     }
 
     @Contract("null -> null")
-    static Internal_entity__Admin from(@Nullable JSONObject json) {
+    private static Internal_entity__Admin from(@Nullable JSONObject json) {
         if(json == null)
             return null;
         try {

@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="io_customerly__ball_color_initial">#ff687068</color>
     <color name="io_customerly__message_account">#ffeceff1</color>
-    <color name="io_customerly__message_user">@color/io_customerly__blue1</color>
-    <color name="io_customerly__lightblue1">#fff2faff</color>
-    <color name="io_customerly__blue1">#ff1fb1fc</color>
-    <color name="io_customerly__blue2">#ff007db9</color>
-    <color name="io_customerly__blue2_transparent">#00007db9</color>
-    <color name="io_customerly__blue3">#ff4561ff</color>
-    <color name="io_customerly__grey66">#ff666666</color>
-    <color name="io_customerly__grey99">#ff999999</color>
-    <color name="io_customerly__greycc">#ffcccccc</color>
-    <color name="io_customerly__greye9">#ffe9e9e9</color>
-    <color name="io_customerly__greyf0">#fff0f0f0</color>
+    <color name="io_customerly__message_user">@color/io_customerly__blue_1</color>
+    <color name="io_customerly__light_blue_1">#fff2faff</color>
+    <color name="io_customerly__blue_1">#ff1fb1fc</color>
+    <color name="io_customerly__blue_2">#ff007db9</color>
+    <color name="io_customerly__blue_2_transparent">#00007db9</color>
+    <color name="io_customerly__blue_3">#ff4561ff</color>
+    <color name="io_customerly__grey_66">#ff666666</color>
+    <color name="io_customerly__grey_99">#ff999999</color>
+    <color name="io_customerly__grey_cc">#ffcccccc</color>
+    <color name="io_customerly__grey_f0">#fff0f0f0</color>
     <color name="io_customerly__dark_text">#ff282828</color>
 </resources>

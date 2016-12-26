@@ -2,10 +2,10 @@
 <resources>
 
     <!-- Not translatable -->
-    <string name="io_customerly__url_offerto_da_customerly" translatable="false">https://www.customerly.io/</string>
+    <string name="io_customerly__url_powered_by_customerly" translatable="false">https://www.customerly.io/</string>
     <string name="io_customerly__download" translatable="false">Download</string>
 
-    <!-- Plurals (Non gestite da Translations Editor -->
+    <!-- Plurals (Not handled by Translations Editor -->
     <plurals name="io_customerly__last_activity_XXm_ago">
         <item quantity="one">Last activity %1$d minute ago</item>
         <item quantity="other">Last activity %1$d minutes ago</item>
@@ -20,49 +20,46 @@
     </plurals>
 
     <!-- Localized -->
-    <string name="io_customerly__offerto_da_">Powered by&#160;</string>
-    <string name="io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto">Contact the suppor writing your question below</string>
-    <string name="io_customerly__scrivi_la_tua_domanda">Write your question…</string>
+    <string name="io_customerly__powered_by_">Powered by&#160;</string>
+    <string name="io_customerly__contact_the_support_writing_your_question_below">Contact the support writing your question below</string>
+    <string name="io_customerly__write_your_question">Write your question…</string>
     <string name="io_customerly__attach_file">Attach file</string>
-    <string name="io_customerly__send">Send</string>
-    <string name="io_customerly__inserisci_la_tua_email">Insert your email</string>
-    <string name="io_customerly__inizia_conversazione">Start a conversation</string>
-    <string name="io_customerly__inizia_nuova_conversazione">Begin a new Conversation</string>
-    <string name="io_customerly__installa_un_file_manager">You need to install a File Manager first</string>
-    <string name="io_customerly__scegli_file_da_allegare">Choose a file to attach</string>
-    <string name="io_customerly__cancel_allegato">Do you want to remove the attachment %s?</string>
+    <string name="io_customerly__insert_your_email">Insert your email</string>
+    <string name="io_customerly__start_a_conversation">Start a conversation</string>
+    <string name="io_customerly__begin_a_new_conversation">Begin a new Conversation</string>
+    <string name="io_customerly__install_a_file_manager">You need to install a File Manager first</string>
+    <string name="io_customerly__choose_a_file_to_attach">Choose a file to attach</string>
+    <string name="io_customerly__cancel_attachment">Do you want to remove the attachment %s?</string>
     <string name="io_customerly__remove">Remove</string>
-    <string name="io_customerly__annulla">Cancel</string>
+    <string name="io_customerly__cancel">Cancel</string>
     <string name="io_customerly__you">You</string>
     <string name="io_customerly__permission_request">Permission Request</string>
     <string name="io_customerly__permission_request_explanation_write">The permission to access the external memory is needed to store the attachments</string>
     <string name="io_customerly__permission_request_explanation_read">The permission to access the external memory is needed to upload the attachments</string>
     <string name="io_customerly__permission_denied_write">You denied the permission necessary to store the attachments. You can authorize it from the system settings of the app</string>
     <string name="io_customerly__permission_denied_read">You denied the permission necessary to upload the attachments. You can authorize it from the system settings of the app</string>
-    <string name="io_customerly__download_completo">Download Complete</string>
-    <string name="io_customerly__nuova_conversazione">New Conversation</string>
-    <string name="io_customerly__invio_messaggio_in_corso">Sending message</string>
-    <string name="io_customerly__errore_connessione_probabile">An error occours! Please check your connection</string>
-    <string name="io_customerly__avvio_download">Download the file?</string>
-    <string name="io_customerly__attachments_maxcount_error">You\'ve reached the max number of files allowed</string>
-    <string name="io_customerly__attachments_alreadyattached_error">You\'ve already attached this file</string>
-    <string name="io_customerly__attachments_maxsize_error">This file is too big to be attached</string>
+    <string name="io_customerly__download_complete">Download Complete</string>
+    <string name="io_customerly__new_conversation">New Conversation</string>
+    <string name="io_customerly__sending_message">Sending message</string>
+    <string name="io_customerly__connection_error">An error occurred! Please check your connection</string>
+    <string name="io_customerly__download_the_file_">Download the file?</string>
+    <string name="io_customerly__attachments_max_count_error">You\'ve reached the max number of files allowed</string>
+    <string name="io_customerly__attachments_already_attached_error">You\'ve already attached this file</string>
+    <string name="io_customerly__attachments_max_size_error">This file is too big to be attached</string>
     <string name="io_customerly__last_activity_now">Online</string>
-    <string name="io_customerly__icona">Icon</string>
+    <string name="io_customerly__icon">Icon</string>
     <string name="io_customerly__XXs_ago">%1$ds ago</string>
     <string name="io_customerly__XXm_ago">%1$dm ago</string>
     <string name="io_customerly__XXh_ago">%1$dh ago</string>
     <string name="io_customerly__XXd_ago">%1$dd ago</string>
     <string name="io_customerly__survey">Survey</string>
-    <string name="io_customerly__invio_la_risposta">Send the answer</string>
-    <string name="io_customerly__scegli_una_risposta">Choose an answer</string>
-    <string name="io_customerly__conferma">Confirm</string>
-    <string name="io_customerly__conferma_x">Confirm %1$d</string>
-    <string name="io_customerly__hint_inserisci_un_numero">Insert a number</string>
-    <string name="io_customerly__hint_inserisci_un_testo">Insert a text</string>
-    <string name="io_customerly__support">Support</string>
+    <string name="io_customerly__choose_an_answer">Choose an answer</string>
+    <string name="io_customerly__confirm">Confirm</string>
+    <string name="io_customerly__confirm_x">Confirm %1$d</string>
+    <string name="io_customerly__hint_insert_a_number">Insert a number</string>
+    <string name="io_customerly__hint_insert_a_text">Insert a text</string>
     <string name="io_customerly__chat" translatable="false">Chat</string>
-    <string name="io_customerly__immagine">Image</string>
+    <string name="io_customerly__image">Image</string>
     <string name="io_customerly__conversations">Conversations</string>
 
 </resources>

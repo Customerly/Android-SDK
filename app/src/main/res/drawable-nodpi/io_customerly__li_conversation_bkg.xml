@@ -10,9 +10,9 @@
 
                 <shape android:shape="rectangle" >
 
-                    <stroke android:width="3dp" android:color="@color/io_customerly__blue3" />
+                    <stroke android:width="3dp" android:color="@color/io_customerly__blue_3" />
 
-                    <solid android:color="@color/io_customerly__lightblue1" />
+                    <solid android:color="@color/io_customerly__light_blue_1" />
 
                 </shape>
             </item>

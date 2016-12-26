@@ -4,8 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:background="@android:color/white" >
+    android:gravity="center_horizontal" >
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -21,7 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:overScrollMode="never"
-                android:background="@color/io_customerly__greyf0" >
+                android:background="@color/io_customerly__grey_f0" >
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -62,7 +61,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
-                                android:textColor="@color/io_customerly__grey99"
+                                android:textColor="@color/io_customerly__grey_99"
                                 android:textSize="13sp"
                                 android:visibility="gone" />
 
@@ -71,7 +70,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginBottom="10dp"
-                                android:textColor="@color/io_customerly__grey99"
+                                android:textColor="@color/io_customerly__grey_99"
                                 android:textSize="14sp"
                                 android:visibility="gone" />
 
@@ -98,9 +97,9 @@
                             android:layout_marginStart="10dp"
                             android:layout_marginRight="10dp"
                             android:layout_marginEnd="10dp"
-                            android:textColor="@color/io_customerly__grey99"
+                            android:textColor="@color/io_customerly__grey_99"
                             android:textSize="14sp"
-                            android:text="@string/io_customerly__contatta_l_assistenza_scrivendo_la_tua_domanda_qui_sotto" />
+                            android:text="@string/io_customerly__contact_the_support_writing_your_question_below" />
 
                     </android.support.v7.widget.CardView>
 
@@ -140,6 +139,7 @@
         android:visibility="gone" >
 
         <EditText android:id="@id/io_customerly__input_email_edittext"
+            android:theme="@style/io_customerly__EditText_Blue2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
@@ -149,11 +149,10 @@
             android:paddingLeft="15dp"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
-            android:textColorHint="@color/io_customerly__grey99"
+            android:textColorHint="@color/io_customerly__grey_99"
             android:textColor="@color/io_customerly__dark_text"
             android:inputType="textEmailAddress"
-            android:hint="@string/io_customerly__inserisci_la_tua_email"
-            android:theme="@style/io_customerly__ListActivity_EditTextBlue"
+            android:hint="@string/io_customerly__insert_your_email"
             android:background="@android:color/transparent" />
 
         <Button android:id="@id/io_customerly__input_email_button"
@@ -169,7 +168,7 @@
             android:background="@drawable/io_customerly__button_blue"
             android:foreground="?attr/selectableItemBackground"
             android:textColor="@android:color/white"
-            android:text="@string/io_customerly__inizia_conversazione"/>
+            android:text="@string/io_customerly__start_a_conversation"/>
 
     </LinearLayout>
 
@@ -192,7 +191,7 @@
             android:background="@drawable/io_customerly__button_blue"
             android:foreground="?attr/selectableItemBackground"
             android:textColor="@android:color/white"
-            android:text="@string/io_customerly__inizia_nuova_conversazione"/>
+            android:text="@string/io_customerly__begin_a_new_conversation"/>
 
     </LinearLayout>
 

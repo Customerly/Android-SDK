@@ -7,21 +7,20 @@
     android:minWidth="300dp"
     android:minHeight="200dp"
     android:gravity="start|left"
-    android:background="@android:color/white"
     android:padding="25dp"
     android:animateLayoutChanges="true"
     tools:ignore="RtlHardcoded,UnusedAttribute" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+        android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
         android:orientation="horizontal"
         android:layout_marginBottom="10dp" >
 
         <ImageView android:id="@id/io_customerly__back"
             style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
-            android:layout_width="@dimen/io_customerly__dialogfragment_survey_headerheight"
-            android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_width="@dimen/io_customerly__dialogfragment_survey_header_height"
+            android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
             android:layout_gravity="center"
             android:src="@drawable/io_customerly__ic_arrow_back_black_24dp"
             android:contentDescription="back"
@@ -29,7 +28,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/io_customerly__survey"
@@ -38,8 +37,8 @@
 
         <ImageView android:id="@id/io_customerly__close"
             style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
-            android:layout_width="@dimen/io_customerly__dialogfragment_survey_headerheight"
-            android:layout_height="@dimen/io_customerly__dialogfragment_survey_headerheight"
+            android:layout_width="@dimen/io_customerly__dialogfragment_survey_header_height"
+            android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
             android:layout_gravity="center"
             android:src="@drawable/io_customerly__ic_clear_black_24dp"
             android:contentDescription="back"

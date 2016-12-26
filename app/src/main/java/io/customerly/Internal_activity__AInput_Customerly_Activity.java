@@ -41,15 +41,14 @@ import java.util.ArrayList;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatActivity {
+abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatActivity {
 
     static final String EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK";
     private static final int FILE_SELECT_CODE = 5;
 
-    protected LinearLayout input_layout, input_attachments;
-    protected EditText input_input;
-    protected View input_button_attach;
-    protected ArrayList<Internal_entity__Attachment> _Attachments = new ArrayList<>(1);
+    LinearLayout input_layout, input_attachments;
+    EditText input_input;
+    final ArrayList<Internal_entity__Attachment> _Attachments = new ArrayList<>(1);
     @NonNull private final IntentFilter _IntentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     @NonNull private final BroadcastReceiver _BroadcastReceiver = new BroadcastReceiver() {
         boolean attendingReconnection = false;
@@ -89,14 +88,14 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
      * @param pLayoutRes Il resID del layout
      * @return true se l'sdk è configurato e tutto ok altrimenti restituisce false e chiama finish()
      */
-     protected final boolean onCreateLayout(@LayoutRes int pLayoutRes) {
+    final boolean onCreateLayout(@LayoutRes int pLayoutRes) {
         if(Customerly._Instance._isConfigured()) {
             super.setContentView(pLayoutRes);
             //View binding
             final ActionBar actionBar = this.getSupportActionBar();
             final TextView offerto_da = (TextView) this.findViewById(R.id.io_customerly__offerto_da);
             this.input_input = (EditText) this.findViewById(R.id.io_customerly__input_edittext);
-            this.input_button_attach = this.findViewById(R.id.io_customerly__input_button_attach);
+            View input_button_attach = this.findViewById(R.id.io_customerly__input_button_attach);
             this.input_layout = (LinearLayout) this.findViewById(R.id.io_customerly__input_layout);
             this.input_attachments = (LinearLayout) this.findViewById(R.id.io_customerly__input_attachments);
 
@@ -128,7 +127,7 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
             }
 
             if (Customerly._Instance.__PING__LAST_powered_by) {
-                SpannableStringBuilder ssb = new SpannableStringBuilder(this.getString(R.string.io_customerly__offerto_da_));
+                SpannableStringBuilder ssb = new SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_));
                 SpannableString redBoldSpannable= new SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME);
 
                 if(Customerly._Instance.__PING__LAST_widget_color != 0) {
@@ -143,13 +142,13 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 ssb.append(redBoldSpannable);
                 offerto_da.setText(ssb);
-                offerto_da.setOnClickListener(v -> Internal_Utils__Utils.intentUrl(this, this.getString(R.string.io_customerly__url_offerto_da_customerly)));
+                offerto_da.setOnClickListener(v -> Internal_Utils__Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
                 offerto_da.setVisibility(View.VISIBLE);
             }/* else {
                 offerto_da.setVisibility(View.GONE);//Da layout
             }*/
 
-            this.input_button_attach.setOnClickListener(this._AttachButtonListener);
+            input_button_attach.setOnClickListener(this._AttachButtonListener);
 
             this.findViewById(R.id.io_customerly__input_button_send).setOnClickListener(btn -> {
                 if(Internal_Utils__Utils.checkConnection(this)) {
@@ -162,7 +161,7 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
                         this.onInputActionSend_PerformSend(message, attachmentsArray, null);
                     }
                 } else {
-                    Toast.makeText(this.getApplicationContext(), R.string.io_customerly__errore_connessione_probabile, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -175,16 +174,16 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
 
     @NonNull private final View.OnClickListener _AttachButtonListener = btn -> {
         if (this._Attachments.size() >= 10) {
-            Snackbar.make(btn, R.string.io_customerly__attachments_maxcount_error, Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok, v -> {}).setActionTextColor(Customerly._Instance.__PING__LAST_widget_color).show();
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
                     this.startActivityForResult(
                             Intent.createChooser(new Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
-                                    this.getString(R.string.io_customerly__scegli_file_da_allegare)), FILE_SELECT_CODE);
+                                    this.getString(R.string.io_customerly__choose_a_file_to_attach)), FILE_SELECT_CODE);
                 } catch (ActivityNotFoundException ex) {
-                    Toast.makeText(this, this.getString(R.string.io_customerly__installa_un_file_manager), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, this.getString(R.string.io_customerly__install_a_file_manager), Toast.LENGTH_SHORT).show();
                 }
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -239,14 +238,14 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
                         try {
                             for(Internal_entity__Attachment att : this._Attachments) {
                                 if(fileUri.equals(att.uri)) {
-                                    Snackbar.make(this.input_input, R.string.io_customerly__attachments_alreadyattached_error, Snackbar.LENGTH_INDEFINITE)
+                                    Snackbar.make(this.input_input, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
                                             .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly._Instance.__PING__LAST_widget_color).show();
                                     this.input_input.requestFocus();
                                     return;
                                 }
                             }
                             if(Internal_Utils__Utils.getFileSizeFromUri(this, fileUri) > 5000000) {
-                                Snackbar.make(this.input_input, R.string.io_customerly__attachments_maxsize_error, Snackbar.LENGTH_INDEFINITE)
+                                Snackbar.make(this.input_input, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
                                         .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly._Instance.__PING__LAST_widget_color).show();
                                 this.input_input.requestFocus();
                                 return;
@@ -264,7 +263,7 @@ public abstract class Internal_activity__AInput_Customerly_Activity extends AppC
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    protected void restoreAttachments() {
+    void restoreAttachments() {
         if(this.input_attachments != null) {
             this.input_attachments.removeAllViews();
         }

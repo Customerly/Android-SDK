@@ -14,7 +14,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
-import android.text.Spannable;
 import android.util.Log;
 import android.util.TypedValue;
 
@@ -23,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -42,13 +42,13 @@ public class Customerly {
     /* ************************************************************************************************************************************************ Finals ********/
     /* ****************************************************************************************************************************************************************/
     private static final String PREFS__COOKIES_customerly_cookies = "PREFS__COOKIES_customerly_cookies";
-    private static final String PREFS_PINGRESPONSE__WIDGET_COLOR = "PREFS_PINGRESPONSE__WIDGET_COLOR";
-    private static final String PREFS_PINGRESPONSE__POWEREDBY = "PREFS_PINGRESPONSE__POWEREDBY";
-    private static final String PREFS_PINGRESPONSE__WELCOME_USERS = "PREFS_PINGRESPONSE__WELCOME_USERS";
-    private static final String PREFS_PINGRESPONSE__WELCOME_VISITORS = "PREFS_PINGRESPONSE__WELCOME_VISITORS";
+    private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
+    private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
+    private static final String PREFS_PING_RESPONSE__WELCOME_USERS = "PREFS_PING_RESPONSE__WELCOME_USERS";
+    private static final String PREFS_PING_RESPONSE__WELCOME_VISITORS = "PREFS_PING_RESPONSE__WELCOME_VISITORS";
     private static final long SOCKET_PING_INTERVAL = 60000;
     private static final String SOCKET_EVENT__PING = "p";
-    private static final String SOCKET_EVENT__PINGACTIVE = "a";
+    private static final String SOCKET_EVENT__PING_ACTIVE = "a";
     private static final String SOCKET_EVENT__TYPING = "typing";
     private static final String SOCKET_EVENT__SEEN = "seen";
     private static final String SOCKET_EVENT__MESSAGE = "message";
@@ -63,18 +63,19 @@ public class Customerly {
     @NonNull
     final Internal_Utils__RemoteImageHandler _RemoteImageHandler = new Internal_Utils__RemoteImageHandler();
     @NonNull private final Handler _Handler = new Handler();
-    @ColorInt private static final int DEF_WIDGETCOLOR_INT = 0xffd60022;
+    @ColorInt private static final int DEF_WIDGET_COLOR_INT = 0xffd60022;
 
     /* ****************************************************************************************************************************************************************/
     /* ************************************************************************************************************************************************ State fields **/
     /* ****************************************************************************************************************************************************************/
 
-    //Diventano NonNull con la configure
+    //@NonNull after configure
     long _ApplicationVersionCode;
-    @ColorInt private int __Fallback_Widget_color = DEF_WIDGETCOLOR_INT, __InApp_Hardcoded_WidgetColor = Color.TRANSPARENT;
+    @ColorInt private int __Fallback_Widget_color = DEF_WIDGET_COLOR_INT, __InApp_Hardcoded_WidgetColor = Color.TRANSPARENT;
     @SuppressWarnings("NullableProblems") @NonNull String _AppID, _ApplicationName;
     @SuppressWarnings("NullableProblems") @NonNull private SharedPreferences _SharedPreferences;
     @SuppressWarnings("NullableProblems") @NonNull private JSONObject cookies;
+    @Nullable File _AppCacheDir;
     @NonNull private WeakReference<Activity> _ActiveActivity = new WeakReference<>(null);
 
     void setCurrentActivity(@Nullable Activity activity) {
@@ -130,6 +131,7 @@ public class Customerly {
     public void configure(@NonNull Application pApplicationContext, @NonNull String pCustomerlyAppID) {
 
         this._AppID = pCustomerlyAppID;
+        this._AppCacheDir = pApplicationContext.getCacheDir();
         try {
             this._ApplicationName = pApplicationContext.getApplicationInfo().loadLabel(pApplicationContext.getPackageManager()).toString();
         } catch (NullPointerException err) {
@@ -156,7 +158,7 @@ public class Customerly {
                 pApplicationContext.getTheme().resolveAttribute(colorAttr, outValue, true);
                 color = outValue.data;
             } catch (Exception some_error) {
-                color = DEF_WIDGETCOLOR_INT;
+                color = DEF_WIDGET_COLOR_INT;
             }
 
             this.__PING__LAST_widget_color = this.__Fallback_Widget_color = color;
@@ -262,18 +264,18 @@ public class Customerly {
         }
 
         this._SharedPreferences.edit()
-                .putInt(PREFS_PINGRESPONSE__WIDGET_COLOR, this.__PING__LAST_widget_color)
-                .putBoolean(PREFS_PINGRESPONSE__POWEREDBY, this.__PING__LAST_powered_by)
-                .putString(PREFS_PINGRESPONSE__WELCOME_USERS, this.__PING__LAST_welcome_message_users)
-                .putString(PREFS_PINGRESPONSE__WELCOME_VISITORS, this.__PING__LAST_welcome_message_visitors)
+                .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, this.__PING__LAST_widget_color)
+                .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, this.__PING__LAST_powered_by)
+                .putString(PREFS_PING_RESPONSE__WELCOME_USERS, this.__PING__LAST_welcome_message_users)
+                .putString(PREFS_PING_RESPONSE__WELCOME_VISITORS, this.__PING__LAST_welcome_message_visitors)
                 .apply();
     }
 
     private void __PING__restoreFromDisk(@NonNull SharedPreferences pSharedPreferences) {
-        this.__PING__LAST_widget_color = pSharedPreferences.getInt(PREFS_PINGRESPONSE__WIDGET_COLOR, this.__Fallback_Widget_color);
-        this.__PING__LAST_powered_by = pSharedPreferences.getBoolean(PREFS_PINGRESPONSE__POWEREDBY, false);
-        this.__PING__LAST_welcome_message_users = pSharedPreferences.getString(PREFS_PINGRESPONSE__WELCOME_USERS, null);
-        this.__PING__LAST_welcome_message_visitors = pSharedPreferences.getString(PREFS_PINGRESPONSE__WELCOME_VISITORS, null);
+        this.__PING__LAST_widget_color = pSharedPreferences.getInt(PREFS_PING_RESPONSE__WIDGET_COLOR, this.__Fallback_Widget_color);
+        this.__PING__LAST_powered_by = pSharedPreferences.getBoolean(PREFS_PING_RESPONSE__POWERED_BY, false);
+        this.__PING__LAST_welcome_message_users = pSharedPreferences.getString(PREFS_PING_RESPONSE__WELCOME_USERS, null);
+        this.__PING__LAST_welcome_message_visitors = pSharedPreferences.getString(PREFS_PING_RESPONSE__WELCOME_VISITORS, null);
         this.__PING__LAST_active_admins = null;
         this.__PING__LAST_message_conversation_id = 0;
         this.__PING__LAST_message_account_id = 0;
@@ -397,7 +399,7 @@ public class Customerly {
             Activity activity = this._ActiveActivity.get();
             socket.emit(activity instanceof Internal_activity__CustomerlyChat_Activity
                     || activity instanceof Internal_activity__CustomerlyList_Activity
-                    ? SOCKET_EVENT__PINGACTIVE : SOCKET_EVENT__PING);
+                    ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
             this._Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
         }
     };
@@ -419,7 +421,7 @@ public class Customerly {
                     String query;
                     try {
                         query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.internal_user_id).toString();
-                    } catch (JSONException errore) {
+                    } catch (JSONException error) {
                         return;
                     }
                     Socket socket;
@@ -655,7 +657,7 @@ public class Customerly {
     }
 
     public interface RealTimeMessagesCallback {
-        void onMessage(Spannable messageContent);
+        void onMessage(CustomerlyHtmlMessage messageContent);
     }
 
     public void registerRealTimeMessagesCallback(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {

@@ -18,7 +18,7 @@ class Internal_errorhandler__CustomerlyErrorHandler {
     @Retention(RetentionPolicy.SOURCE)
     @interface ErrorCode {}
 
-    @ErrorCode static final int ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED = 1;
+    @ErrorCode private static final int ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED = 1;
     @ErrorCode static final int ERROR_CODE__IO_ERROR = 2;
     @ErrorCode static final int ERROR_CODE__HTTP_REQUEST_ERROR = 3;
     @ErrorCode static final int ERROR_CODE__HTTP_RESPONSE_ERROR = 4;
