@@ -244,15 +244,17 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         }
     }
 
-    private void sendSeen(long messageID_seen) {
-        final long seenDate = System.currentTimeMillis() / 1000;
-        Customerly._Instance.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, seenDate);
-
-        new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEEN)
-                .opt_checkConn(this)
-                .param("conversation_message_id", messageID_seen)
-                .param("seen_date", seenDate)
-                .start();
+    private void sendSeen(final long messageID_seen) {
+        final Internal_Utils__ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
+            utc /= 1000;
+            Customerly._Instance.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, utc);
+            new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEEN)
+                    .opt_checkConn(this)
+                    .param("conversation_message_id", messageID_seen)
+                    .param("seen_date", utc)
+                    .start();
+        };
+        Internal_Utils__NTP_Utils.getSafeNow_fromUiThread(this, onSuccess, () -> onSuccess.onResult(System.currentTimeMillis()));
     }
 
     @Override
