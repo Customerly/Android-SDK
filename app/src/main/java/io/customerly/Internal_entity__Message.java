@@ -20,7 +20,7 @@ class Internal_entity__Message {
     private final long user_id, account_id, seen_date;
 
     @Nullable final CustomerlyHtmlMessage content;
-    @Nullable final String if_account__name;
+    @Nullable final String if_account__name, rich_mail_token;
     @Nullable final Internal_entity__Attachment[] _Attachments;
 
     @Nullable private String _Cached__toStringDate = null;
@@ -48,6 +48,7 @@ class Internal_entity__Message {
         this.content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(pMessage);
         this._Attachments = pAttachments;
         this.if_account__name = null;
+        this.rich_mail_token = null;
     }
 
     Internal_entity__Message(@NonNull JSONObject pMessageItem) {
@@ -62,6 +63,7 @@ class Internal_entity__Message {
         this.sent_date = pMessageItem.optLong("sent_date", 0);
         this.seen_date = pMessageItem.optLong("seen_date", 0);
         this.content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(pMessageItem.optString("content", ""));
+        this.rich_mail_token = pMessageItem.optString("rich_mail_token", null);
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {

@@ -127,7 +127,7 @@ class Internal_entity__Survey {
     @SURVEY_TYPE int type;
     @NonNull final String thankyou_text;
     @NonNull String title, subtitle;
-    boolean seen, isRejected = false;
+    boolean seen, isRejectedOrConcluded = false;
     @Nullable Choice[] choices;
     private Internal_entity__Survey(int survey_id, @NonNull String thankyou_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
         this.survey_id = survey_id;
@@ -165,7 +165,9 @@ class Internal_entity__Survey {
         }
         @Override public int describeContents() { return 0; }
         @NonNull public static final Creator<Choice> CREATOR = new Creator<Choice>() {
+            @Contract("_ -> !null")
             @Override public Choice createFromParcel(@NonNull Parcel in) { return new Choice(in); }
+            @Contract(value = "_ -> !null", pure = true)
             @Override public Choice[] newArray(int size) { return new Choice[size]; }
         };
     }

@@ -45,6 +45,7 @@ import java.util.Locale;
  */
 class Internal_Utils__Utils {
 
+    @Contract("null -> false")
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     static boolean checkConnection(@Nullable Context c) {
@@ -108,6 +109,7 @@ class Internal_Utils__Utils {
     }
 
     private final static String EMOJI_TAG_START = "<emoji>", EMOJI_TAG_END = "</emoji>";
+    @Contract("null -> null")
     @Nullable static CustomerlyHtmlMessage decodeHtmlStringWithEmojiTag(@Nullable String message) {
         if(message == null)
             return null;
@@ -334,6 +336,7 @@ class Internal_Utils__Utils {
         }
     }
 
+    @Nullable
     private static String getPath(@NonNull Context context, @NonNull Uri uri) {
         // DocumentProvider
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, uri)) {

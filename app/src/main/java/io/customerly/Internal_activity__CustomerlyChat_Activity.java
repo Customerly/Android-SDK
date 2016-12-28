@@ -52,6 +52,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 
 /**
  * Created by Gianni on 03/09/16.
@@ -490,6 +491,30 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         }
     }
 
+    private class ChatAccountRichMessageVH extends A_ChatMessageVH {
+        private ChatAccountRichMessageVH() {
+            super(R.layout.io_customerly__li_message_account_rich, R.drawable.io_customerly__bkg_chatmessage_account_rounded, R.drawable.io_customerly__ic_attach_account, -0.9f);
+        }
+        @Override protected void setContentVisibility(@ContentVisibility int visibility, boolean isSending) {
+            //Do nothing. Content text defined in xml
+        }
+
+        @Override
+        protected void apply(@Nullable Internal_entity__Message pMessage, @Nullable String pDataDaMostrare, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
+            super.apply(pMessage, pDataDaMostrare, pIsFirstMessageOfSender, pShouldAnimate);
+            this._Content.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.io_customerly__ic_email_black_32dp, 0, 0);
+            View.OnClickListener clickListener = v -> {
+                if(pMessage != null && pMessage.rich_mail_token != null) {
+                    Internal_Utils__Utils.intentUrl(Internal_activity__CustomerlyChat_Activity.this,
+                            String.format(Locale.UK, "https://app.customerly.io/email/view/%d/%s",
+                                    pMessage.conversation_message_id, pMessage.rich_mail_token));
+                }
+            };
+            this.itemView.setOnClickListener(clickListener);
+            this._Content.setOnClickListener(clickListener);
+        }
+    }
+
     private abstract class A_ChatMessageVH extends A_ChatVH {
         @NonNull private final LinearLayout _AttachmentLayout;
         @Nullable private final View _Sending;
@@ -557,7 +582,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
 
                 if (pMessage.isFailed()) {
                     this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.io_customerly__ic_error, 0);
-                    this.itemView.setOnClickListener(v -> {
+                    View.OnClickListener clickListener = v -> {
                         if(Customerly._Instance._isConfigured()) {
                             pMessage.setSending();
                             int pos = _ChatList.indexOf(pMessage);
@@ -566,9 +591,12 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                             }
                             startSendMessageRequest(pMessage);
                         }
-                    });
+                    };
+                    this._Content.setOnClickListener(clickListener);
+                    this.itemView.setOnClickListener(clickListener);
                 } else {
                     this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                    this._Content.setOnClickListener(null);
                     this.itemView.setOnClickListener(null);
                 }
 
@@ -644,6 +672,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                     this._Sending.setVisibility(View.GONE);
                 }
                 this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                this._Content.setOnClickListener(null);
                 this.itemView.setOnClickListener(null);
                 this._AttachmentLayout.removeAllViews();
                 this._AttachmentLayout.setVisibility(View.GONE);
@@ -663,11 +692,25 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         private final long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);
         @Override
         public int getItemViewType(int position) {
-            return (_Typing && position == this.getItemCount() - 1) ? 0 : _ChatList.get(position).isUserMessage() ? R.layout.io_customerly__li_message_user : R.layout.io_customerly__li_message_account;
+            if(_Typing && position == this.getItemCount() - 1) {
+                return R.layout.io_customerly__li_message_account_typing;
+            } else {
+                Internal_entity__Message message = _ChatList.get(position);
+                if(message.isUserMessage()) {
+                    return R.layout.io_customerly__li_message_user;
+                } else if(message.rich_mail_token == null) {
+                    return R.layout.io_customerly__li_message_account;
+                } else {
+                    return R.layout.io_customerly__li_message_account_rich;
+                }
+            }
         }
         @Override
         public A_ChatVH onCreateViewHolder(ViewGroup parent, int viewType) {
-            return viewType == 0 ? new ChatTypingVH() : viewType == R.layout.io_customerly__li_message_user ? new ChatUserMessageVH() : new ChatAccountMessageVH();
+            return viewType == R.layout.io_customerly__li_message_account_typing ? new ChatTypingVH()
+                    : viewType == R.layout.io_customerly__li_message_user ? new ChatUserMessageVH()
+                    : viewType == R.layout.io_customerly__li_message_account ? new ChatAccountMessageVH()
+                    : /*viewType == R.layout.io_customerly__li_message_account_rich ? */ new ChatAccountRichMessageVH();
         }
         @Override
         public void onBindViewHolder(A_ChatVH holder, @SuppressLint("RecyclerView") int position) {

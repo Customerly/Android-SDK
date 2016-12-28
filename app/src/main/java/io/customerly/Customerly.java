@@ -310,7 +310,7 @@ public class Customerly {
                     String key = keys.next();
                     JSONObject cookie_values = pLastCookies.getJSONObject(key);
                     String value = cookie_values.optString("value", null);
-                    if(cookie_values.optInt("expire", 0) == 1) {
+                    if(cookie_values.optInt("expire", 0) == 1 || value == null || value.length() == 0) {
                         this.cookies.remove(key);
                     } else {
                         try {
@@ -562,41 +562,65 @@ public class Customerly {
         void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
     }
     public void update(final @NonNull Callback pCallback) {
-        if(System.currentTimeMillis() < this.__PING__next_ping_allowed) {
-            this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) /1000 + " seconds.");
-            pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
-        } else {
-            new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
-                    .opt_converter(data -> {
-                        this.__PING__next_ping_allowed = data.optLong("next-ping-allowed", 0);
-                        this.__PING__onPingResult(data);
-                        return null;
-                    })
-                    .opt_receiver((responseState, _void) -> pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
-                    .start();
+        if(this._isConfigured()) {
+            try {
+                if (System.currentTimeMillis() < this.__PING__next_ping_allowed) {
+                    this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
+                    pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                } else {
+                    new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PINGINDEX)
+                            .opt_converter(data -> {
+                                this.__PING__next_ping_allowed = data.optLong("next-ping-allowed", 0);
+                                this.__PING__onPingResult(data);
+                                return null;
+                            })
+                            .opt_receiver((responseState, _void) -> pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
+                            .start();
+                }
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.update");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
+            }
         }
     }
 
-    public void registerUser(String user_id, @NonNull String email, @Nullable String name, @NonNull Callback pCallback) {
-        this.registerUser(user_id, email, name, null, pCallback);
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @NonNull Callback pCallback) {
+        this.registerUser(email, user_id, name, null, pCallback);
     }
 
-    public void registerUser(String user_id, @NonNull String email, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
-        this.registerUser(new Customerly_User(true, Customerly_User.UNKNOWN_CUSTOMERLY_USER_ID, user_id, email, name), pAttributes, pCallback);
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+        if(this._isConfigured()) {
+            try {
+                this.registerUser(new Customerly_User(email, true, Customerly_User.UNKNOWN_CUSTOMERLY_USER_ID, user_id, name), pAttributes, pCallback);
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.registerUser");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
+            }
+        }
     }
 
     public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
         if(this._isConfigured()) {
-            if(this.__ATTRIBUTES__check_and_setPending(pAttributes, pCallback)) {
-                this.__PING__next_ping_allowed = 0L;
-                this.update(pCallback);
+            try {
+                if(this.__ATTRIBUTES__check_and_setPending(pAttributes, pCallback)) {
+                    this.__PING__next_ping_allowed = 0L;
+                    this.update(pCallback);
+                }
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.setAttributes");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.setAttributes", generic);
             }
         }
     }
 
     public void openSupport(@NonNull Activity activity) {
         if(this._isConfigured()) {
-            activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+            try {
+                activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.openSupport");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSupport", generic);
+            }
         }
     }
 
@@ -606,40 +630,57 @@ public class Customerly {
 
     public void openLastSupportConversation(@NonNull Activity activity) {
         if(this._isConfigured()) {
-            long lastMessage_ConversationID = this.__PING__LAST_message_conversation_id;
-            if(lastMessage_ConversationID != 0) {
-                long lastMessage_AssignerID = this.__PING__LAST_message_account_id;
-                activity.startActivity(new Intent(activity, Internal_activity__CustomerlyChat_Activity.class)
-                        .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, false)
-                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, lastMessage_ConversationID)
-                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, lastMessage_AssignerID));
-            } else {
-                this._log("No last support conversation available");
+            try {
+                long lastMessage_ConversationID = this.__PING__LAST_message_conversation_id;
+                if(lastMessage_ConversationID != 0) {
+                    long lastMessage_AssignerID = this.__PING__LAST_message_account_id;
+                    activity.startActivity(new Intent(activity, Internal_activity__CustomerlyChat_Activity.class)
+                            .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, false)
+                            .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, lastMessage_ConversationID)
+                            .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, lastMessage_AssignerID));
+                } else {
+                    this._log("No last support conversation available");
+                }
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.openLastSupportConversation");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openLastSupportConversation", generic);
             }
         }
     }
 
     public void logoutUser() {
         if(this._isConfigured()) {
-            this.__USER__delete();
-            this.__ATTRIBUTES_pending = null;
-            this.__COOKIES__delete();
-            this.__SOCKET__disconnect();
+            try {
+                this.__USER__delete();
+                this.__ATTRIBUTES_pending = null;
+                this.__COOKIES__delete();
+                this.__SOCKET__disconnect();
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.logoutUser");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.logoutUser", generic);
+            }
         }
     }
 
     public void trackEvent(@NonNull String pEventName) {
-        new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_EVENTTRACKING)
-                .opt_trials(2)
-                .param("name", pEventName)
-                .start();
+        if(this._isConfigured()) {
+            try {
+                new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_EVENTTRACKING)
+                        .opt_trials(2)
+                        .param("name", pEventName)
+                        .start();
+            } catch (Exception generic) {
+                this._log("A generic error occurred in Customerly.trackEvent");
+                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
+            }
+        }
     }
 
     public boolean isSurveyAvailable() {
         Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
         if(surveys != null) {
             for (Internal_entity__Survey survey : surveys) {
-                if (survey != null && !survey.isRejected) {
+                if (survey != null && !survey.isRejectedOrConcluded) {
                     return true;
                 }
             }
@@ -649,10 +690,17 @@ public class Customerly {
 
     @SuppressLint("CommitTransaction")
     public void openSurvey(@NonNull FragmentManager fm) {
-        if(this.isSurveyAvailable()) {
-            new Internal_dialogfragment__Survey_DialogFragment().show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
-        } else {
-            this._log("No surveys available");
+        if(this._isConfigured()) {
+            if (this.isSurveyAvailable()) {
+                try {
+                    new Internal_dialogfragment__Survey_DialogFragment().show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
+                } catch (Exception generic) {
+                    this._log("A generic error occurred in Customerly.openSurvey");
+                    Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
+                }
+            } else {
+                this._log("No surveys available");
+            }
         }
     }
 

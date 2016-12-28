@@ -30,6 +30,8 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.Contract;
+
 /**
  * Created by Gianni on 23/09/16.
  * Project: CustomerlySDK
@@ -111,6 +113,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
     }
 
     @Override
+    @Contract("null -> false")
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item != null) {
             if (item.getItemId() == R.id.io_customerly__menu__download) {

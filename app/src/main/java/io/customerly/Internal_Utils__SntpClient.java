@@ -36,7 +36,7 @@ import java.net.InetAddress;
  * </pre>
  */
 @SuppressWarnings("unused")
-public class Internal_Utils__SntpClient {
+class Internal_Utils__SntpClient {
     private static final String TAG = "SntpClient";
 
     private static final int REFERENCE_TIME_OFFSET = 16;
@@ -69,7 +69,7 @@ public class Internal_Utils__SntpClient {
      * @param timeout network timeout in milliseconds.
      * @return true if the transaction was successful.
      */
-    public boolean requestTime(String host, int timeout) {
+    boolean requestTime(String host, int timeout) {
         DatagramSocket socket = null;
         try {
             socket = new DatagramSocket();
@@ -135,7 +135,7 @@ public class Internal_Utils__SntpClient {
      *
      * @return time value computed from NTP server response.
      */
-    public long getNtpTime() {
+    long getNtpTime() {
         return mNtpTime;
     }
 
@@ -145,7 +145,7 @@ public class Internal_Utils__SntpClient {
      *
      * @return reference clock corresponding to the NTP time.
      */
-    public long getNtpTimeReference() {
+    long getNtpTimeReference() {
         return mNtpTimeReference;
     }
 

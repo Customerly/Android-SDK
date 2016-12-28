@@ -52,7 +52,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
         Internal_entity__Survey[] surveys = Customerly._Instance.__PING__LAST_surveys;
         if(surveys != null) {
             for (Internal_entity__Survey survey : surveys) {
-                if (survey != null && !survey.isRejected) {
+                if (survey != null && !survey.isRejectedOrConcluded) {
                     View view = inflater.inflate(R.layout.io_customerly__dialogfragment_survey, container, false);
                     this._Back = view.findViewById(R.id.io_customerly__back);
                     this._Back.setOnClickListener(v -> {
@@ -82,7 +82,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                         if (this._ProgressView.getVisibility() == View.GONE) {
                             Internal_entity__Survey currentSurvey = this._CurrentSurvey;
                             if (this._RejectEnabled && currentSurvey != null) {
-                                currentSurvey.isRejected = true;
+                                currentSurvey.isRejectedOrConcluded = true;
                                 new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
                                         .opt_checkConn(this.getContext())
                                         .opt_trials(2)
@@ -119,6 +119,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
         if(survey.type == Internal_entity__Survey.TYPE_END_SURVEY) {
             this._Back.setVisibility(View.INVISIBLE);
             this._RejectEnabled = false;
+            survey.isRejectedOrConcluded = true;
             TextView thankyou = new TextView(this.getContext());
             thankyou.setTextColor(Color.BLACK);
             thankyou.setText(Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(survey.thankyou_text));

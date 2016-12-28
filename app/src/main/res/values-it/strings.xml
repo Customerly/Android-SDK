@@ -56,5 +56,6 @@
     <string name="io_customerly__hint_insert_a_text">Inserisci un testo</string>
     <string name="io_customerly__image">Immagine</string>
     <string name="io_customerly__conversations">Conversazioni</string>
+    <string name="io_customerly__rich_message_text">Questo messaggio è stato inviato via email. Fai click per leggerlo.</string>
 
 </resources>

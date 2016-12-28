@@ -198,6 +198,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
     }
 
+    @Nullable
     @Override
     protected final RES doInBackground(@Size(value=1) @NonNull JSONObject[] pParams) {
         JSONObject postObject;

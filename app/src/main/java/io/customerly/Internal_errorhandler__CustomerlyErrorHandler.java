@@ -14,7 +14,8 @@ import java.lang.annotation.RetentionPolicy;
 class Internal_errorhandler__CustomerlyErrorHandler {
 
     @IntDef({ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, ERROR_CODE__IO_ERROR, ERROR_CODE__HTTP_REQUEST_ERROR,
-            ERROR_CODE__HTTP_RESPONSE_ERROR, ERROR_CODE__GLIDE_ERROR, ERROR_CODE__ATTACHMENT_ERROR})
+            ERROR_CODE__HTTP_RESPONSE_ERROR, ERROR_CODE__GLIDE_ERROR, ERROR_CODE__ATTACHMENT_ERROR,
+            ERROR_CODE__GENERIC})
     @Retention(RetentionPolicy.SOURCE)
     @interface ErrorCode {}
 
@@ -24,6 +25,7 @@ class Internal_errorhandler__CustomerlyErrorHandler {
     @ErrorCode static final int ERROR_CODE__HTTP_RESPONSE_ERROR = 4;
     @ErrorCode static final int ERROR_CODE__GLIDE_ERROR = 5;
     @ErrorCode static final int ERROR_CODE__ATTACHMENT_ERROR = 6;
+    @ErrorCode static final int ERROR_CODE__GENERIC = 7;
 
     static void sendNotConfiguredError() {
         Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, BuildConfig.CUSTOMERLY_SDK_NAME + "is not configured");

@@ -16,16 +16,16 @@ class Customerly_User {
     static final long UNKNOWN_CUSTOMERLY_USER_ID = 0;
     final boolean is_user;
     final long internal_user_id;
-    private final String user_id;
+    @Nullable private final String user_id;
     @Nullable private final String email;
     @Nullable private final String name;
 
-    Customerly_User(boolean isUser, long internal_user_id, String user_id, @Nullable String email, @Nullable String name) {
+    Customerly_User(@Nullable String email, boolean isUser, long internal_user_id, @Nullable String user_id, @Nullable String name) {
         super();
+        this.email = email;
         this.is_user = isUser;
         this.internal_user_id = internal_user_id;
         this.user_id = user_id;
-        this.email = email;
         this.name = name;
     }
 
@@ -34,14 +34,13 @@ class Customerly_User {
         if(internal_user_id == 0) {//TODO per ora è crmhero_user_id ma dovrebbe refactorizzare a internal_user_id
             internal_user_id = pUserData.optLong("crmhero_user_id");
         }
-        String user_id = pUserData.optString("user_id", null);
-        return internal_user_id == 0 && user_id == null ? null : new Customerly_User(pUserData.optInt("is_user") == 1, internal_user_id, user_id, pUserData.optString("email"), pUserData.optString("name"));
+        String email = pUserData.optString("email", null);
+        return email == null ? null : new Customerly_User(email, pUserData.optInt("is_user") == 1, internal_user_id, pUserData.optString("user_id", null), pUserData.optString("name"));
     }
 
     @Nullable static Customerly_User from(@NonNull SharedPreferences pPrefs) {
-        long internal_user_id = pPrefs.getLong("internal_user_id", 0);
-        String user_id = pPrefs.getString("user_id", null);
-        return internal_user_id == 0 && user_id == null ? null : new Customerly_User(pPrefs.getBoolean("is_user", true), internal_user_id, user_id, pPrefs.getString("email", null), pPrefs.getString("name", null));
+        String email = pPrefs.getString("email", null);
+        return email == null ? null : new Customerly_User(email, pPrefs.getBoolean("is_user", true), pPrefs.getLong("internal_user_id", 0), pPrefs.getString("user_id", null), pPrefs.getString("name", null));
     }
 
     void store(@NonNull SharedPreferences pPrefs) {
