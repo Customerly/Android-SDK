@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -152,7 +154,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                                 this._Adapter.notifyDataSetChanged();
                                 this._ListRecyclerView.setVisibility(View.VISIBLE);
                             });
-                            Customerly._Instance.__SOCKET_RECEIVE_Typing(((pConversationID, pTyping) -> {
+                            Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, pTyping) -> {
                                 if (pTyping == _Typing)
                                     return;
                                 if (this._ConversationID == pConversationID) {
@@ -173,9 +175,9 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                                         }
                                     });
                                 }
-                            }));
+                            };
 
-                            Customerly._Instance.__SOCKET_RECEIVE_Message((pNewMessages -> {
+                            Customerly._Instance.__SOCKET__Message_listener = pNewMessages -> {
                                 final ArrayList<Internal_entity__Message> lista = new ArrayList<>(this._ChatList);
 
                                 //Ordina la lista iniziale (necessario per velocizzare la ricerca duplicati)
@@ -222,7 +224,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                                 if (mostRecentMessageId != -1) {
                                     this.sendSeen(mostRecentMessageId);
                                 }
-                            }));
+                            };
 
                             long messageID_seen = -1;
                             for (Internal_entity__Message message : list) {
@@ -264,14 +266,14 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         for(BroadcastReceiver br : this._BroadcastReceiver) {
             this.unregisterReceiver(br);
         }
-        Customerly._Instance.__SOCKET_RECEIVE_Typing(null);
+        Customerly._Instance.__SOCKET__Typing_listener = null;
         Customerly._Instance.__SOCKET_SEND_Typing(this._AssignerID, this._ConversationID, false);
         super.onDestroy();
     }
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        Customerly_User user = Customerly._Instance.__USER__get();
+        Customerly_User user = Customerly._Instance.customerly_user;
         if(user != null) {
             Internal_entity__Message message = new Internal_entity__Message(user.internal_user_id, this._ConversationID, pMessage, pAttachments);
             this._ListRecyclerView.post(() -> {
@@ -436,7 +438,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
 
         protected void apply(@Nullable Internal_entity__Message __null, @Nullable String _NonSiMostraNelTyping, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             if (pIsFirstMessageOfSender) {
-                Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+                Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
                         .load(Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize))
@@ -540,7 +542,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                 }
 
                 if (pIsFirstMessageOfSender) {
-                    Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+                    Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                             .fitCenter()
                             .transformCircle()
                             .load(pMessage.getImageUrl(this._IconaSize))
@@ -614,31 +616,43 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                         if(attachment.isImage()) {
                             //Immagine
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(80)));
-                            Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
-                                    .centerCrop()
-                                    .load(attachment.getFullPath())
-                                    .into(iv)
-                                    .placeholder(R.drawable.io_customerly__pic_placeholder));
-                            ll.setOnClickListener(layout -> {
-                                if (attachment.hasPath()) {
-                                    startActivity(new Intent(Internal_activity__CustomerlyChat_Activity.this, Internal_activity__FullScreenImage_Activity.class)
-                                            .putExtra(Internal_activity__FullScreenImage_Activity.EXTRA_IMAGESOURCE, attachment.getFullPath()));
-                                }});
+                            if (attachment.path != null && attachment.path.length() != 0) {
+                                Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+                                        .centerCrop()
+                                        .load(attachment.path)
+                                        .into(iv)
+                                        .placeholder(R.drawable.io_customerly__pic_placeholder));
+                                ll.setOnClickListener(layout -> startActivity(new Intent(Internal_activity__CustomerlyChat_Activity.this, Internal_activity__FullScreenImage_Activity.class)
+                                        .putExtra(Internal_activity__FullScreenImage_Activity.EXTRA_IMAGESOURCE, attachment.path)));
+                            } else {
+                                try {
+                                    String base64 = attachment.loadBase64FromMemory(Internal_activity__CustomerlyChat_Activity.this);
+                                    if(base64 != null) {
+                                        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+                                        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                        iv.setImageBitmap(BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length));
+                                    } else {
+                                        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                        iv.setImageResource(R.drawable.io_customerly__pic_placeholder);
+                                    }
+                                } catch (OutOfMemoryError outOfMemoryError) {
+                                    iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                    iv.setImageResource(R.drawable.io_customerly__pic_placeholder);
+                                }
+                            }
                         } else { //Allegato non immagine
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Internal_Utils__Utils.px(80)));
                             iv.setImageResource(this._IcAttachResID);
 
-                            ll.setOnClickListener(layout -> {
-                                if (attachment.hasPath()) {
-                                    new AlertDialog.Builder(Internal_activity__CustomerlyChat_Activity.this)
-                                            .setTitle(R.string.io_customerly__download)
-                                            .setMessage(R.string.io_customerly__download_the_file_)
-                                            .setPositiveButton(android.R.string.ok, (dlg, which) -> Internal_activity__CustomerlyChat_Activity.this.startAttachmentDownload(attachment.name, attachment.getFullPath()))
-                                            .setNegativeButton(android.R.string.cancel, null)
-                                            .setCancelable(true)
-                                            .show();
-                                }
-                            });
+                            if (attachment.path != null && attachment.path.length() != 0) {
+                                ll.setOnClickListener(layout -> new AlertDialog.Builder(Internal_activity__CustomerlyChat_Activity.this)
+                                        .setTitle(R.string.io_customerly__download)
+                                        .setMessage(R.string.io_customerly__download_the_file_)
+                                        .setPositiveButton(android.R.string.ok, (dlg, which) -> Internal_activity__CustomerlyChat_Activity.this.startAttachmentDownload(attachment.name, attachment.path))
+                                        .setNegativeButton(android.R.string.cancel, null)
+                                        .setCancelable(true)
+                                        .show());
+                            }
                         }
                         ll.addView(iv);
 

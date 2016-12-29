@@ -215,7 +215,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                             .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
                             .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION));
 
-            Customerly_User user = Customerly._Instance.__USER__get();
+            Customerly_User user = Customerly._Instance.customerly_user;
             if(user != null && user.is_user) {
                 user.fillSettingsJSON(settings);
             }
@@ -229,7 +229,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             postObject = new JSONObject()
                     .put("settings", settings)
                     .put("params", pParams[0])
-                    .put("cookies", Customerly._Instance.__COOKIES__get());
+                    .put("cookies", Customerly._Instance.cookies);
 
         } catch (JSONException error) {
             this._ResponseState = RESPONSE_STATE__ERROR_BAD_REQUEST;
@@ -279,7 +279,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                         data = new JSONObject();
                     }
                     if (data != null) {
-                        Customerly._Instance.__COOKIES__update(root.optJSONObject("cookies"));
+                        Customerly._Instance._COOKIES__update(root.optJSONObject("cookies"));
 
                         JSONObject user = data.optJSONObject("user");
                         if (user != null) {

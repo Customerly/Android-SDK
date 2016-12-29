@@ -53,6 +53,16 @@ class Customerly_User {
                 .apply();
     }
 
+    void delete(@NonNull SharedPreferences pPrefs) {
+        pPrefs.edit()
+                .remove("is_user")
+                .remove("internal_user_id")
+                .remove("user_id")
+                .remove("email")
+                .remove("name")
+                .apply();
+    }
+
     void fillSettingsJSON(@NonNull JSONObject pSettingsJSON) {
         if(this.is_user) {
             if (this.user_id != null) {
@@ -71,16 +81,6 @@ class Customerly_User {
                 } catch (JSONException ignored) { }
             }
         }
-    }
-
-    void delete(@NonNull SharedPreferences pPrefs) {
-        pPrefs.edit()
-                .remove("is_user")
-                .remove("internal_user_id")
-                .remove("user_id")
-                .remove("email")
-                .remove("name")
-                .apply();
     }
 
     @Override

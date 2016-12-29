@@ -25,10 +25,11 @@ import java.io.InputStream;
  */
 class Internal_entity__Attachment {
 
-    private static final String BASE_URL = "https://s3-eu-west-1.amazonaws.com/storage.customerly.io/";
     @Nullable final Uri uri;
     @NonNull final String name;
-    @Nullable private String base64, path;
+    @Nullable private String base64;
+    @Nullable
+    String path;
 
     Internal_entity__Attachment(@NonNull JSONObject attachment) throws JSONException {
         super();
@@ -94,7 +95,7 @@ class Internal_entity__Attachment {
         return array;
     }
 
-    private @Nullable String loadBase64FromMemory(@NonNull Context pContext) throws IllegalStateException {
+    @Nullable String loadBase64FromMemory(@NonNull Context pContext) throws IllegalStateException {
         if(this.base64 == null && this.uri != null) {
             InputStream is = null;
             try {
@@ -119,14 +120,6 @@ class Internal_entity__Attachment {
             }
         }
         return this.base64;
-    }
-
-    boolean hasPath() {
-        return this.path != null && this.path.length() != 0;
-    }
-
-    @NonNull String getFullPath() {
-        return BASE_URL + this.path;
     }
 
     public boolean isImage() {

@@ -71,14 +71,14 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
     @Override
     protected void onResume() {
         super.onResume();
-        Customerly.get().setCurrentActivity(this);
+        Customerly._Instance._CurrentActivityClass = this.getClass();
         this.registerReceiver(this._BroadcastReceiver, this._IntentFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Customerly.get().setCurrentActivity(null);
+        Customerly._Instance._CurrentActivityClass = null;
         this.unregisterReceiver(this._BroadcastReceiver);
     }
 

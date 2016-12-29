@@ -67,10 +67,9 @@ class Internal_Utils__RemoteImageHandler {
             if (bmp != null && !bmp.isRecycled()) {
                 return new BitmapDrawable(Resources.getSystem(), bmp);
             }
-        } catch (OutOfMemoryError ignored) {
-        }
+        } catch (OutOfMemoryError ignored) { }
 
-        final File appCacheDir = Customerly.get()._AppCacheDir;
+        final String appCacheDir = Customerly._Instance._AppCacheDir;
         if(appCacheDir != null) {
             try {
                 File bitmapFile = new File(new File(appCacheDir, CUSTOMERLY_SDK_NAME).toString(), cache_key);

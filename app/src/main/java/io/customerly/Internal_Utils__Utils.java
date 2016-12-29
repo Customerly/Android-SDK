@@ -281,7 +281,7 @@ class Internal_Utils__Utils {
     }
 
     private static final Html.ImageGetter _SpanImage_ImageGetter = source -> {
-        Drawable d = Customerly.get()._RemoteImageHandler.getHtmlImageSync(source);
+        Drawable d = Customerly._Instance._RemoteImageHandler.getHtmlImageSync(source);
         if(d != null) {
             d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
         }

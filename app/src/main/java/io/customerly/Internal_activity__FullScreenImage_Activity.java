@@ -52,7 +52,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 try {
-                    Customerly.get()._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+                    Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(_ImageView)
@@ -97,13 +97,13 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
     @Override
     protected void onResume() {
         super.onResume();
-        Customerly.get().setCurrentActivity(this);
+        Customerly._Instance._CurrentActivityClass = this.getClass();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Customerly.get().setCurrentActivity(null);
+        Customerly._Instance._CurrentActivityClass = null;
     }
 
     @Override
