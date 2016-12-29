@@ -2,8 +2,8 @@
 <resources>
 
     <!-- Not translatable -->
-    <string name="io_customerly__url_powered_by_customerly" translatable="false">https://www.customerly.io/</string>
     <string name="io_customerly__download" translatable="false">Download</string>
+    <string name="io_customerly__chat" translatable="false">Chat</string>
 
     <!-- Plurals (Not handled by Translations Editor -->
     <plurals name="io_customerly__last_activity_XXm_ago">
@@ -22,13 +22,13 @@
     <!-- Localized -->
     <string name="io_customerly__powered_by_">Powered by&#160;</string>
     <string name="io_customerly__contact_the_support_writing_your_question_below">Contact the support writing your question below</string>
-    <string name="io_customerly__write_your_question">Write your question…</string>
+    <string name="io_customerly__write_your_question">Ask your question…</string>
     <string name="io_customerly__attach_file">Attach file</string>
     <string name="io_customerly__insert_your_email">Insert your email</string>
-    <string name="io_customerly__start_a_conversation">Start a conversation</string>
-    <string name="io_customerly__begin_a_new_conversation">Begin a new Conversation</string>
+    <string name="io_customerly__start_the_conversation">Start the conversation</string>
+    <string name="io_customerly__start_a_new_conversation">Start a new conversation</string>
     <string name="io_customerly__install_a_file_manager">You need to install a File Manager first</string>
-    <string name="io_customerly__choose_a_file_to_attach">Choose a file to attach</string>
+    <string name="io_customerly__choose_a_file_to_attach">Choose an attachment file</string>
     <string name="io_customerly__cancel_attachment">Do you want to remove the attachment %s?</string>
     <string name="io_customerly__remove">Remove</string>
     <string name="io_customerly__cancel">Cancel</string>
@@ -42,7 +42,7 @@
     <string name="io_customerly__new_conversation">New Conversation</string>
     <string name="io_customerly__sending_message">Sending message</string>
     <string name="io_customerly__connection_error">An error occurred! Please check your connection</string>
-    <string name="io_customerly__download_the_file_">Download the file?</string>
+    <string name="io_customerly__download_the_file_">Do you want to start the download?</string>
     <string name="io_customerly__attachments_max_count_error">You\'ve reached the max number of files allowed</string>
     <string name="io_customerly__attachments_already_attached_error">You\'ve already attached this file</string>
     <string name="io_customerly__attachments_max_size_error">This file is too big to be attached</string>
@@ -58,9 +58,8 @@
     <string name="io_customerly__confirm_x">Confirm %1$d</string>
     <string name="io_customerly__hint_insert_a_number">Insert a number</string>
     <string name="io_customerly__hint_insert_a_text">Insert a text</string>
-    <string name="io_customerly__chat" translatable="false">Chat</string>
     <string name="io_customerly__image">Image</string>
     <string name="io_customerly__conversations">Conversations</string>
-    <string name="io_customerly__rich_message_text">This message was sent by email. Click to read.</string>
+    <string name="io_customerly__rich_message_text">This message was sent by email. Tap to read.</string>
 
 </resources>

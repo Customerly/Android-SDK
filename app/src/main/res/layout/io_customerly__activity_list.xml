@@ -168,7 +168,7 @@
             android:background="@drawable/io_customerly__button_blue"
             android:foreground="?attr/selectableItemBackground"
             android:textColor="@android:color/white"
-            android:text="@string/io_customerly__start_a_conversation"/>
+            android:text="@string/io_customerly__start_the_conversation"/>
 
     </LinearLayout>
 
@@ -191,7 +191,7 @@
             android:background="@drawable/io_customerly__button_blue"
             android:foreground="?attr/selectableItemBackground"
             android:textColor="@android:color/white"
-            android:text="@string/io_customerly__begin_a_new_conversation"/>
+            android:text="@string/io_customerly__start_a_new_conversation"/>
 
     </LinearLayout>
 

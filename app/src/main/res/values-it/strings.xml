@@ -21,8 +21,8 @@
     <string name="io_customerly__write_your_question">Scrivi la tua domanda…</string>
     <string name="io_customerly__attach_file">Allega file</string>
     <string name="io_customerly__insert_your_email">Inserisci la tua email</string>
-    <string name="io_customerly__start_a_conversation">Inizia Conversazione</string>
-    <string name="io_customerly__begin_a_new_conversation">Inizia nuova Conversazione</string>
+    <string name="io_customerly__start_the_conversation">Inizia la conversazione</string>
+    <string name="io_customerly__start_a_new_conversation">Inizia nuova conversazione</string>
     <string name="io_customerly__install_a_file_manager">Devi prima installare un File Manager</string>
     <string name="io_customerly__choose_a_file_to_attach">Scegli un file da allegare</string>
     <string name="io_customerly__cancel_attachment">Vuoi eliminare l\'allegato %s?</string>
@@ -56,6 +56,6 @@
     <string name="io_customerly__hint_insert_a_text">Inserisci un testo</string>
     <string name="io_customerly__image">Immagine</string>
     <string name="io_customerly__conversations">Conversazioni</string>
-    <string name="io_customerly__rich_message_text">Questo messaggio è stato inviato via email. Fai click per leggerlo.</string>
+    <string name="io_customerly__rich_message_text">Questo messaggio è stato inviato via email. Tocca qui per leggerlo.</string>
 
 </resources>
