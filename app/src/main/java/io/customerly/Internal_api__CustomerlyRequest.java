@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.support.annotation.Size;
 import android.support.annotation.StringDef;
+import android.util.Log;
 import android.view.View;
 
 import org.json.JSONException;
@@ -247,6 +248,27 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Accept-Language", Locale.getDefault().toString());//es: "it_IT"
 
+                if(BuildConfig.CUSTOMERLY_DEV_MODE) {
+                    String postObjectToString;
+                    try {
+                        postObjectToString = postObject.toString(4);
+                    } catch (JSONException error) {
+                        postObjectToString = "Malformed JSON";
+                    }
+                    //noinspection ConstantConditions
+                    Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
+                            "-----------------------------------------------------------" +
+                            "\nNEW HTTP REQUEST" +
+                            "\n+ Endpoint:        " + this._Endpoint +
+                            "\n+ SSL:             " + (conn instanceof HttpsURLConnection ? "Active" : "Not Active") +
+                            "\n+ METHOD:          " + conn.getRequestMethod() +
+                            "\n+ Content-Type:    " + conn.getRequestProperty("Content-Type") +
+                            "\n+ Accept-Language: " + conn.getRequestProperty("Accept-Language") +
+                            "\nJSON BODY:\n" +
+                            postObjectToString +
+                            "\n-----------------------------------------------------------");
+                }
+
                 //noinspection TryWithIdenticalCatches
                 try {
                     SSLContext sc = SSLContext.getInstance("TLS");
@@ -274,6 +296,24 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
 
                 try {
                     JSONObject root = new JSONObject(responseStrBuilder.toString());
+
+                    if(BuildConfig.CUSTOMERLY_DEV_MODE) {
+                        String rootToString;
+                        try {
+                            rootToString = root.toString(1);
+                        } catch (JSONException error) {
+                            rootToString = "Malformed JSON";
+                        }
+                        Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
+                                "-----------------------------------------------------------" +
+                                "\nHTTP RESPONSE" +
+                                "\n+ Endpoint:        " + this._Endpoint +
+                                "\nJSON BODY:\n" +
+                                rootToString +
+                                "\n-----------------------------------------------------------");
+
+                    }
+
                     JSONObject data = root.optJSONObject("data");
                     if(data == null && root.has("data")) {
                         data = new JSONObject();
@@ -341,6 +381,15 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 }
             }
             this._Trials--;
+        }
+        if(BuildConfig.CUSTOMERLY_DEV_MODE) {
+            Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
+                    "-----------------------------------------------------------" +
+                    "\nHTTP RESPONSE" +
+                    "\n+ Endpoint:        " + this._Endpoint +
+                    "\n!!!ERROR!!!\n" +
+                    "\n-----------------------------------------------------------");
+
         }
         return null;
     }
