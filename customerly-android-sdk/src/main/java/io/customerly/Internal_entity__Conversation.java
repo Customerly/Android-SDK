@@ -55,7 +55,7 @@ class Internal_entity__Conversation {
 
         pConversationItem = pConversationItem.optJSONObject("last_account");
 //        pConversationItem diventa pConversationItem.last_account
-        this.last_account__name = pConversationItem == null ? null : pConversationItem.optString("name", null);
+        this.last_account__name = pConversationItem == null ? null : Internal_Utils__Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
     }
 
     void onNewMessage(@NonNull Internal_entity__Message pNuovoMessaggio) {

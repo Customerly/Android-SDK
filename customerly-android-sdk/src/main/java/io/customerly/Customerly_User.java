@@ -34,8 +34,8 @@ class Customerly_User {
         if(internal_user_id == 0) {//TODO per ora è crmhero_user_id ma dovrebbe refactorizzare a internal_user_id
             internal_user_id = pUserData.optLong("crmhero_user_id");
         }
-        String email = pUserData.optString("email", null);
-        return email == null ? null : new Customerly_User(email, pUserData.optInt("is_user") == 1, internal_user_id, pUserData.optString("user_id", null), pUserData.optString("name"));
+        String email = Internal_Utils__Utils.jsonOptStringWithNullCheck(pUserData, "email");
+        return email == null ? null : new Customerly_User(email, pUserData.optInt("is_user") == 1, internal_user_id, Internal_Utils__Utils.jsonOptStringWithNullCheck(pUserData, "user_id"), Internal_Utils__Utils.jsonOptStringWithNullCheck(pUserData, "name"));
     }
 
     @Nullable static Customerly_User from(@NonNull SharedPreferences pPrefs) {

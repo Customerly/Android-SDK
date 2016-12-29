@@ -62,8 +62,8 @@ class Internal_entity__Message {
         this.assigner_id = pMessageItem.optLong("assigner_id", 0);
         this.sent_date = pMessageItem.optLong("sent_date", 0);
         this.seen_date = pMessageItem.optLong("seen_date", 0);
-        this.content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(pMessageItem.optString("content", ""));
-        this.rich_mail_token = pMessageItem.optString("rich_mail_token", null);
+        this.content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(Internal_Utils__Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
+        this.rich_mail_token = pMessageItem.optInt("rich_mail", 0) == 0 ? null : Internal_Utils__Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_token");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {
@@ -90,7 +90,7 @@ class Internal_entity__Message {
 
         JSONObject account = pMessageItem.optJSONObject("account");
         if(account != null) {
-            this.if_account__name = account.optString("name", null);
+            this.if_account__name = Internal_Utils__Utils.jsonOptStringWithNullCheck(account, "name");
         } else {
             this.if_account__name = null;
         }

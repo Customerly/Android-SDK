@@ -442,4 +442,14 @@ class Internal_Utils__Utils {
         }
         return null;
     }
+
+    @Contract(pure = true)
+    @Nullable static String jsonOptStringWithNullCheck(@NonNull JSONObject obj, @NonNull String key) {
+        return Internal_Utils__Utils.jsonOptStringWithNullCheck(obj, key, null);
+    }
+
+    @Contract(value = "_, _, !null -> !null", pure = true)
+    @Nullable static String jsonOptStringWithNullCheck(@NonNull JSONObject obj, @NonNull String key, @Nullable String fallback) {
+        return obj.isNull(key) ? fallback : obj.optString(key, fallback);
+    }
 }

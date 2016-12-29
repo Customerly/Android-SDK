@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CustomerlyAndroidSDK.iml" filepath="$PROJECT_DIR$/CustomerlyAndroidSDK.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/customerly-android-sdk/customerly-android-sdk.iml" filepath="$PROJECT_DIR$/customerly-android-sdk/customerly-android-sdk.iml" />
     </modules>
   </component>
 </project>

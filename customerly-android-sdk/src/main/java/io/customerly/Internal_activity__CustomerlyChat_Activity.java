@@ -504,7 +504,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         @Override
         protected void apply(@Nullable Internal_entity__Message pMessage, @Nullable String pDataDaMostrare, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             super.apply(pMessage, pDataDaMostrare, pIsFirstMessageOfSender, pShouldAnimate);
-            this._Content.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.io_customerly__ic_email_black_32dp, 0, 0);
+            this._Content.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.io_customerly__ic_email_grey_32dp, 0, 0);
             View.OnClickListener clickListener = v -> {
                 if(pMessage != null && pMessage.rich_mail_token != null) {
                     Internal_Utils__Utils.intentUrl(Internal_activity__CustomerlyChat_Activity.this,

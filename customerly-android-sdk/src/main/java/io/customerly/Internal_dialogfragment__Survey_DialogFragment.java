@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import static io.customerly.Internal_entity__Survey.TYPE_END_SURVEY;
 
@@ -54,6 +55,10 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             for (Internal_entity__Survey survey : surveys) {
                 if (survey != null && !survey.isRejectedOrConcluded) {
                     View view = inflater.inflate(R.layout.io_customerly__dialogfragment_survey, container, false);
+                    this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
+                    this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
+                    this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
+                    this._ProgressView = view.findViewById(R.id.io_customerly__progressview);
                     this._Back = view.findViewById(R.id.io_customerly__back);
                     this._Back.setOnClickListener(v -> {
                         Internal_entity__Survey currentSurvey = this._CurrentSurvey;
@@ -62,17 +67,19 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_BACK)
                                     .opt_checkConn(this.getContext())
                                     .opt_trials(2)
+                                    .opt_progressview(this._ProgressView, View.GONE)
                                     .opt_onPreExecute(() -> {
                                         this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
                                         this._Title.setVisibility(View.GONE);
                                         this._Subtitle.setVisibility(View.GONE);
                                         this._SurveyContainer.removeAllViews();
-                                        this._ProgressView.setVisibility(View.VISIBLE);
                                     })
                                     .opt_converter(Internal_entity__Survey::from)
                                     .opt_receiver((responseState, surveyBack) -> {
-                                        this.applySurvey(surveyBack);
-                                        this._ProgressView.setVisibility(View.GONE);
+                                        if(responseState != Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                                            Toast.makeText(this.getContext().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                            this.applySurvey(surveyBack);
+                                        }
                                     })
                                     .param("survey_id", currentSurvey.survey_id)
                                     .start();
@@ -86,18 +93,13 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
                                         .opt_checkConn(this.getContext())
                                         .opt_trials(2)
-                                        .opt_receiver((responseState, surveyBack) -> {
-                                        })
+                                        .opt_receiver((responseState, surveyBack) -> { })
                                         .param("survey_id", currentSurvey.survey_id)
                                         .start();
                             }
                             this.dismissAllowingStateLoss();
                         }
                     });
-                    this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
-                    this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
-                    this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
-                    this._ProgressView = view.findViewById(R.id.io_customerly__progressview);
 
                     this.applySurvey(survey);
 
@@ -409,12 +411,13 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     this._Title.setVisibility(View.GONE);
                     this._Subtitle.setVisibility(View.GONE);
                     this._SurveyContainer.removeAllViews();
-                    this._ProgressView.setVisibility(View.VISIBLE);
                 })
                 .opt_converter(pSurvey::updateFrom)
                 .opt_receiver((responseState, survey) -> {
-                    this.applySurvey(survey);
-                    this._ProgressView.setVisibility(View.GONE);
+                    if(responseState != Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                        Toast.makeText(this.getContext().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                        this.applySurvey(survey);
+                    }
                 })
                 .opt_trials(2)
                 .param("survey_id", pSurvey.survey_id);

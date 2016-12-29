@@ -117,7 +117,7 @@ public class Customerly {
                 try {
                     String key = keys.next();
                     JSONObject cookie_values = pLastCookies.getJSONObject(key);
-                    String value = cookie_values.optString("value", null);
+                    String value = Internal_Utils__Utils.jsonOptStringWithNullCheck(cookie_values, "value");
                     if(cookie_values.optInt("expire", 0) == 1 || value == null || value.length() == 0) {
                         this.cookies.remove(key);
                     } else {
@@ -449,7 +449,7 @@ public class Customerly {
                                 if((obj = data.optJSONObject("apps")) != null
                                         && (obj = obj.optJSONObject("app_config")) != null) {
                                     if(this.__WidgetColor__HardCoded == Color.TRANSPARENT) {
-                                        String pingWidgetColor = obj.optString("widget_color", null);
+                                        String pingWidgetColor = Internal_Utils__Utils.jsonOptStringWithNullCheck(obj, "widget_color");
                                         if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
                                             if (pingWidgetColor.charAt(0) != '#') {
                                                 pingWidgetColor = '#' + pingWidgetColor;
@@ -463,8 +463,8 @@ public class Customerly {
                                         }
                                     }
                                     this.__PING__LAST_powered_by = 1 == obj.optLong("powered_by", 0);
-                                    this.__PING__LAST_welcome_message_users = obj.optString("welcome_message_users", null);
-                                    this.__PING__LAST_welcome_message_visitors = obj.optString("welcome_message_visitors", null);
+                                    this.__PING__LAST_welcome_message_users = Internal_Utils__Utils.jsonOptStringWithNullCheck(obj, "welcome_message_users");
+                                    this.__PING__LAST_welcome_message_visitors = Internal_Utils__Utils.jsonOptStringWithNullCheck(obj, "welcome_message_visitors");
                                 } else {
                                     this.__PING__LAST_widget_color = this.__WidgetColor__Fallback;
                                     this.__PING__LAST_powered_by = false;

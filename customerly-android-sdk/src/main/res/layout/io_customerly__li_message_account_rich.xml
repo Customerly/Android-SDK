@@ -50,7 +50,7 @@
             android:text="@string/io_customerly__rich_message_text"
             android:paddingTop="15dp"
             android:drawablePadding="5dp"
-            android:drawableTop="@drawable/io_customerly__ic_email_black_32dp" />
+            android:drawableTop="@drawable/io_customerly__ic_email_grey_32dp" />
 
         <LinearLayout android:id="@id/io_customerly__attachment_layout"
             android:layout_width="wrap_content"

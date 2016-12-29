@@ -339,7 +339,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                                   "port": "8080"
                                 }
                              */
-                            Customerly._Instance.__SOCKET_setEndpoint(websocket.optString("endpoint", null), websocket.optString("port", null));
+                            Customerly._Instance.__SOCKET_setEndpoint(Internal_Utils__Utils.jsonOptStringWithNullCheck(websocket, "endpoint"), Internal_Utils__Utils.jsonOptStringWithNullCheck(websocket, "port"));
                         }
 
                         Customerly._Instance.__SOCKET__connect();
@@ -349,7 +349,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                     }
                     data = root.optJSONObject("error");
                     if(data != null) {
-                        Customerly._Instance._log(data.optString("message", "The server received the request but an error has come"));
+                        Customerly._Instance._log(Internal_Utils__Utils.jsonOptStringWithNullCheck(data, "message", "The server received the request but an error has come"));
                         int error_code = data.optInt("code", -1);
                         if(error_code != -1) {
                             switch(error_code) {
