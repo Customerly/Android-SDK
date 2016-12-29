@@ -14,22 +14,22 @@ apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrola
 
 ext {
     bintrayRepo = 'maven'
-    bintrayName = 'customerly-io-android-sdk'
+    bintrayName = 'customerly-android-sdk'
 
     publishedGroupId = 'io.customerly'
     libraryName = 'Customerly Android SDK'
-    artifact = 'customerly-io-android-sdk'
+    artifact = 'customerly-android-sdk'
 
     libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
 
-    siteUrl = 'https://github.com/nuuneoi/FBLikeAndroid'
-    gitUrl = 'https://github.com/nuuneoi/FBLikeAndroid.git'
+    siteUrl = 'https://github.com/customerly/Customerly-Android-SDK'
+    gitUrl = 'https://github.com/customerly/Customerly-Android-SDK.git'
 
-    libraryVersion = '0.9.3'
+    libraryVersion = 'ALPHA-0.9'
 
-    developerId = 'nuuneoi'
-    developerName = 'Sittiphol Phanvilai'
-    developerEmail = 'sittiphol@gmail.com'
+    developerId = 'giannign1'
+    developerName = 'Gianni Genovesi'
+    developerEmail = 'giannign1@gmail.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
@@ -44,7 +44,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName 'ALPHA-0.9'
     }
     buildTypes {
         all {
@@ -52,7 +52,7 @@ android {
             buildConfigField "String", "CUSTOMERLY_SDK_NAME", "\"Customerly\""
             buildConfigField "int", "CUSTOMERLY_API_VERSION", "1"
             buildConfigField "int", "CUSTOMERLY_SOCKET_VERSION", "1"
-            buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "true"//TODO
+            buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "false"
         }
         release {
             minifyEnabled false
