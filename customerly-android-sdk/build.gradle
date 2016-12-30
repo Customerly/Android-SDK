@@ -45,6 +45,7 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName 'ALPHA-0.9'
+        consumerProguardFiles 'proguard-rules.pro'
     }
     buildTypes {
         all {
@@ -52,11 +53,7 @@ android {
             buildConfigField "String", "CUSTOMERLY_SDK_NAME", "\"Customerly\""
             buildConfigField "int", "CUSTOMERLY_API_VERSION", "1"
             buildConfigField "int", "CUSTOMERLY_SOCKET_VERSION", "1"
-            buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "true"//TODO
-        }
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "false"//TODO
         }
     }
     compileOptions {

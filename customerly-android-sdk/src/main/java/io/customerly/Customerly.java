@@ -182,7 +182,7 @@ public class Customerly {
 
                     String query;
                     try {
-                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.internal_user_id).toString();
+                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.internal_user_id).put("socket_version", "1").toString();
                     } catch (JSONException error) {
                         return;
                     }
@@ -628,6 +628,8 @@ public class Customerly {
                             .apply();
                 }
                 this.__SOCKET__disconnect();
+                this.__PING__next_ping_allowed = 0L;
+                this.update((success, survey, message) -> {});
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.logoutUser");
                 Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.logoutUser", generic);

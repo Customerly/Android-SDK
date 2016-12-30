@@ -67,19 +67,20 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_BACK)
                                     .opt_checkConn(this.getContext())
                                     .opt_trials(2)
-                                    .opt_progressview(this._ProgressView, View.GONE)
                                     .opt_onPreExecute(() -> {
                                         this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
                                         this._Title.setVisibility(View.GONE);
                                         this._Subtitle.setVisibility(View.GONE);
                                         this._SurveyContainer.removeAllViews();
+                                        this._ProgressView.setVisibility(View.VISIBLE);
                                     })
                                     .opt_converter(Internal_entity__Survey::from)
                                     .opt_receiver((responseState, surveyBack) -> {
                                         if(responseState != Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
                                             Toast.makeText(this.getContext().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
-                                            this.applySurvey(surveyBack);
                                         }
+                                        this._ProgressView.setVisibility(View.GONE);
+                                        this.applySurvey(surveyBack);
                                     })
                                     .param("survey_id", currentSurvey.survey_id)
                                     .start();
@@ -405,19 +406,20 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     private void nextSurvey(Internal_entity__Survey pSurvey, int choice_id, @Nullable String answer) {
         Internal_api__CustomerlyRequest.Builder builder = new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_SUBMIT)
                 .opt_checkConn(this.getContext())
-                .opt_progressview(this._ProgressView, View.GONE)
                 .opt_onPreExecute(() -> {
                     this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
                     this._Title.setVisibility(View.GONE);
                     this._Subtitle.setVisibility(View.GONE);
                     this._SurveyContainer.removeAllViews();
+                    this._ProgressView.setVisibility(View.VISIBLE);
                 })
                 .opt_converter(pSurvey::updateFrom)
                 .opt_receiver((responseState, survey) -> {
                     if(responseState != Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
                         Toast.makeText(this.getContext().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
-                        this.applySurvey(survey);
                     }
+                    this._ProgressView.setVisibility(View.GONE);
+                    this.applySurvey(survey);
                 })
                 .opt_trials(2)
                 .param("survey_id", pSurvey.survey_id);

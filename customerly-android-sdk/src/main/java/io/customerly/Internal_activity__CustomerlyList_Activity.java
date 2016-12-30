@@ -25,6 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -290,11 +292,18 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
         new Internal_api__CustomerlyRequest.Builder<long[]>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
                 .opt_converter(data -> {
-                    long timestamp = data.optLong("timestamp");
-                    data = data.getJSONObject("conversation");
-                    long[] conversationID_assignerID = new long[] { data.getLong("conversation_id"), data.getLong("assigner_id") };
-                    Customerly._Instance.__SOCKET_SEND_Message(conversationID_assignerID[1], timestamp);
-                    return conversationID_assignerID;
+                    JSONObject conversation = data.getJSONObject("conversation");
+                    JSONObject message = data.getJSONObject("message");
+                    if(conversation != null && message != null) {
+                        long[] conversationID_assignerID = new long[] { message.getLong("conversation_id"), data.getLong("assigner_id") };
+                        long timestamp = data.optLong("timestamp", -1L);
+                        if(timestamp != -1L) {
+                            Customerly._Instance.__SOCKET_SEND_Message(conversationID_assignerID[1], timestamp);
+                        }
+                        return conversationID_assignerID;
+                    } else {
+                        return null;
+                    }
                 })
                 .opt_receiver((responseState, conversationID_assignerID) -> {
                     if(progressDialog != null) {

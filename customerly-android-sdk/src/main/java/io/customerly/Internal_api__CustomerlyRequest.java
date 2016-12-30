@@ -171,7 +171,10 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                     }
                     final View progressView = this._ProgressView == null ? null : this._ProgressView.get();
                     if(progressView != null) {
-                        progressView.post(() -> progressView.setVisibility(View.VISIBLE));
+                        View parent = (View) progressView.getParent();
+                        if(parent != null) {//Trick, if i post the runnable on the progressView with visibility gone, it will be never called
+                            parent.post(() -> progressView.setVisibility(View.VISIBLE));
+                        }
                     }
                     final ProgressDialog pd = pd_tmp;
                     new Internal_api__CustomerlyRequest<>(this._Endpoint,
