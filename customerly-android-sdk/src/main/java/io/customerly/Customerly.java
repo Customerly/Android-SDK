@@ -182,7 +182,7 @@ public class Customerly {
 
                     String query;
                     try {
-                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.internal_user_id).put("socket_version", "1").toString();
+                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", user.internal_user_id).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
                     } catch (JSONException error) {
                         return;
                     }

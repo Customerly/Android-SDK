@@ -25,7 +25,7 @@ ext {
     siteUrl = 'https://github.com/customerly/Customerly-Android-SDK'
     gitUrl = 'https://github.com/customerly/Customerly-Android-SDK.git'
 
-    libraryVersion = 'ALPHA-0.9'
+    libraryVersion = 'ALPHA-0.9.1'
 
     developerId = 'giannign1'
     developerName = 'Gianni Genovesi'
@@ -44,16 +44,20 @@ android {
         minSdkVersion 9
         targetSdkVersion 25
         versionCode 1
-        versionName 'ALPHA-0.9'
+        versionName 'ALPHA-0.9.1'
         consumerProguardFiles 'proguard-rules.pro'
     }
     buildTypes {
         all {
             buildConfigField "String", "CUSTOMERLY_WEB_SITE", "\"https://www.customerly.io/\""
             buildConfigField "String", "CUSTOMERLY_SDK_NAME", "\"Customerly\""
-            buildConfigField "int", "CUSTOMERLY_API_VERSION", "1"
-            buildConfigField "int", "CUSTOMERLY_SOCKET_VERSION", "1"
+            buildConfigField "String", "CUSTOMERLY_API_VERSION", "\"1\""
+            buildConfigField "String", "CUSTOMERLY_SOCKET_VERSION", "\"1\""
             buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "false"//TODO
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -67,7 +71,7 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp3:okhttp-ws:3.4.1'
+    compile 'com.squareup.okhttp3:okhttp-ws:3.4.2'
     compile ('io.socket:socket.io-client:0.8.3') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
