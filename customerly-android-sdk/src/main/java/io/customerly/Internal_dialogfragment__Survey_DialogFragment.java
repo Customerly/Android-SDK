@@ -66,6 +66,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             this._SurveyContainer.removeAllViews();
                             new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_BACK)
                                     .opt_checkConn(this.getContext())
+                                    .opt_tokenMandatory()
                                     .opt_trials(2)
                                     .opt_onPreExecute(() -> {
                                         this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
@@ -93,6 +94,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 currentSurvey.isRejectedOrConcluded = true;
                                 new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
                                         .opt_checkConn(this.getContext())
+                                        .opt_tokenMandatory()
                                         .opt_trials(2)
                                         .opt_receiver((responseState, surveyBack) -> { })
                                         .param("survey_id", currentSurvey.survey_id)
@@ -396,6 +398,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             if(! survey.seen) {
                 new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_SEEN)
                         .opt_checkConn(this.getContext())
+                        .opt_tokenMandatory()
                         .opt_trials(2)
                         .param("survey_id", survey.survey_id)
                         .start();
@@ -406,6 +409,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     private void nextSurvey(Internal_entity__Survey pSurvey, int choice_id, @Nullable String answer) {
         Internal_api__CustomerlyRequest.Builder builder = new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_SUBMIT)
                 .opt_checkConn(this.getContext())
+                .opt_tokenMandatory()
                 .opt_onPreExecute(() -> {
                     this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
                     this._Title.setVisibility(View.GONE);

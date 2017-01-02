@@ -3,6 +3,7 @@ package io.customerly;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.CheckResult;
@@ -34,11 +35,9 @@ import java.util.Locale;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
-import static io.customerly.Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__IO_ERROR;
-
 class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, RES> {
 
-    @StringDef({ENDPOINT_PINGINDEX, ENDPOINT_CONVERSATIONRETRIEVE, ENDPOINT_MESSAGESEEN, ENDPOINT_MESSAGENEWS,
+    @StringDef({ENDPOINT_PING, ENDPOINT_CONVERSATIONRETRIEVE, ENDPOINT_MESSAGESEEN, ENDPOINT_MESSAGENEWS,
             ENDPOINT_MESSAGERETRIEVE, ENDPOINT_MESSAGESEND, ENDPOINT_EVENTTRACKING, ENDPOINT_REPORT_CRASH,
             ENDPOINT_SURVEY_SUBMIT, ENDPOINT_SURVEY_SEEN, ENDPOINT_SURVEY_BACK, ENDPOINT_SURVEY_REJECT})
     @Retention(RetentionPolicy.SOURCE)
@@ -46,23 +45,24 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
 
     @IntDef({RESPONSE_STATE__PENDING, RESPONSE_STATE__OK, RESPONSE_STATE__ERROR_NO_CONNECTION,
             RESPONSE_STATE__ERROR_BAD_REQUEST, RESPONSE_STATE__ERROR_NETWORK, RESPONSE_STATE__ERROR_BAD_RESPONSE,
-            RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED})
+            RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED, RESPONSE_STATE__NO_TOKEN_AVAILABLE})
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING = "https://tracking.customerly.io";
-    static final String ENDPOINT_PINGINDEX = ENDPOINT_TRACKING + "/ping/index/";
-    static final String ENDPOINT_CONVERSATIONRETRIEVE = ENDPOINT_TRACKING + "/conversation/retrieve/";
-    static final String ENDPOINT_MESSAGESEEN = ENDPOINT_TRACKING + "/message/seen/";
-    static final String ENDPOINT_MESSAGENEWS = ENDPOINT_TRACKING + "/message/news/";
-    static final String ENDPOINT_MESSAGERETRIEVE = ENDPOINT_TRACKING + "/message/retrieve/";
-    static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING + "/message/send/";
-    static final String ENDPOINT_EVENTTRACKING = ENDPOINT_TRACKING + "/event/";
-    static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING + "/crash/";
-    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING + "/survey/submit/";
-    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING + "/survey/seen/";
-    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING + "/survey/back/";
-    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING + "/survey/reject/";
+    private static final String ENDPOINT_TRACKING_BASEURL = "https://5ef312ac.ngrok.io";//TODO "https://tracking.customerly.io";
+    private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
+    static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
+    static final String ENDPOINT_CONVERSATIONRETRIEVE = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";
+    static final String ENDPOINT_MESSAGESEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/seen/";
+    static final String ENDPOINT_MESSAGENEWS = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/news/";
+    static final String ENDPOINT_MESSAGERETRIEVE = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/retrieve/";
+    static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";
+    static final String ENDPOINT_EVENTTRACKING = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/event/";
+    static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/crash/";
+    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";
+    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";
+    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";
+    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";
 
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__PENDING = 0;
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__OK = -1;
@@ -71,21 +71,24 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_NETWORK = -4;
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
     @SuppressWarnings("WeakerAccess") static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED = 403;
+    @SuppressWarnings("WeakerAccess") static final int RESPONSE_STATE__NO_TOKEN_AVAILABLE = -6;
 
     @NonNull @Endpoint private final String _Endpoint;
     @NonNull private final ResponseConverter<RES> _ResponseConverter;
     @NonNull private final ResponseReceiver<RES> _ResponseReceiver;
     @IntRange(from=1, to=5) private int _Trials;
+    private final boolean _TokenMandatory;
 
     @ResponseState private int _ResponseState = RESPONSE_STATE__PENDING;
 
     @RequiresPermission(Manifest.permission.INTERNET)
-    private Internal_api__CustomerlyRequest(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials) {
+    private Internal_api__CustomerlyRequest(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials, boolean pTokenMandatory) {
         super();
         this._Endpoint = pEndpoint;
         this._ResponseConverter = pResponseConverter;
         this._ResponseReceiver = pResponseReceiver;
         this._Trials = pTrials;
+        this._TokenMandatory = pTokenMandatory;
     }
 
     @SuppressWarnings("unused")
@@ -99,6 +102,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         @Nullable private CharSequence _ProgressDialog_Title, _ProgressDialog_Message;
         @Nullable private WeakReference<View> _ProgressView;
         @Nullable private Runnable _OnPreExecute;
+        private boolean _TokenMandatory = false;
 
         @IntDef({View.GONE, View.INVISIBLE}) @Retention(RetentionPolicy.SOURCE) @interface HiddenVisibilityType {}
         @HiddenVisibilityType private int _ProgressView_HiddenVisibilityType;
@@ -120,6 +124,10 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
         @CheckResult Builder<RES> opt_trials(@SuppressWarnings("SameParameterValue") @IntRange(from=1, to=5) int pTrials) {
             this._Trials = pTrials;
+            return this;
+        }
+        @CheckResult Builder<RES> opt_tokenMandatory() {
+            this._TokenMandatory = true;
             return this;
         }
         @CheckResult Builder<RES> opt_progressdialog(@NonNull Context pContext, @NonNull CharSequence title, @NonNull CharSequence message) {
@@ -192,7 +200,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                                     this._ResponseReceiver.onResponse(statusCode, result);
                                 }
                             },
-                            this._Trials)
+                            this._Trials, this._TokenMandatory)
                             .execute(this._Params);
                 } else if (this._ResponseReceiver != null) {
                     Customerly._Instance._log("Check your connection");
@@ -202,50 +210,126 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
     }
 
+
+    @NonNull private JSONObject json_appid_E_device(@NonNull String app_id, @Nullable JSONObject params) throws JSONException {
+        if(params == null) {
+            params = new JSONObject();
+        }
+        params.put("app_id", app_id)
+                .put("device", new JSONObject()
+                        .put("os", "Android")
+                        .put("app_name", Customerly._Instance._ApplicationName)
+                        .put("app_version", Customerly._Instance._ApplicationVersionCode)
+                        .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
+                        .put("os_version", Build.VERSION.SDK_INT)
+                        .put("sdk_version", BuildConfig.VERSION_CODE)
+                        .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
+                        .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION));
+        return params;
+    }
+
     @Nullable
     @Override
     protected final RES doInBackground(@Size(value=1) @NonNull JSONObject[] pParams) {
-        JSONObject postObject;
-        try {
-            JSONObject settings = new JSONObject()
-                    .put("app_id", Customerly._Instance._AppID)
-                    .put("device", new JSONObject()
-                            .put("os", "Android")
-                            .put("app_name", Customerly._Instance._ApplicationName)
-                            .put("app_version", Customerly._Instance._ApplicationVersionCode)
-                            .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
-                            .put("os_version", Build.VERSION.SDK_INT)
-                            .put("sdk_version", BuildConfig.VERSION_CODE)
-                            .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
-                            .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION));
-
-            Customerly_User user = Customerly._Instance.customerly_user;
-            if(user != null && user.is_user) {
-                user.fillSettingsJSON(settings);
-            }
-
-            JSONObject attributes = Customerly._Instance.__ATTRIBUTES_pending;
-            Customerly._Instance.__ATTRIBUTES_pending = null;
-            if(attributes != null) {
-                settings.put("attributes", attributes);
-            }
-
-            postObject = new JSONObject()
-                    .put("settings", settings)
-                    .put("params", pParams[0])
-                    .put("cookies", Customerly._Instance.cookies);
-
-        } catch (JSONException error) {
-            this._ResponseState = RESPONSE_STATE__ERROR_BAD_REQUEST;
-            Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_REQUEST_ERROR, "Http request building error for " + this._Endpoint, error);
+        String app_id = Customerly._Instance._AppID;
+        if(app_id == null) {
             return null;
         }
+        JSONObject request_root = new JSONObject();
 
-        while(this._Trials > 0) {
+        Internal__jwt_token token = Customerly._Instance._JWTtoken;
+        boolean tokenSent = false;
+        if(token != null) {
+            try {
+                request_root.put(Internal__jwt_token.PAYLOAD_KEY, token.toString());
+                tokenSent = true;
+            } catch (JSONException ignored) { }
+        }
+
+        JSONObject params = pParams[0];
+        SharedPreferences.Editor prefs_to_apply_on_success = null;
+        if(ENDPOINT_PING.equals(this._Endpoint)) {
+            try {
+                params = json_appid_E_device(app_id, params);
+            } catch (JSONException error) {
+                this._ResponseState = RESPONSE_STATE__ERROR_BAD_REQUEST;
+                return null;
+            }
+
+            SharedPreferences prefs = Customerly._Instance._SharedPreferences;
+            if (tokenSent && prefs != null) {//Se sto inviando il token invio solo i dati non precedentemente inviati
+                try {
+                    params = Internal_Utils__Utils.getJSONdiff(params, new JSONObject(prefs.getString("ping_last_sent_params", "{}")));
+                    prefs_to_apply_on_success = prefs.edit().putString("ping_last_sent_params", params == null ? null : params.toString());
+                    //prefs_to_apply_on_success: le modifiche verranno applicate solo se effettivamente inviate al server
+                } catch (JSONException ignored) { }
+            }
+        } else {
+            params = pParams[0];
+            if(!tokenSent) {
+                if(this._TokenMandatory) {//Se non sto inviando il token ma è necessario prima effettuo una ping per ottenerlo se non lo ottengo killo la request
+                    try {
+                        this.executeRequest(ENDPOINT_PING, new JSONObject().put("params", this.json_appid_E_device(app_id, null)));
+                    } catch (JSONException error) {
+                        this._ResponseState = RESPONSE_STATE__NO_TOKEN_AVAILABLE;
+                        return null;
+                    }
+                    token = Customerly._Instance._JWTtoken;
+                    if (token != null) {
+                        try {
+                            request_root.put(Internal__jwt_token.PAYLOAD_KEY, token.toString());
+                        } catch (JSONException ignored) { }
+                        if(ENDPOINT_REPORT_CRASH.equals(this._Endpoint)) {
+                            try {
+                                params = json_appid_E_device(app_id, params);
+                            } catch (JSONException ignored) { }
+                        }
+                    } else {
+                        this._ResponseState = RESPONSE_STATE__NO_TOKEN_AVAILABLE;
+                        return null;
+                    }
+                } else {//Se Non sto inviando il token ma non è mandatory mando però l'app_id e le device infos
+                    try {
+                        params = json_appid_E_device(app_id, params);
+                    } catch (JSONException ignored) { }
+                }
+            } else {
+                if(ENDPOINT_REPORT_CRASH.equals(this._Endpoint)) {
+                    try {
+                        params = json_appid_E_device(app_id, params);
+                    } catch (JSONException ignored) { }
+                }
+            }
+        }
+
+        if(params != null && params.length() != 0) {
+            try {
+                request_root.put("params", params);
+            } catch (JSONException not_params) {
+                return null;
+            }
+        }
+
+        JSONObject result = this.executeRequest(this._Endpoint, request_root);
+        if(result != null) {
+            try {
+                RES res_converted = this._ResponseConverter.convert(result);
+                if (prefs_to_apply_on_success != null) {
+                    prefs_to_apply_on_success.apply();
+                }
+                return res_converted;
+            } catch (JSONException ignored) { }
+        }
+        return null;
+    }
+
+    @Nullable private JSONObject executeRequest(@NonNull String pEndpoint, @NonNull JSONObject pJSONpayload) {
+        int trials = this._Trials;
+        while(trials > 0) {
             this._ResponseState = RESPONSE_STATE__PENDING;
             OutputStream os = null;
             try {
-                HttpsURLConnection conn = (HttpsURLConnection) new URL(this._Endpoint).openConnection();
+                HttpsURLConnection conn = (HttpsURLConnection) new URL(pEndpoint).openConnection();
                 conn.setDoOutput(true);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
@@ -254,22 +338,22 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 if(BuildConfig.CUSTOMERLY_DEV_MODE) {
                     String postObjectToString;
                     try {
-                        postObjectToString = postObject.toString(4);
+                        postObjectToString = pJSONpayload.toString(4);
                     } catch (JSONException error) {
                         postObjectToString = "Malformed JSON";
                     }
                     //noinspection ConstantConditions
                     Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
                             "-----------------------------------------------------------" +
-                            "\nNEW HTTP REQUEST" +
-                            "\n+ Endpoint:        " + this._Endpoint +
-                            "\n+ SSL:             " + (conn instanceof HttpsURLConnection ? "Active" : "Not Active") +
-                            "\n+ METHOD:          " + conn.getRequestMethod() +
-                            "\n+ Content-Type:    " + conn.getRequestProperty("Content-Type") +
-                            "\n+ Accept-Language: " + conn.getRequestProperty("Accept-Language") +
-                            "\nJSON BODY:\n" +
-                            postObjectToString +
-                            "\n-----------------------------------------------------------");
+                                    "\nNEW HTTP REQUEST" +
+                                    "\n+ Endpoint:        " + pEndpoint +
+                                    "\n+ SSL:             " + (conn instanceof HttpsURLConnection ? "Active" : "Not Active") +
+                                    "\n+ METHOD:          " + conn.getRequestMethod() +
+                                    "\n+ Content-Type:    " + conn.getRequestProperty("Content-Type") +
+                                    "\n+ Accept-Language: " + conn.getRequestProperty("Accept-Language") +
+                                    "\nJSON BODY:\n" +
+                                    postObjectToString +
+                                    "\n-----------------------------------------------------------");
                 }
 
                 //noinspection TryWithIdenticalCatches
@@ -284,7 +368,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 }
 
                 os = conn.getOutputStream();
-                os.write(postObject.toString().getBytes());
+                os.write(pJSONpayload.toString().getBytes());
                 os.flush();
 
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -298,84 +382,55 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 conn.disconnect();
 
                 try {
-                    JSONObject root = new JSONObject(responseStrBuilder.toString());
+                    JSONObject response_root = new JSONObject(responseStrBuilder.toString());
 
                     if(BuildConfig.CUSTOMERLY_DEV_MODE) {
                         String rootToString;
                         try {
-                            rootToString = root.toString(1);
+                            rootToString = response_root.toString(1);
                         } catch (JSONException error) {
                             rootToString = "Malformed JSON";
                         }
                         Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
                                 "-----------------------------------------------------------" +
-                                "\nHTTP RESPONSE" +
-                                "\n+ Endpoint:        " + this._Endpoint +
-                                "\nJSON BODY:\n" +
-                                rootToString +
-                                "\n-----------------------------------------------------------");
+                                        "\nHTTP RESPONSE" +
+                                        "\n+ Endpoint:        " + this._Endpoint +
+                                        "\nJSON BODY:\n" +
+                                        rootToString +
+                                        "\n-----------------------------------------------------------");
 
                     }
 
-                    JSONObject data = root.optJSONObject("data");
-                    if(data == null && root.has("data")) {
-                        data = new JSONObject();
-                    }
-                    if (data != null) {
-                        Customerly._Instance._COOKIES__update(root.optJSONObject("cookies"));
-
-                        JSONObject user = data.optJSONObject("user");
-                        if (user != null) {
-                            if (user.has("data") && !user.has("app_id")) {
-                                user = user.optJSONObject("data");
-                            }
-                            if (user != null) {
-                                Customerly._Instance.__USER__onNewUser(Customerly_User.from(user));
-                            }
-                        }
-
-                        JSONObject websocket = data.optJSONObject("websocket");
-                        if (websocket != null) {
-                            /*
-                                "websocket": {
-                                  "endpoint": "https://ws2.customerly.io",
-                                  "port": "8080"
-                                }
-                             */
-                            Customerly._Instance.__SOCKET_setEndpoint(Internal_Utils__Utils.jsonOptStringWithNullCheck(websocket, "endpoint"), Internal_Utils__Utils.jsonOptStringWithNullCheck(websocket, "port"));
-                        }
-
-                        Customerly._Instance.__SOCKET__connect();
-
-                        this._ResponseState = RESPONSE_STATE__OK;
-                        return this._ResponseConverter.convert(data);
-                    }
-                    data = root.optJSONObject("error");
-                    if(data != null) {
-                        Customerly._Instance._log(Internal_Utils__Utils.jsonOptStringWithNullCheck(data, "message", "The server received the request but an error has come"));
-                        int error_code = data.optInt("code", -1);
+                    if(response_root.has("error")) {
+                        /*  {   "error": "exception_title",
+                                "message": "Exception_message",
+                                "code": "ExceptionCode"     }   */
+                        int error_code = response_root.optInt("code", -1);
+                        Customerly._Instance._log(String.format(Locale.UK, "Message: %s ErrorCode: %s",
+                                Internal_Utils__Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
+                                error_code));
                         if(error_code != -1) {
                             switch(error_code) {
-                            case RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED:
-                                //{"error":{"code":403,"message":"User not authenticated"}}
-                                this._ResponseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED;
-                                return null;
+                                case RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED://TODO check error code
+                                    //{"error": "..title..", "message":"User not authenticated", "code":403}
+                                    this._ResponseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED;
+                                    return null;
                             }
                         }
-                    } else {
-                        Customerly._Instance._log("The server received the request but an error has come");
                     }
-                    this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
-                    Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, "Http wrong response format for trial " + this._Trials + " of " + this._Endpoint + " -> " + responseStrBuilder.toString());
+
+                    this._ResponseState = RESPONSE_STATE__OK;
+                    if(ENDPOINT_PING.equals(pEndpoint)) {
+                        Customerly._Instance._TOKEN__update(response_root);
+                    }
+                    return response_root;
                 } catch (JSONException error) {
                     Customerly._Instance._log("The server received the request but an error has come");
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
-                    Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, "Http response error for for trial " + this._Trials + " of " + this._Endpoint + " -> " + responseStrBuilder.toString(), error);
                 }
             } catch (IOException error) {
                 Customerly._Instance._log("An error occours during the connection to server");
                 this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
-                Internal_errorhandler__CustomerlyErrorHandler.sendError(ERROR_CODE__IO_ERROR, "Http IOException error for for trial " + this._Trials + " of " + this._Endpoint, error);
             } finally {
                 if (os != null) {
                     try {
@@ -383,15 +438,15 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                     } catch (IOException ignored) { }
                 }
             }
-            this._Trials--;
+            trials--;
         }
         if(BuildConfig.CUSTOMERLY_DEV_MODE) {
             Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
                     "-----------------------------------------------------------" +
-                    "\nHTTP RESPONSE" +
-                    "\n+ Endpoint:        " + this._Endpoint +
-                    "\n!!!ERROR!!!\n" +
-                    "\n-----------------------------------------------------------");
+                            "\nHTTP RESPONSE" +
+                            "\n+ Endpoint:        " + this._Endpoint +
+                            "\n!!!ERROR!!!\n" +
+                            "\n-----------------------------------------------------------");
 
         }
         return null;

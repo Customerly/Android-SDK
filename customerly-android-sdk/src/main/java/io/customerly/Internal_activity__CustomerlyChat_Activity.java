@@ -63,14 +63,14 @@ import java.util.Locale;
 public final class Internal_activity__CustomerlyChat_Activity extends Internal_activity__AInput_Customerly_Activity {
 
     static final String EXTRA_CONVERSATION_ID = "EXTRA_CONVERSATION_ID";
-    static final String EXTRA_ASSIGNER_ID = "EXTRA_ASSIGNER_ID";
 
     private RecyclerView _ListRecyclerView;
     private ChatAdapter _Adapter;
-    private boolean _Typing = false;
+    private static final long TYPING_NOONE = 0, UNKNOWN_ASSIGNER_ID = 0;
+    private long _TypingAccountId = TYPING_NOONE;
     private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<Internal_entity__Message> _ChatList = new ArrayList<>(0);
-    private long _ConversationID = 0, _AssignerID = 0;
+    private long _ConversationID = 0, _AssignerID = UNKNOWN_ASSIGNER_ID;
     @NonNull private final ArrayList<BroadcastReceiver> _BroadcastReceiver = new ArrayList<>(1);
 
     @Override
@@ -79,10 +79,8 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         this.setResult(Internal_activity__CustomerlyList_Activity.RESULT_CODE_REFRESH_LIST);
         if(this.getIntent() == null) {
             this._ConversationID = 0;
-            this._AssignerID = 0;
         } else {
             this._ConversationID = this.getIntent().getLongExtra(EXTRA_CONVERSATION_ID, 0);
-            this._AssignerID = this.getIntent().getLongExtra(EXTRA_ASSIGNER_ID, 0);
         }
         if(this._ConversationID == 0) {
             this.finish();
@@ -102,12 +100,12 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if(s.length() == 0) {
                         if(this._TypingSent) {
-                            Customerly._Instance.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, false);
+                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, false);
                             this._TypingSent = false;
                         }
                     } else {
                         if(! this._TypingSent) {
-                            Customerly._Instance.__SOCKET_SEND_Typing(_AssignerID, _ConversationID, true);
+                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, true);
                             this._TypingSent = true;
                         }
                     }
@@ -131,12 +129,13 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
             new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Message>>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGERETRIEVE)
                     .opt_checkConn(this)
                     .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "messages", Internal_entity__Message::new))
+                    .opt_tokenMandatory()
                     .opt_receiver((responseState, list) -> {
                         if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && list != null) {
-                            if(this._AssignerID == 0) {
+                            if(this._AssignerID == UNKNOWN_ASSIGNER_ID) {
                                 for (Internal_entity__Message m : list) {
-                                    if (m.assigner_id != 0) {
-                                        this._AssignerID = m.assigner_id;
+                                    if (! m.isUserMessage() && m.getWriterID() != TYPING_NOONE) {
+                                        this._AssignerID = m.getWriterID();
                                         break;
                                     }
                                 }
@@ -154,23 +153,30 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                                 this._Adapter.notifyDataSetChanged();
                                 this._ListRecyclerView.setVisibility(View.VISIBLE);
                             });
-                            Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, pTyping) -> {
-                                if (pTyping == _Typing)
-                                    return;
+                            Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
+                                if(pTyping) {
+                                    if(this._TypingAccountId == account_id) {
+                                        return;//Se arriva evendo di startTyping e già stavo mostrando il typing per dello stesso account, returno
+                                    }
+                                } else {
+                                    if(this._TypingAccountId == TYPING_NOONE) {
+                                        return;//Se arriva evento di stopTyping e già non stavo mostrando il typing returno
+                                    }
+                                }
                                 if (this._ConversationID == pConversationID) {
                                     this._ListRecyclerView.post(() -> {
                                         if (pTyping) {
                                             int visibleItemCount = this._LinearLayoutManager.getChildCount();
                                             int totalItemCount = this._LinearLayoutManager.getItemCount();
                                             int pastVisiblesItems = this._LinearLayoutManager.findFirstVisibleItemPosition();
-                                            this._Typing = true;
+                                            this._TypingAccountId = account_id;
                                             this._Adapter.notifyItemInserted(this._ChatList.size());
                                             if (pastVisiblesItems + visibleItemCount >= totalItemCount) {
                                                 //End of list
                                                 this._LinearLayoutManager.scrollToPosition(this._ChatList.size());
                                             }
                                         } else {
-                                            this._Typing = false;
+                                            this._TypingAccountId = TYPING_NOONE;
                                             this._Adapter.notifyItemRemoved(this._ChatList.size());
                                         }
                                     });
@@ -187,7 +193,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                                 messaggio_gia_in_lista__non_viene_aggiunto:
                                 for (Internal_entity__Message message : pNewMessages) {
                                     if (message.conversation_id == this._ConversationID) {//Filtra per conversazioneID
-                                        if (message.assigner_id != 0 && this._AssignerID == 0) {
+                                        if (message.assigner_id != UNKNOWN_ASSIGNER_ID && this._AssignerID == UNKNOWN_ASSIGNER_ID) {
                                             this._AssignerID = message.assigner_id;
                                         }
                                         if (message.conversation_message_id > mostRecentMessageId) {
@@ -250,9 +256,12 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
     private void sendSeen(final long messageID_seen) {
         final Internal_Utils__ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
             utc /= 1000;
-            Customerly._Instance.__SOCKET_SEND_Seen(this._AssignerID, messageID_seen, utc);
+            if(this._AssignerID != UNKNOWN_ASSIGNER_ID) {
+                Customerly._Instance.__SOCKET_SEND_Seen(messageID_seen, utc);
+            }
             new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEEN)
                     .opt_checkConn(this)
+                    .opt_tokenMandatory()
                     .param("conversation_message_id", messageID_seen)
                     .param("seen_date", utc)
                     .start();
@@ -267,15 +276,17 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
             this.unregisterReceiver(br);
         }
         Customerly._Instance.__SOCKET__Typing_listener = null;
-        Customerly._Instance.__SOCKET_SEND_Typing(this._AssignerID, this._ConversationID, false);
+        if(this._AssignerID != UNKNOWN_ASSIGNER_ID) {
+            Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false);
+        }
         super.onDestroy();
     }
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        Customerly_User user = Customerly._Instance.customerly_user;
-        if(user != null) {
-            Internal_entity__Message message = new Internal_entity__Message(user.internal_user_id, this._ConversationID, pMessage, pAttachments);
+        Internal__jwt_token token = Customerly._Instance._JWTtoken;
+        if(token != null && token._UserID != null) {
+            Internal_entity__Message message = new Internal_entity__Message(token._UserID, this._ConversationID, pMessage, pAttachments);
             this._ListRecyclerView.post(() -> {
                 int visibleItemCount = this._LinearLayoutManager.getChildCount();
                 int totalItemCount = this._LinearLayoutManager.getItemCount();
@@ -297,10 +308,10 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
     private void startSendMessageRequest(@NonNull Internal_entity__Message message) {
         new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
+                .opt_tokenMandatory()
                 .opt_converter(data -> {
-                    Internal_entity__Message messageSent = new Internal_entity__Message(data.optJSONObject("message"));
-                    Customerly._Instance.__SOCKET_SEND_Message(messageSent.assigner_id, data.getLong("timestamp"));
-                    return messageSent;
+                    Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                    return new Internal_entity__Message(data.optJSONObject("message"));
                 })
                 .opt_receiver((responseState, messageSent) ->
                     this._ListRecyclerView.post(() -> {
@@ -437,11 +448,12 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         }
 
         protected void apply(@Nullable Internal_entity__Message __null, @Nullable String _NonSiMostraNelTyping, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
-            if (pIsFirstMessageOfSender) {
+            long typingAccountID = _TypingAccountId;
+            if (pIsFirstMessageOfSender && typingAccountID != TYPING_NOONE) {
                 Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
-                        .load(Internal_entity__Account.getAccountImageUrl(_AssignerID, this._IconaSize))
+                        .load(Internal_entity__Account.getAccountImageUrl(typingAccountID, this._IconaSize))
                         .into(this._Icon)
                         .override(this._IconaSize, this._IconaSize)
                         .placeholder(R.drawable.io_customerly__ic_default_admin));
@@ -706,7 +718,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         private final long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);
         @Override
         public int getItemViewType(int position) {
-            if(_Typing && position == this.getItemCount() - 1) {
+            if(_TypingAccountId != TYPING_NOONE && position == this.getItemCount() - 1) {
                 return R.layout.io_customerly__li_message_account_typing;
             } else {
                 Internal_entity__Message message = _ChatList.get(position);
@@ -731,7 +743,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
             Internal_entity__Message thisMessage = null, previousMessage;
             boolean shouldAnimate = false, firstMessageOfSender;
             String dataDaMostrare = null;
-            if(!_Typing || position != this.getItemCount() - 1) {
+            if(_TypingAccountId == TYPING_NOONE || position != this.getItemCount() - 1) {
                 if(position < this.lastPositionAnimated) {
                     shouldAnimate = true;
                     this.lastPositionAnimated = position;
@@ -764,7 +776,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
         }
         @Override
         public int getItemCount() {
-            return _ChatList.size() + (_Typing ? 1 : 0 );
+            return _ChatList.size() + (_TypingAccountId == TYPING_NOONE ? 0 : 1);
         }
         @Override
         public void onViewDetachedFromWindow(final A_ChatVH holder) {

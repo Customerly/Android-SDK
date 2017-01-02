@@ -50,7 +50,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Customerly._Instance.__PING__LAST_message_conversation_id = Customerly._Instance.__PING__LAST_message_account_id = 0;
+        Customerly._Instance.__PING__LAST_message_conversation_id = 0;
         if(this.onCreateLayout(R.layout.io_customerly__activity_list)) {
             this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customerly__first_contact_swiperefresh);
             this.input_email_layout = this.findViewById(R.id.io_customerly__input_email_layout);
@@ -70,21 +70,28 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                 this.input_layout.setVisibility(View.VISIBLE);
             });
 
-            this._OnRefreshListener = () ->
-                new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Conversation>>(Internal_api__CustomerlyRequest.ENDPOINT_CONVERSATIONRETRIEVE)
-                    .opt_checkConn(this)
-                    .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "conversations", Internal_entity__Conversation::new))
-                    .opt_receiver((responseState, list) -> {
-                        if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED
-                            || responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                            this.displayInterface(list);
-                        } else {
-                            this.finish();
-                            Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .opt_trials(2)
-                        .start();
+            this._OnRefreshListener = () -> {
+                Internal__jwt_token token = Customerly._Instance._JWTtoken;
+                if(token != null && (token.isUser() || token.isLead())) {
+                    new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Conversation>>(Internal_api__CustomerlyRequest.ENDPOINT_CONVERSATIONRETRIEVE)
+                            .opt_checkConn(this)
+                            .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "conversations", Internal_entity__Conversation::new))
+                            .opt_tokenMandatory()
+                            .opt_receiver((responseState, list) -> {
+                                if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED
+                                        || responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                                    this.displayInterface(list);
+                                } else {
+                                    this.finish();
+                                    Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .opt_trials(2)
+                            .start();
+                } else {
+                    this.displayInterface(null);
+                }
+            };
             this._RecyclerView_SRL.setOnRefreshListener(this._OnRefreshListener);
             this._FirstContact_SRL.setOnRefreshListener(this._OnRefreshListener);
             this.onReconnection();
@@ -250,7 +257,8 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        if(Customerly._Instance.customerly_user == null && ghostToVisitorEmail == null) {
+        Internal__jwt_token token = Customerly._Instance._JWTtoken;
+        if((token == null || token.isAnonymous()) && ghostToVisitorEmail == null) {
             this.input_layout.setVisibility(View.GONE);
             this.input_email_layout.setVisibility(View.VISIBLE);
 
@@ -289,30 +297,28 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     @TargetApi(Build.VERSION_CODES.N)
     private void okSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
         final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
-        new Internal_api__CustomerlyRequest.Builder<long[]>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
+        new Internal_api__CustomerlyRequest.Builder<Long>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
                 .opt_checkConn(this)
+                .opt_tokenMandatory()
                 .opt_converter(data -> {
                     JSONObject conversation = data.getJSONObject("conversation");
                     JSONObject message = data.getJSONObject("message");
                     if(conversation != null && message != null) {
-                        long[] conversationID_assignerID = new long[] { message.getLong("conversation_id"), data.getLong("assigner_id") };
-                        long timestamp = data.optLong("timestamp", -1L);
-                        if(timestamp != -1L) {
-                            Customerly._Instance.__SOCKET_SEND_Message(conversationID_assignerID[1], timestamp);
-                        }
-                        return conversationID_assignerID;
+                        Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                        long conversation_id = data.optLong("conversation_id", -1L);
+                        return conversation_id != -1L ? conversation_id : null;
                     } else {
                         return null;
                     }
                 })
-                .opt_receiver((responseState, conversationID_assignerID) -> {
+                .opt_receiver((responseState, conversationID) -> {
                     if(progressDialog != null) {
                         try {
                             progressDialog.dismiss();
                         } catch (IllegalStateException ignored) { }
                     }
-                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && conversationID_assignerID != null) {
-                        this.openConversationById(conversationID_assignerID[0], conversationID_assignerID[1], ghostToVisitorEmail != null);
+                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && conversationID != null) {
+                        this.openConversationById(conversationID, ghostToVisitorEmail != null);
                     } else {
                         this.input_input.setText(pMessage);
                         for(Internal_entity__Attachment a : pAttachments) {
@@ -322,7 +328,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                     }
                 })
                 .opt_trials(2)
-                .param("visitor_email", ghostToVisitorEmail)
+                .param("visitor_email", ghostToVisitorEmail)//TODO sparisce
                 .param("message", pMessage)
                 .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
                 .start();
@@ -341,13 +347,12 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
         }
     }
 
-    private void openConversationById(long id, long assignerID_or0, boolean andFinishCurrent) {
+    private void openConversationById(long id, boolean andFinishCurrent) {
         if(id != 0) {
             if(Internal_Utils__Utils.checkConnection(Internal_activity__CustomerlyList_Activity.this)) {
                 Internal_activity__CustomerlyList_Activity.this.startActivityForResult(new Intent(Internal_activity__CustomerlyList_Activity.this, Internal_activity__CustomerlyChat_Activity.class)
                         .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, ! andFinishCurrent)
-                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, id)
-                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_ASSIGNER_ID, assignerID_or0), RESULT_CODE_REFRESH_LIST);
+                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, id), RESULT_CODE_REFRESH_LIST);
                 if(andFinishCurrent) {
                     this.finish();
                 }
@@ -357,7 +362,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
         }
     }
     private class ConversationVH extends RecyclerView.ViewHolder {
-        private long _ConversationID, _AssignerID;
+        private long _ConversationID;
         @NonNull private final ImageView _Icon;
         @NonNull private final TextView _Nome, _LastMessage, _Time;
         private final int _IconaSize = Internal_Utils__Utils.px(50);
@@ -369,11 +374,10 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             this._Nome = (TextView)this.itemView.findViewById(R.id.io_customerly__nome);
             this._LastMessage = (TextView)this.itemView.findViewById(R.id.io_customerly__last_message);
             this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
-            this.itemView.setOnClickListener(itemview -> openConversationById(this._ConversationID, this._AssignerID, false));
+            this.itemView.setOnClickListener(itemview -> openConversationById(this._ConversationID, false));
         }
         private void apply(@NonNull Internal_entity__Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
-            this._AssignerID = pConversation.assigner_id;
             Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
                     .fitCenter()
                     .transformCircle()
