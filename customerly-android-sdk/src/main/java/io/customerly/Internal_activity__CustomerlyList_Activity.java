@@ -77,15 +77,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                             .opt_checkConn(this)
                             .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "conversations", Internal_entity__Conversation::new))
                             .opt_tokenMandatory()
-                            .opt_receiver((responseState, list) -> {
-                                if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED
-                                        || responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                                    this.displayInterface(list);
-                                } else {
-                                    this.finish();
-                                    Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
-                                }
-                            })
+                            .opt_receiver((responseState, list) -> this.displayInterface(list))
                             .opt_trials(2)
                             .start();
                 } else {
@@ -301,11 +293,11 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                 .opt_checkConn(this)
                 .opt_tokenMandatory()
                 .opt_converter(data -> {
-                    JSONObject conversation = data.getJSONObject("conversation");
-                    JSONObject message = data.getJSONObject("message");
+                    JSONObject conversation = data.optJSONObject("conversation");
+                    JSONObject message = data.optJSONObject("message");
                     if(conversation != null && message != null) {
                         Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
-                        long conversation_id = data.optLong("conversation_id", -1L);
+                        long conversation_id = message.optLong("conversation_id", -1L);
                         return conversation_id != -1L ? conversation_id : null;
                     } else {
                         return null;

@@ -34,6 +34,7 @@ import io.socket.client.Socket;
  */
 public class Customerly {
 
+    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
     private static final String PREFS_PING_RESPONSE__WELCOME_USERS = "PREFS_PING_RESPONSE__WELCOME_USERS";
@@ -44,15 +45,6 @@ public class Customerly {
     private static final String SOCKET_EVENT__TYPING = "typing";
     private static final String SOCKET_EVENT__SEEN = "seen";
     private static final String SOCKET_EVENT__MESSAGE = "message";
-    private static final String SOCKET_EVENT__KEY__conversation = "conversation";
-    private static final String SOCKET_EVENT__KEY__conversation_id = "conversation_id";
-    private static final String SOCKET_EVENT__KEY__account_id = "account_id";
-    private static final String SOCKET_EVENT__KEY__conversation_message_id = "conversation_message_id";
-    private static final String SOCKET_EVENT__KEY__is_note = "is_note";
-    private static final String SOCKET_EVENT__KEY__is_typing = "is_typing";
-    private static final String SOCKET_EVENT__KEY__seen_date = "seen_date";
-    private static final String SOCKET_EVENT__KEY__timestamp = "timestamp";
-    private static final String SOCKET_EVENT__KEY__user_id = "user_id";
     @ColorInt private static final int DEF_WIDGET_COLOR_INT = 0xffd60022;
 
     @NonNull final Internal_Utils__RemoteImageHandler _RemoteImageHandler = new Internal_Utils__RemoteImageHandler();
@@ -75,6 +67,7 @@ public class Customerly {
     @Nullable private Socket _Socket;
 
     private long __PING__next_ping_allowed = 0L;
+    @Nullable String __PING__LAST_app_name;
     @ColorInt int __PING__LAST_widget_color;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
@@ -94,7 +87,15 @@ public class Customerly {
         }
         Customerly._Instance.__SOCKET__connect();
 
-        JSONObject app_config = root.optJSONObject("app_config");
+        JSONObject app_config = root.optJSONObject("app");
+        if(app_config != null) {
+            String app_name = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "name");
+            if(app_name != null) {
+                this.__PING__LAST_app_name = app_name;
+            }
+        }
+
+        app_config = root.optJSONObject("app_config");
 
         if(app_config != null) {
             if(this.__WidgetColor__HardCoded == Color.TRANSPARENT) {
@@ -143,6 +144,7 @@ public class Customerly {
         final SharedPreferences prefs = this._SharedPreferences;
         if(prefs != null) {
             prefs.edit()
+                    .putString(PREFS_PING_RESPONSE__APP_NAME, this.__PING__LAST_app_name)
                     .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, this.__PING__LAST_widget_color)
                     .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, this.__PING__LAST_powered_by)
                     .putString(PREFS_PING_RESPONSE__WELCOME_USERS, this.__PING__LAST_welcome_message_users)
@@ -251,7 +253,7 @@ public class Customerly {
                                             if (payloadJson != null) {
                                                 Internal__jwt_token token2 = this._JWTtoken;
                                                 if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
-                                                    long conversation_id = payloadJson.optLong(SOCKET_EVENT__KEY__conversation_id, 0);
+                                                    long conversation_id = payloadJson.optLong("conversation_id", 0);
                                                     __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
                                                     if (conversation_id != 0 && listener != null) {
                                                         listener.onTypingEvent(conversation_id, account_id, is_typing);
@@ -340,11 +342,11 @@ public class Customerly {
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__TYPING, new JSONObject()
-                        .put(SOCKET_EVENT__KEY__conversation, new JSONObject()
-                                .put(SOCKET_EVENT__KEY__conversation_id, pConversationID)
-                                .put(SOCKET_EVENT__KEY__user_id, token._UserID)
-                                .put(SOCKET_EVENT__KEY__is_note, false))
-                        .put(SOCKET_EVENT__KEY__is_typing, pTyping ? "y" : "n"));
+                        .put("conversation", new JSONObject()
+                                .put("conversation_id", pConversationID)
+                                .put("user_id", token._UserID)
+                                .put("is_note", false))
+                        .put("is_typing", pTyping ? "y" : "n"));
             } catch (JSONException ignored) { }
         }
     }
@@ -354,10 +356,10 @@ public class Customerly {
             if (token != null && token._UserID != null) {
                 try {
                     this.__SOCKET__SEND(SOCKET_EVENT__MESSAGE, new JSONObject()
-                            .put(SOCKET_EVENT__KEY__timestamp, pTimestamp)
-                            .put(SOCKET_EVENT__KEY__user_id, token._UserID)
-                            .put(SOCKET_EVENT__KEY__conversation, new JSONObject()
-                                    .put(SOCKET_EVENT__KEY__is_note, false)));
+                            .put("timestamp", pTimestamp)
+                            .put("user_id", token._UserID)
+                            .put("conversation", new JSONObject()
+                                    .put("is_note", false)));
                 } catch (JSONException ignored) { }
             }
         }
@@ -367,10 +369,10 @@ public class Customerly {
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__SEEN, new JSONObject()
-                        .put(SOCKET_EVENT__KEY__conversation, new JSONObject()
-                                .put(SOCKET_EVENT__KEY__conversation_message_id, pConversationMessageID)
-                                .put(SOCKET_EVENT__KEY__user_id, token._UserID))
-                        .put(SOCKET_EVENT__KEY__seen_date, pSeenDate));
+                        .put("conversation", new JSONObject()
+                                .put("conversation_message_id", pConversationMessageID)
+                                .put("user_id", token._UserID))
+                        .put("seen_date", pSeenDate));
             } catch (JSONException ignored) { }
         }
     }
@@ -437,6 +439,7 @@ public class Customerly {
                     Customerly._Instance._JWTtoken = Internal__jwt_token.from(prefs);
 
                     //PING
+                    Customerly._Instance.__PING__LAST_app_name = prefs.getString(PREFS_PING_RESPONSE__APP_NAME, Customerly._Instance._ApplicationName);
                     Customerly._Instance.__PING__LAST_widget_color = prefs.getInt(PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
                     Customerly._Instance.__PING__LAST_powered_by = prefs.getBoolean(PREFS_PING_RESPONSE__POWERED_BY, false);
                     Customerly._Instance.__PING__LAST_welcome_message_users = prefs.getString(PREFS_PING_RESPONSE__WELCOME_USERS, null);

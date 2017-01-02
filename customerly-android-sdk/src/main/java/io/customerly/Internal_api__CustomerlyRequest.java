@@ -49,20 +49,20 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING_BASEURL = "https://5ef312ac.ngrok.io";//TODO "https://tracking.customerly.io";
+    private static final String ENDPOINT_TRACKING_BASEURL = "https://bd57a5df.ngrok.io";//TODO "https://tracking.customerly.io";
     private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
     static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
     static final String ENDPOINT_CONVERSATIONRETRIEVE = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";
     static final String ENDPOINT_MESSAGESEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/seen/";
-    static final String ENDPOINT_MESSAGENEWS = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/news/";
+    static final String ENDPOINT_MESSAGENEWS = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/news/";//TODO Testare
     static final String ENDPOINT_MESSAGERETRIEVE = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/retrieve/";
-    static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";
+    static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";//TODO Gestire il passaggio da anonymous a lead
     static final String ENDPOINT_EVENTTRACKING = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/event/";
     static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/crash/";
-    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";
-    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";
-    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";
-    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";
+    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";//TODO Testare
+    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";//TODO Testare
+    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";//TODO Testare
+    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";//TODO Testare
 
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__PENDING = 0;
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__OK = -1;
@@ -427,6 +427,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                 } catch (JSONException error) {
                     Customerly._Instance._log("The server received the request but an error has come");
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
+                    return null;
                 }
             } catch (IOException error) {
                 Customerly._Instance._log("An error occours during the connection to server");
