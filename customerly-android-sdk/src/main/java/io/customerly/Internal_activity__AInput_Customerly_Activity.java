@@ -108,15 +108,13 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                         this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
                     }
 
-                    CharSequence app_name = Customerly._Instance.__PING__LAST_app_name != null ? Customerly._Instance.__PING__LAST_app_name : actionBar.getTitle();
-
                     if (Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
                         actionBar.setHomeAsUpIndicator(this.getIntent() != null && this.getIntent().getBooleanExtra(EXTRA_MUST_SHOW_BACK, false) ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
-                        title = String.format("<font color='#000000'>%1$s</font>", app_name);
+                        title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
                     } else {
                         actionBar.setHomeAsUpIndicator(this.getIntent() != null && this.getIntent().getBooleanExtra(EXTRA_MUST_SHOW_BACK, false) ? R.drawable.io_customerly__ic_arrow_back_white_24dp : R.drawable.io_customerly__ic_clear_white_24dp);
-                        title = String.format("<font color='#ffffff'>%1$s</font>", app_name);
+                        title = String.format("<font color='#ffffff'>%1$s</font>", actionBar.getTitle());
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         actionBar.setTitle(Html.fromHtml(title, 0));

@@ -34,7 +34,7 @@ import io.socket.client.Socket;
  */
 public class Customerly {
 
-    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
+//    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
     private static final String PREFS_PING_RESPONSE__WELCOME_USERS = "PREFS_PING_RESPONSE__WELCOME_USERS";
@@ -67,7 +67,7 @@ public class Customerly {
     @Nullable private Socket _Socket;
 
     private long __PING__next_ping_allowed = 0L;
-    @Nullable String __PING__LAST_app_name;
+//    @Nullable String __PING__LAST_app_name;
     @ColorInt int __PING__LAST_widget_color;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
@@ -87,15 +87,15 @@ public class Customerly {
         }
         Customerly._Instance.__SOCKET__connect();
 
-        JSONObject app_config = root.optJSONObject("app");
-        if(app_config != null) {
-            String app_name = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "name");
-            if(app_name != null) {
-                this.__PING__LAST_app_name = app_name;
-            }
-        }
+//        JSONObject app_config = root.optJSONObject("app");
+//        if(app_config != null) {
+//            String app_name = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "name");
+//            if(app_name != null) {
+//                this.__PING__LAST_app_name = app_name;
+//            }
+//        }
 
-        app_config = root.optJSONObject("app_config");
+        JSONObject app_config = root.optJSONObject("app_config");
 
         if(app_config != null) {
             if(this.__WidgetColor__HardCoded == Color.TRANSPARENT) {
@@ -144,7 +144,7 @@ public class Customerly {
         final SharedPreferences prefs = this._SharedPreferences;
         if(prefs != null) {
             prefs.edit()
-                    .putString(PREFS_PING_RESPONSE__APP_NAME, this.__PING__LAST_app_name)
+//                    .putString(PREFS_PING_RESPONSE__APP_NAME, this.__PING__LAST_app_name)
                     .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, this.__PING__LAST_widget_color)
                     .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, this.__PING__LAST_powered_by)
                     .putString(PREFS_PING_RESPONSE__WELCOME_USERS, this.__PING__LAST_welcome_message_users)
@@ -447,7 +447,7 @@ public class Customerly {
                     Customerly._Instance._JWTtoken = Internal__jwt_token.from(prefs);
 
                     //PING
-                    Customerly._Instance.__PING__LAST_app_name = prefs.getString(PREFS_PING_RESPONSE__APP_NAME, Customerly._Instance._ApplicationName);
+//                    Customerly._Instance.__PING__LAST_app_name = prefs.getString(PREFS_PING_RESPONSE__APP_NAME, Customerly._Instance._ApplicationName);
                     Customerly._Instance.__PING__LAST_widget_color = prefs.getInt(PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
                     Customerly._Instance.__PING__LAST_powered_by = prefs.getBoolean(PREFS_PING_RESPONSE__POWERED_BY, false);
                     Customerly._Instance.__PING__LAST_welcome_message_users = prefs.getString(PREFS_PING_RESPONSE__WELCOME_USERS, null);

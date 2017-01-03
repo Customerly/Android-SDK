@@ -3,7 +3,7 @@
 
     <!-- Not translatable -->
     <string name="io_customerly__download" translatable="false">Download</string>
-    <string name="io_customerly__chat" translatable="false">Chat</string>
+    <string name="io_customerly__activitytitle_chat" translatable="false">Chat</string>
 
     <!-- Plurals (Not handled by Translations Editor -->
     <plurals name="io_customerly__last_activity_XXm_ago">
@@ -59,7 +59,7 @@
     <string name="io_customerly__hint_insert_a_number">Insert a number</string>
     <string name="io_customerly__hint_insert_a_text">Insert a text</string>
     <string name="io_customerly__image">Image</string>
-    <string name="io_customerly__conversations">Conversations</string>
     <string name="io_customerly__rich_message_text">This message was sent by email. Tap to read.</string>
+    <string name="io_customerly__activitytitle_support">Support</string>
 
 </resources>

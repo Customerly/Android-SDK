@@ -85,11 +85,11 @@ class Internal_Utils__Utils {
         } catch (SecurityException ignored) { }
     }
 
-    @ColorInt static int alterColor(@ColorInt int color, @FloatRange(from = 0, to = 1)float factor) {
+    @ColorInt static int alterColor(@ColorInt int color, @FloatRange(from = 0, to = 255)float factor) {
         return Color.argb(Color.alpha(color),
-                (int) (Color.red(color) * factor),
-                (int) (Color.green(color) * factor),
-                (int) (Color.blue(color) * factor));
+                (int) Math.min(255, Color.red(color) * factor),
+                (int) Math.min(255, Color.green(color) * factor),
+                (int) Math.min(255, Color.blue(color) * factor));
     }
 
     @SuppressWarnings("deprecation")
