@@ -49,20 +49,20 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING_BASEURL = "https://bd57a5df.ngrok.io";//TODO "https://tracking.customerly.io";
+    private static final String ENDPOINT_TRACKING_BASEURL = "https://a011ca30.ngrok.io";//TODO "https://tracking.customerly.io";
     private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
     static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
     static final String ENDPOINT_CONVERSATIONRETRIEVE = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";
     static final String ENDPOINT_MESSAGESEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/seen/";
-    static final String ENDPOINT_MESSAGENEWS = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/news/";//TODO Testare
+    static final String ENDPOINT_MESSAGENEWS = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/news/";
     static final String ENDPOINT_MESSAGERETRIEVE = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/retrieve/";
-    static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";//TODO Gestire il passaggio da anonymous a lead
+    static final String ENDPOINT_MESSAGESEND = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";
     static final String ENDPOINT_EVENTTRACKING = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/event/";
     static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/crash/";
     static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";//TODO Testare
-    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";//TODO Testare
-    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";//TODO Testare
-    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";//TODO Testare
+    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";
+    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";
+    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASEURL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";
 
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__PENDING = 0;
     @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__OK = -1;
@@ -114,11 +114,11 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
             this._Context = pContext;
             return this;
         }
-        @CheckResult Builder<RES> opt_converter(@NonNull ResponseConverter<RES> pResponseConverter) {
+        @CheckResult Builder<RES> opt_converter(@Nullable ResponseConverter<RES> pResponseConverter) {
             this._ResponseConverter = pResponseConverter;
             return this;
         }
-        @CheckResult Builder<RES> opt_receiver(@NonNull ResponseReceiver<RES> pResponseReceiver) {
+        @CheckResult Builder<RES> opt_receiver(@Nullable ResponseReceiver<RES> pResponseReceiver) {
             this._ResponseReceiver = pResponseReceiver;
             return this;
         }
@@ -411,7 +411,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                                 error_code));
                         if(error_code != -1) {
                             switch(error_code) {
-                                case RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED://TODO check error code
+                                case RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED:
                                     //{"error": "..title..", "message":"User not authenticated", "code":403}
                                     this._ResponseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTENTICATED;
                                     return null;

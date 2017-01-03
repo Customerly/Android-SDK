@@ -1,10 +1,8 @@
 package io.customerly;
 
-import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -250,80 +248,137 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
         Internal__jwt_token token = Customerly._Instance._JWTtoken;
-        if((token == null || token.isAnonymous()) && ghostToVisitorEmail == null) {
-            this.input_layout.setVisibility(View.GONE);
-            this.input_email_layout.setVisibility(View.VISIBLE);
+        if((token == null || token.isAnonymous())) {
+            if(ghostToVisitorEmail == null) {
+                this.input_layout.setVisibility(View.GONE);
+                this.input_email_layout.setVisibility(View.VISIBLE);
 
-            final EditText input_email_edittext = (EditText) this.findViewById(R.id.io_customerly__input_email_edittext);
-            input_email_edittext.requestFocus();
-            this.findViewById(R.id.io_customerly__input_email_button).setOnClickListener(btn -> {
-                final String email = input_email_edittext.getText().toString().trim().toLowerCase(Locale.ITALY);
-                if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    this.input_email_layout.setVisibility(View.GONE);
-                    input_email_edittext.setText(null);
-                    this.input_layout.setVisibility(View.VISIBLE);
-                    this.onInputActionSend_PerformSend(pMessage, pAttachments, email);
-                } else {
-                    if(input_email_edittext.getTag() == null) {
-                        input_email_edittext.setTag(new Object[0]);
-                        final int input_email_edittext__originalColor = input_email_edittext.getTextColors().getDefaultColor();
-                        input_email_edittext.setTextColor(Color.RED);
-                        input_email_edittext.addTextChangedListener(new TextWatcher() {
-                            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                            @Override public void afterTextChanged(Editable s) { }
-                            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                input_email_edittext.setTextColor(input_email_edittext__originalColor);
-                                input_email_edittext.removeTextChangedListener(this);
-                                input_email_edittext.setTag(null);
-                            }
-                        });
-                    }
-                }
-            });
-        } else {
-            this.okSend(pMessage, pAttachments, ghostToVisitorEmail);
-        }
-    }
+                final EditText input_email_edittext = (EditText) this.findViewById(R.id.io_customerly__input_email_edittext);
+                input_email_edittext.requestFocus();
+                this.findViewById(R.id.io_customerly__input_email_button).setOnClickListener(btn -> {
+                    final String email = input_email_edittext.getText().toString().trim().toLowerCase(Locale.ITALY);
+                    if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        this.input_email_layout.setVisibility(View.GONE);
+                        input_email_edittext.setText(null);
+                        this.input_layout.setVisibility(View.VISIBLE);
+                        this.onInputActionSend_PerformSend(pMessage, pAttachments, email);
+                    } else {
+                        if (input_email_edittext.getTag() == null) {
+                            input_email_edittext.setTag(new Object[0]);
+                            final int input_email_edittext__originalColor = input_email_edittext.getTextColors().getDefaultColor();
+                            input_email_edittext.setTextColor(Color.RED);
+                            input_email_edittext.addTextChangedListener(new TextWatcher() {
+                                @Override
+                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                }
 
-    @SuppressWarnings("deprecation")
-    @TargetApi(Build.VERSION_CODES.N)
-    private void okSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
-        new Internal_api__CustomerlyRequest.Builder<Long>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
-                .opt_checkConn(this)
-                .opt_tokenMandatory()
-                .opt_converter(data -> {
-                    JSONObject conversation = data.optJSONObject("conversation");
-                    JSONObject message = data.optJSONObject("message");
-                    if(conversation != null && message != null) {
-                        Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
-                        long conversation_id = message.optLong("conversation_id", -1L);
-                        return conversation_id != -1L ? conversation_id : null;
-                    } else {
-                        return null;
-                    }
-                })
-                .opt_receiver((responseState, conversationID) -> {
-                    if(progressDialog != null) {
-                        try {
-                            progressDialog.dismiss();
-                        } catch (IllegalStateException ignored) { }
-                    }
-                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && conversationID != null) {
-                        this.openConversationById(conversationID, ghostToVisitorEmail != null);
-                    } else {
-                        this.input_input.setText(pMessage);
-                        for(Internal_entity__Attachment a : pAttachments) {
-                            a.addAttachmentToInput(this);
+                                @Override
+                                public void afterTextChanged(Editable s) {
+                                }
+
+                                @Override
+                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                    input_email_edittext.setTextColor(input_email_edittext__originalColor);
+                                    input_email_edittext.removeTextChangedListener(this);
+                                    input_email_edittext.setTag(null);
+                                }
+                            });
                         }
-                        Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                     }
-                })
-                .opt_trials(2)
-                .param("visitor_email", ghostToVisitorEmail)//TODO sparisce
-                .param("message", pMessage)
-                .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
-                .start();
+                });
+            } else {
+                final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
+                new Internal_api__CustomerlyRequest.Builder<Object[]>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+                        .opt_checkConn(this)
+                        .param("lead_email", ghostToVisitorEmail)
+                        .opt_converter(root -> new Object[0])
+                        .opt_receiver((responseState, _void) -> {
+                            if(_void == null) {
+                                if(progressDialog != null) {
+                                    try {
+                                        progressDialog.dismiss();
+                                    } catch (IllegalStateException ignored) { }
+                                }
+                                this.input_input.setText(pMessage);
+                                for(Internal_entity__Attachment a : pAttachments) {
+                                    a.addAttachmentToInput(this);
+                                }
+                                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                            } else {
+                                new Internal_api__CustomerlyRequest.Builder<Long>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
+                                        .opt_tokenMandatory()
+                                        .opt_converter(data -> {
+                                            JSONObject conversation = data.optJSONObject("conversation");
+                                            JSONObject message = data.optJSONObject("message");
+                                            if(conversation != null && message != null) {
+                                                Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                                                long conversation_id = message.optLong("conversation_id", -1L);
+                                                return conversation_id != -1L ? conversation_id : null;
+                                            } else {
+                                                return null;
+                                            }
+                                        })
+                                        .opt_receiver((messagesend_responseState, messagesend_conversationID) -> {
+                                            if(progressDialog != null) {
+                                                try {
+                                                    progressDialog.dismiss();
+                                                } catch (IllegalStateException ignored) { }
+                                            }
+                                            if(messagesend_responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && messagesend_conversationID != null) {
+                                                this.openConversationById(messagesend_conversationID, true);
+                                            } else {
+                                                this.input_input.setText(pMessage);
+                                                for(Internal_entity__Attachment a : pAttachments) {
+                                                    a.addAttachmentToInput(this);
+                                                }
+                                                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .opt_trials(2)
+                                        .param("message", pMessage)
+                                        .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
+                                        .start();
+                            }
+                        })
+                        .start();
+            }
+        } else {
+            final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
+            new Internal_api__CustomerlyRequest.Builder<Long>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGESEND)
+                    .opt_checkConn(this)
+                    .opt_tokenMandatory()
+                    .opt_converter(data -> {
+                        JSONObject conversation = data.optJSONObject("conversation");
+                        JSONObject message = data.optJSONObject("message");
+                        if(conversation != null && message != null) {
+                            Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                            long conversation_id = message.optLong("conversation_id", -1L);
+                            return conversation_id != -1L ? conversation_id : null;
+                        } else {
+                            return null;
+                        }
+                    })
+                    .opt_receiver((responseState, conversationID) -> {
+                        if(progressDialog != null) {
+                            try {
+                                progressDialog.dismiss();
+                            } catch (IllegalStateException ignored) { }
+                        }
+                        if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && conversationID != null) {
+                            this.openConversationById(conversationID, ghostToVisitorEmail != null);
+                        } else {
+                            this.input_input.setText(pMessage);
+                            for(Internal_entity__Attachment a : pAttachments) {
+                                a.addAttachmentToInput(this);
+                            }
+                            Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .opt_trials(2)
+                    .param("message", pMessage)
+                    .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
+                    .start();
+        }
     }
 
 
@@ -353,6 +408,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             }
         }
     }
+
     private class ConversationVH extends RecyclerView.ViewHolder {
         private long _ConversationID;
         @NonNull private final ImageView _Icon;

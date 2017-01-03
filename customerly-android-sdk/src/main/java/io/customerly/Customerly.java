@@ -377,6 +377,14 @@ public class Customerly {
         }
     }
 
+    private void __PING__Start(final @Nullable Callback pCallback) {
+        new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+                .opt_converter(this.__PING__response_converter)
+                .opt_receiver(pCallback == null ? null : (responseState, _void) ->
+                        pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
+                .start();
+    }
+
     /* ****************************************************************************************************************************************************************/
     /* ********************************************************************************************************************************************** Public Methods **/
     /* ****************************************************************************************************************************************************************/
@@ -481,7 +489,7 @@ public class Customerly {
                         ? this.__WidgetColor__fromTheme
                         : pWidgetColor;
 
-        this.update((isSuccess, newSurvey, newMessage) -> {});
+        this.__PING__Start(null);
     }
 
     public void setVerboseLogging(boolean pVerboseLogging) {
@@ -511,11 +519,7 @@ public class Customerly {
                     this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
                     pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
                 } else {
-                    new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
-                            .opt_converter(this.__PING__response_converter)
-                            .opt_receiver((responseState, _void) ->
-                                    pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
-                            .start();
+                    this.__PING__Start(pCallback);
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.update");
@@ -640,7 +644,6 @@ public class Customerly {
             try {
                 final SharedPreferences prefs = this._SharedPreferences;
 
-
                 this._JWTtoken = null;
                 if (prefs != null) {
                     Internal__jwt_token.remove(prefs);
@@ -648,7 +651,7 @@ public class Customerly {
 
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
-                this.update((success, survey, message) -> { });
+                this.__PING__Start(null);
             } catch (Exception ignored) { }
         }
     }
