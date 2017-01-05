@@ -393,6 +393,43 @@ public class Customerly {
         void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
     }
 
+    public interface SurveyListener {
+        void onShowed();
+        void onDismissed();
+        void onCompleted();
+        void onRejected();
+        class LambdasBuilder implements SurveyListener{
+            @Nullable private final Runnable onShowed, onDismissed, onCompleted, onRejected;
+            public LambdasBuilder(@Nullable Runnable onShowed, @Nullable Runnable onDismissed, @Nullable Runnable onCompleted, @Nullable Runnable onRejected) {
+                super();
+                this.onShowed = onShowed;
+                this.onDismissed = onDismissed;
+                this.onCompleted = onCompleted;
+                this.onRejected = onRejected;
+            }
+            @Override public void onShowed() {
+                if(this.onShowed != null) {
+                    this.onShowed.run();
+                }
+            }
+            @Override public void onDismissed() {
+                if(this.onDismissed != null) {
+                    this.onDismissed.run();
+                }
+            }
+            @Override public void onCompleted() {
+                if(this.onCompleted != null) {
+                    this.onCompleted.run();
+                }
+            }
+            @Override public void onRejected() {
+                if(this.onRejected != null) {
+                    this.onRejected.run();
+                }
+            }
+        }
+    }
+
     public interface RealTimeMessagesCallback {
         void onMessage(CustomerlyHtmlMessage messageContent);
     }
@@ -685,12 +722,16 @@ public class Customerly {
         return false;
     }
 
-    @SuppressLint("CommitTransaction")
     public void openSurvey(@NonNull FragmentManager fm) {
+        this.openSurvey(fm, null);
+    }
+
+    @SuppressLint("CommitTransaction")
+    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener pSurveyListener) {
         if(this._isConfigured()) {
             if (this.isSurveyAvailable()) {
                 try {
-                    new Internal_dialogfragment__Survey_DialogFragment().show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
+                    Internal_dialogfragment__Survey_DialogFragment.newInstance(pSurveyListener).show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.openSurvey");
                     Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);

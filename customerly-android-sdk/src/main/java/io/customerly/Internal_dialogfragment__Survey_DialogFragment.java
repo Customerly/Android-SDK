@@ -1,6 +1,7 @@
 package io.customerly;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +40,13 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     private View _ProgressView, _Back;
     @Nullable private Internal_entity__Survey _CurrentSurvey;
     private boolean _RejectEnabled = false;
+    @Nullable private Customerly.SurveyListener _SurveyListener;
+
+    @NonNull public static Internal_dialogfragment__Survey_DialogFragment newInstance(@Nullable Customerly.SurveyListener pSurveyListener) {
+        Internal_dialogfragment__Survey_DialogFragment dialog = new Internal_dialogfragment__Survey_DialogFragment();
+        dialog._SurveyListener = pSurveyListener;
+        return dialog;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -96,7 +104,11 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                         .opt_checkConn(this.getContext())
                                         .opt_tokenMandatory()
                                         .opt_trials(2)
-                                        .opt_receiver((responseState, surveyBack) -> { })
+                                        .opt_receiver((responseState, surveyBack) -> {
+                                            if(this._SurveyListener != null) {
+                                                this._SurveyListener.onRejected();
+                                            }
+                                        })
                                         .param("survey_id", currentSurvey.survey_id)
                                         .start();
                             }
@@ -106,6 +118,10 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
 
                     this.applySurvey(survey);
 
+                    if(this._SurveyListener != null) {
+                        this._SurveyListener.onShowed();
+                    }
+
                     return view;
                 }
             }
@@ -113,6 +129,14 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
         Customerly._Instance._log("No surveys available");
         this.dismissAllowingStateLoss();
         return null;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if(this._SurveyListener != null) {
+            this._SurveyListener.onDismissed();
+        }
     }
 
     private void applySurvey(@Nullable Internal_entity__Survey survey) {
@@ -134,6 +158,9 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
             thankyou.setLayoutParams(lp);
             this._SurveyContainer.addView(thankyou);
+            if(this._SurveyListener != null) {
+                this._SurveyListener.onCompleted();
+            }
         } else {
             this._Back.setVisibility(survey.step == 0 ? View.INVISIBLE : View.VISIBLE);
             this._RejectEnabled = true;
