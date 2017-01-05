@@ -394,10 +394,10 @@ public class Customerly {
     }
 
     public interface SurveyListener {
-        void onShowed();
-        void onDismissed();
-        void onCompleted();
-        void onRejected();
+        void onShow();
+        void onDismiss();
+        void onComplete();
+        void onReject();
         class LambdasBuilder implements SurveyListener{
             @Nullable private final Runnable onShowed, onDismissed, onCompleted, onRejected;
             public LambdasBuilder(@Nullable Runnable onShowed, @Nullable Runnable onDismissed, @Nullable Runnable onCompleted, @Nullable Runnable onRejected) {
@@ -407,22 +407,22 @@ public class Customerly {
                 this.onCompleted = onCompleted;
                 this.onRejected = onRejected;
             }
-            @Override public void onShowed() {
+            @Override public void onShow() {
                 if(this.onShowed != null) {
                     this.onShowed.run();
                 }
             }
-            @Override public void onDismissed() {
+            @Override public void onDismiss() {
                 if(this.onDismissed != null) {
                     this.onDismissed.run();
                 }
             }
-            @Override public void onCompleted() {
+            @Override public void onComplete() {
                 if(this.onCompleted != null) {
                     this.onCompleted.run();
                 }
             }
-            @Override public void onRejected() {
+            @Override public void onReject() {
                 if(this.onRejected != null) {
                     this.onRejected.run();
                 }

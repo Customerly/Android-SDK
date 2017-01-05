@@ -106,7 +106,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                         .opt_trials(2)
                                         .opt_receiver((responseState, surveyBack) -> {
                                             if(this._SurveyListener != null) {
-                                                this._SurveyListener.onRejected();
+                                                this._SurveyListener.onReject();
                                             }
                                         })
                                         .param("survey_id", currentSurvey.survey_id)
@@ -119,7 +119,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     this.applySurvey(survey);
 
                     if(this._SurveyListener != null) {
-                        this._SurveyListener.onShowed();
+                        this._SurveyListener.onShow();
                     }
 
                     return view;
@@ -135,7 +135,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         if(this._SurveyListener != null) {
-            this._SurveyListener.onDismissed();
+            this._SurveyListener.onDismiss();
         }
     }
 
@@ -159,7 +159,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             thankyou.setLayoutParams(lp);
             this._SurveyContainer.addView(thankyou);
             if(this._SurveyListener != null) {
-                this._SurveyListener.onCompleted();
+                this._SurveyListener.onComplete();
             }
         } else {
             this._Back.setVisibility(survey.step == 0 ? View.INVISIBLE : View.VISIBLE);
