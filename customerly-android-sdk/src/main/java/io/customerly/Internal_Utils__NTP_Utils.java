@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * Created by Gianni on 08/03/16.
- * Project: Tootor
+ * Project: CustomerlyAndroidSDK
  */
 @SuppressWarnings("unused")
 class Internal_Utils__NTP_Utils {
@@ -21,7 +21,7 @@ class Internal_Utils__NTP_Utils {
     @Contract("_, null, null, _ -> fail; _, null, !null, null -> fail")
     private static void internal_getSafeNow_fromUiThread(@Nullable Context context, @Nullable Internal_Utils__ResultUtils.OnResult<Long> onNetworkTime, @Nullable Internal_Utils__ResultUtils.OnNonNullResult<Long> onNetworkTimeNotNull, @Nullable Internal_Utils__ResultUtils.OnNoResult onNetworkError) {
         if(onNetworkTime == null && (onNetworkTimeNotNull == null || onNetworkError == null))
-            throw new IllegalStateException("Devi specificare o un ResultUtils.OnResult oppure entrambi i ResultUtils.OnNonNullResult e ResultUtils.OnNoResult");
+            throw new IllegalStateException("You have to specify a ResultUtils.OnResult or both ResultUtils.OnNonNullResult and ResultUtils.OnNoResult");
         if(context != null && ! Internal_Utils__Utils.checkConnection(context)) {
             if(onNetworkTime != null)
                 onNetworkTime.onResult(null);
@@ -45,7 +45,9 @@ class Internal_Utils__NTP_Utils {
             }
         }.execute();
     }
+    @SuppressWarnings("SpellCheckingInspection")
     private static Internal_Utils__SntpClient _SntpClient;
+    @SuppressWarnings("WeakerAccess")
     @Nullable static Long getSafeNow_fromBackgroundThread() {
         if(Internal_Utils__NTP_Utils._SntpClient == null)
             Internal_Utils__NTP_Utils._SntpClient = new Internal_Utils__SntpClient();

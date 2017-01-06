@@ -29,10 +29,10 @@ class Internal_entity__Admin {
         }
         if(a == jsonArray.length()) {
             return adminArray;
-        } else { //Ho aggiunto meno Admin all'array rispetto alla lunghezza
-            Internal_entity__Admin[] nuovoArray = new Internal_entity__Admin[a];
-            System.arraycopy(adminArray, 0, nuovoArray, 0, a);
-            return nuovoArray;
+        } else { //Added less Admin than array length
+            Internal_entity__Admin[] newArray = new Internal_entity__Admin[a];
+            System.arraycopy(adminArray, 0, newArray, 0, a);
+            return newArray;
         }
     }
 

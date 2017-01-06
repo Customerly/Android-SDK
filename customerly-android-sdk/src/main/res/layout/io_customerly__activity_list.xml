@@ -11,7 +11,7 @@
         android:layout_height="0dp"
         android:layout_weight="1" >
 
-        <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__first_contact_swiperefresh"
+        <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__first_contact_swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" >
@@ -27,7 +27,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <android.support.v7.widget.CardView android:id="@id/io_customerly__layout_first_contact__welcomecard"
+                    <android.support.v7.widget.CardView android:id="@id/io_customerly__layout_first_contact__welcome_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
@@ -51,13 +51,13 @@
                             android:layout_marginRight="20dp"
                             android:layout_marginEnd="20dp" >
 
-                            <LinearLayout android:id="@id/io_customerly__layout_first_contact__admincontainer"
+                            <LinearLayout android:id="@id/io_customerly__layout_first_contact__admin_container"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:gravity="center_horizontal" />
 
-                            <TextView android:id="@id/io_customerly__layout_first_contact__welcomecard__lastactivity"
+                            <TextView android:id="@id/io_customerly__layout_first_contact__welcome_card__last_activity"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
@@ -65,7 +65,7 @@
                                 android:textSize="13sp"
                                 android:visibility="gone" />
 
-                            <TextView android:id="@id/io_customerly__layout_first_contact__welcomecard__welcome"
+                            <TextView android:id="@id/io_customerly__layout_first_contact__welcome_card__welcome"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="10dp"
@@ -109,11 +109,11 @@
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__recyclerview_swiperefresh"
+        <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__recycler_view_swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
-            <android.support.v7.widget.RecyclerView android:id="@id/io_customerly__recyclerview"
+            <android.support.v7.widget.RecyclerView android:id="@id/io_customerly__recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:overScrollMode="never" />
@@ -138,7 +138,7 @@
         android:paddingBottom="5dp"
         android:visibility="gone" >
 
-        <EditText android:id="@id/io_customerly__input_email_edittext"
+        <EditText android:id="@id/io_customerly__input_email_edit_text"
             android:theme="@style/io_customerly__EditText_Blue2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -195,6 +195,6 @@
 
     </LinearLayout>
 
-    <include layout="@layout/io_customerly__layout_offerto_da" />
+    <include layout="@layout/io_customerly__layout_powered_by" />
 
 </LinearLayout>

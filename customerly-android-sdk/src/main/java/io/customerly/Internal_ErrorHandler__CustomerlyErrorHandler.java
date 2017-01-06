@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Gianni on 09/09/16.
  * Project: CustomerlySDK
  */
-class Internal_errorhandler__CustomerlyErrorHandler {
+class Internal_ErrorHandler__CustomerlyErrorHandler {
 
     @IntDef({ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, ERROR_CODE__IO_ERROR, ERROR_CODE__HTTP_REQUEST_ERROR,
             ERROR_CODE__HTTP_RESPONSE_ERROR, ERROR_CODE__GLIDE_ERROR, ERROR_CODE__ATTACHMENT_ERROR,
@@ -28,10 +28,7 @@ class Internal_errorhandler__CustomerlyErrorHandler {
     @ErrorCode static final int ERROR_CODE__GENERIC = 7;
 
     static void sendNotConfiguredError() {
-        Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, BuildConfig.CUSTOMERLY_SDK_NAME + "is not configured");
-    }
-    static void sendError(@ErrorCode int pErrorCode, @NonNull String pDescription) {
-        Internal_errorhandler__CustomerlyErrorHandler.sendError(pErrorCode, pDescription, null);
+        Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, BuildConfig.CUSTOMERLY_SDK_NAME + "is not configured", null);
     }
     static void sendError(@ErrorCode int pErrorCode, @NonNull String pDescription, @Nullable Throwable pThrowable) {
         StringBuilder sb = new StringBuilder();
@@ -41,6 +38,7 @@ class Internal_errorhandler__CustomerlyErrorHandler {
         }
         sb.setLength(sb.length() - 1);
 
+        //noinspection SpellCheckingInspection
         new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_REPORT_CRASH)
                 .param("error_code", pErrorCode)
                 .param("error_message", pDescription)

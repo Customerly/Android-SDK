@@ -43,6 +43,7 @@ import java.util.Locale;
  * Created by Gianni on 31/05/16.
  * Project: CustomerlySDK
  */
+@SuppressWarnings("SpellCheckingInspection")
 class Internal_Utils__Utils {
 
     @Contract("null -> false")

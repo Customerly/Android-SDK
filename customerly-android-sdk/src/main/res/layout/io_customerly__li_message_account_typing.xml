@@ -7,7 +7,7 @@
     android:orientation="horizontal"
     android:gravity="top" >
 
-    <ImageView android:id="@id/io_customerly__icona"
+    <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
         android:layout_height="@dimen/io_customerly__chat_li_icon_size"
         android:scaleType="fitCenter"
@@ -24,7 +24,7 @@
         android:textSize="15sp"
         android:layout_marginRight="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
-        android:background="@drawable/io_customerly__bkg_chatmessage_account_rounded"
+        android:background="@drawable/io_customerly__bkg_chat_message_account_rounded"
         android:gravity="center"
         tools:ignore="RtlHardcoded"
         android:elevation="1dp"

@@ -83,18 +83,18 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
     }
 
     /**
-     * Inizializza il layout passato ( deve contenere il layout_offerto_da, il layout_input_layout )</br>
-     * Colora l'actionbar, la statusbar, e inizializza i listener dell'input
-     * @param pLayoutRes Il resID del layout
-     * @return true se l'sdk è configurato e tutto ok altrimenti restituisce false e chiama finish()
+     * Initialize the layout ( must contain layout_powered_by and layout_input_layout )</br>
+     * It colors the actionbar, the status bar and initializes the listeners of the input
+     * @param pLayoutRes The layout resID
+     * @return true if the SDK is configured or false otherwise anc finish is called
      */
     final boolean onCreateLayout(@LayoutRes int pLayoutRes) {
         if(Customerly._Instance._isConfigured()) {
             super.setContentView(pLayoutRes);
             //View binding
             final ActionBar actionBar = this.getSupportActionBar();
-            final TextView offerto_da = (TextView) this.findViewById(R.id.io_customerly__offerto_da);
-            this.input_input = (EditText) this.findViewById(R.id.io_customerly__input_edittext);
+            final TextView powered_by = (TextView) this.findViewById(R.id.io_customerly__powered_by);
+            this.input_input = (EditText) this.findViewById(R.id.io_customerly__input_edit_text);
             View input_button_attach = this.findViewById(R.id.io_customerly__input_button_attach);
             this.input_layout = (LinearLayout) this.findViewById(R.id.io_customerly__input_layout);
             this.input_attachments = (LinearLayout) this.findViewById(R.id.io_customerly__input_attachments);
@@ -133,7 +133,7 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                 if(Customerly._Instance.__PING__LAST_widget_color != 0) {
                     int linkColor = Customerly._Instance.__PING__LAST_widget_color;
 
-                    while (Internal_Utils__Utils.getContrastColor(linkColor) == Color.BLACK) { //Fintanto che ha bisogno di uno sfondo nero per fare contrasto
+                    while (Internal_Utils__Utils.getContrastColor(linkColor) == Color.BLACK) {
                         linkColor = Internal_Utils__Utils.alterColor(linkColor, 0.95f);
                     }
 
@@ -141,11 +141,11 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                 }
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 ssb.append(redBoldSpannable);
-                offerto_da.setText(ssb);
-                offerto_da.setOnClickListener(v -> Internal_Utils__Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
-                offerto_da.setVisibility(View.VISIBLE);
+                powered_by.setText(ssb);
+                powered_by.setOnClickListener(v -> Internal_Utils__Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
+                powered_by.setVisibility(View.VISIBLE);
             }/* else {
-                offerto_da.setVisibility(View.GONE);//Da layout
+                powered_by.setVisibility(View.GONE);//Da layout
             }*/
 
             input_button_attach.setOnClickListener(this._AttachButtonListener);
@@ -253,7 +253,7 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
 
                             new Internal_entity__Attachment(this, fileUri).addAttachmentToInput(this);
                         } catch (Exception exception) {
-                            Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__ATTACHMENT_ERROR, "Error while attaching file: " + exception.getMessage(), exception);
+                            Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__ATTACHMENT_ERROR, "Error while attaching file: " + exception.getMessage(), exception);
                         }
                     }
                     this.input_input.requestFocus();

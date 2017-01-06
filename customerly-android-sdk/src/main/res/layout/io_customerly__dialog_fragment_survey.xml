@@ -13,14 +13,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
+        android:layout_height="@dimen/io_customerly__dialog_fragment_survey_header_height"
         android:orientation="horizontal"
         android:layout_marginBottom="10dp" >
 
         <ImageView android:id="@id/io_customerly__back"
             style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
-            android:layout_width="@dimen/io_customerly__dialogfragment_survey_header_height"
-            android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
+            android:layout_width="@dimen/io_customerly__dialog_fragment_survey_header_height"
+            android:layout_height="@dimen/io_customerly__dialog_fragment_survey_header_height"
             android:layout_gravity="center"
             android:src="@drawable/io_customerly__ic_arrow_back_black_24dp"
             android:contentDescription="back"
@@ -28,7 +28,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
+            android:layout_height="@dimen/io_customerly__dialog_fragment_survey_header_height"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/io_customerly__survey"
@@ -37,8 +37,8 @@
 
         <ImageView android:id="@id/io_customerly__close"
             style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
-            android:layout_width="@dimen/io_customerly__dialogfragment_survey_header_height"
-            android:layout_height="@dimen/io_customerly__dialogfragment_survey_header_height"
+            android:layout_width="@dimen/io_customerly__dialog_fragment_survey_header_height"
+            android:layout_height="@dimen/io_customerly__dialog_fragment_survey_header_height"
             android:layout_gravity="center"
             android:src="@drawable/io_customerly__ic_clear_black_24dp"
             android:contentDescription="back"
@@ -83,12 +83,12 @@
 
         </LinearLayout>
 
-        <ProgressBar android:id="@id/io_customerly__progressview"
+        <ProgressBar android:id="@id/io_customerly__progress_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            android:indeterminateDrawable="@drawable/io_customerly__progressimage_blue2" />
+            android:indeterminateDrawable="@drawable/io_customerly__progress_image_blue2" />
 
     </FrameLayout>
 

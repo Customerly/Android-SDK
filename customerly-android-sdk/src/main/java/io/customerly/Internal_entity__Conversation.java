@@ -54,17 +54,16 @@ class Internal_entity__Conversation {
         this.unread = pConversationItem.optInt("unread", 0) == 1;
 
         pConversationItem = pConversationItem.optJSONObject("last_account");
-//        pConversationItem diventa pConversationItem.last_account
         this.last_account__name = pConversationItem == null ? null : Internal_Utils__Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
     }
 
-    void onNewMessage(@NonNull Internal_entity__Message pNuovoMessaggio) {
-        this.last_message_abstract = pNuovoMessaggio.content;
-        this.last_message_date = pNuovoMessaggio.sent_date;
-        this.last_message_writer = pNuovoMessaggio.getWriterID();
-        this.last_message_writer_type = pNuovoMessaggio.getWriterType();
+    void onNewMessage(@NonNull Internal_entity__Message pNewMessage) {
+        this.last_message_abstract = pNewMessage.content;
+        this.last_message_date = pNewMessage.sent_date;
+        this.last_message_writer = pNewMessage.getWriterID();
+        this.last_message_writer_type = pNewMessage.getWriterType();
         this.unread = true;
-        this.last_account__name = pNuovoMessaggio.if_account__name;
+        this.last_account__name = pNewMessage.if_account__name;
     }
 
     @NonNull String getImageUrl(int pPixelSize) {

@@ -33,7 +33,7 @@ import static io.customerly.Internal_entity__Survey.TYPE_END_SURVEY;
  * Created by Gianni on 29/11/16.
  * Project: TestApp_CRMHero
  */
-public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragment {
+public class Internal_DialogFragment__Survey_DialogFragment extends DialogFragment {
 
     private LinearLayout _SurveyContainer;
     private TextView _Title, _Subtitle;
@@ -43,8 +43,8 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     @Nullable private Customerly.SurveyListener.OnShow _SurveyShowListener;
     @Nullable private Customerly.SurveyListener.OnDismiss _SurveyDismissListener;
 
-    @NonNull public static Internal_dialogfragment__Survey_DialogFragment newInstance(@Nullable Customerly.SurveyListener.OnShow pSurveyShowListener, @Nullable Customerly.SurveyListener.OnDismiss pSurveyDismissListener) {
-        Internal_dialogfragment__Survey_DialogFragment dialog = new Internal_dialogfragment__Survey_DialogFragment();
+    @NonNull public static Internal_DialogFragment__Survey_DialogFragment newInstance(@Nullable Customerly.SurveyListener.OnShow pSurveyShowListener, @Nullable Customerly.SurveyListener.OnDismiss pSurveyDismissListener) {
+        Internal_DialogFragment__Survey_DialogFragment dialog = new Internal_DialogFragment__Survey_DialogFragment();
         dialog._SurveyShowListener = pSurveyShowListener;
         dialog._SurveyDismissListener = pSurveyDismissListener;
         return dialog;
@@ -64,11 +64,11 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
         if(surveys != null) {
             for (Internal_entity__Survey survey : surveys) {
                 if (survey != null && !survey.isRejectedOrConcluded) {
-                    View view = inflater.inflate(R.layout.io_customerly__dialogfragment_survey, container, false);
+                    View view = inflater.inflate(R.layout.io_customerly__dialog_fragment_survey, container, false);
                     this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
                     this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
                     this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
-                    this._ProgressView = view.findViewById(R.id.io_customerly__progressview);
+                    this._ProgressView = view.findViewById(R.id.io_customerly__progress_view);
                     this._Back = view.findViewById(R.id.io_customerly__back);
                     this._Back.setOnClickListener(v -> {
                         Internal_entity__Survey currentSurvey = this._CurrentSurvey;
@@ -149,15 +149,15 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             this._Back.setVisibility(View.INVISIBLE);
             this._SurveyCompleted = true;
             survey.isRejectedOrConcluded = true;
-            TextView thankyou = new TextView(this.getContext());
-            thankyou.setTextColor(Color.BLACK);
-            thankyou.setText(Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(survey.thankyou_text));
+            TextView thank_you = new TextView(this.getContext());
+            thank_you.setTextColor(Color.BLACK);
+            thank_you.setText(Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(survey.thank_you_text));
             int _10dp = Internal_Utils__Utils.px(10);
-            thankyou.setPadding(_10dp, _10dp, _10dp, _10dp);
+            thank_you.setPadding(_10dp, _10dp, _10dp, _10dp);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
-            thankyou.setLayoutParams(lp);
-            this._SurveyContainer.addView(thankyou);
+            thank_you.setLayoutParams(lp);
+            this._SurveyContainer.addView(thank_you);
         } else {
             this._Back.setVisibility(survey.step == 0 ? View.INVISIBLE : View.VISIBLE);
             this._SurveyCompleted = false;
@@ -238,17 +238,17 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 @Override
                                 public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
                                     if (position == 0) {
-                                        if (convertView != null && "VUOTA".equals(convertView.getTag())) {
+                                        if (convertView != null && "EMPTY".equals(convertView.getTag())) {
                                             return convertView;
                                         } else {
                                             View v = new TextView(parent.getContext());
-                                            v.setTag("VUOTA");
+                                            v.setTag("EMPTY");
                                             v.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
                                             v.setBackgroundColor(Color.WHITE);
                                             return v;
                                         }
                                     } else {
-                                        TextView tv = (TextView) super.getDropDownView(position - 1, convertView == null || "VUOTA".equals(convertView.getTag()) ? null : convertView, parent);
+                                        TextView tv = (TextView) super.getDropDownView(position - 1, convertView == null || "EMPTY".equals(convertView.getTag()) ? null : convertView, parent);
                                         tv.setBackgroundColor(Color.WHITE);
                                         tv.setTextColor(Color.BLACK);
                                         return tv;
@@ -307,10 +307,10 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             }
                             ll_seek.addView(min);
 
-                            AppCompatSeekBar seekbar = (AppCompatSeekBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
+                            AppCompatSeekBar seekBar = (AppCompatSeekBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
                             {
-                                seekbar.setMax(survey.limit_to - survey.limit_from);
-                                seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                seekBar.setMax(survey.limit_to - survey.limit_from);
+                                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                                     @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                                         if(fromUser) {
                                             confirm.setTag(survey.limit_from + seekBar.getProgress());
@@ -321,7 +321,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                     @Override public void onStopTrackingTouch(SeekBar seekBar) { }
                                 });
                             }
-                            ll_seek.addView(seekbar);
+                            ll_seek.addView(seekBar);
 
                             TextView max = new TextView(this.getContext());
                             {
@@ -352,35 +352,35 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     this._SurveyContainer.addView(ll_root);
                     break;
                 case Internal_entity__Survey.TYPE_STAR:
-                    AppCompatRatingBar ratingbar = (AppCompatRatingBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
+                    AppCompatRatingBar ratingBar = (AppCompatRatingBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
                     {
-                        ratingbar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
+                        ratingBar.setOnRatingBarChangeListener((rBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
                     }
-                    this._SurveyContainer.addView(ratingbar);
+                    this._SurveyContainer.addView(ratingBar);
                     break;
                 case Internal_entity__Survey.TYPE_NUMBER:
-                case Internal_entity__Survey.TYPE_TEXTBOX:
-                case Internal_entity__Survey.TYPE_TEXTAREA:
+                case Internal_entity__Survey.TYPE_TEXT_BOX:
+                case Internal_entity__Survey.TYPE_TEXT_AREA:
                     LinearLayout ll = new LinearLayout(this.getContext());
                     {
                         ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                         ll.setOrientation(LinearLayout.VERTICAL);
                         ll.setGravity(Gravity.CENTER_HORIZONTAL);
 
-                        AppCompatEditText edittext = (AppCompatEditText) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
+                        AppCompatEditText editText = (AppCompatEditText) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
                         {
                             switch (survey.type) {
                                 case Internal_entity__Survey.TYPE_NUMBER:
-                                    edittext.setInputType(InputType.TYPE_CLASS_NUMBER);
-                                    edittext.setHint(R.string.io_customerly__hint_insert_a_number);
+                                    editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                    editText.setHint(R.string.io_customerly__hint_insert_a_number);
                                     break;
-                                case Internal_entity__Survey.TYPE_TEXTBOX:
-                                    edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                                    edittext.setHint(R.string.io_customerly__hint_insert_a_text);
+                                case Internal_entity__Survey.TYPE_TEXT_BOX:
+                                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                                    editText.setHint(R.string.io_customerly__hint_insert_a_text);
                                     break;
-                                case Internal_entity__Survey.TYPE_TEXTAREA:
-                                    edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
-                                    edittext.setHint(R.string.io_customerly__hint_insert_a_text);
+                                case Internal_entity__Survey.TYPE_TEXT_AREA:
+                                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+                                    editText.setHint(R.string.io_customerly__hint_insert_a_text);
                                     break;
                                 case Internal_entity__Survey.TYPE_BUTTON:
                                 case Internal_entity__Survey.TYPE_END_SURVEY:
@@ -388,11 +388,11 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                                 case Internal_entity__Survey.TYPE_RADIO:
                                 case Internal_entity__Survey.TYPE_SCALE:
                                 case Internal_entity__Survey.TYPE_STAR:
-                                    //Non raggiungibile
+                                    //Not reachable
                                     break;
                             }
                         }
-                        ll.addView(edittext);
+                        ll.addView(editText);
 
                         Button confirm = new Button(this.getContext());
                         {
@@ -406,8 +406,8 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                             lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
                             confirm.setLayoutParams(lp);
                             confirm.setOnClickListener(v -> {
-                                if(edittext.getText().length() != 0) {
-                                    this.nextSurvey(survey, -1, edittext.getText().toString().trim());
+                                if(editText.getText().length() != 0) {
+                                    this.nextSurvey(survey, -1, editText.getText().toString().trim());
                                 }
                             });
                         }

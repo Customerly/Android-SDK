@@ -15,7 +15,7 @@
         android:padding="7.5dp"
         android:visibility="gone"/>
 
-    <ImageView android:id="@id/io_customerly__icona"
+    <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
         android:layout_height="@dimen/io_customerly__chat_li_icon_size"
         android:scaleType="fitCenter"
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/io_customerly__grey_99"
-            android:background="@drawable/io_customerly__bkg_chatmessage_account_rounded"
+            android:background="@drawable/io_customerly__bkg_chat_message_account_rounded"
             android:textSize="15sp" />
 
         <LinearLayout android:id="@id/io_customerly__attachment_layout"

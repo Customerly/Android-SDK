@@ -9,7 +9,7 @@
     android:background="@drawable/io_customerly__li_conversation_bkg"
     android:foreground="?attr/selectableItemBackground" >
 
-    <ImageView android:id="@id/io_customerly__icona"
+    <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="fitCenter"
@@ -46,7 +46,7 @@
             android:lines="1"
             android:maxLines="1"
             android:ellipsize="end"
-            android:textColor="@color/io_customerly__textcolor_grey__dark"
+            android:textColor="@color/io_customerly__text_color_grey__dark"
             android:textSize="14sp"
             android:duplicateParentState="true"
             tools:ignore="Deprecated" />

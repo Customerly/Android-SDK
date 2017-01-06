@@ -20,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 class Internal_entity__Survey {
 
-    @IntDef({ TYPE_END_SURVEY, TYPE_BUTTON, TYPE_RADIO, TYPE_LIST, TYPE_SCALE, TYPE_STAR, TYPE_NUMBER, TYPE_TEXTBOX, TYPE_TEXTAREA })
+    @IntDef({ TYPE_END_SURVEY, TYPE_BUTTON, TYPE_RADIO, TYPE_LIST, TYPE_SCALE, TYPE_STAR, TYPE_NUMBER, TYPE_TEXT_BOX, TYPE_TEXT_AREA})
     @Retention(RetentionPolicy.SOURCE)
     @interface SURVEY_TYPE {}
 
@@ -31,9 +31,9 @@ class Internal_entity__Survey {
     static final int TYPE_SCALE = 3;
     static final int TYPE_STAR = 4;
     static final int TYPE_NUMBER = 5;
-    static final int TYPE_TEXTBOX = 6;
-    static final int TYPE_TEXTAREA = 7;
-    private static final int LASTTYPE = TYPE_TEXTAREA;
+    static final int TYPE_TEXT_BOX = 6;
+    static final int TYPE_TEXT_AREA = 7;
+    private static final int LAST_TYPE = TYPE_TEXT_AREA;
 
     @Contract("null -> null")
     @Nullable
@@ -68,10 +68,12 @@ class Internal_entity__Survey {
                     choices = null;
                 }
                 int type = question.getInt("type");
+                //noinspection SpellCheckingInspection
                 return new Internal_entity__Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), question.optInt("step", 0), root.optLong("seen_at", -1),
-                        type < 0 ? TYPE_END_SURVEY : type > LASTTYPE ? LASTTYPE : type, question.getString("title"), question.getString("subtitle"),
+                        type < 0 ? TYPE_END_SURVEY : type > LAST_TYPE ? LAST_TYPE : type, question.getString("title"), question.getString("subtitle"),
                         question.optInt("limit_from", -1), question.optInt("limit_to", -1), choices);
-            } else {//Fine survey
+            } else {//End of Survey
+                //noinspection SpellCheckingInspection
                 return new Internal_entity__Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), Integer.MAX_VALUE, root.optLong("seen_at", -1),
                         TYPE_END_SURVEY, "", "", -1, -1, null);
             }
@@ -99,7 +101,7 @@ class Internal_entity__Survey {
                     this.step = question.optInt("step", 0);
                     this.seen = data.optLong("seen_at", -1) != -1;
                     int type = question.getInt("type");
-                    this.type = type < 0 ? TYPE_END_SURVEY : type > LASTTYPE ? LASTTYPE : type;
+                    this.type = type < 0 ? TYPE_END_SURVEY : type > LAST_TYPE ? LAST_TYPE : type;
                     this.title = question.getString("title");
                     this.subtitle = question.getString("subtitle");
                     this.limit_from = question.optInt("limit_from", -1);
@@ -125,13 +127,13 @@ class Internal_entity__Survey {
     final int survey_id;
     int limit_from, limit_to, step;
     @SURVEY_TYPE int type;
-    @NonNull final String thankyou_text;
+    @NonNull final String thank_you_text;
     @NonNull String title, subtitle;
     boolean seen, isRejectedOrConcluded = false;
     @Nullable Choice[] choices;
-    private Internal_entity__Survey(int survey_id, @NonNull String thankyou_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
+    private Internal_entity__Survey(int survey_id, @NonNull String thank_you_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
         this.survey_id = survey_id;
-        this.thankyou_text = thankyou_text;
+        this.thank_you_text = thank_you_text;
         this.step = step;
         this.seen = seen_at != -1;
         this.type = type;

@@ -1,6 +1,7 @@
 package io.customerly;
 
 import android.content.SharedPreferences;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
@@ -10,6 +11,8 @@ import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.Contract;
 import org.json.JSONObject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,20 +20,24 @@ import java.util.regex.Pattern;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal__JWTtoken {
+class Internal__JwtToken {
     @NonNull private static final String TOKEN_VALIDATOR_MATCHER = "([^.]+)\\.([^.]+)\\.([^.]+)";
     @NonNull private static final Pattern TOKEN_PAYLOAD_MATCHER = Pattern.compile("\\.(.*?)\\.");
     @NonNull private static final String PREFS_TOKEN_KEY = "PREFS_TOKEN_KEY";
     @NonNull static final String PAYLOAD_KEY = "token";
 
-    static final int USER_TYPE__ANONYMOUS = 0b00000001; //hex 0x01 dec: 1
-    static final int USER_TYPE__LEAD = 0b00000010; //hex 0x02 dec: 2
-    static final int USER_TYPE__USER = 0b00000100; //hex 0x04 dec: 4
+    private static final int USER_TYPE__ANONYMOUS = 0b00000001; //hex 0x01 dec: 1
+    private static final int USER_TYPE__LEAD = 0b00000010; //hex 0x02 dec: 2
+    private static final int USER_TYPE__USER = 0b00000100; //hex 0x04 dec: 4
+
+    @IntDef({USER_TYPE__ANONYMOUS, USER_TYPE__LEAD, USER_TYPE__USER})
+    @Retention(value = RetentionPolicy.SOURCE)
+    @interface USER_TYPE {}
 
     @NonNull private final String _EncodedToken;
     @Nullable final Long _UserID;
-    final int _UserType;
-    Internal__JWTtoken(@org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken) throws IllegalArgumentException {
+    @USER_TYPE private final int _UserType;
+    Internal__JwtToken(@org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken) throws IllegalArgumentException {
         super();
         this._EncodedToken = pEncodedToken;
 
@@ -49,6 +56,7 @@ class Internal__JWTtoken {
         if(payloadJSON != null) {
             long tmpUserID = payloadJSON.optLong("id", -1L);
             this._UserID = tmpUserID == -1L ? null : tmpUserID;
+            //noinspection WrongConstant
             this._UserType = payloadJSON.optInt("type", USER_TYPE__ANONYMOUS);
         } else {
             this._UserID = null;
@@ -56,7 +64,7 @@ class Internal__JWTtoken {
         }
     }
 
-    Internal__JWTtoken(@Subst("authB64.payloadB64.checksumB64") @org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken, @NonNull SharedPreferences prefs) {
+    Internal__JwtToken(@Subst("authB64.payloadB64.checksumB64") @org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken, @NonNull SharedPreferences prefs) {
         this(pEncodedToken);
         prefs.edit().putString(PREFS_TOKEN_KEY, pEncodedToken).apply();
     }
@@ -80,13 +88,13 @@ class Internal__JWTtoken {
     }
 
     @Nullable
-    public static Internal__JWTtoken from(@NonNull SharedPreferences prefs) {
+    public static Internal__JwtToken from(@NonNull SharedPreferences prefs) {
         @Subst("authB64.payloadB64.checksumB64") String tokenFromPrefs = prefs.getString(PREFS_TOKEN_KEY, null);
         if(tokenFromPrefs != null) {
             try {
-                return new Internal__JWTtoken(tokenFromPrefs);
+                return new Internal__JwtToken(tokenFromPrefs);
             } catch (IllegalArgumentException wrongTokenFormat) {
-                Internal__JWTtoken.remove(prefs);
+                Internal__JwtToken.remove(prefs);
             }
         }
         return null;

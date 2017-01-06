@@ -14,7 +14,7 @@
         android:padding="7.5dp"
         android:visibility="gone"/>
 
-    <ImageView android:id="@id/io_customerly__icona"
+    <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
         android:layout_height="@dimen/io_customerly__chat_li_icon_size"
         android:scaleType="fitCenter"
@@ -44,12 +44,12 @@
         android:layout_below="@id/io_customerly__time"
         android:layout_alignWithParentIfMissing="true" >
 
-        <LinearLayout android:id="@id/io_customerly__content_layout__onlyuserli"
+        <LinearLayout android:id="@id/io_customerly__content_layout__only_user_li"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/io_customerly__bkg_chatmessage_user_rounded"
+            android:background="@drawable/io_customerly__bkg_chat_message_user_rounded"
             android:layout_marginBottom="3dp" >
 
             <TextView android:id="@id/io_customerly__content"
@@ -59,7 +59,7 @@
                 android:textSize="15sp"
                 android:drawablePadding="5dp" />
 
-            <ProgressBar android:id="@id/io_customerly__content_sending__onlyuserli"
+            <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:layout_marginStart="5dp"

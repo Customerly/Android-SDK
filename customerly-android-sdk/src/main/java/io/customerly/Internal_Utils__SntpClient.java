@@ -35,7 +35,7 @@ import java.net.InetAddress;
  * }
  * </pre>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "SpellCheckingInspection"})
 class Internal_Utils__SntpClient {
     private static final String TAG = "SntpClient";
 

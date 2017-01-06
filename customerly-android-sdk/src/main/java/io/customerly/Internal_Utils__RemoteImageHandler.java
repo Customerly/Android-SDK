@@ -144,7 +144,7 @@ class Internal_Utils__RemoteImageHandler {
                                 if (file.isFile()) {
                                     size += file.length();
                                 } /*else {
-                                        size += getFolderSize(file); Servirebbe la recursione per sottocartelle ma tanto non ce ne sono
+                                        size += getFolderSize(file); No subfolder or recursion would be needed
                                     }*/
                             }
                             this._DiskCacheSize = size;
@@ -236,6 +236,7 @@ class Internal_Utils__RemoteImageHandler {
             }
             this._DiskHandler.post(() -> {
                 final Request disk_req;
+                //noinspection SpellCheckingInspection
                 synchronized (this) {
                     disk_req = _PendingDiskRequests.get(pLru_Request.target.hashCode());
                     if(disk_req != null) {
@@ -284,6 +285,7 @@ class Internal_Utils__RemoteImageHandler {
             }
             this._NetworkHandler.post(() -> {
                 final Request network_req;
+                //noinspection SpellCheckingInspection
                 synchronized (this) {
                     network_req = _PendingNetworkRequests.get(pDisk_Request.target.hashCode());
                     if(network_req != null) {
@@ -322,7 +324,7 @@ class Internal_Utils__RemoteImageHandler {
                         }
 
                         //Bitmap resizing
-                        if (bmp != null && network_req.width != Request.DONT_OVERRIDE_SIZE && network_req.height != Request.DONT_OVERRIDE_SIZE) {
+                        if (bmp != null && network_req.width != Request.DO_NOT_OVERRIDE_SIZE && network_req.height != Request.DO_NOT_OVERRIDE_SIZE) {
                             int width = bmp.getWidth();
                             int height = bmp.getHeight();
                             float scaleWidth = ((float) network_req.width) / width;
@@ -361,7 +363,8 @@ class Internal_Utils__RemoteImageHandler {
                             synchronized (this) {
                                 if (_PendingDiskRequests.get(network_req.target.hashCode()) != null
                                     ||
-                                        _PendingNetworkRequests.get(network_req.target.hashCode()) != null) {
+                                        _PendingNetworkRequests.get(network_req.target.hashCode()) != null) //noinspection SpellCheckingInspection
+                                {
                                     // Nel frattempo che scaricava l'immagine da internet ed eventualmente applicava resize e transformCircle è staa fatta una nuova richiesta per la stessa ImageView quindi termina l'esecuzione attuale invalidando la bmp
                                     bmp.recycle();
                                     return;
@@ -403,7 +406,7 @@ class Internal_Utils__RemoteImageHandler {
                                         if (file.isFile()) {
                                             size += file.length();
                                         } /*else {
-                                        size += getFolderSize(file); Servirebbe la recursione per sottocartelle ma tanto non ce ne sono
+                                        size += getFolderSize(file); No subfolder or recursion would be needed
                                     }*/
                                     }
                                     _DiskCacheSize = size;
@@ -472,7 +475,7 @@ class Internal_Utils__RemoteImageHandler {
 
     @SuppressWarnings("unused")
     static class Request {
-        private static final int DONT_OVERRIDE_SIZE = -1;
+        private static final int DO_NOT_OVERRIDE_SIZE = -1;
         private String url;
         private ImageView target;
 
@@ -483,14 +486,14 @@ class Internal_Utils__RemoteImageHandler {
         @DrawableRes private int errorResID = 0;
         @Nullable private Bitmap errorBMP = null;
         @Nullable private Drawable errorDrawable = null;
-        @IntRange(from=DONT_OVERRIDE_SIZE, to=Integer.MAX_VALUE) private int width = DONT_OVERRIDE_SIZE, height = DONT_OVERRIDE_SIZE;
+        @IntRange(from= DO_NOT_OVERRIDE_SIZE, to=Integer.MAX_VALUE) private int width = DO_NOT_OVERRIDE_SIZE, height = DO_NOT_OVERRIDE_SIZE;
         @Nullable private ImageView.ScaleType scaleType;
 
         Request load(@NonNull String url) {
             this.url = url;
             return this;
         }
-        Request override(@IntRange(from=DONT_OVERRIDE_SIZE, to=Integer.MAX_VALUE)int width, @IntRange(from=DONT_OVERRIDE_SIZE, to=Integer.MAX_VALUE)int height) {
+        Request override(@IntRange(from= DO_NOT_OVERRIDE_SIZE, to=Integer.MAX_VALUE)int width, @IntRange(from= DO_NOT_OVERRIDE_SIZE, to=Integer.MAX_VALUE)int height) {
             this.width = width;
             this.height = height;
             return this;

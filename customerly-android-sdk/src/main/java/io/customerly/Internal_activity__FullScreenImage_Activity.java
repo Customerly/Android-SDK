@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Contract;
  */
 
 public final class Internal_activity__FullScreenImage_Activity extends AppCompatActivity {
-    static final String EXTRA_IMAGESOURCE = "EXTRA_IMAGESOURCE";
+    static final String EXTRA_IMAGE_SOURCE = "EXTRA_IMAGE_SOURCE";
 
     private String _SourceUrl;
 
@@ -46,7 +46,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(this.getIntent() != null) {
-            this._SourceUrl = this.getIntent().getStringExtra(EXTRA_IMAGESOURCE);
+            this._SourceUrl = this.getIntent().getStringExtra(EXTRA_IMAGE_SOURCE);
             if(this._SourceUrl != null) {
                 ImageView _ImageView = new ImageView(this);
                 _ImageView.setBackgroundColor(Color.WHITE);
@@ -87,7 +87,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                     }
                     return;
                 } catch (Exception glideException) {
-                    Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
+                    Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
                 }
             }
         }
@@ -108,7 +108,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.getMenuInflater().inflate(R.menu.io_customerly__menu_downloadimage, menu);
+        this.getMenuInflater().inflate(R.menu.io_customerly__menu_download_image, menu);
         return true;
     }
 
@@ -137,9 +137,9 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
             final DownloadManager dm = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
             final long downloadReference = dm.enqueue(
                     new DownloadManager.Request(Uri.parse(this._SourceUrl))
-                            .setTitle("Immagine")
-                            .setDescription("Immagine")
-                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Immagine")
+                            .setTitle(this.getString(R.string.io_customerly__image))
+                            .setDescription(this.getString(R.string.io_customerly__image))
+                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Images")
                             .setVisibleInDownloadsUi(true)
                             .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE));
             this.registerReceiver(new BroadcastReceiver() {
@@ -149,8 +149,8 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
                                 .notify(999, new NotificationCompat.Builder(Internal_activity__FullScreenImage_Activity.this)
                                         .setSmallIcon(Internal_activity__FullScreenImage_Activity.this.getApplication().getApplicationInfo().icon)
-                                        .setContentTitle("Immagine")
-                                        .setContentText("Immagine")
+                                        .setContentTitle(getString(R.string.io_customerly__image))
+                                        .setContentText(getString(R.string.io_customerly__image))
                                         .setAutoCancel(true)
                                         .setContentIntent(PendingIntent.getActivity(
                                                 Internal_activity__FullScreenImage_Activity.this,

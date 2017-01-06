@@ -19,7 +19,7 @@
     </item>
     <item>
         <layer-list>
-            <item android:drawable="@drawable/io_customerly__edittext_blue2_bkg" />
+            <item android:drawable="@drawable/io_customerly__edit_text_blue2_bkg" />
             <item android:right="-29dp" android:end="-29dp" tools:ignore="UnusedAttribute">
                 <bitmap
                     android:gravity="center_vertical|right"

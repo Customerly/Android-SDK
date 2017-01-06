@@ -16,9 +16,9 @@
         android:orientation="horizontal"
         android:gravity="center_vertical" >
 
-        <EditText android:id="@id/io_customerly__input_edittext"
-            android:nextFocusUp="@id/io_customerly__input_edittext"
-            android:nextFocusLeft="@id/io_customerly__input_edittext"
+        <EditText android:id="@id/io_customerly__input_edit_text"
+            android:nextFocusUp="@id/io_customerly__input_edit_text"
+            android:nextFocusLeft="@id/io_customerly__input_edit_text"
             android:theme="@style/io_customerly__EditText_Blue2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

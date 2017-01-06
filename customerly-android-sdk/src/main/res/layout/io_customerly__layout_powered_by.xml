@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@id/io_customerly__offerto_da"
+    android:id="@id/io_customerly__powered_by"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textColor="@color/io_customerly__textcolor_dark_grey"
+    android:textColor="@color/io_customerly__text_color_dark_grey"
     android:textSize="13sp"
     android:gravity="center"
     android:paddingTop="5dp"

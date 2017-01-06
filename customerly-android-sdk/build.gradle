@@ -53,7 +53,7 @@ android {
             buildConfigField "String", "CUSTOMERLY_SDK_NAME", "\"Customerly\""
             buildConfigField "String", "CUSTOMERLY_API_VERSION", "\"1\""
             buildConfigField "String", "CUSTOMERLY_SOCKET_VERSION", "\"1\""
-            buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "false"//TODO
+            buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "false"
         }
         release {
             minifyEnabled false

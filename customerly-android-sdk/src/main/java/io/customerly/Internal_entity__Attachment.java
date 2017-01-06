@@ -61,7 +61,7 @@ class Internal_entity__Attachment {
         tv.setSingleLine();
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
         tv.setText(this.name);
-        tv.setOnClickListener(textview -> new AlertDialog.Builder(pA_Customerly_Activity)
+        tv.setOnClickListener(textView -> new AlertDialog.Builder(pA_Customerly_Activity)
                 .setTitle(R.string.io_customerly__choose_a_file_to_attach)
                 .setMessage(pA_Customerly_Activity.getString(R.string.io_customerly__cancel_attachment, tv.getText()))
                 .setNegativeButton(R.string.io_customerly__cancel, null)
