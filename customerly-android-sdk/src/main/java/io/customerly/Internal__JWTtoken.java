@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal__jwt_token {
+class Internal__JWTtoken {
     @NonNull private static final String TOKEN_VALIDATOR_MATCHER = "([^.]+)\\.([^.]+)\\.([^.]+)";
     @NonNull private static final Pattern TOKEN_PAYLOAD_MATCHER = Pattern.compile("\\.(.*?)\\.");
     @NonNull private static final String PREFS_TOKEN_KEY = "PREFS_TOKEN_KEY";
@@ -30,7 +30,7 @@ class Internal__jwt_token {
     @NonNull private final String _EncodedToken;
     @Nullable final Long _UserID;
     final int _UserType;
-    Internal__jwt_token(@org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken) throws IllegalArgumentException {
+    Internal__JWTtoken(@org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken) throws IllegalArgumentException {
         super();
         this._EncodedToken = pEncodedToken;
 
@@ -56,7 +56,7 @@ class Internal__jwt_token {
         }
     }
 
-    Internal__jwt_token(@Subst("authB64.payloadB64.checksumB64") @org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken, @NonNull SharedPreferences prefs) {
+    Internal__JWTtoken(@Subst("authB64.payloadB64.checksumB64") @org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken, @NonNull SharedPreferences prefs) {
         this(pEncodedToken);
         prefs.edit().putString(PREFS_TOKEN_KEY, pEncodedToken).apply();
     }
@@ -80,13 +80,13 @@ class Internal__jwt_token {
     }
 
     @Nullable
-    public static Internal__jwt_token from(@NonNull SharedPreferences prefs) {
+    public static Internal__JWTtoken from(@NonNull SharedPreferences prefs) {
         @Subst("authB64.payloadB64.checksumB64") String tokenFromPrefs = prefs.getString(PREFS_TOKEN_KEY, null);
         if(tokenFromPrefs != null) {
             try {
-                return new Internal__jwt_token(tokenFromPrefs);
+                return new Internal__JWTtoken(tokenFromPrefs);
             } catch (IllegalArgumentException wrongTokenFormat) {
-                Internal__jwt_token.remove(prefs);
+                Internal__JWTtoken.remove(prefs);
             }
         }
         return null;

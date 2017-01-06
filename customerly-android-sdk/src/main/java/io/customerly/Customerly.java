@@ -2,6 +2,7 @@ package io.customerly;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -52,13 +56,13 @@ public class Customerly {
 
     private boolean initialized = false;
     @Nullable SharedPreferences _SharedPreferences;
-    long _ApplicationVersionCode;
-    @Nullable String _AppID, _ApplicationName, _AppCacheDir;
+    @Nullable String _AppID, _AppCacheDir;
     @ColorInt private int
             __WidgetColor__fromTheme = DEF_WIDGET_COLOR_INT,
             __WidgetColor__Fallback = DEF_WIDGET_COLOR_INT,
             __WidgetColor__HardCoded = Color.TRANSPARENT;
-    @Nullable Internal__jwt_token _JWTtoken;
+    @Nullable
+    Internal__JWTtoken _JWTtoken;
 
     @Nullable Class<? extends Activity> _CurrentActivityClass = null;
 
@@ -74,6 +78,7 @@ public class Customerly {
     @Nullable Internal_entity__Admin[] __PING__LAST_active_admins;
     long __PING__LAST_message_conversation_id = 0L;
     @Nullable Internal_entity__Survey[] __PING__LAST_surveys;
+    @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
 
     @NonNull private final Internal_api__CustomerlyRequest.ResponseConverter<Void> __PING__response_converter = root -> {
         this.__PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
@@ -157,7 +162,17 @@ public class Customerly {
 
     @NonNull static final Customerly _Instance = new Customerly();
 
-    private Customerly() { super(); }
+    private Customerly() {
+        super();
+        try {
+            this.__PING__DeviceJSON.put("os", "Android")
+                    .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
+                    .put("os_version", Build.VERSION.SDK_INT)
+                    .put("sdk_version", BuildConfig.VERSION_CODE)
+                    .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
+                    .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION);
+        } catch (JSONException ignored) { }
+    }
 
     boolean _isConfigured() {
         if(this._AppID == null) {
@@ -176,7 +191,7 @@ public class Customerly {
     }
 
     @Nullable CustomerlyHtmlMessage _WELCOME__getMessage() {
-        Internal__jwt_token token = this._JWTtoken;
+        Internal__JWTtoken token = this._JWTtoken;
         return this._isConfigured()
                 ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors)
                 : null;
@@ -209,7 +224,7 @@ public class Customerly {
     }
     private void __SOCKET__connect() {
         if(this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
-            Internal__jwt_token token = this._JWTtoken;
+            Internal__JWTtoken token = this._JWTtoken;
             if (token != null && token._UserID != null) {
                 if(this.__SOCKET__CurrentConfiguration == null || ! this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
 
@@ -251,7 +266,7 @@ public class Customerly {
                                             boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
                                             payloadJson = payloadJson.getJSONObject("conversation");
                                             if (payloadJson != null) {
-                                                Internal__jwt_token token2 = this._JWTtoken;
+                                                Internal__JWTtoken token2 = this._JWTtoken;
                                                 if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
                                                     long conversation_id = payloadJson.optLong("conversation_id", 0);
                                                     __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
@@ -280,7 +295,7 @@ public class Customerly {
                                         long timestamp = payloadJson.optLong("timestamp", 0L);
                                         long socket_user_id = payloadJson.optLong("user_id", 0L);
 
-                                        Internal__jwt_token token2 = this._JWTtoken;
+                                        Internal__JWTtoken token2 = this._JWTtoken;
                                         if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
                                                 && socket_user_id != 0 && timestamp != 0
                                                 && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
@@ -338,7 +353,7 @@ public class Customerly {
     }
     void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping) {
         //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "n"}
-        Internal__jwt_token token = this._JWTtoken;
+        Internal__JWTtoken token = this._JWTtoken;
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__TYPING, new JSONObject()
@@ -352,7 +367,7 @@ public class Customerly {
     }
     void __SOCKET_SEND_Message(long pTimestamp) {
         if(pTimestamp != -1L) {
-            Internal__jwt_token token = this._JWTtoken;
+            Internal__JWTtoken token = this._JWTtoken;
             if (token != null && token._UserID != null) {
                 try {
                     this.__SOCKET__SEND(SOCKET_EVENT__MESSAGE, new JSONObject()
@@ -365,7 +380,7 @@ public class Customerly {
         }
     }
     void __SOCKET_SEND_Seen(long pConversationMessageID, long pSeenDate) {
-        Internal__jwt_token token = this._JWTtoken;
+        Internal__JWTtoken token = this._JWTtoken;
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__SEEN, new JSONObject()
@@ -385,55 +400,80 @@ public class Customerly {
                 .start();
     }
 
-    /* ****************************************************************************************************************************************************************/
-    /* ********************************************************************************************************************************************** Public Methods **/
-    /* ****************************************************************************************************************************************************************/
-
-    public interface Callback {
-        void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
-    }
-
-    public interface SurveyListener {
-        void onShow();
-        void onDismiss();
-        void onComplete();
-        void onReject();
-        class LambdasBuilder implements SurveyListener{
-            @Nullable private final Runnable onShowed, onDismissed, onCompleted, onRejected;
-            public LambdasBuilder(@Nullable Runnable onShowed, @Nullable Runnable onDismissed, @Nullable Runnable onCompleted, @Nullable Runnable onRejected) {
-                super();
-                this.onShowed = onShowed;
-                this.onDismissed = onDismissed;
-                this.onCompleted = onCompleted;
-                this.onRejected = onRejected;
-            }
-            @Override public void onShow() {
-                if(this.onShowed != null) {
-                    this.onShowed.run();
+    void _TOKEN__update(@NonNull JSONObject obj) {
+        @Subst("authB64.payloadB64.checksumB64") String token = obj.optString("token");
+        if(token != null) {
+            try {
+                SharedPreferences prefs = this._SharedPreferences;
+                if(prefs != null) {
+                    this._JWTtoken = new Internal__JWTtoken(token, prefs);
+                } else {
+                    this._JWTtoken = new Internal__JWTtoken(token);
                 }
-            }
-            @Override public void onDismiss() {
-                if(this.onDismissed != null) {
-                    this.onDismissed.run();
-                }
-            }
-            @Override public void onComplete() {
-                if(this.onCompleted != null) {
-                    this.onCompleted.run();
-                }
-            }
-            @Override public void onReject() {
-                if(this.onRejected != null) {
-                    this.onRejected.run();
-                }
+            } catch (IllegalArgumentException wrongTokenFormat) {
+                this._JWTtoken = null;
             }
         }
     }
 
+    /* ****************************************************************************************************************************************************************/
+    /* ********************************************************************************************************************************************** Public Methods **/
+    /* ****************************************************************************************************************************************************************/
+
+    /**
+     * Implement this interface to obtain async response from {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)},
+     * {@link #registerUser(String, String, String, JSONObject,Callback)} or {@link #setAttributes(JSONObject, Callback)}
+     */
+    public interface Callback {
+        /**
+         * Invoked on the async response from {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)},
+         * {@link #registerUser(String, String, String, JSONObject,Callback)} or {@link #setAttributes(JSONObject, Callback)}
+         * @param isSuccess true if the operation has performed successfully, false otherwise
+         * @param newSurvey true if at least one Survey is available, false otherwise
+         * @param newMessage true there is at least one unread message from the support, false otherwise
+         */
+        void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
+    }
+
+    /**
+     * Implement this interfaces to obtain async event of a Survey started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
+     */
+    public interface SurveyListener {
+        interface OnShow {
+            /**
+             * Invoked when the Survey is actually displayed to the user
+             */
+            void onShow();
+        }
+        interface OnDismiss {
+            int DISMISS_MODE_POSTPONE = 0x00, DISMISS_MODE_COMPLETE = 0x01, DISMISS_MODE_REJECT = 0x02;
+            @IntDef({DISMISS_MODE_POSTPONE, DISMISS_MODE_COMPLETE, DISMISS_MODE_REJECT})
+            @Retention(value = RetentionPolicy.SOURCE)
+            @interface DismissMode {}
+            /**
+             * TODO
+             */
+            void onDismiss(@DismissMode int pDismissMode);
+        }
+    }
+
+    /**
+     * Implement this interface to register a callback for realtime inbox chat messages with {@link #registerRealTimeMessagesCallback(RealTimeMessagesCallback)}.<br>
+     * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
+     */
     public interface RealTimeMessagesCallback {
+        /**
+         * Invoked when the user receive a message from the support.
+         * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
+         */
         void onMessage(CustomerlyHtmlMessage messageContent);
     }
 
+    /**
+     * Use this to obtain the reference to the Customerly SDK
+     * @param pContext A Context
+     * @return The Customerly SDK
+     */
     @NonNull public static Customerly with(@NonNull Context pContext) {
         if(! Customerly._Instance.initialized) {//Evitiamo di fare lock se non ce n'è bisogno
             synchronized (Customerly.class) {
@@ -442,14 +482,18 @@ public class Customerly {
                     Customerly._Instance._AppCacheDir = pContext.getCacheDir().getPath();
                     //APP INFOS
                     try {
-                        Customerly._Instance._ApplicationName = pContext.getApplicationInfo().loadLabel(pContext.getPackageManager()).toString();
-                    } catch (NullPointerException err) {
-                        Customerly._Instance._ApplicationName = "<Error retrieving the app name>";
+                        Customerly._Instance.__PING__DeviceJSON.put("app_name", pContext.getApplicationInfo().loadLabel(pContext.getPackageManager()).toString());
+                    } catch (JSONException | NullPointerException err) {
+                        try {
+                            Customerly._Instance.__PING__DeviceJSON.put("app_name", "<Error retrieving the app name>");
+                        } catch (JSONException ignored) { }
                     }
                     try {
-                        Customerly._Instance._ApplicationVersionCode = pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), 0).versionCode;
-                    } catch (PackageManager.NameNotFoundException ignored) {
-                        Customerly._Instance._ApplicationVersionCode = 0;
+                        Customerly._Instance.__PING__DeviceJSON.put("app_version", pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), 0).versionCode);
+                    } catch (JSONException | PackageManager.NameNotFoundException err) {
+                        try {
+                            Customerly._Instance.__PING__DeviceJSON.put("app_version", 0);
+                        } catch (JSONException ignored) { }
                     }
 
                     //PREFS
@@ -481,7 +525,7 @@ public class Customerly {
                                     : Customerly._Instance.__WidgetColor__HardCoded;
 
                     //JWT TOKEN
-                    Customerly._Instance._JWTtoken = Internal__jwt_token.from(prefs);
+                    Customerly._Instance._JWTtoken = Internal__JWTtoken.from(prefs);
 
                     //PING
 //                    Customerly._Instance.__PING__LAST_app_name = prefs.getString(PREFS_PING_RESPONSE__APP_NAME, Customerly._Instance._ApplicationName);
@@ -503,14 +547,21 @@ public class Customerly {
     }
 
     /**
-     * @param pCustomerlyAppID The appid found in your Customerly console
+     * You need to configure the SDK specifing the Customerly App ID before accessing it.<br>
+     * Call this from your custom Application {@link Application#onCreate()}
+     * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
      */
     public void configure(@NonNull String pCustomerlyAppID) {
         this.configure(pCustomerlyAppID, Color.TRANSPARENT);
     }
+
     /**
-     * @param pCustomerlyAppID The appid found in your Customerly console
-     * @param pWidgetColor if Color.TRANSPARENT, it will be ignored
+     * You need to configure the SDK specifing the Customerly App ID before accessing it.<br>
+     * Call this from your custom Application {@link Application#onCreate()}<br>
+     *     <br>
+     * You can choose to ignore the widget_color provided by the Customerly web console for the action bar styling in support activities and use an app-local widget_color instead.
+     * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
+     * @param pWidgetColor The custom widget_color. If Color.TRANSPARENT, it will be ignored
      */
     public void configure(@NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
         final SharedPreferences prefs = this._SharedPreferences;
@@ -529,26 +580,21 @@ public class Customerly {
         this.__PING__Start(null);
     }
 
+    /**
+     * Call this method to enable error logging in the Console.
+     * Avoid to enable it in release app versions, the suggestion is to pass your.application.package.BuildConfig.DEBUG as parameter
+     * @param pVerboseLogging true for enable logging, please pass your.application.package.BuildConfig.DEBUG
+     */
     public void setVerboseLogging(boolean pVerboseLogging) {
         this.__VerboseLogging = pVerboseLogging;
     }
 
-    void _TOKEN__update(@NonNull JSONObject obj) {
-        @Subst("authB64.payloadB64.checksumB64") String token = obj.optString("token");
-        if(token != null) {
-            try {
-                SharedPreferences prefs = this._SharedPreferences;
-                if(prefs != null) {
-                    this._JWTtoken = new Internal__jwt_token(token, prefs);
-                } else {
-                    this._JWTtoken = new Internal__jwt_token(token);
-                }
-            } catch (IllegalArgumentException wrongTokenFormat) {
-                this._JWTtoken = null;
-            }
-        }
-    }
-
+    /**
+     * Call this method to check for pending Surveys or Message for the current user
+     * @param pCallback To receive async response
+     *
+     * @see Customerly.Callback
+     */
     public void update(final @NonNull Callback pCallback) {
         if(this._isConfigured()) {
             try {
@@ -607,7 +653,7 @@ public class Customerly {
 
     public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
         if(this._isConfigured()) {
-            Internal__jwt_token token = this._JWTtoken;
+            Internal__JWTtoken token = this._JWTtoken;
             if(token != null && token.isUser()) {
                 try {
                     if (pAttributes != null) {//Check attributes validity
@@ -683,7 +729,7 @@ public class Customerly {
 
                 this._JWTtoken = null;
                 if (prefs != null) {
-                    Internal__jwt_token.remove(prefs);
+                    Internal__JWTtoken.remove(prefs);
                 }
 
                 this.__SOCKET__disconnect();
@@ -696,7 +742,7 @@ public class Customerly {
     public void trackEvent(@NonNull String pEventName) {
         if(this._isConfigured()) {
             try {
-                Internal__jwt_token token = this._JWTtoken;
+                Internal__JWTtoken token = this._JWTtoken;
                 if(token != null && (token.isUser() || token.isLead())) {
                     new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_EVENTTRACKING)
                             .opt_trials(2)
@@ -723,15 +769,23 @@ public class Customerly {
     }
 
     public void openSurvey(@NonNull FragmentManager fm) {
-        this.openSurvey(fm, null);
+        this.openSurvey(fm, null, null);
+    }
+
+    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnShow pSurveyShowListener) {
+        this.openSurvey(fm, pSurveyShowListener, null);
+    }
+
+    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnDismiss pSurveyDismissListener) {
+        this.openSurvey(fm, null, pSurveyDismissListener);
     }
 
     @SuppressLint("CommitTransaction")
-    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener pSurveyListener) {
+    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnShow pSurveyShowListener, @Nullable SurveyListener.OnDismiss pSurveyDismissListener) {
         if(this._isConfigured()) {
             if (this.isSurveyAvailable()) {
                 try {
-                    Internal_dialogfragment__Survey_DialogFragment.newInstance(pSurveyListener).show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
+                    Internal_dialogfragment__Survey_DialogFragment.newInstance(pSurveyShowListener, pSurveyDismissListener).show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.openSurvey");
                     Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);

@@ -39,12 +39,14 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     private TextView _Title, _Subtitle;
     private View _ProgressView, _Back;
     @Nullable private Internal_entity__Survey _CurrentSurvey;
-    private boolean _RejectEnabled = false;
-    @Nullable private Customerly.SurveyListener _SurveyListener;
+    private boolean _SurveyCompleted = false;
+    @Nullable private Customerly.SurveyListener.OnShow _SurveyShowListener;
+    @Nullable private Customerly.SurveyListener.OnDismiss _SurveyDismissListener;
 
-    @NonNull public static Internal_dialogfragment__Survey_DialogFragment newInstance(@Nullable Customerly.SurveyListener pSurveyListener) {
+    @NonNull public static Internal_dialogfragment__Survey_DialogFragment newInstance(@Nullable Customerly.SurveyListener.OnShow pSurveyShowListener, @Nullable Customerly.SurveyListener.OnDismiss pSurveyDismissListener) {
         Internal_dialogfragment__Survey_DialogFragment dialog = new Internal_dialogfragment__Survey_DialogFragment();
-        dialog._SurveyListener = pSurveyListener;
+        dialog._SurveyShowListener = pSurveyShowListener;
+        dialog._SurveyDismissListener = pSurveyDismissListener;
         return dialog;
     }
 
@@ -98,17 +100,15 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
                     view.findViewById(R.id.io_customerly__close).setOnClickListener(v -> {
                         if (this._ProgressView.getVisibility() == View.GONE) {
                             Internal_entity__Survey currentSurvey = this._CurrentSurvey;
-                            if (this._RejectEnabled && currentSurvey != null) {
+                            if (! this._SurveyCompleted && currentSurvey != null) {
                                 currentSurvey.isRejectedOrConcluded = true;
+                                if(this._SurveyDismissListener != null) {
+                                    this._SurveyDismissListener.onDismiss(Customerly.SurveyListener.OnDismiss.DISMISS_MODE_REJECT);
+                                }
                                 new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
                                         .opt_checkConn(this.getContext())
                                         .opt_tokenMandatory()
                                         .opt_trials(2)
-                                        .opt_receiver((responseState, surveyBack) -> {
-                                            if(this._SurveyListener != null) {
-                                                this._SurveyListener.onReject();
-                                            }
-                                        })
                                         .param("survey_id", currentSurvey.survey_id)
                                         .start();
                             }
@@ -118,8 +118,8 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
 
                     this.applySurvey(survey);
 
-                    if(this._SurveyListener != null) {
-                        this._SurveyListener.onShow();
+                    if(this._SurveyShowListener != null) {
+                        this._SurveyShowListener.onShow();
                     }
 
                     return view;
@@ -134,8 +134,8 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        if(this._SurveyListener != null) {
-            this._SurveyListener.onDismiss();
+        if(this._SurveyDismissListener != null) {
+            this._SurveyDismissListener.onDismiss(this._SurveyCompleted ? Customerly.SurveyListener.OnDismiss.DISMISS_MODE_COMPLETE : Customerly.SurveyListener.OnDismiss.DISMISS_MODE_POSTPONE);
         }
     }
 
@@ -147,7 +147,7 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
         this._CurrentSurvey = survey;
         if(survey.type == Internal_entity__Survey.TYPE_END_SURVEY) {
             this._Back.setVisibility(View.INVISIBLE);
-            this._RejectEnabled = false;
+            this._SurveyCompleted = true;
             survey.isRejectedOrConcluded = true;
             TextView thankyou = new TextView(this.getContext());
             thankyou.setTextColor(Color.BLACK);
@@ -158,12 +158,9 @@ public class Internal_dialogfragment__Survey_DialogFragment extends DialogFragme
             lp.bottomMargin = lp.topMargin = Internal_Utils__Utils.px(5);
             thankyou.setLayoutParams(lp);
             this._SurveyContainer.addView(thankyou);
-            if(this._SurveyListener != null) {
-                this._SurveyListener.onComplete();
-            }
         } else {
             this._Back.setVisibility(survey.step == 0 ? View.INVISIBLE : View.VISIBLE);
-            this._RejectEnabled = true;
+            this._SurveyCompleted = false;
             this._Title.setText(survey.title);
             this._Title.setVisibility(View.VISIBLE);
             this._Subtitle.setText(survey.subtitle);

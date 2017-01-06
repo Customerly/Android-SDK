@@ -3,9 +3,7 @@ package io.customerly;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.annotation.CheckResult;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
@@ -212,20 +210,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
 
 
     @NonNull private JSONObject json_appid_E_device(@NonNull String app_id, @Nullable JSONObject params) throws JSONException {
-        if(params == null) {
-            params = new JSONObject();
-        }
-        params.put("app_id", app_id)
-                .put("device", new JSONObject()
-                        .put("os", "Android")
-                        .put("app_name", Customerly._Instance._ApplicationName)
-                        .put("app_version", Customerly._Instance._ApplicationVersionCode)
-                        .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
-                        .put("os_version", Build.VERSION.SDK_INT)
-                        .put("sdk_version", BuildConfig.VERSION_CODE)
-                        .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
-                        .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION));
-        return params;
+        return params != null ? params : new JSONObject().put("app_id", app_id).put("device", Customerly._Instance.__PING__DeviceJSON);
     }
 
     @Nullable
@@ -237,32 +222,22 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
         JSONObject request_root = new JSONObject();
 
-        Internal__jwt_token token = Customerly._Instance._JWTtoken;
+        Internal__JWTtoken token = Customerly._Instance._JWTtoken;
         boolean tokenSent = false;
         if(token != null) {
             try {
-                request_root.put(Internal__jwt_token.PAYLOAD_KEY, token.toString());
+                request_root.put(Internal__JWTtoken.PAYLOAD_KEY, token.toString());
                 tokenSent = true;
             } catch (JSONException ignored) { }
         }
 
-        JSONObject params = pParams[0];
-        SharedPreferences.Editor prefs_to_apply_on_success = null;
+        JSONObject params;
         if(ENDPOINT_PING.equals(this._Endpoint)) {
             try {
-                params = json_appid_E_device(app_id, params);
+                params = json_appid_E_device(app_id, pParams[0]);
             } catch (JSONException error) {
                 this._ResponseState = RESPONSE_STATE__ERROR_BAD_REQUEST;
                 return null;
-            }
-
-            SharedPreferences prefs = Customerly._Instance._SharedPreferences;
-            if (tokenSent && prefs != null) {//Se sto inviando il token invio solo i dati non precedentemente inviati
-                try {
-                    params = Internal_Utils__Utils.getJSONdiff(params, new JSONObject(prefs.getString("ping_last_sent_params", "{}")));
-                    prefs_to_apply_on_success = prefs.edit().putString("ping_last_sent_params", params == null ? null : params.toString());
-                    //prefs_to_apply_on_success: le modifiche verranno applicate solo se effettivamente inviate al server
-                } catch (JSONException ignored) { }
             }
         } else {
             params = pParams[0];
@@ -277,7 +252,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                     token = Customerly._Instance._JWTtoken;
                     if (token != null) {
                         try {
-                            request_root.put(Internal__jwt_token.PAYLOAD_KEY, token.toString());
+                            request_root.put(Internal__JWTtoken.PAYLOAD_KEY, token.toString());
                         } catch (JSONException ignored) { }
                         if(ENDPOINT_REPORT_CRASH.equals(this._Endpoint)) {
                             try {
@@ -313,11 +288,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         JSONObject result = this.executeRequest(this._Endpoint, request_root);
         if(result != null) {
             try {
-                RES res_converted = this._ResponseConverter.convert(result);
-                if (prefs_to_apply_on_success != null) {
-                    prefs_to_apply_on_success.apply();
-                }
-                return res_converted;
+                return this._ResponseConverter.convert(result);
             } catch (JSONException ignored) { }
         }
         return null;

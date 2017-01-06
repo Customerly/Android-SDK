@@ -69,7 +69,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             });
 
             this._OnRefreshListener = () -> {
-                Internal__jwt_token token = Customerly._Instance._JWTtoken;
+                Internal__JWTtoken token = Customerly._Instance._JWTtoken;
                 if(token != null && (token.isUser() || token.isLead())) {
                     new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Conversation>>(Internal_api__CustomerlyRequest.ENDPOINT_CONVERSATIONRETRIEVE)
                             .opt_checkConn(this)
@@ -247,7 +247,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        Internal__jwt_token token = Customerly._Instance._JWTtoken;
+        Internal__JWTtoken token = Customerly._Instance._JWTtoken;
         if((token == null || token.isAnonymous())) {
             if(ghostToVisitorEmail == null) {
                 this.input_layout.setVisibility(View.GONE);

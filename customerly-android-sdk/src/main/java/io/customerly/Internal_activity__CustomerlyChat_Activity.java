@@ -284,7 +284,7 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        Internal__jwt_token token = Customerly._Instance._JWTtoken;
+        Internal__JWTtoken token = Customerly._Instance._JWTtoken;
         if(token != null && token._UserID != null) {
             Internal_entity__Message message = new Internal_entity__Message(token._UserID, this._ConversationID, pMessage, pAttachments);
             this._ListRecyclerView.post(() -> {

@@ -455,46 +455,46 @@ class Internal_Utils__Utils {
 
 
 
-    /**
-     * Given a newValues json and a oldValues json, this method will return a diff doing the following:<br>
-     * - Removing and all fields matching in newValues and oldValues json<br>
-     * - Adding all fields existing in newValues but not existing in oldValues<br>
-     * - Updating all fields in oldValues existing in newValues but with different value<br>
-     * <br>
-     * If oldValues is null, newValues is returned
-     * If newValues matches oldValues, null is returned
-     * @param newValues The source json, this value is the most recent
-     * @param oldValues The json that contains the already sent infos
-     */
-    @Contract(pure = true, value="_, null -> !null")
-    @Nullable
-    static JSONObject getJSONdiff(@NonNull JSONObject newValues, @Nullable JSONObject oldValues) {
-        if(oldValues == null) {
-            return newValues;
-        }
-        JSONObject result = new JSONObject();
-        newValues.keys().forEachRemaining(new_key -> {
-            Object newValue = newValues.opt(new_key);
-            if(newValue != null) {
-                Object oldValue = oldValues.opt(new_key);
-                if (oldValue != null) {
-                    if (newValue instanceof JSONObject && oldValue instanceof JSONObject) {
-                        //Se la chiave esiste sia nel nuovo che nel vecchio e sono entrambi json li confronto ricorsivamente
-                        try {
-                            result.put(new_key, Internal_Utils__Utils.getJSONdiff((JSONObject) newValue, (JSONObject) oldValue));
-                        } catch (JSONException ignored) { }
-                    } else if (!newValue.equals(oldValue)) {
-                        try {
-                            result.put(new_key, newValue);
-                        } catch (JSONException ignored) { }
-                    }
-                } else {
-                    try {
-                        result.put(new_key, newValue);
-                    } catch (JSONException ignored) { }
-                }
-            }
-        });
-        return result.length() == 0 ? null : result;
-    }
+//    /**
+//     * Given a newValues json and a oldValues json, this method will return a diff doing the following:<br>
+//     * - Removing and all fields matching in newValues and oldValues json<br>
+//     * - Adding all fields existing in newValues but not existing in oldValues<br>
+//     * - Updating all fields in oldValues existing in newValues but with different value<br>
+//     * <br>
+//     * If oldValues is null, newValues is returned
+//     * If newValues matches oldValues, null is returned
+//     * @param newValues The source json, this value is the most recent
+//     * @param oldValues The json that contains the already sent infos
+//     */
+//    @Contract(pure = true, value="_, null -> !null")
+//    @Nullable
+//    static JSONObject getJSONdiff(@NonNull JSONObject newValues, @Nullable JSONObject oldValues) {
+//        if(oldValues == null) {
+//            return newValues;
+//        }
+//        JSONObject result = new JSONObject();
+//        newValues.keys().forEachRemaining(new_key -> {
+//            Object newValue = newValues.opt(new_key);
+//            if(newValue != null) {
+//                Object oldValue = oldValues.opt(new_key);
+//                if (oldValue != null) {
+//                    if (newValue instanceof JSONObject && oldValue instanceof JSONObject) {
+//                        //Se la chiave esiste sia nel nuovo che nel vecchio e sono entrambi json li confronto ricorsivamente
+//                        try {
+//                            result.put(new_key, Internal_Utils__Utils.getJSONdiff((JSONObject) newValue, (JSONObject) oldValue));
+//                        } catch (JSONException ignored) { }
+//                    } else if (!newValue.equals(oldValue)) {
+//                        try {
+//                            result.put(new_key, newValue);
+//                        } catch (JSONException ignored) { }
+//                    }
+//                } else {
+//                    try {
+//                        result.put(new_key, newValue);
+//                    } catch (JSONException ignored) { }
+//                }
+//            }
+//        });
+//        return result.length() == 0 ? null : result;
+//    }
 }
