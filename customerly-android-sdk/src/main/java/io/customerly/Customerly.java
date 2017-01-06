@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.util.Patterns;
 import android.util.TypedValue;
 
 import org.intellij.lang.annotations.Subst;
@@ -393,10 +394,13 @@ public class Customerly {
     }
 
     private void __PING__Start(final @Nullable Callback pCallback) {
+        SharedPreferences pref = this._SharedPreferences;
         new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
                 .opt_converter(this.__PING__response_converter)
                 .opt_receiver(pCallback == null ? null : (responseState, _void) ->
                         pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
+                .param("email", pref == null ? null : pref.getString("regusrml", null))
+                .param("user_id", pref == null ? null : pref.getString("regusrid", null))
                 .start();
     }
 
@@ -441,7 +445,7 @@ public class Customerly {
     public interface SurveyListener {
         interface OnShow {
             /**
-             * Invoked when the Survey is actually displayed to the user
+             * Invoked when the Survey has actually been displayed to the user
              */
             void onShow();
         }
@@ -451,14 +455,15 @@ public class Customerly {
             @Retention(value = RetentionPolicy.SOURCE)
             @interface DismissMode {}
             /**
-             * TODO
+             * Invoked when the Survey has been dismissed.
+             * @param pDismissMode Indicate the state of the dismissed survey. {@link #DISMISS_MODE_POSTPONE} for a Survey just dismissed but still pending and available for a next openSurvey, {@link #DISMISS_MODE_COMPLETE} for a completed Survey and {@link #DISMISS_MODE_REJECT} for a rejected Survey
              */
             void onDismiss(@DismissMode int pDismissMode);
         }
     }
 
     /**
-     * Implement this interface to register a callback for realtime inbox chat messages with {@link #registerRealTimeMessagesCallback(RealTimeMessagesCallback)}.<br>
+     * Implement this interface to register a callback for incoming realtime chat messages with {@link #registerRealTimeMessagesCallback(RealTimeMessagesCallback)}.<br>
      * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
      */
     public interface RealTimeMessagesCallback {
@@ -590,7 +595,9 @@ public class Customerly {
     }
 
     /**
-     * Call this method to check for pending Surveys or Message for the current user
+     * Call this method to check for pending Surveys or Message for the current user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
      * @param pCallback To receive async response
      *
      * @see Customerly.Callback
@@ -611,46 +618,86 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to link your app user to the Customerly session.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param email The mail address of the user, this is mandatory
+     * @param user_id The optional user_id of the user, null otherwise
+     * @param name The optional name of the user, null otherwise
+     * @param pCallback To receive async response
+     */
     public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @NonNull Callback pCallback) {
         this.registerUser(email, user_id, name, null, pCallback);
     }
 
+    /**
+     * Call this method to link your app user to the Customerly session.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param email The mail address of the user, this is mandatory
+     * @param user_id The optional user_id of the user, null otherwise
+     * @param name The optional name of the user, null otherwise
+     * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
+     * @param pCallback To receive async response
+     */
     public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
-        if(this._isConfigured()) {
-            try {
-                if(pAttributes != null) {//Check attributes validity
-                    JSONArray keys = pAttributes.names();
-                    for(int i = 0; i < keys.length(); i++) {
-                        try {
-                            Object obj = keys.get(i);
-                            if(obj instanceof JSONObject || obj instanceof  JSONArray) {
-                                pCallback.onResponse(false, false, false);
-                                this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
-                                return;
+        if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            SharedPreferences pref = this._SharedPreferences;
+            if (this._isConfigured() && pref != null) {
+                try {
+                    if (pAttributes != null) {//Check attributes validity
+                        JSONArray keys = pAttributes.names();
+                        for (int i = 0; i < keys.length(); i++) {
+                            try {
+                                Object obj = keys.get(i);
+                                if (obj instanceof JSONObject || obj instanceof JSONArray) {
+                                    pCallback.onResponse(false, false, false);
+                                    this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
+                                    return;
+                                }
+                            } catch (JSONException ignored) {
                             }
-                        } catch (JSONException ignored) { }
+                        }
                     }
+
+                    new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+                            .opt_converter(this.__PING__response_converter)
+                            .opt_receiver((responseState, _void) -> {
+                                if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                                    pref.edit().putString("regusrml", email).putString("regusrid", user_id).apply();
+
+                                    pCallback.onResponse(true, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                } else {
+                                    pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                }
+                            })
+
+                            .param("email", email)
+                            .param("user_id", user_id)
+                            .param("name", name)
+
+                            .param("attributes", pAttributes)
+
+                            .start();
+                } catch (Exception generic) {
+                    this._log("A generic error occurred in Customerly.registerUser");
+                    Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
                 }
-
-                new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
-                        .opt_converter(this.__PING__response_converter)
-                        .opt_receiver((responseState, _void) ->
-                                pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
-
-                        .param("email", email)
-                        .param("user_id", user_id)
-                        .param("name", name)
-
-                        .param("attributes", pAttributes)
-
-                        .start();
-            } catch (Exception generic) {
-                this._log("A generic error occurred in Customerly.registerUser");
-                Internal_errorhandler__CustomerlyErrorHandler.sendError(Internal_errorhandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
             }
+        } else {
+            this._log("You are trying to register an user passing a not valid email");
+            pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
         }
     }
 
+    /**
+     * Call this method to add new custom attributes to the user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
+     * @param pCallback To receive async response
+     */
     public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
         if(this._isConfigured()) {
             Internal__JWTtoken token = this._JWTtoken;
@@ -689,6 +736,12 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to open the Support Activity.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param activity The current activity
+     */
     public void openSupport(@NonNull Activity activity) {
         if(this._isConfigured()) {
             try {
@@ -700,10 +753,22 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to indicate if from a previous {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)} or {@link #setAttributes(JSONObject, Callback)} an unread message is available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @return If an unread message is available
+     */
     public boolean isLastSupportConversationAvailable() {
         return this.__PING__LAST_message_conversation_id != 0;
     }
 
+    /**
+     * Call this method to open directly the Chat Activity if an unread message is available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param activity The current activity
+     */
     public void openLastSupportConversation(@NonNull Activity activity) {
         if(this._isConfigured()) {
             try {
@@ -722,6 +787,11 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to close the user's Customerly session.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     */
     public void logoutUser() {
         if(this._isConfigured()) {
             try {
@@ -730,6 +800,7 @@ public class Customerly {
                 this._JWTtoken = null;
                 if (prefs != null) {
                     Internal__JWTtoken.remove(prefs);
+                    prefs.edit().remove("regusrml").remove("regusrid").apply();
                 }
 
                 this.__SOCKET__disconnect();
@@ -739,6 +810,12 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to keep track of custom labelled events.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param pEventName The event custom label
+     */
     public void trackEvent(@NonNull String pEventName) {
         if(this._isConfigured()) {
             try {
@@ -756,6 +833,12 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to indicate if from a previous {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)} or {@link #setAttributes(JSONObject, Callback)} a survey is available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @return If a survey is available
+     */
     public boolean isSurveyAvailable() {
         Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
         if(surveys != null) {
@@ -768,18 +851,46 @@ public class Customerly {
         return false;
     }
 
+    /**
+     * Call this method to start a survey in a DialogFragment, if available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param fm The SupportFragmentManager to show the DialogFragment
+     */
     public void openSurvey(@NonNull FragmentManager fm) {
         this.openSurvey(fm, null, null);
     }
 
+    /**
+     * Call this method to start a survey in a DialogFragment, if available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param fm The SupportFragmentManager to show the DialogFragment
+     * @param pSurveyShowListener If a survey is actually displayed this callback will be invoked
+     */
     public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnShow pSurveyShowListener) {
         this.openSurvey(fm, pSurveyShowListener, null);
     }
 
+    /**
+     * Call this method to start a survey in a DialogFragment, if available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param fm The SupportFragmentManager to show the DialogFragment
+     * @param pSurveyDismissListener This callback will be invoked when the Survey Dialog will be dismissed.
+     */
     public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnDismiss pSurveyDismissListener) {
         this.openSurvey(fm, null, pSurveyDismissListener);
     }
 
+    /**
+     * Call this method to start a survey in a DialogFragment, if available.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param fm The SupportFragmentManager to show the DialogFragment
+     * @param pSurveyShowListener If a survey is actually displayed this callback will be invoked
+     * @param pSurveyDismissListener This callback will be invoked when the Survey Dialog will be dismissed.
+     */
     @SuppressLint("CommitTransaction")
     public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnShow pSurveyShowListener, @Nullable SurveyListener.OnDismiss pSurveyDismissListener) {
         if(this._isConfigured()) {
@@ -796,6 +907,12 @@ public class Customerly {
         }
     }
 
+    /**
+     * Call this method to register a callback for incoming realtime chat messages when no support activities are displayed.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param pRealTimeMessagesCallback The callback
+     */
     public void registerRealTimeMessagesCallback(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {
         this.__SOCKET__RealTimeMessagesCallback = pRealTimeMessagesCallback;
     }
