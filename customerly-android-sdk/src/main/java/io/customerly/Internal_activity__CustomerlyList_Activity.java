@@ -48,7 +48,6 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Customerly._Instance.__PING__LAST_message_conversation_id = 0;
         if(this.onCreateLayout(R.layout.io_customerly__activity_list)) {
             this._FirstContact_SRL = (SwipeRefreshLayout)this.findViewById(R.id.io_customerly__first_contact_swipe_refresh);
             this.input_email_layout = this.findViewById(R.id.io_customerly__input_email_layout);

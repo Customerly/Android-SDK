@@ -111,6 +111,8 @@ public final class Internal_activity__CustomerlyChat_Activity extends Internal_a
                     }
                 }
             });
+
+            Customerly._Instance._PING__LAST_messages.remove(this._ConversationID);
         }
     }
 

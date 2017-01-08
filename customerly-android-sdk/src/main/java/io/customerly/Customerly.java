@@ -15,6 +15,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.util.LongSparseArray;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Patterns;
@@ -78,9 +79,9 @@ public class Customerly {
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable Internal_entity__Admin[] __PING__LAST_active_admins;
-    long __PING__LAST_message_conversation_id = 0L;
     @Nullable Internal_entity__Survey[] __PING__LAST_surveys;
     @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
+    @NonNull LongSparseArray<Long> _PING__LAST_messages = new android.support.v4.util.LongSparseArray<>(1);
 
     @NonNull private final Internal_api__CustomerlyRequest.ResponseConverter<Void> __PING__response_converter = root -> {
         this.__PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
@@ -132,7 +133,7 @@ public class Customerly {
         this.__PING__LAST_active_admins = Internal_entity__Admin.from(root.optJSONArray("active_admins"));
 
         JSONArray last_messages_array = root.optJSONArray("last_messages");
-        this.__PING__LAST_message_conversation_id = 0;
+        this._PING__LAST_messages.clear();
         if(last_messages_array != null && last_messages_array.length() != 0) {
             JSONObject message;
             for (int i = 0; i < last_messages_array.length(); i++) {
@@ -140,7 +141,7 @@ public class Customerly {
                     message = last_messages_array.getJSONObject(i);
                     if (message == null)
                         continue;
-                    this.__PING__LAST_message_conversation_id = message.optLong("conversation_id");
+                    this._PING__LAST_messages.put(message.optLong("conversation_id"), message.optLong("sent_date"));
                     break;
                 } catch (JSONException ignored) { }
             }
@@ -314,7 +315,7 @@ public class Customerly {
                                                                     listener.onMessageEvent(newsResponse);
                                                                 } else if (/*rtcCallback != null && */newsResponse.size() != 0) {
                                                                     Internal_entity__Message last_message = newsResponse.get(0);
-                                                                    this.__PING__LAST_message_conversation_id = last_message.conversation_id;
+                                                                    this._PING__LAST_messages.put(last_message.conversation_id, last_message.sent_date);
                                                                     rtcCallback.onMessage(last_message.content);
                                                                 }
                                                             }
@@ -403,7 +404,7 @@ public class Customerly {
                 .opt_receiver((responseState, _void) -> {
                     if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
                         if (pSuccessCallback != null) {
-                            pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                            pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
                         }
                     } else {
                         if (pFailureCallback != null) {
@@ -429,6 +430,43 @@ public class Customerly {
             } catch (IllegalArgumentException wrongTokenFormat) {
                 this._JwtToken = null;
             }
+        }
+    }
+
+    private void __internal_openLastSupportConversation(@NonNull Activity activity, boolean firstTry) {
+        try {
+            if(this._PING__LAST_messages.size() != 0) {
+                long most_recent_conv_ID = -1;
+                long most_recent_sent_date = Long.MAX_VALUE;
+                try {
+                    for (int i = 0; i < this._PING__LAST_messages.size(); i++) {
+                        long convID = this._PING__LAST_messages.keyAt(i);
+                        // get the object by the key.
+                        Long sent_date = this._PING__LAST_messages.get(convID);
+                        if(sent_date < most_recent_sent_date) {
+                            most_recent_sent_date = sent_date;
+                            most_recent_conv_ID = convID;
+                        }
+                    }
+                } catch (Exception concurrent_modification) {
+                    if(firstTry) {
+                        this.__internal_openLastSupportConversation(activity, false);//Only 2 try, to avoid infinite recursion
+                    } else {
+                        this._log("No last support conversation available");
+                    }
+                    return;
+                }
+                if(most_recent_conv_ID != -1) {
+                    activity.startActivity(new Intent(activity, Internal_activity__CustomerlyChat_Activity.class)
+                            .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, false)
+                            .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, most_recent_conv_ID));
+                }
+            } else {
+                this._log("No last support conversation available");
+            }
+        } catch (Exception generic) {
+            this._log("A generic error occurred in Customerly.openLastSupportConversation");
+            Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openLastSupportConversation", generic);
         }
     }
 
@@ -507,7 +545,7 @@ public class Customerly {
     }
 
     /**
-     * Implement this interface to register a callback for incoming real time chat messages with {@link #registerRealTimeMessagesCallback(RealTimeMessagesCallback)}.<br>
+     * Implement this interface to register a callback for incoming real time chat messages with {@link #realTimeMessages(RealTimeMessagesCallback)}.<br>
      * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
      */
     public interface RealTimeMessagesCallback {
@@ -584,7 +622,6 @@ public class Customerly {
                     Customerly._Instance.__PING__LAST_welcome_message_users = prefs.getString(PREFS_PING_RESPONSE__WELCOME_USERS, null);
                     Customerly._Instance.__PING__LAST_welcome_message_visitors = prefs.getString(PREFS_PING_RESPONSE__WELCOME_VISITORS, null);
                     Customerly._Instance.__PING__LAST_active_admins = null;
-                    Customerly._Instance.__PING__LAST_message_conversation_id = 0;
                     Customerly._Instance.__PING__LAST_surveys = null;
 
                     Customerly._Instance._AppID = prefs.getString("CONFIG_APP_ID", null);
@@ -723,7 +760,7 @@ public class Customerly {
                                     //noinspection SpellCheckingInspection
                                     pref.edit().putString("regusrml", email).putString("regusrid", user_id).apply();
                                     if(pSuccessCallback != null) {
-                                        pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                        pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
                                     }
                                 } else {
                                     if(pFailureCallback != null) {
@@ -787,7 +824,9 @@ public class Customerly {
                             .opt_converter(this.__PING__response_converter)
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
-                                    pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                    if(pSuccessCallback != null) {
+                                        pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
+                                    }
                                 } else {
                                     if(pFailureCallback != null) {
                                         pFailureCallback.onFailure();
@@ -836,7 +875,7 @@ public class Customerly {
      * @return If an unread message is available
      */
     public boolean isLastSupportConversationAvailable() {
-        return this.__PING__LAST_message_conversation_id != 0;
+        return this._PING__LAST_messages.size() != 0;
     }
 
     /**
@@ -847,19 +886,7 @@ public class Customerly {
      */
     public void openLastSupportConversation(@NonNull Activity activity) {
         if(this._isConfigured()) {
-            try {
-                long lastMessage_ConversationID = this.__PING__LAST_message_conversation_id;
-                if(lastMessage_ConversationID != 0) {
-                    activity.startActivity(new Intent(activity, Internal_activity__CustomerlyChat_Activity.class)
-                            .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, false)
-                            .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, lastMessage_ConversationID));
-                } else {
-                    this._log("No last support conversation available");
-                }
-            } catch (Exception generic) {
-                this._log("A generic error occurred in Customerly.openLastSupportConversation");
-                Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openLastSupportConversation", generic);
-            }
+            this.__internal_openLastSupportConversation(activity, true);
         }
     }
 
@@ -882,6 +909,8 @@ public class Customerly {
 
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
+                this._PING__LAST_messages.clear();
+                this.__PING__LAST_surveys = null;
                 this.__PING__Start(null, null);
             } catch (Exception ignored) { }
         }
@@ -990,7 +1019,7 @@ public class Customerly {
      * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
      * @param pRealTimeMessagesCallback The callback
      */
-    public void registerRealTimeMessagesCallback(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {
+    public void realTimeMessages(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {
         this.__SOCKET__RealTimeMessagesCallback = pRealTimeMessagesCallback;
     }
 }
