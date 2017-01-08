@@ -488,19 +488,19 @@ public class Customerly {
          * Implement this interface to obtain async event of the disposing of a Survey Dialog started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
          */
         interface OnDismiss {
-            int DISMISS_MODE_POSTPONE = 0x00, DISMISS_MODE_COMPLETE = 0x01, DISMISS_MODE_REJECT = 0x02;
+            int POSTPONED = 0x00, COMPLETED = 0x01, REJECTED = 0x02;
             /**
              * Indicates the reason of the disposing of the Survey<br>
-             *     {@link #DISMISS_MODE_COMPLETE} - if the Survey Dialog if disposed after the Survey completion
-             *     {@link #DISMISS_MODE_REJECT} - if the Survey Dialog if disposed after the Survey rejection
-             *     {@link #DISMISS_MODE_POSTPONE} - if the Survey Dialog if disposed just temporarily and so the Survey is still available
+             *     {@link #COMPLETED} - survey closed without invalidation (tap out of alert)
+             *     {@link #REJECTED} - survey closed after that user completed it (user closed survey in "thank you message" step)
+             *     {@link #POSTPONED} - survey closed and reject (user closed survey before "thank you message" step)
              */
-            @IntDef({DISMISS_MODE_POSTPONE, DISMISS_MODE_COMPLETE, DISMISS_MODE_REJECT})
+            @IntDef({POSTPONED, COMPLETED, REJECTED})
             @Retention(value = RetentionPolicy.SOURCE)
             @interface DismissMode {}
             /**
              * Invoked when the Survey has been dismissed.
-             * @param pDismissMode Indicate the state of the dismissed survey. {@link #DISMISS_MODE_POSTPONE} for a Survey just dismissed but still pending and available for a next openSurvey, {@link #DISMISS_MODE_COMPLETE} for a completed Survey and {@link #DISMISS_MODE_REJECT} for a rejected Survey
+             * @param pDismissMode Indicate the state of the dismissed survey. {@link #POSTPONED} for a Survey just dismissed but still pending and available for a next openSurvey, {@link #COMPLETED} for a completed Survey and {@link #REJECTED} for a rejected Survey
              */
             void onDismiss(@DismissMode int pDismissMode);
         }
@@ -649,18 +649,23 @@ public class Customerly {
      *
      * @see Customerly.Callback
      */
-    public void update(@NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
+    public void update(@Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         if(this._isConfigured()) {
             try {
                 if (System.currentTimeMillis() < this.__PING__next_ping_allowed) {
                     this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
-                    pFailureCallback.onFailure();
+                    if(pFailureCallback != null) {
+                        pFailureCallback.onFailure();
+                    }
                 } else {
                     this.__PING__Start(pSuccessCallback, pFailureCallback);
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.update");
                 Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
+                if(pFailureCallback != null) {
+                    pFailureCallback.onFailure();
+                }
             }
         }
     }
@@ -675,7 +680,7 @@ public class Customerly {
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
      */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         this.registerUser(email, user_id, name, null, pSuccessCallback, pFailureCallback);
     }
 
@@ -690,7 +695,7 @@ public class Customerly {
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
      */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             SharedPreferences pref = this._SharedPreferences;
             if (this._isConfigured() && pref != null) {
@@ -701,7 +706,9 @@ public class Customerly {
                             try {
                                 Object obj = keys.get(i);
                                 if (obj instanceof JSONObject || obj instanceof JSONArray) {
-                                    pFailureCallback.onFailure();
+                                    if(pFailureCallback != null) {
+                                        pFailureCallback.onFailure();
+                                    }
                                     this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
                                     return;
                                 }
@@ -715,9 +722,13 @@ public class Customerly {
                                 if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
                                     //noinspection SpellCheckingInspection
                                     pref.edit().putString("regusrml", email).putString("regusrid", user_id).apply();
-                                    pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                    if(pSuccessCallback != null) {
+                                        pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                    }
                                 } else {
-                                    pFailureCallback.onFailure();
+                                    if(pFailureCallback != null) {
+                                        pFailureCallback.onFailure();
+                                    }
                                 }
                             })
 
@@ -731,11 +742,16 @@ public class Customerly {
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.registerUser");
                     Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
+                    if(pFailureCallback != null) {
+                        pFailureCallback.onFailure();
+                    }
                 }
             }
         } else {
             this._log("You are trying to register an user passing a not valid email");
-            pFailureCallback.onFailure();
+            if(pFailureCallback != null) {
+                pFailureCallback.onFailure();
+            }
         }
     }
 
@@ -747,7 +763,7 @@ public class Customerly {
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
      */
-    public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
+    public void setAttributes(@Nullable JSONObject pAttributes, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         if(this._isConfigured()) {
             Internal__JwtToken token = this._JwtToken;
             if(token != null && token.isUser()) {
@@ -758,12 +774,13 @@ public class Customerly {
                             try {
                                 Object obj = keys.get(i);
                                 if (obj instanceof JSONObject || obj instanceof JSONArray) {
-                                    pFailureCallback.onFailure();
+                                    if(pFailureCallback != null) {
+                                        pFailureCallback.onFailure();
+                                    }
                                     this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
                                     return;
                                 }
-                            } catch (JSONException ignored) {
-                            }
+                            } catch (JSONException ignored) { }
                         }
                     }
                     new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
@@ -772,7 +789,9 @@ public class Customerly {
                                 if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
                                     pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
                                 } else {
-                                    pFailureCallback.onFailure();
+                                    if(pFailureCallback != null) {
+                                        pFailureCallback.onFailure();
+                                    }
                                 }
                             })
                             .param("attributes", pAttributes)
@@ -780,10 +799,15 @@ public class Customerly {
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.registerUser");
                     Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
+                    if(pFailureCallback != null) {
+                        pFailureCallback.onFailure();
+                    }
                 }
             } else {
                 this._log("Cannot setAttributes for lead users");
-                pFailureCallback.onFailure();
+                if(pFailureCallback != null) {
+                    pFailureCallback.onFailure();
+                }
             }
         }
     }

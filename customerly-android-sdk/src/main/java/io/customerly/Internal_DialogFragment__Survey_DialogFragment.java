@@ -103,7 +103,7 @@ public class Internal_DialogFragment__Survey_DialogFragment extends DialogFragme
                             if (! this._SurveyCompleted && currentSurvey != null) {
                                 currentSurvey.isRejectedOrConcluded = true;
                                 if(this._SurveyDismissListener != null) {
-                                    this._SurveyDismissListener.onDismiss(Customerly.SurveyListener.OnDismiss.DISMISS_MODE_REJECT);
+                                    this._SurveyDismissListener.onDismiss(Customerly.SurveyListener.OnDismiss.REJECTED);
                                 }
                                 new Internal_api__CustomerlyRequest.Builder<Internal_entity__Survey>(Internal_api__CustomerlyRequest.ENDPOINT_SURVEY_REJECT)
                                         .opt_checkConn(this.getContext())
@@ -135,7 +135,7 @@ public class Internal_DialogFragment__Survey_DialogFragment extends DialogFragme
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         if(this._SurveyDismissListener != null) {
-            this._SurveyDismissListener.onDismiss(this._SurveyCompleted ? Customerly.SurveyListener.OnDismiss.DISMISS_MODE_COMPLETE : Customerly.SurveyListener.OnDismiss.DISMISS_MODE_POSTPONE);
+            this._SurveyDismissListener.onDismiss(this._SurveyCompleted ? Customerly.SurveyListener.OnDismiss.COMPLETED : Customerly.SurveyListener.OnDismiss.POSTPONED);
         }
     }
 
