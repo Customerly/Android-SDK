@@ -19,7 +19,7 @@ class Internal_entity__Message {
     final long conversation_id, conversation_message_id, sent_date, assigner_id;
     private final long user_id, account_id, seen_date;
 
-    @Nullable final CustomerlyHtmlMessage content;
+    @Nullable final Customerly.HtmlMessage content;
     @Nullable final String if_account__name, rich_mail_token;
     @Nullable final Internal_entity__Attachment[] _Attachments;
 

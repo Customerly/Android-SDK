@@ -111,7 +111,7 @@ class Internal_Utils__Utils {
 
     private final static String EMOJI_TAG_START = "<emoji>", EMOJI_TAG_END = "</emoji>";
     @Contract("null -> null")
-    @Nullable static CustomerlyHtmlMessage decodeHtmlStringWithEmojiTag(@Nullable String message) {
+    @Nullable static Customerly.HtmlMessage decodeHtmlStringWithEmojiTag(@Nullable String message) {
         if(message == null)
             return null;
         StringBuilder sb = new StringBuilder();
@@ -276,7 +276,7 @@ class Internal_Utils__Utils {
             }
             ssb = ssb.delete(ssb.length() - backN_count, ssb.length());
             spannedMessage = ssb; */
-            return new CustomerlyHtmlMessage(ssb);
+            return new Customerly.HtmlMessage(ssb);
         }
         return null;
     }

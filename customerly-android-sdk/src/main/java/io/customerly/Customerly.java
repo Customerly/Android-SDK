@@ -15,6 +15,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Patterns;
 import android.util.TypedValue;
@@ -34,9 +35,9 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 
 /**
- * Created by Gianni on 04/06/16.
- * Project: CustomerlySDK
+ * The singleton representing the Customerly SDK
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
 //    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
@@ -191,7 +192,8 @@ public class Customerly {
         }
     }
 
-    @Nullable CustomerlyHtmlMessage _WELCOME__getMessage() {
+    @Nullable
+    HtmlMessage _WELCOME__getMessage() {
         Internal__JwtToken token = this._JwtToken;
         return this._isConfigured()
                 ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors)
@@ -393,13 +395,22 @@ public class Customerly {
         }
     }
 
-    private void __PING__Start(final @Nullable Callback pCallback) {
+    private void __PING__Start(@Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         SharedPreferences pref = this._SharedPreferences;
         //noinspection SpellCheckingInspection
         new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
                 .opt_converter(this.__PING__response_converter)
-                .opt_receiver(pCallback == null ? null : (responseState, _void) ->
-                        pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
+                .opt_receiver((responseState, _void) -> {
+                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                        if (pSuccessCallback != null) {
+                            pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                        }
+                    } else {
+                        if (pFailureCallback != null) {
+                            pFailureCallback.onFailure();
+                        }
+                    }
+                })
                 .param("email", pref == null ? null : pref.getString("regusrml", null))
                 .param("user_id", pref == null ? null : pref.getString("regusrid", null))
                 .start();
@@ -424,34 +435,66 @@ public class Customerly {
     /* ****************************************************************************************************************************************************************/
     /* ********************************************************************************************************************************************** Public Methods **/
     /* ****************************************************************************************************************************************************************/
-
     /**
-     * Implement this interface to obtain async response from {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)},
-     * {@link #registerUser(String, String, String, JSONObject,Callback)} or {@link #setAttributes(JSONObject, Callback)}
+     * A class representing a {@link SpannableStringBuilder} with a method {@link #toPlainTextString()} that convert the formatted text to a plain string
      */
-    public interface Callback {
-        /**
-         * Invoked on the async response from {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)},
-         * {@link #registerUser(String, String, String, JSONObject,Callback)} or {@link #setAttributes(JSONObject, Callback)}
-         * @param isSuccess true if the operation has performed successfully, false otherwise
-         * @param newSurvey true if at least one Survey is available, false otherwise
-         * @param newMessage true there is at least one unread message from the support, false otherwise
-         */
-        void onResponse(boolean isSuccess, boolean newSurvey, boolean newMessage);
+    public static class HtmlMessage extends SpannableStringBuilder {
+        HtmlMessage(SpannableStringBuilder ssb) {
+            super(ssb);
+        }
+        @NonNull public String toPlainTextString() {
+            return super.toString().replace("\uFFFC", "<IMAGE>");
+        }
     }
 
-    /**
-     * Implement this interfaces to obtain async event of a Survey started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
-     */
+    public interface Callback {
+        /**
+         * Implement this interface to obtain async success response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+         * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
+         */
+        interface Success {
+            /**
+             * Invoked on the async success response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+             * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
+             * @param newSurvey true if at least one Survey is available, false otherwise
+             * @param newMessage true there is at least one unread message from the support, false otherwise
+             */
+            void onSuccess(boolean newSurvey, boolean newMessage);
+        }
+        /**
+         * Implement this interface to obtain async failure response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+         * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
+         */
+        interface Failure {
+            /**
+             * Invoked on the async failure response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+             * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
+             */
+            void onFailure();
+        }
+    }
+
     public interface SurveyListener {
+        /**
+         * Implement this interface to obtain async event of the effective displaying of a Survey Dialog started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
+         */
         interface OnShow {
             /**
              * Invoked when the Survey has actually been displayed to the user
              */
             void onShow();
         }
+        /**
+         * Implement this interface to obtain async event of the disposing of a Survey Dialog started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
+         */
         interface OnDismiss {
             int DISMISS_MODE_POSTPONE = 0x00, DISMISS_MODE_COMPLETE = 0x01, DISMISS_MODE_REJECT = 0x02;
+            /**
+             * Indicates the reason of the disposing of the Survey<br>
+             *     {@link #DISMISS_MODE_COMPLETE} - if the Survey Dialog if disposed after the Survey completion
+             *     {@link #DISMISS_MODE_REJECT} - if the Survey Dialog if disposed after the Survey rejection
+             *     {@link #DISMISS_MODE_POSTPONE} - if the Survey Dialog if disposed just temporarily and so the Survey is still available
+             */
             @IntDef({DISMISS_MODE_POSTPONE, DISMISS_MODE_COMPLETE, DISMISS_MODE_REJECT})
             @Retention(value = RetentionPolicy.SOURCE)
             @interface DismissMode {}
@@ -472,7 +515,7 @@ public class Customerly {
          * Invoked when the user receive a message from the support.
          * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
          */
-        void onMessage(CustomerlyHtmlMessage messageContent);
+        void onMessage(HtmlMessage messageContent);
     }
 
     /**
@@ -585,7 +628,7 @@ public class Customerly {
                         ? this.__WidgetColor__fromTheme
                         : pWidgetColor;
 
-        this.__PING__Start(null);
+        this.__PING__Start(null, null);
     }
 
     /**
@@ -601,18 +644,19 @@ public class Customerly {
      * Call this method to check for pending Surveys or Message for the current user.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param pCallback To receive async response
+     * @param pSuccessCallback To receive success async response
+     * @param pFailureCallback To receive failure async response
      *
      * @see Customerly.Callback
      */
-    public void update(final @NonNull Callback pCallback) {
+    public void update(@NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
         if(this._isConfigured()) {
             try {
                 if (System.currentTimeMillis() < this.__PING__next_ping_allowed) {
                     this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
-                    pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                    pFailureCallback.onFailure();
                 } else {
-                    this.__PING__Start(pCallback);
+                    this.__PING__Start(pSuccessCallback, pFailureCallback);
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.update");
@@ -628,10 +672,11 @@ public class Customerly {
      * @param email The mail address of the user, this is mandatory
      * @param user_id The optional user_id of the user, null otherwise
      * @param name The optional name of the user, null otherwise
-     * @param pCallback To receive async response
+     * @param pSuccessCallback To receive success async response
+     * @param pFailureCallback To receive failure async response
      */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @NonNull Callback pCallback) {
-        this.registerUser(email, user_id, name, null, pCallback);
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
+        this.registerUser(email, user_id, name, null, pSuccessCallback, pFailureCallback);
     }
 
     /**
@@ -642,9 +687,10 @@ public class Customerly {
      * @param user_id The optional user_id of the user, null otherwise
      * @param name The optional name of the user, null otherwise
      * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
-     * @param pCallback To receive async response
+     * @param pSuccessCallback To receive success async response
+     * @param pFailureCallback To receive failure async response
      */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
         if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             SharedPreferences pref = this._SharedPreferences;
             if (this._isConfigured() && pref != null) {
@@ -655,12 +701,11 @@ public class Customerly {
                             try {
                                 Object obj = keys.get(i);
                                 if (obj instanceof JSONObject || obj instanceof JSONArray) {
-                                    pCallback.onResponse(false, false, false);
+                                    pFailureCallback.onFailure();
                                     this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
                                     return;
                                 }
-                            } catch (JSONException ignored) {
-                            }
+                            } catch (JSONException ignored) { }
                         }
                     }
 
@@ -670,10 +715,9 @@ public class Customerly {
                                 if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
                                     //noinspection SpellCheckingInspection
                                     pref.edit().putString("regusrml", email).putString("regusrid", user_id).apply();
-
-                                    pCallback.onResponse(true, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                    pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
                                 } else {
-                                    pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                    pFailureCallback.onFailure();
                                 }
                             })
 
@@ -691,7 +735,7 @@ public class Customerly {
             }
         } else {
             this._log("You are trying to register an user passing a not valid email");
-            pCallback.onResponse(false, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+            pFailureCallback.onFailure();
         }
     }
 
@@ -700,9 +744,10 @@ public class Customerly {
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
      * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
-     * @param pCallback To receive async response
+     * @param pSuccessCallback To receive success async response
+     * @param pFailureCallback To receive failure async response
      */
-    public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback pCallback) {
+    public void setAttributes(@Nullable JSONObject pAttributes, @NonNull Callback.Success pSuccessCallback, @NonNull Callback.Failure pFailureCallback) {
         if(this._isConfigured()) {
             Internal__JwtToken token = this._JwtToken;
             if(token != null && token.isUser()) {
@@ -713,7 +758,7 @@ public class Customerly {
                             try {
                                 Object obj = keys.get(i);
                                 if (obj instanceof JSONObject || obj instanceof JSONArray) {
-                                    pCallback.onResponse(false, false, false);
+                                    pFailureCallback.onFailure();
                                     this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
                                     return;
                                 }
@@ -723,19 +768,22 @@ public class Customerly {
                     }
                     new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
                             .opt_converter(this.__PING__response_converter)
-                            .opt_receiver((responseState, _void) ->
-                                    pCallback.onResponse(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK, this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0))
-
+                            .opt_receiver((responseState, _void) -> {
+                                if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                                    pSuccessCallback.onSuccess(this.isSurveyAvailable(), this.__PING__LAST_message_conversation_id != 0);
+                                } else {
+                                    pFailureCallback.onFailure();
+                                }
+                            })
                             .param("attributes", pAttributes)
-
                             .start();
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.registerUser");
                     Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
                 }
             } else {
-                pCallback.onResponse(false, false, false);
                 this._log("Cannot setAttributes for lead users");
+                pFailureCallback.onFailure();
             }
         }
     }
@@ -758,7 +806,7 @@ public class Customerly {
     }
 
     /**
-     * Call this method to indicate if from a previous {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)} or {@link #setAttributes(JSONObject, Callback)} an unread message is available.<br>
+     * Call this method to indicate if from a previous {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)} an unread message is available.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
      * @return If an unread message is available
@@ -810,7 +858,7 @@ public class Customerly {
 
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
-                this.__PING__Start(null);
+                this.__PING__Start(null, null);
             } catch (Exception ignored) { }
         }
     }
@@ -839,7 +887,7 @@ public class Customerly {
     }
 
     /**
-     * Call this method to indicate if from a previous {@link #update(Callback)}, {@link #registerUser(String, String, String, Callback)} or {@link #setAttributes(JSONObject, Callback)} a survey is available.<br>
+     * Call this method to indicate if from a previous {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)} a survey is available.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
      * @return If a survey is available
@@ -921,5 +969,4 @@ public class Customerly {
     public void registerRealTimeMessagesCallback(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {
         this.__SOCKET__RealTimeMessagesCallback = pRealTimeMessagesCallback;
     }
-
 }
