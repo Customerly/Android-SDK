@@ -14,6 +14,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -189,13 +190,18 @@ public final class IAct_List extends IAct_AInput {
                 for (IE_Admin admin : admins) {
                     if (admin != null) {
                         showWelcomeCard = true;
-                        if (admin.last_active > last_time_active_in_seconds)
+                        if (admin.last_active > last_time_active_in_seconds) {
                             last_time_active_in_seconds = admin.last_active;
+                        }
+
+                        LinearLayout ll = new LinearLayout(this);
+                        ll.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+                        ll.setGravity(Gravity.CENTER_HORIZONTAL);
+                        ll.setOrientation(LinearLayout.VERTICAL);
 
                         final ImageView icon = new ImageView(this);
                         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(adminIconSizePX, adminIconSizePX);
-                        lp.topMargin = IU_Utils.px(10);
-                        lp.bottomMargin = lp.topMargin;
+                        lp.bottomMargin = lp.topMargin = IU_Utils.px(10);
                         icon.setLayoutParams(lp);
 
                         Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
@@ -206,14 +212,20 @@ public final class IAct_List extends IAct_AInput {
                                 .override(adminIconSizePX, adminIconSizePX)
                                 .placeholder(R.drawable.io_customerly__ic_default_admin));
 
-                        layout_first_contact__admin_container.addView(icon);
+                        ll.addView(icon);
 
                         final TextView name = new TextView(this);
                         name.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                         name.setTextColor(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey_99));
                         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
                         name.setText(admin.name);
-                        layout_first_contact__admin_container.addView(name);
+                        name.setSingleLine(false);
+                        name.setMinLines(2);
+                        name.setMaxLines(3);
+                        name.setGravity(Gravity.CENTER_HORIZONTAL);
+                        ll.addView(name);
+
+                        layout_first_contact__admin_container.addView(ll);
                     }
                 }
             }

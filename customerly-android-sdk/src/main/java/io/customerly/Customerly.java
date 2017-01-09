@@ -19,7 +19,6 @@ import android.support.v4.util.LongSparseArray;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Patterns;
-import android.util.TypedValue;
 
 import org.intellij.lang.annotations.Subst;
 import org.json.JSONArray;
@@ -52,7 +51,7 @@ public class Customerly {
     private static final String SOCKET_EVENT__TYPING = "typing";
     private static final String SOCKET_EVENT__SEEN = "seen";
     private static final String SOCKET_EVENT__MESSAGE = "message";
-    @ColorInt private static final int DEF_WIDGET_COLOR_INT = 0xffd60022;
+    @ColorInt private static final int DEF_WIDGET_COLOR_INT = 0xff1fb1fc;
 
     @NonNull final IU_RemoteImageHandler _RemoteImageHandler = new IU_RemoteImageHandler();
     @NonNull private final Handler __SOCKET_PingHandler = new Handler();
@@ -61,7 +60,6 @@ public class Customerly {
     private @Nullable SharedPreferences _SharedPreferences;
     @Nullable String _AppID, _AppCacheDir;
     @ColorInt private int
-            __WidgetColor__fromTheme = DEF_WIDGET_COLOR_INT,
             __WidgetColor__Fallback = DEF_WIDGET_COLOR_INT,
             __WidgetColor__HardCoded = Color.TRANSPARENT;
     @Nullable
@@ -588,29 +586,13 @@ public class Customerly {
                     Customerly._Instance._SharedPreferences = prefs;
 
                     //WIDGET COLOR
-                    @ColorInt int color;
-                    try {
-                        int colorAttr;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            colorAttr = android.R.attr.colorPrimary;
-                        } else {
-                            //Get colorPrimary defined for AppCompat
-                            colorAttr = pContext.getResources().getIdentifier("colorPrimary", "attr", pContext.getPackageName());
-                        }
-                        TypedValue outValue = new TypedValue();
-                        pContext.getTheme().resolveAttribute(colorAttr, outValue, true);
-                        color = outValue.data;
-                    } catch (Exception some_error) {
-                        color = DEF_WIDGET_COLOR_INT;
-                    }
-                    Customerly._Instance.__WidgetColor__fromTheme = color;
                     //noinspection SpellCheckingInspection
                     Customerly._Instance.__WidgetColor__HardCoded = IU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
 
                     Customerly._Instance.__WidgetColor__Fallback =
-                            Customerly._Instance.__WidgetColor__HardCoded == Color.TRANSPARENT
-                                    ? Customerly._Instance.__WidgetColor__fromTheme
-                                    : Customerly._Instance.__WidgetColor__HardCoded;
+                            Customerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
+                                    ? Customerly._Instance.__WidgetColor__HardCoded
+                                    : DEF_WIDGET_COLOR_INT;
 
                     //JWT TOKEN
                     Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
@@ -662,7 +644,7 @@ public class Customerly {
         this.__WidgetColor__HardCoded = pWidgetColor;
         this.__PING__LAST_widget_color = Customerly._Instance.__WidgetColor__Fallback =
                 pWidgetColor == Color.TRANSPARENT
-                        ? this.__WidgetColor__fromTheme
+                        ? DEF_WIDGET_COLOR_INT
                         : pWidgetColor;
 
         this.__PING__Start(null, null);

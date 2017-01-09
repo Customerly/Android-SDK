@@ -47,7 +47,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING_BASE_URL = "https://a011ca30.ngrok.io";//TODO "https://tracking.customerly.io";
+    private static final String ENDPOINT_TRACKING_BASE_URL = "https://1e317987.ngrok.io";//TODO "https://tracking.customerly.io";
     private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
     static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
     static final String ENDPOINT_CONVERSATION_RETRIEVE = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";
@@ -57,7 +57,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     static final String ENDPOINT_MESSAGE_SEND = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";
     static final String ENDPOINT_EVENT_TRACKING = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/event/";
     static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/crash/";
-    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";//TODO Testare
+    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";
     static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";
     static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";
     static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";
@@ -210,7 +210,8 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
 
     @NonNull private JSONObject json_appid_E_device(@NonNull String app_id, @Nullable JSONObject params) throws JSONException {
-        return params != null ? params : new JSONObject().put("app_id", app_id).put("device", Customerly._Instance.__PING__DeviceJSON);
+        return (params != null ? params : new JSONObject())
+                .put("app_id", app_id).put("device", Customerly._Instance.__PING__DeviceJSON);
     }
 
     @Nullable
