@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Contract;
  * Project: CustomerlySDK
  */
 
-public final class Internal_activity__FullScreenImage_Activity extends AppCompatActivity {
+public final class IAct_FullScreenImage extends AppCompatActivity {
     static final String EXTRA_IMAGE_SOURCE = "EXTRA_IMAGE_SOURCE";
 
     private String _SourceUrl;
@@ -52,7 +52,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 try {
-                    Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+                    Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(_ImageView)
@@ -65,10 +65,10 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                         if(Customerly._Instance.__PING__LAST_widget_color != 0) {
                             actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
+                                this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
                             }
 
-                            if (Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
+                            if (IU_Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
                                 actionBar.setHomeAsUpIndicator(R.drawable.io_customerly__ic_arrow_back_black_24dp);
                                 title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -87,7 +87,7 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                     }
                     return;
                 } catch (Exception glideException) {
-                    Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
+                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
                 }
             }
         }
@@ -147,19 +147,19 @@ public final class Internal_activity__FullScreenImage_Activity extends AppCompat
                 public void onReceive(Context context, Intent intent) {
                     if(downloadReference == intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)) {
                         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
-                                .notify(999, new NotificationCompat.Builder(Internal_activity__FullScreenImage_Activity.this)
-                                        .setSmallIcon(Internal_activity__FullScreenImage_Activity.this.getApplication().getApplicationInfo().icon)
+                                .notify(999, new NotificationCompat.Builder(IAct_FullScreenImage.this)
+                                        .setSmallIcon(IAct_FullScreenImage.this.getApplication().getApplicationInfo().icon)
                                         .setContentTitle(getString(R.string.io_customerly__image))
                                         .setContentText(getString(R.string.io_customerly__image))
                                         .setAutoCancel(true)
                                         .setContentIntent(PendingIntent.getActivity(
-                                                Internal_activity__FullScreenImage_Activity.this,
+                                                IAct_FullScreenImage.this,
                                                 0,
                                                 new Intent().setAction(DownloadManager.ACTION_VIEW_DOWNLOADS),
                                                 PendingIntent.FLAG_UPDATE_CURRENT
                                         )).build());
 
-                        Toast toast = Toast.makeText(Internal_activity__FullScreenImage_Activity.this, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
+                        Toast toast = Toast.makeText(IAct_FullScreenImage.this, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.TOP, 25, 400);
                         toast.show();
                     }

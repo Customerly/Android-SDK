@@ -34,7 +34,7 @@ import static io.customerly.BuildConfig.CUSTOMERLY_SDK_NAME;
  * Created by Gianni on 02/12/16.
  * Project: CustomerlySDK
  */
-class Internal_Utils__RemoteImageHandler {
+class IU_RemoteImageHandler {
     private static final int MAX_DISK_CACHE_SIZE = 1024 * 1024 * 2;
     private static final int MAX_LRU_CACHE_SIZE = 1024 * 1024 * 2;
     @NonNull private final LruCache<String,Bitmap> _LruCache = new LruCache<>(MAX_LRU_CACHE_SIZE);
@@ -42,13 +42,13 @@ class Internal_Utils__RemoteImageHandler {
     @Nullable private Handler _DiskHandler, _NetworkHandler;
     private long _DiskCacheSize = -1;
 
-    Internal_Utils__RemoteImageHandler() {
+    IU_RemoteImageHandler() {
         super();
-        new HandlerThread(Internal_Utils__RemoteImageHandler.class.getName() + "-Network") {
+        new HandlerThread(IU_RemoteImageHandler.class.getName() + "-Network") {
             @Override
             protected void onLooperPrepared() {
                 _NetworkHandler = new Handler(this.getLooper());
-                new HandlerThread(Internal_Utils__RemoteImageHandler.class.getName() + "-Disk") {
+                new HandlerThread(IU_RemoteImageHandler.class.getName() + "-Disk") {
                     @Override
                     protected void onLooperPrepared() {
                         _DiskHandler = new Handler(this.getLooper());

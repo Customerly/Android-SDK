@@ -12,42 +12,42 @@ import org.json.JSONObject;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal_entity__Admin {
+class IE_Admin {
     private final long account_id;
     final long last_active;
     @NonNull final String name;
 
-    @NonNull static Internal_entity__Admin[] from(@Nullable JSONArray jsonArray) {
+    @NonNull static IE_Admin[] from(@Nullable JSONArray jsonArray) {
         if(jsonArray == null || jsonArray.length() == 0)
-            return new Internal_entity__Admin[0];
-        Internal_entity__Admin[] adminArray = new Internal_entity__Admin[jsonArray.length()];
+            return new IE_Admin[0];
+        IE_Admin[] adminArray = new IE_Admin[jsonArray.length()];
         int a = 0;
         for(int j = 0; j < jsonArray.length(); j++) {
-            adminArray[a] = Internal_entity__Admin.from(jsonArray.optJSONObject(j));
+            adminArray[a] = IE_Admin.from(jsonArray.optJSONObject(j));
             if(adminArray[a] != null)
                 a++;
         }
         if(a == jsonArray.length()) {
             return adminArray;
         } else { //Added less Admin than array length
-            Internal_entity__Admin[] newArray = new Internal_entity__Admin[a];
+            IE_Admin[] newArray = new IE_Admin[a];
             System.arraycopy(adminArray, 0, newArray, 0, a);
             return newArray;
         }
     }
 
     @Contract("null -> null")
-    private static Internal_entity__Admin from(@Nullable JSONObject json) {
+    private static IE_Admin from(@Nullable JSONObject json) {
         if(json == null)
             return null;
         try {
-            return new Internal_entity__Admin(json.getLong("account_id"), json.getString("name"), json.getLong("last_active"));
+            return new IE_Admin(json.getLong("account_id"), json.getString("name"), json.getLong("last_active"));
         } catch (JSONException e) {
             return null;
         }
     }
 
-    private Internal_entity__Admin(long pAccountId, @NonNull String pName, long pLastActive) {
+    private IE_Admin(long pAccountId, @NonNull String pName, long pLastActive) {
         super();
         this.account_id = pAccountId;
         this.name = pName;
@@ -55,6 +55,6 @@ class Internal_entity__Admin {
     }
 
     @NonNull String getImageUrl(int pSizePX) {
-        return Internal_entity__Account.getAccountImageUrl(this.account_id, pSizePX);
+        return IE_Account.getAccountImageUrl(this.account_id, pSizePX);
     }
 }

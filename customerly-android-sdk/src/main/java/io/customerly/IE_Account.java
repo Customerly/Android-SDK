@@ -8,7 +8,7 @@ import java.util.Locale;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal_entity__Account {
+class IE_Account {
     @NonNull static String getAccountImageUrl(long pAccountID, int pSizePX) {
         return String.format(Locale.UK, "http://pictures.cdn.customerly.io/accounts/%d/%d", pAccountID, pSizePX);
     }

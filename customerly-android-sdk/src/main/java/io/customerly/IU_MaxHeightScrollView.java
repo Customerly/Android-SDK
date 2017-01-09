@@ -12,24 +12,24 @@ import android.widget.ScrollView;
  * Project: CustomerlySDK
  */
 
-public class Internal_Utils__MaxHeightScrollView extends ScrollView {
+public class IU_MaxHeightScrollView extends ScrollView {
 
     private static final int DEFAULT_HEIGHT = 200;
 
     private int maxHeight;
 
-    public Internal_Utils__MaxHeightScrollView(Context context) {
+    public IU_MaxHeightScrollView(Context context) {
         super(context);
     }
 
-    public Internal_Utils__MaxHeightScrollView(Context context, AttributeSet attrs) {
+    public IU_MaxHeightScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (!isInEditMode()) {
             init(context, attrs);
         }
     }
 
-    public Internal_Utils__MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public IU_MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (!isInEditMode()) {
             init(context, attrs);
@@ -37,7 +37,7 @@ public class Internal_Utils__MaxHeightScrollView extends ScrollView {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public Internal_Utils__MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public IU_MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         if (!isInEditMode()) {
             init(context, attrs);
@@ -46,9 +46,9 @@ public class Internal_Utils__MaxHeightScrollView extends ScrollView {
 
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.Internal_Utils__MaxHeightScrollView);
+            TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.IU_MaxHeightScrollView);
             //200 is a default value
-            maxHeight = styledAttrs.getDimensionPixelSize(R.styleable.Internal_Utils__MaxHeightScrollView_maxHeight, DEFAULT_HEIGHT);
+            maxHeight = styledAttrs.getDimensionPixelSize(R.styleable.IU_MaxHeightScrollView_maxHeight, DEFAULT_HEIGHT);
             styledAttrs.recycle();
         }
     }

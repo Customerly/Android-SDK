@@ -36,7 +36,7 @@ import java.net.InetAddress;
  * </pre>
  */
 @SuppressWarnings({"unused", "SpellCheckingInspection"})
-class Internal_Utils__SntpClient {
+class IU_SntpClient {
     private static final String TAG = "SntpClient";
 
     private static final int REFERENCE_TIME_OFFSET = 16;

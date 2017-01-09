@@ -41,20 +41,20 @@ import java.util.ArrayList;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatActivity {
+abstract class IAct_AInput extends AppCompatActivity {
 
     static final String EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK";
     private static final int FILE_SELECT_CODE = 5;
 
     LinearLayout input_layout, input_attachments;
     EditText input_input;
-    final ArrayList<Internal_entity__Attachment> _Attachments = new ArrayList<>(1);
+    final ArrayList<IE_Attachment> _Attachments = new ArrayList<>(1);
     @NonNull private final IntentFilter _IntentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     @NonNull private final BroadcastReceiver _BroadcastReceiver = new BroadcastReceiver() {
         boolean attendingReconnection = false;
         @Override
         public void onReceive(Context context, Intent intent) {
-            boolean connected = Internal_Utils__Utils.checkConnection(context);
+            boolean connected = IU_Utils.checkConnection(context);
             if(connected) {
                 if(this.attendingReconnection) {
                     this.attendingReconnection = false;
@@ -105,10 +105,10 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                 if(Customerly._Instance.__PING__LAST_widget_color != 0) {
                     actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        this.getWindow().setStatusBarColor(Internal_Utils__Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
+                        this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
                     }
 
-                    if (Internal_Utils__Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
+                    if (IU_Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
                         actionBar.setHomeAsUpIndicator(this.getIntent() != null && this.getIntent().getBooleanExtra(EXTRA_MUST_SHOW_BACK, false) ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
                         title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -133,8 +133,8 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                 if(Customerly._Instance.__PING__LAST_widget_color != 0) {
                     int linkColor = Customerly._Instance.__PING__LAST_widget_color;
 
-                    while (Internal_Utils__Utils.getContrastColor(linkColor) == Color.BLACK) {
-                        linkColor = Internal_Utils__Utils.alterColor(linkColor, 0.95f);
+                    while (IU_Utils.getContrastColor(linkColor) == Color.BLACK) {
+                        linkColor = IU_Utils.alterColor(linkColor, 0.95f);
                     }
 
                     redBoldSpannable.setSpan(new ForegroundColorSpan(linkColor), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -142,7 +142,7 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 ssb.append(redBoldSpannable);
                 powered_by.setText(ssb);
-                powered_by.setOnClickListener(v -> Internal_Utils__Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
+                powered_by.setOnClickListener(v -> IU_Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
                 powered_by.setVisibility(View.VISIBLE);
             }/* else {
                 powered_by.setVisibility(View.GONE);//Da layout
@@ -151,9 +151,9 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
             input_button_attach.setOnClickListener(this._AttachButtonListener);
 
             this.findViewById(R.id.io_customerly__input_button_send).setOnClickListener(btn -> {
-                if(Internal_Utils__Utils.checkConnection(this)) {
+                if(IU_Utils.checkConnection(this)) {
                     String message = this.input_input.getText().toString().trim();
-                    Internal_entity__Attachment[] attachmentsArray = this._Attachments.toArray(new Internal_entity__Attachment[this._Attachments.size()]);
+                    IE_Attachment[] attachmentsArray = this._Attachments.toArray(new IE_Attachment[this._Attachments.size()]);
                     if(message.length() != 0 || attachmentsArray.length != 0) {
                         this.input_input.setText(null);
                         this._Attachments.clear();
@@ -215,7 +215,7 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
         }
     }
 
-    protected abstract void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail);
+    protected abstract void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail);
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -236,7 +236,7 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                     Uri fileUri = data.getData();
                     if(fileUri != null) {
                         try {
-                            for(Internal_entity__Attachment att : this._Attachments) {
+                            for(IE_Attachment att : this._Attachments) {
                                 if(fileUri.equals(att.uri)) {
                                     Snackbar.make(this.input_input, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
                                             .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly._Instance.__PING__LAST_widget_color).show();
@@ -244,16 +244,16 @@ abstract class Internal_activity__AInput_Customerly_Activity extends AppCompatAc
                                     return;
                                 }
                             }
-                            if(Internal_Utils__Utils.getFileSizeFromUri(this, fileUri) > 5000000) {
+                            if(IU_Utils.getFileSizeFromUri(this, fileUri) > 5000000) {
                                 Snackbar.make(this.input_input, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
                                         .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly._Instance.__PING__LAST_widget_color).show();
                                 this.input_input.requestFocus();
                                 return;
                             }
 
-                            new Internal_entity__Attachment(this, fileUri).addAttachmentToInput(this);
+                            new IE_Attachment(this, fileUri).addAttachmentToInput(this);
                         } catch (Exception exception) {
-                            Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__ATTACHMENT_ERROR, "Error while attaching file: " + exception.getMessage(), exception);
+                            IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__ATTACHMENT_ERROR, "Error while attaching file: " + exception.getMessage(), exception);
                         }
                     }
                     this.input_input.requestFocus();

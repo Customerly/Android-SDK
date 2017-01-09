@@ -23,7 +23,7 @@ import java.io.InputStream;
  * Created by Gianni on 13/09/16.
  * Project: CustomerlySDK
  */
-class Internal_entity__Attachment {
+class IE_Attachment {
 
     @Nullable final Uri uri;
     @NonNull final String name;
@@ -31,7 +31,7 @@ class Internal_entity__Attachment {
     @Nullable
     String path;
 
-    Internal_entity__Attachment(@NonNull JSONObject attachment) throws JSONException {
+    IE_Attachment(@NonNull JSONObject attachment) throws JSONException {
         super();
 //        this.attachment_size = attachment.getLong("size");
         this.path = attachment.getString("path");
@@ -40,23 +40,23 @@ class Internal_entity__Attachment {
         this.uri = null;
     }
 
-    Internal_entity__Attachment(@NonNull Context pContext, @NonNull Uri pUri) {
+    IE_Attachment(@NonNull Context pContext, @NonNull Uri pUri) {
         super();
         this.uri = pUri;
-        this.name = Internal_Utils__Utils.getNameFromUri(pContext, pUri);
+        this.name = IU_Utils.getNameFromUri(pContext, pUri);
         this.base64 = null;
         this.path = null;
     }
 
-    void addAttachmentToInput(@NonNull Internal_activity__AInput_Customerly_Activity pA_Customerly_Activity) {
+    void addAttachmentToInput(@NonNull IAct_AInput pA_Customerly_Activity) {
         pA_Customerly_Activity._Attachments.add(this);
         TextView tv = new TextView(pA_Customerly_Activity);
         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customerly__ld_chat_attachment, 0, 0, 0);
-        int _5dp = Internal_Utils__Utils.px(5);
+        int _5dp = IU_Utils.px(5);
         tv.setCompoundDrawablePadding(_5dp);
         tv.setPadding(_5dp, 0, 0, 0);
-        tv.setTextColor(Internal_Utils__Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_blue2_grey));
+        tv.setTextColor(IU_Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_blue2_grey));
         tv.setLines(1);
         tv.setSingleLine();
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
@@ -77,10 +77,10 @@ class Internal_entity__Attachment {
         pA_Customerly_Activity.input_attachments.addView(tv);
     }
 
-    static @NonNull JSONArray toSendJSONObject(@NonNull Context pContext, @Nullable Internal_entity__Attachment[] pAttachments) {
+    static @NonNull JSONArray toSendJSONObject(@NonNull Context pContext, @Nullable IE_Attachment[] pAttachments) {
         JSONArray array = new JSONArray();
         if(pAttachments != null) {
-            for (Internal_entity__Attachment attachment : pAttachments) {
+            for (IE_Attachment attachment : pAttachments) {
                 String base64 = attachment.loadBase64FromMemory(pContext);
                 if(base64 != null) {
                     try {

@@ -54,7 +54,7 @@ public class Customerly {
     private static final String SOCKET_EVENT__MESSAGE = "message";
     @ColorInt private static final int DEF_WIDGET_COLOR_INT = 0xffd60022;
 
-    @NonNull final Internal_Utils__RemoteImageHandler _RemoteImageHandler = new Internal_Utils__RemoteImageHandler();
+    @NonNull final IU_RemoteImageHandler _RemoteImageHandler = new IU_RemoteImageHandler();
     @NonNull private final Handler __SOCKET_PingHandler = new Handler();
 
     private boolean initialized = false;
@@ -65,7 +65,7 @@ public class Customerly {
             __WidgetColor__Fallback = DEF_WIDGET_COLOR_INT,
             __WidgetColor__HardCoded = Color.TRANSPARENT;
     @Nullable
-    Internal__JwtToken _JwtToken;
+    IE_JwtToken _JwtToken;
 
     @Nullable Class<? extends Activity> _CurrentActivityClass = null;
 
@@ -78,12 +78,12 @@ public class Customerly {
     @ColorInt int __PING__LAST_widget_color;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
-    @Nullable Internal_entity__Admin[] __PING__LAST_active_admins;
-    @Nullable Internal_entity__Survey[] __PING__LAST_surveys;
+    @Nullable IE_Admin[] __PING__LAST_active_admins;
+    @Nullable IE_Survey[] __PING__LAST_surveys;
     @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
     @NonNull LongSparseArray<Long> _PING__LAST_messages = new android.support.v4.util.LongSparseArray<>(1);
 
-    @NonNull private final Internal_api__CustomerlyRequest.ResponseConverter<Void> __PING__response_converter = root -> {
+    @NonNull private final IApi_Request.ResponseConverter<Void> __PING__response_converter = root -> {
         this.__PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
 
         JSONObject webSocket = root.optJSONObject("websocket");
@@ -91,7 +91,7 @@ public class Customerly {
                                 /*  "webSocket": {
                                       "endpoint": "https://ws2.customerly.io",
                                       "port": "8080"  }  */
-            Customerly._Instance.__SOCKET_setEndpoint(Internal_Utils__Utils.jsonOptStringWithNullCheck(webSocket, "endpoint"), Internal_Utils__Utils.jsonOptStringWithNullCheck(webSocket, "port"));
+            Customerly._Instance.__SOCKET_setEndpoint(IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint"), IU_Utils.jsonOptStringWithNullCheck(webSocket, "port"));
         }
         Customerly._Instance.__SOCKET__connect();
 
@@ -107,7 +107,7 @@ public class Customerly {
 
         if(app_config != null) {
             if(this.__WidgetColor__HardCoded == Color.TRANSPARENT) {
-                String pingWidgetColor = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
+                String pingWidgetColor = IU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
                 if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
                     if (pingWidgetColor.charAt(0) != '#') {
                         pingWidgetColor = '#' + pingWidgetColor;
@@ -115,14 +115,14 @@ public class Customerly {
                     try {
                         this.__PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
                     } catch (IllegalArgumentException notCorrectColor) {
-                        Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
+                        IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
                         this.__PING__LAST_widget_color = this.__WidgetColor__Fallback;
                     }
                 }
             }
             this.__PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
-            this.__PING__LAST_welcome_message_users = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
-            this.__PING__LAST_welcome_message_visitors = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
+            this.__PING__LAST_welcome_message_users = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
+            this.__PING__LAST_welcome_message_visitors = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
         } else {
             this.__PING__LAST_widget_color = this.__WidgetColor__Fallback;
             this.__PING__LAST_powered_by = false;
@@ -130,7 +130,7 @@ public class Customerly {
             this.__PING__LAST_welcome_message_visitors = null;
         }
 
-        this.__PING__LAST_active_admins = Internal_entity__Admin.from(root.optJSONArray("active_admins"));
+        this.__PING__LAST_active_admins = IE_Admin.from(root.optJSONArray("active_admins"));
 
         JSONArray last_messages_array = root.optJSONArray("last_messages");
         this._PING__LAST_messages.clear();
@@ -147,7 +147,7 @@ public class Customerly {
             }
         }
 
-        this.__PING__LAST_surveys = Internal_entity__Survey.from(root.optJSONArray("last_surveys"));
+        this.__PING__LAST_surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
 
         final SharedPreferences prefs = this._SharedPreferences;
         if(prefs != null) {
@@ -180,7 +180,7 @@ public class Customerly {
     boolean _isConfigured() {
         if(this._AppID == null) {
             this._log("You need to configure the SDK ");
-            Internal_ErrorHandler__CustomerlyErrorHandler.sendNotConfiguredError();
+            IEr_CustomerlyErrorHandler.sendNotConfiguredError();
             return false;
         } else {
             return true;
@@ -195,14 +195,14 @@ public class Customerly {
 
     @Nullable
     HtmlMessage _WELCOME__getMessage() {
-        Internal__JwtToken token = this._JwtToken;
+        IE_JwtToken token = this._JwtToken;
         return this._isConfigured()
-                ? Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors)
+                ? IU_Utils.decodeHtmlStringWithEmojiTag(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors)
                 : null;
     }
 
     interface __SOCKET__ITyping_listener {   void onTypingEvent(long pConversationID, long account_id, boolean pTyping);   }
-    interface __SOCKET__IMessage_listener {   void onMessageEvent(@NonNull ArrayList<Internal_entity__Message> news);   }
+    interface __SOCKET__IMessage_listener {   void onMessageEvent(@NonNull ArrayList<IE_Message> news);   }
     @Nullable __SOCKET__ITyping_listener __SOCKET__Typing_listener = null;
     @Nullable __SOCKET__IMessage_listener __SOCKET__Message_listener = null;
     @Nullable private RealTimeMessagesCallback __SOCKET__RealTimeMessagesCallback = null;
@@ -212,8 +212,8 @@ public class Customerly {
         Socket socket = this._Socket;
         if(socket != null && socket.connected()) {
             Class<? extends Activity> currentActivityClass = this._CurrentActivityClass;
-            socket.emit(currentActivityClass != null && (currentActivityClass == Internal_activity__CustomerlyChat_Activity.class
-                    || currentActivityClass == Internal_activity__CustomerlyList_Activity.class)
+            socket.emit(currentActivityClass != null && (currentActivityClass == IAct_Chat.class
+                    || currentActivityClass == IAct_List.class)
                     ? SOCKET_EVENT__PING_ACTIVE
 
                     : SOCKET_EVENT__PING);
@@ -228,7 +228,7 @@ public class Customerly {
     }
     private void __SOCKET__connect() {
         if(this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
-            Internal__JwtToken token = this._JwtToken;
+            IE_JwtToken token = this._JwtToken;
             if (token != null && token._UserID != null) {
                 if(this.__SOCKET__CurrentConfiguration == null || ! this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
 
@@ -270,7 +270,7 @@ public class Customerly {
                                             boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
                                             payloadJson = payloadJson.getJSONObject("conversation");
                                             if (payloadJson != null) {
-                                                Internal__JwtToken token2 = this._JwtToken;
+                                                IE_JwtToken token2 = this._JwtToken;
                                                 if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
                                                     long conversation_id = payloadJson.optLong("conversation_id", 0);
                                                     __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
@@ -299,22 +299,22 @@ public class Customerly {
                                         long timestamp = payloadJson.optLong("timestamp", 0L);
                                         long socket_user_id = payloadJson.optLong("user_id", 0L);
 
-                                        Internal__JwtToken token2 = this._JwtToken;
+                                        IE_JwtToken token2 = this._JwtToken;
                                         if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
                                                 && socket_user_id != 0 && timestamp != 0
                                                 && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
                                             final __SOCKET__IMessage_listener listener = this.__SOCKET__Message_listener;
                                             final RealTimeMessagesCallback rtcCallback = this.__SOCKET__RealTimeMessagesCallback;
                                             if (listener != null || rtcCallback != null) {
-                                                new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Message>>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGE_NEWS)
-                                                        .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "messages", Internal_entity__Message::new))
+                                                new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
+                                                        .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
                                                         .opt_tokenMandatory()
                                                         .opt_receiver((responseState, newsResponse) -> {
-                                                            if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && newsResponse != null) {
+                                                            if (responseState == IApi_Request.RESPONSE_STATE__OK && newsResponse != null) {
                                                                 if (listener != null) {
                                                                     listener.onMessageEvent(newsResponse);
                                                                 } else if (/*rtcCallback != null && */newsResponse.size() != 0) {
-                                                                    Internal_entity__Message last_message = newsResponse.get(0);
+                                                                    IE_Message last_message = newsResponse.get(0);
                                                                     this._PING__LAST_messages.put(last_message.conversation_id, last_message.sent_date);
                                                                     rtcCallback.onMessage(last_message.content);
                                                                 }
@@ -357,7 +357,7 @@ public class Customerly {
     }
     void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping) {
         //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "n"}
-        Internal__JwtToken token = this._JwtToken;
+        IE_JwtToken token = this._JwtToken;
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__TYPING, new JSONObject()
@@ -371,7 +371,7 @@ public class Customerly {
     }
     void __SOCKET_SEND_Message(long pTimestamp) {
         if(pTimestamp != -1L) {
-            Internal__JwtToken token = this._JwtToken;
+            IE_JwtToken token = this._JwtToken;
             if (token != null && token._UserID != null) {
                 try {
                     this.__SOCKET__SEND(SOCKET_EVENT__MESSAGE, new JSONObject()
@@ -384,7 +384,7 @@ public class Customerly {
         }
     }
     void __SOCKET_SEND_Seen(long pConversationMessageID, long pSeenDate) {
-        Internal__JwtToken token = this._JwtToken;
+        IE_JwtToken token = this._JwtToken;
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__SEEN, new JSONObject()
@@ -399,10 +399,10 @@ public class Customerly {
     private void __PING__Start(@Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         SharedPreferences pref = this._SharedPreferences;
         //noinspection SpellCheckingInspection
-        new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+        new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                 .opt_converter(this.__PING__response_converter)
                 .opt_receiver((responseState, _void) -> {
-                    if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                    if(responseState == IApi_Request.RESPONSE_STATE__OK) {
                         if (pSuccessCallback != null) {
                             pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
                         }
@@ -412,8 +412,8 @@ public class Customerly {
                         }
                     }
                 })
-                .param("email", pref == null ? null : pref.getString("regusrml", null))
-                .param("user_id", pref == null ? null : pref.getString("regusrid", null))
+                .param("email", IU_Utils.getStringSafe(this._SharedPreferences, "regusrml"))
+                .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, "regusrid"))
                 .start();
     }
 
@@ -423,9 +423,9 @@ public class Customerly {
             try {
                 SharedPreferences prefs = this._SharedPreferences;
                 if(prefs != null) {
-                    this._JwtToken = new Internal__JwtToken(token, prefs);
+                    this._JwtToken = new IE_JwtToken(token, prefs);
                 } else {
-                    this._JwtToken = new Internal__JwtToken(token);
+                    this._JwtToken = new IE_JwtToken(token);
                 }
             } catch (IllegalArgumentException wrongTokenFormat) {
                 this._JwtToken = null;
@@ -457,16 +457,16 @@ public class Customerly {
                     return;
                 }
                 if(most_recent_conv_ID != -1) {
-                    activity.startActivity(new Intent(activity, Internal_activity__CustomerlyChat_Activity.class)
-                            .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, false)
-                            .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, most_recent_conv_ID));
+                    activity.startActivity(new Intent(activity, IAct_Chat.class)
+                            .putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, false)
+                            .putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, most_recent_conv_ID));
                 }
             } else {
                 this._log("No last support conversation available");
             }
         } catch (Exception generic) {
             this._log("A generic error occurred in Customerly.openLastSupportConversation");
-            Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openLastSupportConversation", generic);
+            IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openLastSupportConversation", generic);
         }
     }
 
@@ -605,7 +605,7 @@ public class Customerly {
                     }
                     Customerly._Instance.__WidgetColor__fromTheme = color;
                     //noinspection SpellCheckingInspection
-                    Customerly._Instance.__WidgetColor__HardCoded = prefs.getInt("CONFIG_HC_WCOLOR", Color.TRANSPARENT);
+                    Customerly._Instance.__WidgetColor__HardCoded = IU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
 
                     Customerly._Instance.__WidgetColor__Fallback =
                             Customerly._Instance.__WidgetColor__HardCoded == Color.TRANSPARENT
@@ -613,18 +613,18 @@ public class Customerly {
                                     : Customerly._Instance.__WidgetColor__HardCoded;
 
                     //JWT TOKEN
-                    Customerly._Instance._JwtToken = Internal__JwtToken.from(prefs);
+                    Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
 
                     //PING
 //                    Customerly._Instance.__PING__LAST_app_name = prefs.getString(PREFS_PING_RESPONSE__APP_NAME, Customerly._Instance._ApplicationName);
-                    Customerly._Instance.__PING__LAST_widget_color = prefs.getInt(PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
-                    Customerly._Instance.__PING__LAST_powered_by = prefs.getBoolean(PREFS_PING_RESPONSE__POWERED_BY, false);
-                    Customerly._Instance.__PING__LAST_welcome_message_users = prefs.getString(PREFS_PING_RESPONSE__WELCOME_USERS, null);
-                    Customerly._Instance.__PING__LAST_welcome_message_visitors = prefs.getString(PREFS_PING_RESPONSE__WELCOME_VISITORS, null);
+                    Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
+                    Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
+                    Customerly._Instance.__PING__LAST_welcome_message_users = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
+                    Customerly._Instance.__PING__LAST_welcome_message_visitors = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
                     Customerly._Instance.__PING__LAST_active_admins = null;
                     Customerly._Instance.__PING__LAST_surveys = null;
 
-                    Customerly._Instance._AppID = prefs.getString("CONFIG_APP_ID", null);
+                    Customerly._Instance._AppID = IU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
 
                     Customerly._Instance.initialized = true;
                 }
@@ -699,7 +699,7 @@ public class Customerly {
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.update");
-                Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
+                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
                 if(pFailureCallback != null) {
                     pFailureCallback.onFailure();
                 }
@@ -753,10 +753,10 @@ public class Customerly {
                         }
                     }
 
-                    new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+                    new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                             .opt_converter(this.__PING__response_converter)
                             .opt_receiver((responseState, _void) -> {
-                                if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                                if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                     //noinspection SpellCheckingInspection
                                     pref.edit().putString("regusrml", email).putString("regusrid", user_id).apply();
                                     if(pSuccessCallback != null) {
@@ -778,7 +778,7 @@ public class Customerly {
                             .start();
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.registerUser");
-                    Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
+                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
                     if(pFailureCallback != null) {
                         pFailureCallback.onFailure();
                     }
@@ -802,7 +802,7 @@ public class Customerly {
      */
     public void setAttributes(@Nullable JSONObject pAttributes, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
         if(this._isConfigured()) {
-            Internal__JwtToken token = this._JwtToken;
+            IE_JwtToken token = this._JwtToken;
             if(token != null && token.isUser()) {
                 try {
                     if (pAttributes != null) {//Check attributes validity
@@ -820,10 +820,10 @@ public class Customerly {
                             } catch (JSONException ignored) { }
                         }
                     }
-                    new Internal_api__CustomerlyRequest.Builder<Void>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+                    new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                             .opt_converter(this.__PING__response_converter)
                             .opt_receiver((responseState, _void) -> {
-                                if (responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK) {
+                                if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                     if(pSuccessCallback != null) {
                                         pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
                                     }
@@ -837,7 +837,7 @@ public class Customerly {
                             .start();
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.registerUser");
-                    Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
+                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
                     if(pFailureCallback != null) {
                         pFailureCallback.onFailure();
                     }
@@ -860,10 +860,10 @@ public class Customerly {
     public void openSupport(@NonNull Activity activity) {
         if(this._isConfigured()) {
             try {
-                activity.startActivity(new Intent(activity, Internal_activity__CustomerlyList_Activity.class));
+                activity.startActivity(new Intent(activity, IAct_List.class));
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.openSupport");
-                Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSupport", generic);
+                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSupport", generic);
             }
         }
     }
@@ -902,7 +902,7 @@ public class Customerly {
 
                 this._JwtToken = null;
                 if (prefs != null) {
-                    Internal__JwtToken.remove(prefs);
+                    IE_JwtToken.remove(prefs);
                     //noinspection SpellCheckingInspection
                     prefs.edit().remove("regusrml").remove("regusrid").apply();
                 }
@@ -925,16 +925,16 @@ public class Customerly {
     public void trackEvent(@NonNull String pEventName) {
         if(this._isConfigured()) {
             try {
-                Internal__JwtToken token = this._JwtToken;
+                IE_JwtToken token = this._JwtToken;
                 if(token != null && (token.isUser() || token.isLead())) {
-                    new Internal_api__CustomerlyRequest.Builder<Internal_entity__Message>(Internal_api__CustomerlyRequest.ENDPOINT_EVENT_TRACKING)
+                    new IApi_Request.Builder<IE_Message>(IApi_Request.ENDPOINT_EVENT_TRACKING)
                             .opt_trials(2)
                             .param("name", pEventName)
                             .start();
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.trackEvent");
-                Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
+                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
             }
         }
     }
@@ -946,9 +946,9 @@ public class Customerly {
      * @return If a survey is available
      */
     public boolean isSurveyAvailable() {
-        Internal_entity__Survey[] surveys = this.__PING__LAST_surveys;
+        IE_Survey[] surveys = this.__PING__LAST_surveys;
         if(surveys != null) {
-            for (Internal_entity__Survey survey : surveys) {
+            for (IE_Survey survey : surveys) {
                 if (survey != null && !survey.isRejectedOrConcluded) {
                     return true;
                 }
@@ -1002,10 +1002,10 @@ public class Customerly {
         if(this._isConfigured()) {
             if (this.isSurveyAvailable()) {
                 try {
-                    Internal_DialogFragment__Survey_DialogFragment.newInstance(pSurveyShowListener, pSurveyDismissListener).show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
+                    IDlgF_Survey.newInstance(pSurveyShowListener, pSurveyDismissListener).show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
                 } catch (Exception generic) {
                     this._log("A generic error occurred in Customerly.openSurvey");
-                    Internal_ErrorHandler__CustomerlyErrorHandler.sendError(Internal_ErrorHandler__CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
+                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
                 }
             } else {
                 this._log("No surveys available");

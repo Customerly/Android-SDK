@@ -33,7 +33,7 @@ import java.util.Locale;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
-class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, RES> {
+class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
     @StringDef({ENDPOINT_PING, ENDPOINT_CONVERSATION_RETRIEVE, ENDPOINT_MESSAGE_SEEN, ENDPOINT_MESSAGE_NEWS,
             ENDPOINT_MESSAGE_RETRIEVE, ENDPOINT_MESSAGE_SEND, ENDPOINT_EVENT_TRACKING, ENDPOINT_REPORT_CRASH,
@@ -80,7 +80,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
     @ResponseState private int _ResponseState = RESPONSE_STATE__PENDING;
 
     @RequiresPermission(Manifest.permission.INTERNET)
-    private Internal_api__CustomerlyRequest(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials, boolean pTokenMandatory) {
+    private IApi_Request(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials, boolean pTokenMandatory) {
         super();
         this._Endpoint = pEndpoint;
         this._ResponseConverter = pResponseConverter;
@@ -165,7 +165,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
         void start() {
             if(Customerly._Instance._isConfigured()) {
-                if (this._Context == null || Internal_Utils__Utils.checkConnection(this._Context)) {
+                if (this._Context == null || IU_Utils.checkConnection(this._Context)) {
                     ProgressDialog pd_tmp = null;
                     if(this._Context != null && this._ProgressDialog_Title != null && this._ProgressDialog_Message != null) {
                         try {
@@ -183,7 +183,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                         }
                     }
                     final ProgressDialog pd = pd_tmp;
-                    new Internal_api__CustomerlyRequest<>(this._Endpoint,
+                    new IApi_Request<>(this._Endpoint,
                             this._ResponseConverter != null ? this._ResponseConverter : data -> null,
                             (statusCode, result) -> {
                                 if(pd != null) {
@@ -222,11 +222,11 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
         }
         JSONObject request_root = new JSONObject();
 
-        Internal__JwtToken token = Customerly._Instance._JwtToken;
+        IE_JwtToken token = Customerly._Instance._JwtToken;
         boolean tokenSent = false;
         if(token != null) {
             try {
-                request_root.put(Internal__JwtToken.PAYLOAD_KEY, token.toString());
+                request_root.put(IE_JwtToken.PAYLOAD_KEY, token.toString());
                 tokenSent = true;
             } catch (JSONException ignored) { }
         }
@@ -252,7 +252,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                     token = Customerly._Instance._JwtToken;
                     if (token != null) {
                         try {
-                            request_root.put(Internal__JwtToken.PAYLOAD_KEY, token.toString());
+                            request_root.put(IE_JwtToken.PAYLOAD_KEY, token.toString());
                         } catch (JSONException ignored) { }
                         if(ENDPOINT_REPORT_CRASH.equals(this._Endpoint)) {
                             try {
@@ -374,7 +374,7 @@ class Internal_api__CustomerlyRequest<RES> extends AsyncTask<JSONObject, Void, R
                                 "code": "ExceptionCode"     }   */
                         int error_code = response_root.optInt("code", -1);
                         Customerly._Instance._log(String.format(Locale.UK, "Message: %s ErrorCode: %s",
-                                Internal_Utils__Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
+                                IU_Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
                                 error_code));
                         if(error_code != -1) {
                             switch(error_code) {

@@ -34,7 +34,7 @@ import java.util.Locale;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-public final class Internal_activity__CustomerlyList_Activity extends Internal_activity__AInput_Customerly_Activity {
+public final class IAct_List extends IAct_AInput {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 
@@ -43,7 +43,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     private RecyclerView _ListRecyclerView;
     private SwipeRefreshLayout.OnRefreshListener _OnRefreshListener;
 
-    private List<Internal_entity__Conversation> _Conversations = new ArrayList<>();
+    private List<IE_Conversation> _Conversations = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             this._ListRecyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
             this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
             this._ListRecyclerView.setHasFixedSize(true);
-            this._ListRecyclerView.addItemDecoration(new Internal_Utils__RecyclerView_DividerDecoration._Vertical(this.getResources(), Internal_Utils__RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTH));
+            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(this.getResources(), IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTH));
             this._ListRecyclerView.setAdapter(new ConversationAdapter());
 
             this.input_layout.setVisibility(View.GONE);
@@ -68,11 +68,11 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             });
 
             this._OnRefreshListener = () -> {
-                Internal__JwtToken token = Customerly._Instance._JwtToken;
+                IE_JwtToken token = Customerly._Instance._JwtToken;
                 if(token != null && (token.isUser() || token.isLead())) {
-                    new Internal_api__CustomerlyRequest.Builder<ArrayList<Internal_entity__Conversation>>(Internal_api__CustomerlyRequest.ENDPOINT_CONVERSATION_RETRIEVE)
+                    new IApi_Request.Builder<ArrayList<IE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
                             .opt_checkConn(this)
-                            .opt_converter(data -> Internal_Utils__Utils.fromJSONdataToList(data, "conversations", Internal_entity__Conversation::new))
+                            .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "conversations", IE_Conversation::new))
                             .opt_tokenMandatory()
                             .opt_receiver((responseState, list) -> this.displayInterface(list))
                             .opt_trials(2)
@@ -91,9 +91,9 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     protected void onResume() {
         super.onResume();
         Customerly._Instance.__SOCKET__Message_listener = pNewMessages -> {
-            ArrayList<Internal_entity__Message> filtered = new ArrayList<>(pNewMessages.size());
-            next_new_message: for(Internal_entity__Message new_message : pNewMessages) {
-                for(Internal_entity__Message new_message_filtered : filtered) {
+            ArrayList<IE_Message> filtered = new ArrayList<>(pNewMessages.size());
+            next_new_message: for(IE_Message new_message : pNewMessages) {
+                for(IE_Message new_message_filtered : filtered) {
                     if(new_message_filtered.conversation_id == new_message.conversation_id) {
                         if(new_message_filtered.conversation_message_id >= new_message.conversation_message_id) {
                             continue next_new_message;//Already found a most recent message for that conversation
@@ -107,16 +107,16 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                 filtered.add(new_message);//This is the first message found for that conversation
             }
 
-            ArrayList<Internal_entity__Conversation> conversations = new ArrayList<>(this._Conversations);
-            next_new_filtered: for(Internal_entity__Message new_filtered : filtered) {
-                for(Internal_entity__Conversation conversation : conversations) {
+            ArrayList<IE_Conversation> conversations = new ArrayList<>(this._Conversations);
+            next_new_filtered: for(IE_Message new_filtered : filtered) {
+                for(IE_Conversation conversation : conversations) {
                     if(conversation.conversation_id == new_filtered.conversation_id) { //New message of an existing conversation
                         conversation.onNewMessage(new_filtered);
                         continue next_new_filtered;
                     }
                 }
                 //New message of a new conversation
-                conversations.add(new Internal_entity__Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.assigner_id, new_filtered.sent_date, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
+                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.assigner_id, new_filtered.sent_date, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
             }
             //Sort the conversation by last message date
             Collections.sort(conversations, (c1, c2) -> (int)(c2.last_message_date - c1.last_message_date));
@@ -155,7 +155,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
         }
     }
 
-    private void displayInterface(@Nullable ArrayList<Internal_entity__Conversation> pConversations) {
+    private void displayInterface(@Nullable ArrayList<IE_Conversation> pConversations) {
         if(pConversations != null && pConversations.size() != 0) {
             this._FirstContact_SRL.setVisibility(View.GONE);
             this._ListRecyclerView.post(() -> {
@@ -180,13 +180,13 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
             LinearLayout layout_first_contact__admin_container = (LinearLayout) this.findViewById(R.id.io_customerly__layout_first_contact__admin_container);
 
-            final int adminIconSizePX = Internal_Utils__Utils.px(45/* dp */);
+            final int adminIconSizePX = IU_Utils.px(45/* dp */);
             long last_time_active_in_seconds = Long.MIN_VALUE;
             layout_first_contact__admin_container.removeAllViews();
 
-            Internal_entity__Admin[] admins = Customerly._Instance.__PING__LAST_active_admins;
+            IE_Admin[] admins = Customerly._Instance.__PING__LAST_active_admins;
             if(admins != null) {
-                for (Internal_entity__Admin admin : admins) {
+                for (IE_Admin admin : admins) {
                     if (admin != null) {
                         showWelcomeCard = true;
                         if (admin.last_active > last_time_active_in_seconds)
@@ -194,11 +194,11 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
                         final ImageView icon = new ImageView(this);
                         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(adminIconSizePX, adminIconSizePX);
-                        lp.topMargin = Internal_Utils__Utils.px(10);
+                        lp.topMargin = IU_Utils.px(10);
                         lp.bottomMargin = lp.topMargin;
                         icon.setLayoutParams(lp);
 
-                        Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+                        Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                                 .fitCenter()
                                 .transformCircle()
                                 .load(admin.getImageUrl(adminIconSizePX))
@@ -210,7 +210,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
                         final TextView name = new TextView(this);
                         name.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        name.setTextColor(Internal_Utils__Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey_99));
+                        name.setTextColor(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey_99));
                         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
                         name.setText(admin.name);
                         layout_first_contact__admin_container.addView(name);
@@ -221,7 +221,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             if(last_time_active_in_seconds != Long.MIN_VALUE) {
                 final TextView layout_first_contact__welcome_card__last_activity = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome_card__last_activity);
                 layout_first_contact__welcome_card__last_activity.setText(
-                        Internal_Utils__TimeAgoUtils.calculate(last_time_active_in_seconds,
+                        IU_TimeAgoUtils.calculate(last_time_active_in_seconds,
                                 seconds -> this.getString(R.string.io_customerly__last_activity_now),
                                 minutes -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, (int)minutes, minutes),
                                 hours -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXh_ago, (int)hours, hours),
@@ -245,8 +245,8 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
     }
 
     @Override
-    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull Internal_entity__Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        Internal__JwtToken token = Customerly._Instance._JwtToken;
+    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
+        IE_JwtToken token = Customerly._Instance._JwtToken;
         if((token == null || token.isAnonymous())) {
             if(ghostToVisitorEmail == null) {
                 this.input_layout.setVisibility(View.GONE);
@@ -287,7 +287,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                 });
             } else {
                 final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
-                new Internal_api__CustomerlyRequest.Builder<Object[]>(Internal_api__CustomerlyRequest.ENDPOINT_PING)
+                new IApi_Request.Builder<Object[]>(IApi_Request.ENDPOINT_PING)
                         .opt_checkConn(this)
                         .param("lead_email", ghostToVisitorEmail)
                         .opt_converter(root -> new Object[0])
@@ -299,12 +299,12 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                                     } catch (IllegalStateException ignored) { }
                                 }
                                 this.input_input.setText(pMessage);
-                                for(Internal_entity__Attachment a : pAttachments) {
+                                for(IE_Attachment a : pAttachments) {
                                     a.addAttachmentToInput(this);
                                 }
-                                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                             } else {
-                                new Internal_api__CustomerlyRequest.Builder<Long>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGE_SEND)
+                                new IApi_Request.Builder<Long>(IApi_Request.ENDPOINT_MESSAGE_SEND)
                                         .opt_tokenMandatory()
                                         .opt_converter(data -> {
                                             JSONObject conversation = data.optJSONObject("conversation");
@@ -323,19 +323,19 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                                                     progressDialog.dismiss();
                                                 } catch (IllegalStateException ignored) { }
                                             }
-                                            if(message_send_responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && message_send_conversationID != null) {
+                                            if(message_send_responseState == IApi_Request.RESPONSE_STATE__OK && message_send_conversationID != null) {
                                                 this.openConversationById(message_send_conversationID, true);
                                             } else {
                                                 this.input_input.setText(pMessage);
-                                                for(Internal_entity__Attachment a : pAttachments) {
+                                                for(IE_Attachment a : pAttachments) {
                                                     a.addAttachmentToInput(this);
                                                 }
-                                                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                                             }
                                         })
                                         .opt_trials(2)
                                         .param("message", pMessage)
-                                        .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
+                                        .param("attachments", IE_Attachment.toSendJSONObject(this, pAttachments))
                                         .start();
                             }
                         })
@@ -343,7 +343,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             }
         } else {
             final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
-            new Internal_api__CustomerlyRequest.Builder<Long>(Internal_api__CustomerlyRequest.ENDPOINT_MESSAGE_SEND)
+            new IApi_Request.Builder<Long>(IApi_Request.ENDPOINT_MESSAGE_SEND)
                     .opt_checkConn(this)
                     .opt_tokenMandatory()
                     .opt_converter(data -> {
@@ -363,19 +363,19 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
                                 progressDialog.dismiss();
                             } catch (IllegalStateException ignored) { }
                         }
-                        if(responseState == Internal_api__CustomerlyRequest.RESPONSE_STATE__OK && conversationID != null) {
+                        if(responseState == IApi_Request.RESPONSE_STATE__OK && conversationID != null) {
                             this.openConversationById(conversationID, ghostToVisitorEmail != null);
                         } else {
                             this.input_input.setText(pMessage);
-                            for(Internal_entity__Attachment a : pAttachments) {
+                            for(IE_Attachment a : pAttachments) {
                                 a.addAttachmentToInput(this);
                             }
-                            Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                         }
                     })
                     .opt_trials(2)
                     .param("message", pMessage)
-                    .param("attachments", Internal_entity__Attachment.toSendJSONObject(this, pAttachments))
+                    .param("attachments", IE_Attachment.toSendJSONObject(this, pAttachments))
                     .start();
         }
     }
@@ -395,15 +395,15 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
 
     private void openConversationById(long id, boolean andFinishCurrent) {
         if(id != 0) {
-            if(Internal_Utils__Utils.checkConnection(Internal_activity__CustomerlyList_Activity.this)) {
-                Internal_activity__CustomerlyList_Activity.this.startActivityForResult(new Intent(Internal_activity__CustomerlyList_Activity.this, Internal_activity__CustomerlyChat_Activity.class)
-                        .putExtra(Internal_activity__AInput_Customerly_Activity.EXTRA_MUST_SHOW_BACK, ! andFinishCurrent)
-                        .putExtra(Internal_activity__CustomerlyChat_Activity.EXTRA_CONVERSATION_ID, id), RESULT_CODE_REFRESH_LIST);
+            if(IU_Utils.checkConnection(IAct_List.this)) {
+                IAct_List.this.startActivityForResult(new Intent(IAct_List.this, IAct_Chat.class)
+                        .putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, ! andFinishCurrent)
+                        .putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, id), RESULT_CODE_REFRESH_LIST);
                 if(andFinishCurrent) {
                     this.finish();
                 }
             } else {
-                Toast.makeText(Internal_activity__CustomerlyList_Activity.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -412,7 +412,7 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
         private long _ConversationID;
         @NonNull private final ImageView _Icon;
         @NonNull private final TextView _Nome, _LastMessage, _Time;
-        private final int _Icon_Size = Internal_Utils__Utils.px(50);
+        private final int _Icon_Size = IU_Utils.px(50);
         private ConversationVH() {
             super(getLayoutInflater().inflate(R.layout.io_customerly__li_conversation, _ListRecyclerView, false));
             this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icon);
@@ -423,9 +423,9 @@ public final class Internal_activity__CustomerlyList_Activity extends Internal_a
             this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
             this.itemView.setOnClickListener(item_view -> openConversationById(this._ConversationID, false));
         }
-        private void apply(@NonNull Internal_entity__Conversation pConversation) {
+        private void apply(@NonNull IE_Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
-            Customerly._Instance._RemoteImageHandler.request(new Internal_Utils__RemoteImageHandler.Request()
+            Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                     .fitCenter()
                     .transformCircle()
                     .load(pConversation.getImageUrl(this._Icon_Size))

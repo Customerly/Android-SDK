@@ -5,7 +5,7 @@ package io.customerly;
  * Project: CustomerlySDK
  */
 @SuppressWarnings("unused")
-class Internal_Utils__TimeAgoUtils {
+class IU_TimeAgoUtils {
     interface SecondsAgo<RETURN> {   RETURN onSeconds(long seconds); }
     interface MinutesAgo<RETURN> {   RETURN onMinutes(long minutes); }
     interface HoursAgo<RETURN>   {   RETURN onHours(long hours);     }
@@ -52,21 +52,21 @@ class Internal_Utils__TimeAgoUtils {
 
     public static <RETURN> RETURN calculate(long timestampSeconds, SecondsAgo<RETURN> onSecondsAgo, MinutesAgo<RETURN> onMinutesAgo, HoursAgo<RETURN> onHoursAgo,
                                             DaysAgo<RETURN> onDaysAgo, WeeksAgo<RETURN> onWeeksAgo, MonthsAgo<RETURN> onMonthsAgo) {
-        return Internal_Utils__TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, onWeeksAgo, onMonthsAgo, null);
+        return IU_TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, onWeeksAgo, onMonthsAgo, null);
     }
     public static <RETURN> RETURN calculate(long timestampSeconds, SecondsAgo<RETURN> onSecondsAgo, MinutesAgo<RETURN> onMinutesAgo, HoursAgo<RETURN> onHoursAgo,
                                             DaysAgo<RETURN> onDaysAgo, MonthsAgo<RETURN> onMonthsAgo) {
-        return Internal_Utils__TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, null, onMonthsAgo, null);
+        return IU_TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, null, onMonthsAgo, null);
     }
     public static <RETURN> RETURN calculate(long timestampSeconds, SecondsAgo<RETURN> onSecondsAgo, MinutesAgo<RETURN> onMinutesAgo, HoursAgo<RETURN> onHoursAgo,
                                             DaysAgo<RETURN> onDaysAgo, WeeksAgo<RETURN> onWeeksAgo) {
-        return Internal_Utils__TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, onWeeksAgo, null, null);
+        return IU_TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, onWeeksAgo, null, null);
     }
     static <RETURN> RETURN calculate(long timestampSeconds, SecondsAgo<RETURN> onSecondsAgo, MinutesAgo<RETURN> onMinutesAgo, HoursAgo<RETURN> onHoursAgo,
                                             DaysAgo<RETURN> onDaysAgo) {
-        return Internal_Utils__TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, null, null, null);
+        return IU_TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, onDaysAgo, null, null, null);
     }
     public static <RETURN> RETURN calculate(long timestampSeconds, SecondsAgo<RETURN> onSecondsAgo, MinutesAgo<RETURN> onMinutesAgo, HoursAgo<RETURN> onHoursAgo) {
-        return Internal_Utils__TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, null, null, null, null);
+        return IU_TimeAgoUtils.calculate(timestampSeconds, onSecondsAgo, onMinutesAgo, onHoursAgo, null, null, null, null);
     }
 }

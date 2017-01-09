@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -44,7 +45,7 @@ import java.util.Locale;
  * Project: CustomerlySDK
  */
 @SuppressWarnings("SpellCheckingInspection")
-class Internal_Utils__Utils {
+class IU_Utils {
 
     @Contract("null -> false")
     @SuppressWarnings("deprecation")
@@ -446,7 +447,7 @@ class Internal_Utils__Utils {
 
     @Contract(pure = true)
     @Nullable static String jsonOptStringWithNullCheck(@NonNull JSONObject obj, @NonNull String key) {
-        return Internal_Utils__Utils.jsonOptStringWithNullCheck(obj, key, null);
+        return IU_Utils.jsonOptStringWithNullCheck(obj, key, null);
     }
 
     @Contract(value = "_, _, !null -> !null", pure = true)
@@ -454,6 +455,32 @@ class Internal_Utils__Utils {
         return obj.isNull(key) ? fallback : obj.optString(key, fallback);
     }
 
+    @Contract(value = "null,_ -> null; !null,_ -> _", pure = true)
+    @Nullable static String getStringSafe(@Nullable SharedPreferences pref, @NonNull String key) {
+        try {
+            return pref == null ? null : pref.getString(key, null);
+        } catch (Exception not_string) {
+            return null;
+        }
+    }
+
+    @Contract(pure = true)
+    static int getIntSafe(@Nullable SharedPreferences pref, @NonNull String key, int default_value) {
+        try {
+            return pref == null ? default_value : pref.getInt(key, default_value);
+        } catch (Exception not_string) {
+            return default_value;
+        }
+    }
+
+    @Contract(pure = true)
+    static boolean getBooleanSafe(@Nullable SharedPreferences pref, @NonNull String key, boolean default_value) {
+        try {
+            return pref == null ? default_value : pref.getBoolean(key, default_value);
+        } catch (Exception not_string) {
+            return default_value;
+        }
+    }
 
 
 //    /**

@@ -13,7 +13,7 @@ import org.json.JSONObject;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal_entity__Conversation {
+class IE_Conversation {
 
     private static final int /*WRITER_TYPE__USER = 1,*/ WRITER_TYPE__ACCOUNT = 0;
 
@@ -25,7 +25,7 @@ class Internal_entity__Conversation {
 
     final long conversation_id, assigner_id;
 
-    Internal_entity__Conversation(long pConversationID, @Nullable Customerly.HtmlMessage pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
+    IE_Conversation(long pConversationID, @Nullable Customerly.HtmlMessage pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
         this.last_message_abstract = pLastMessage;
@@ -40,11 +40,11 @@ class Internal_entity__Conversation {
         this.last_account__name = pLastAccountName;
     }
 
-    Internal_entity__Conversation(@NonNull JSONObject pConversationItem) throws JSONException {
+    IE_Conversation(@NonNull JSONObject pConversationItem) throws JSONException {
         super();
 
         this.conversation_id = pConversationItem.getLong("conversation_id");
-        this.last_message_abstract = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(pConversationItem.getString("last_message_abstract"));
+        this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pConversationItem.getString("last_message_abstract"));
         this.assigner_id = pConversationItem.getLong("assigner_id");
 
         this.last_message_date = pConversationItem.getLong("last_message_date");
@@ -54,10 +54,10 @@ class Internal_entity__Conversation {
         this.unread = pConversationItem.optInt("unread", 0) == 1;
 
         pConversationItem = pConversationItem.optJSONObject("last_account");
-        this.last_account__name = pConversationItem == null ? null : Internal_Utils__Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
+        this.last_account__name = pConversationItem == null ? null : IU_Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
     }
 
-    void onNewMessage(@NonNull Internal_entity__Message pNewMessage) {
+    void onNewMessage(@NonNull IE_Message pNewMessage) {
         this.last_message_abstract = pNewMessage.content;
         this.last_message_date = pNewMessage.sent_date;
         this.last_message_writer = pNewMessage.getWriterID();
@@ -68,8 +68,8 @@ class Internal_entity__Conversation {
 
     @NonNull String getImageUrl(int pPixelSize) {
         return this.last_message_writer_type == WRITER_TYPE__ACCOUNT
-            ? Internal_entity__Account.getAccountImageUrl(this.last_message_writer, pPixelSize)
-            : Internal_entity__Account.getUserImageUrl(this.last_message_writer, pPixelSize);
+            ? IE_Account.getAccountImageUrl(this.last_message_writer, pPixelSize)
+            : IE_Account.getUserImageUrl(this.last_message_writer, pPixelSize);
     }
 
     @NonNull String getConversationLastWriter(@NonNull Context pContext) {
@@ -81,7 +81,7 @@ class Internal_entity__Conversation {
     }
 
     @NonNull String getFormattedLastMessageTime(@NonNull Resources resources) {
-        return Internal_Utils__TimeAgoUtils.calculate(this.last_message_date,
+        return IU_TimeAgoUtils.calculate(this.last_message_date,
                 seconds -> resources.getString(R.string.io_customerly__XXs_ago, seconds),
                 minutes -> resources.getString(R.string.io_customerly__XXm_ago, minutes),
                 hours -> resources.getString(R.string.io_customerly__XXh_ago, hours),

@@ -13,16 +13,16 @@ import org.jetbrains.annotations.Contract;
  * Project: CustomerlyAndroidSDK
  */
 @SuppressWarnings("unused")
-class Internal_Utils__NTP_Utils {
+class IU_NTP_Utils {
     @Contract("_, !null, null -> fail")
-    static void getSafeNow_fromUiThread(@Nullable Context context, @NonNull Internal_Utils__ResultUtils.OnNonNullResult<Long> onNetworkTimeNotNull, @Nullable Internal_Utils__ResultUtils.OnNoResult onNetworkError) {
-        Internal_Utils__NTP_Utils.internal_getSafeNow_fromUiThread(context, null, onNetworkTimeNotNull, onNetworkError);
+    static void getSafeNow_fromUiThread(@Nullable Context context, @NonNull IU_ResultUtils.OnNonNullResult<Long> onNetworkTimeNotNull, @Nullable IU_ResultUtils.OnNoResult onNetworkError) {
+        IU_NTP_Utils.internal_getSafeNow_fromUiThread(context, null, onNetworkTimeNotNull, onNetworkError);
     }
     @Contract("_, null, null, _ -> fail; _, null, !null, null -> fail")
-    private static void internal_getSafeNow_fromUiThread(@Nullable Context context, @Nullable Internal_Utils__ResultUtils.OnResult<Long> onNetworkTime, @Nullable Internal_Utils__ResultUtils.OnNonNullResult<Long> onNetworkTimeNotNull, @Nullable Internal_Utils__ResultUtils.OnNoResult onNetworkError) {
+    private static void internal_getSafeNow_fromUiThread(@Nullable Context context, @Nullable IU_ResultUtils.OnResult<Long> onNetworkTime, @Nullable IU_ResultUtils.OnNonNullResult<Long> onNetworkTimeNotNull, @Nullable IU_ResultUtils.OnNoResult onNetworkError) {
         if(onNetworkTime == null && (onNetworkTimeNotNull == null || onNetworkError == null))
             throw new IllegalStateException("You have to specify a ResultUtils.OnResult or both ResultUtils.OnNonNullResult and ResultUtils.OnNoResult");
-        if(context != null && ! Internal_Utils__Utils.checkConnection(context)) {
+        if(context != null && ! IU_Utils.checkConnection(context)) {
             if(onNetworkTime != null)
                 onNetworkTime.onResult(null);
             else
@@ -32,7 +32,7 @@ class Internal_Utils__NTP_Utils {
         new AsyncTask<Void, Void, Long>() {
             @Override
             protected Long doInBackground(Void... params) {
-                return Internal_Utils__NTP_Utils.getSafeNow_fromBackgroundThread();
+                return IU_NTP_Utils.getSafeNow_fromBackgroundThread();
             }
             @Override
             protected void onPostExecute(Long time) {
@@ -46,15 +46,15 @@ class Internal_Utils__NTP_Utils {
         }.execute();
     }
     @SuppressWarnings("SpellCheckingInspection")
-    private static Internal_Utils__SntpClient _SntpClient;
+    private static IU_SntpClient _SntpClient;
     @SuppressWarnings("WeakerAccess")
     @Nullable static Long getSafeNow_fromBackgroundThread() {
-        if(Internal_Utils__NTP_Utils._SntpClient == null)
-            Internal_Utils__NTP_Utils._SntpClient = new Internal_Utils__SntpClient();
+        if(IU_NTP_Utils._SntpClient == null)
+            IU_NTP_Utils._SntpClient = new IU_SntpClient();
         int server = 0;
         while(server < SERVERS.length)
-            if (Internal_Utils__NTP_Utils._SntpClient.requestTime(SERVERS[server++], 5000))
-                return Internal_Utils__NTP_Utils._SntpClient.getNtpTime() + SystemClock.elapsedRealtime() - Internal_Utils__NTP_Utils._SntpClient.getNtpTimeReference();
+            if (IU_NTP_Utils._SntpClient.requestTime(SERVERS[server++], 5000))
+                return IU_NTP_Utils._SntpClient.getNtpTime() + SystemClock.elapsedRealtime() - IU_NTP_Utils._SntpClient.getNtpTimeReference();
         return null;
     }
     private static final String[] SERVERS = new String[] {

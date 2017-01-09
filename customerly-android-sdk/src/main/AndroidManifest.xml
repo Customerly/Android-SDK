@@ -9,19 +9,19 @@
 
     <application >
 
-        <activity android:name="io.customerly.Internal_activity__CustomerlyList_Activity"
+        <activity android:name="io.customerly.IAct_List"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/io_customerly__Activity"
             android:label="@string/io_customerly__activity_title_support"
             android:windowSoftInputMode="adjustResize"/>
 
-        <activity android:name="io.customerly.Internal_activity__CustomerlyChat_Activity"
+        <activity android:name="io.customerly.IAct_Chat"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/io_customerly__Activity"
             android:label="@string/io_customerly__activity_title_chat"
             android:windowSoftInputMode="adjustResize"/>
 
-        <activity android:name="io.customerly.Internal_activity__FullScreenImage_Activity"
+        <activity android:name="io.customerly.IAct_FullScreenImage"
             android:configChanges="orientation|screenSize|keyboard"
             android:theme="@style/io_customerly__Activity"
             android:label="@string/io_customerly__image"

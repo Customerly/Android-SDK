@@ -14,14 +14,14 @@ import java.util.Date;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal_entity__Message {
+class IE_Message {
 
     final long conversation_id, conversation_message_id, sent_date, assigner_id;
     private final long user_id, account_id, seen_date;
 
     @Nullable final Customerly.HtmlMessage content;
     @Nullable final String if_account__name, rich_mail_token;
-    @Nullable final Internal_entity__Attachment[] _Attachments;
+    @Nullable final IE_Attachment[] _Attachments;
 
     @Nullable private String _Cached__toStringDate = null;
     @NonNull String toStringDate(long pTODAY_inSec) {
@@ -37,7 +37,7 @@ class Internal_entity__Message {
     private enum STATE {    COMPLETE, SENDING, FAILED   }
     @NonNull private STATE _STATE = STATE.COMPLETE;
 
-    Internal_entity__Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pMessage, @Nullable final Internal_entity__Attachment[] pAttachments) {
+    IE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pMessage, @Nullable final IE_Attachment[] pAttachments) {
         super();
         this._STATE = STATE.SENDING;
         this.user_id = pCustomerly_User_ID;
@@ -45,13 +45,13 @@ class Internal_entity__Message {
         this.conversation_message_id = 0;
         this.account_id = this.assigner_id = 0;
         this.sent_date = this.seen_date = System.currentTimeMillis() / 1000;
-        this.content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(pMessage);
+        this.content = IU_Utils.decodeHtmlStringWithEmojiTag(pMessage);
         this._Attachments = pAttachments;
         this.if_account__name = null;
         this.rich_mail_token = null;
     }
 
-    Internal_entity__Message(@NonNull JSONObject pMessageItem) {
+    IE_Message(@NonNull JSONObject pMessageItem) {
         super();
         this._STATE = STATE.COMPLETE;
 
@@ -62,18 +62,18 @@ class Internal_entity__Message {
         this.assigner_id = pMessageItem.optLong("assigner_id", 0);
         this.sent_date = pMessageItem.optLong("sent_date", 0);
         this.seen_date = pMessageItem.optLong("seen_date", 0);
-        this.content = Internal_Utils__Utils.decodeHtmlStringWithEmojiTag(Internal_Utils__Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
-        this.rich_mail_token = pMessageItem.optInt("rich_mail", 0) == 0 ? null : Internal_Utils__Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_token");
+        this.content = IU_Utils.decodeHtmlStringWithEmojiTag(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
+        this.rich_mail_token = pMessageItem.optInt("rich_mail", 0) == 0 ? null : IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_token");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {
-            Internal_entity__Attachment[] attachments_tmp = new Internal_entity__Attachment[attachments.length()];
+            IE_Attachment[] attachments_tmp = new IE_Attachment[attachments.length()];
             int i = 0, j = 0;
             for(; i < attachments.length(); i++) {
                 JSONObject item = attachments.optJSONObject(i);
                 if(item != null) {
                     try {
-                        attachments_tmp[j] = new Internal_entity__Attachment(item);
+                        attachments_tmp[j] = new IE_Attachment(item);
                         j++;
                     } catch (JSONException ignored) { }
                 }
@@ -81,7 +81,7 @@ class Internal_entity__Message {
             if(j == i) {
                 this._Attachments = attachments_tmp;
             } else {
-                this._Attachments = new Internal_entity__Attachment[j];
+                this._Attachments = new IE_Attachment[j];
                 System.arraycopy(attachments_tmp, 0, this._Attachments, 0, j);
             }
         } else {
@@ -90,7 +90,7 @@ class Internal_entity__Message {
 
         JSONObject account = pMessageItem.optJSONObject("account");
         if(account != null) {
-            this.if_account__name = Internal_Utils__Utils.jsonOptStringWithNullCheck(account, "name");
+            this.if_account__name = IU_Utils.jsonOptStringWithNullCheck(account, "name");
         } else {
             this.if_account__name = null;
         }
@@ -105,7 +105,7 @@ class Internal_entity__Message {
     }
 
     @NonNull String getImageUrl(int pPixelSize) {
-        return this.account_id != 0 ? Internal_entity__Account.getAccountImageUrl(this.account_id, pPixelSize) : Internal_entity__Account.getUserImageUrl(this.user_id, pPixelSize);
+        return this.account_id != 0 ? IE_Account.getAccountImageUrl(this.account_id, pPixelSize) : IE_Account.getUserImageUrl(this.user_id, pPixelSize);
     }
 
     boolean isUserMessage() {
@@ -116,7 +116,7 @@ class Internal_entity__Message {
         return (!this.isUserMessage()) && this.seen_date == 0;
     }
 
-    boolean hasSameSenderOf(@Nullable Internal_entity__Message pPreviousMessage) {
+    boolean hasSameSenderOf(@Nullable IE_Message pPreviousMessage) {
         if(pPreviousMessage == null)
             return false;
         if(this.isUserMessage()) {

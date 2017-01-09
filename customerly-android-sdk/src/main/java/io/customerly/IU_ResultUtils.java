@@ -10,7 +10,7 @@ import java.util.List;
  * Project: GGlib
  */
 @SuppressWarnings("unused")
-class Internal_Utils__ResultUtils {
+class IU_ResultUtils {
     interface OnNoResult {
         void onResult();
     }

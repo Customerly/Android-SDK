@@ -68,7 +68,7 @@
 
     </LinearLayout>
 
-    <io.customerly.Internal_Utils__MaxHeightScrollView
+    <io.customerly.IU_MaxHeightScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
@@ -80,6 +80,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-    </io.customerly.Internal_Utils__MaxHeightScrollView>
+    </io.customerly.IU_MaxHeightScrollView>
 
 </LinearLayout>

@@ -18,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Gianni on 11/09/16.
  * Project: CustomerlySDK
  */
-class Internal_entity__Survey {
+class IE_Survey {
 
     @IntDef({ TYPE_END_SURVEY, TYPE_BUTTON, TYPE_RADIO, TYPE_LIST, TYPE_SCALE, TYPE_STAR, TYPE_NUMBER, TYPE_TEXT_BOX, TYPE_TEXT_AREA})
     @Retention(RetentionPolicy.SOURCE)
@@ -37,19 +37,19 @@ class Internal_entity__Survey {
 
     @Contract("null -> null")
     @Nullable
-    static Internal_entity__Survey[] from(@Nullable JSONArray array) {
+    static IE_Survey[] from(@Nullable JSONArray array) {
         if (array == null)
             return null;
-        Internal_entity__Survey[] surveys = new Internal_entity__Survey[array.length()];
+        IE_Survey[] surveys = new IE_Survey[array.length()];
         for(int i = 0; i < array.length(); i++) {
-            surveys[i] = Internal_entity__Survey.from(array.optJSONObject(i));
+            surveys[i] = IE_Survey.from(array.optJSONObject(i));
         }
         return surveys;
     }
 
     @Contract("null -> null")
     @Nullable
-    static Internal_entity__Survey from(@Nullable JSONObject root) {
+    static IE_Survey from(@Nullable JSONObject root) {
         if (root == null)
             return null;
         try {
@@ -69,12 +69,12 @@ class Internal_entity__Survey {
                 }
                 int type = question.getInt("type");
                 //noinspection SpellCheckingInspection
-                return new Internal_entity__Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), question.optInt("step", 0), root.optLong("seen_at", -1),
+                return new IE_Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), question.optInt("step", 0), root.optLong("seen_at", -1),
                         type < 0 ? TYPE_END_SURVEY : type > LAST_TYPE ? LAST_TYPE : type, question.getString("title"), question.getString("subtitle"),
                         question.optInt("limit_from", -1), question.optInt("limit_to", -1), choices);
             } else {//End of Survey
                 //noinspection SpellCheckingInspection
-                return new Internal_entity__Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), Integer.MAX_VALUE, root.optLong("seen_at", -1),
+                return new IE_Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), Integer.MAX_VALUE, root.optLong("seen_at", -1),
                         TYPE_END_SURVEY, "", "", -1, -1, null);
             }
         } catch (JSONException json) {
@@ -82,7 +82,7 @@ class Internal_entity__Survey {
         }
     }
 
-    Internal_entity__Survey updateFrom(@Nullable JSONObject data) {
+    IE_Survey updateFrom(@Nullable JSONObject data) {
         if(data != null) {
             try {
                 JSONObject question = data.optJSONObject("question");
@@ -131,7 +131,7 @@ class Internal_entity__Survey {
     @NonNull String title, subtitle;
     boolean seen, isRejectedOrConcluded = false;
     @Nullable Choice[] choices;
-    private Internal_entity__Survey(int survey_id, @NonNull String thank_you_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
+    private IE_Survey(int survey_id, @NonNull String thank_you_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
         this.survey_id = survey_id;
         this.thank_you_text = thank_you_text;
         this.step = step;

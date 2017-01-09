@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <declare-styleable name="Internal_Utils__MaxHeightScrollView" tools:ignore="ResourceName">
+    <declare-styleable name="IU_MaxHeightScrollView" tools:ignore="ResourceName">
         <attr name="maxHeight" format="dimension" />
     </declare-styleable>
 </resources>
