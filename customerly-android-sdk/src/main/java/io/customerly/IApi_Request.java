@@ -47,7 +47,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING_BASE_URL = "https://1e317987.ngrok.io";//TODO "https://tracking.customerly.io";
+    private static final String ENDPOINT_TRACKING_BASE_URL = /*TODO"https://1e317987.ngrok.io";*/ "https://tracking.customerly.io";
     private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
     static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
     static final String ENDPOINT_CONVERSATION_RETRIEVE = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";

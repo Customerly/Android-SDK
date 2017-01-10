@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -574,7 +575,8 @@ public class Customerly {
                         } catch (JSONException ignored) { }
                     }
                     try {
-                        Customerly._Instance.__PING__DeviceJSON.put("app_version", pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), 0).versionCode);
+                        PackageInfo pinfo = pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), 0);
+                        Customerly._Instance.__PING__DeviceJSON.put("app_version", pinfo.versionName).put("app_build", pinfo.versionCode);
                     } catch (JSONException | PackageManager.NameNotFoundException err) {
                         try {
                             Customerly._Instance.__PING__DeviceJSON.put("app_version", 0);

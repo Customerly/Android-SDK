@@ -12,6 +12,8 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
+def CustomerlySDKVersion = 'ALPHA-0.9.2'
+
 ext {
     bintrayRepo = 'maven'
     bintrayName = 'customerly-android-sdk'
@@ -25,7 +27,7 @@ ext {
     siteUrl = 'https://github.com/customerly/Customerly-Android-SDK'
     gitUrl = 'https://github.com/customerly/Customerly-Android-SDK.git'
 
-    libraryVersion = 'ALPHA-0.9.1'
+    libraryVersion = "$CustomerlySDKVersion"
 
     developerId = 'giannign1'
     developerName = 'Gianni Genovesi'
@@ -44,7 +46,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 25
         versionCode 1
-        versionName 'ALPHA-0.9.1'
+        versionName "$CustomerlySDKVersion"
         consumerProguardFiles 'proguard-rules.pro'
     }
     buildTypes {
