@@ -114,13 +114,13 @@ You can register logged in users of your app into Customerly calling the method 
 Example:
 
 ```java
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni");
+Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
 ```
 
 or using a closure:
 
 ```java
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni",
+Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
  new Customerly.Callback.Success() {
      @Override
      public void onSuccess(boolean newSurvey, boolean newMessage) {
@@ -134,13 +134,13 @@ Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es
      });
      
 //Java8:
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni",
+Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
  (newSurvey, newMessage) -> { /* ... */ }, () -> { /* ... */ });
 ```
 
 You can pass custom attribute for the user as JSONObject. The JSONObject cannot contain other JSONObject or JSONArray:
 ```java
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni",
+Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
 new JSONObject().putString("attrKey", "attrValue"));
 ```
 
@@ -150,7 +150,7 @@ You can also logout users:
 Customerly.with(Context.this).logoutUser()
 ```
 
-In this method, *user_id*, *name*, *attributes*, *success* and *failure* are optionals.
+In this method *user_id*, *name*, *attributes*, *success* and *failure* are optionals.
 
 If you don't have a login method inside your apps don't worry, users can use the chat using their emails.
 
@@ -168,13 +168,15 @@ If you need to know in your app when a new message is coming, you can register t
 Customerly.with(Context.this).realTimeMessages(new Customerly.RealTimeMessagesListener() {
             @Override
             public void onMessage(Customerly.HtmlMessage messageContent) {
-                //messageContent is a `SpannableStringBuilder` containing the message with the html-formatting
+                //messageContent is a SpannableStringBuilder containing the message with the html-formatting
                 //messageContent.toPlainTextString() returns the message in plain text
             }});
       
 //Java8:
-Customerly.with(Context.this).realTimeMessages((htmlMessage) -> { /* ... */ });
+Customerly.with(Context.this).realTimeMessages((messageContent) -> { /* ... */ });
 ```
+
+###Update
 
 If you want to get a generic update and know about presence of any Survey or unread message, call `update`:
 
@@ -242,7 +244,7 @@ Remember that you can get updates about new surveys available using the `update`
 
 ###Attributes
 
-Inside attributes you can add every custom data you prefer to track. you can pass a JSONObject containing more attributes but no sub JSONObjects or JSONArray.
+Inside attributes you can add every custom data you prefer to track. you can pass a JSONObject containing more attributes but no nested JSONObjects or JSONArray.
 
 ```java
 // Eg. This attribute define what kind of pricing plan the user has purchased 
