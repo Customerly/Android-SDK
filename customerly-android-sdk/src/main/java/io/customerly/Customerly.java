@@ -41,6 +41,13 @@ import io.socket.client.Socket;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
+    private static final String EMAIL_PATTERN_MATCHER =
+            "[a-zA-Z0-9+._%\\-+]{1,256}" +
+                    "@" +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+                    "(\\." +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+";
+
 //    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
@@ -766,8 +773,8 @@ public class Customerly {
                             })
 
                             .param("email", email)
-                            .param("user_id", user_id)
-                            .param("name", name)
+                            .param("user_id", user_id == null || user_id.length() == 0 ? null : user_id)
+                            .param("name", name == null || name.length() == 0 ? null : name)
 
                             .param("attributes", pAttributes)
 
@@ -919,7 +926,7 @@ public class Customerly {
      * @param pEventName The event custom label
      */
     public void trackEvent(@NonNull String pEventName) {
-        if(this._isConfigured()) {
+        if(this._isConfigured() && pEventName.length() != 0) {
             try {
                 IE_JwtToken token = this._JwtToken;
                 if(token != null && (token.isUser() || token.isLead())) {
