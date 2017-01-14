@@ -2,6 +2,7 @@
 <img src="https://www.cdn.customerly.io/assets/img/Logo_Customerly_Name_Colored.svg">
 </p>
 
+
  
   [![Language](https://img.shields.io/badge/Android-9+-green.svg)]()
   [![Language](https://img.shields.io/badge/Java-6+-red.svg)]()
@@ -51,7 +52,7 @@ dependencies {
 
 We suggest to avoid manually integration of the SDK in your project, by the way it is still possible:
 
-1. Download and drop `/customerly-android-sdk` folder and add it as module in your project.  
+1. Download the `/customerly-android-sdk` folder and add it as module in your project.  
 2. Congratulations!  
 
 We recommend to use only the public methods of the class Customerly.
@@ -60,7 +61,7 @@ We recommend to use only the public methods of the class Customerly.
 
 **1)** Create a new AndroidStudio project or open an existing one
 
-**2)** If you already have defined a custom Application class in your project you can skip to phase 3)
+**2)** If you already have defined a custom Application class in your project you can skip to step 3).  
 Create a class that extends the default android Application class
 ```java
 public class CustomApplication extends Application {
@@ -96,11 +97,11 @@ public class CustomApplication extends Application {
 }
 ```
 If you want to specify a custom widget_color for the application ignoring the server-defined one you have to specify it in the configure method:
-```
+```java
 Customerly.with(this).configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
 ```
 Optionally, if you want to enable the logging in console you have to call the following method. Our suggest is to call it soon after the configure:
-```
+```java
 Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
 ```
 
@@ -112,13 +113,13 @@ You can register logged in users of your app into Customerly calling the method 
 
 Example:
 
-```
+```java
 Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni");
 ```
 
 or using a closure:
 
-```
+```java
 Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni",
  new Customerly.Callback.Success() {
      @Override
@@ -138,14 +139,14 @@ Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es
 ```
 
 You can pass custom attribute for the user as JSONObject. The JSONObject cannot contain other JSONObject or JSONArray:
-```
+```java
 Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", name: "Opt.Name es Gianni",
 new JSONObject().putString("attrKey", "attrValue"));
 ```
 
 You can also logout users:
 
-```
+```java
 Customerly.with(Context.this).logoutUser()
 ```
 
@@ -157,13 +158,13 @@ If you don't have a login method inside your apps don't worry, users can use the
 
 You can open the support view controller calling the method `openSupport`:
 
-```
+```java
 Customerly.with(Context.this).openSupport(Activity.this)
 ```
 
 If you need to know in your app when a new message is coming, you can register the *realTimeMessages:* handler
 
-```
+```java
 Customerly.with(Context.this).realTimeMessages(new Customerly.RealTimeMessagesListener() {
             @Override
             public void onMessage(Customerly.HtmlMessage messageContent) {
@@ -177,7 +178,7 @@ Customerly.with(Context.this).realTimeMessages((htmlMessage) -> { /* ... */ });
 
 If you want to get a generic update and know about presence of any Survey or unread message, call `update`:
 
-```
+```java
 Customerly.with(Context.this).update(new Customerly.Callback.Success() {
                                           @Override
                                           public void onSuccess(boolean newSurvey, boolean newMessage) {
@@ -199,7 +200,7 @@ With the Customerly SDK you can deliver surveys directly into your app.
 
 You can present a survey in a dialogfragment from your activity support FragmentManager like this:
 
-```
+```java
 if Customerly.with(Context.this).isSurveyAvailable(){
     Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager(),
     new Customerly.SurveyListener.OnShow() {
@@ -234,7 +235,7 @@ Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager
 
 The SurveyListener are totally optional, you can call `openSurvey` like this if you don't need them:
 
-```
+```java
 Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager())
 ```
 Remember that you can get updates about new surveys available using the `update` method.
@@ -243,7 +244,7 @@ Remember that you can get updates about new surveys available using the `update`
 
 Inside attributes you can add every custom data you prefer to track. you can pass a JSONObject containing more attributes but no sub JSONObjects or JSONArray.
 
-```swift
+```java
 // Eg. This attribute define what kind of pricing plan the user has purchased 
 Customerly.with(Context.this).setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
 ```
@@ -252,7 +253,7 @@ Customerly.with(Context.this).setAttributes(new JSONObject().putString("pricing_
 
 Send to Customerly every event you want to segment users better
 
-```
+```java
 // Eg. This send an event that track a potential purchase
 Customerly.with(Context.this).trackEvent("added_to_cart")
 ```
