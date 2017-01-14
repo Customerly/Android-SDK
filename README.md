@@ -301,4 +301,4 @@ Made with ❤️ by [Gianni Genovesi](https://www.linkedin.com/in/ggenovesi/) fo
 
 ## License
 
-Customerly Android SDK is available under the XXX license. See the LICENSE file for more info.
+Customerly Android SDK is available under the Apache License 2.0. See the *Customerly_LICENSE.txt* file for more info.
