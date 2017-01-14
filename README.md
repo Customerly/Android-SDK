@@ -29,35 +29,7 @@ The Customerly Android SDK is really simple to integrate in your apps, and allow
 - Android Studio 2.0+
 - Java 6+
 
-## Integration via gradle dependency (Recommended)
-
-To use the Customerly SDK we recommend to use Gradle Dependency
-
-To integrate the Customerly SDK into your Android Studio project using Gradle dependency, open your module `build.gradle` file and add the following dependency:
-
-
-```gradle
-repositories {//When the repository will be hosted on jcenter this won't be necessary anymore
-    maven {
-        url 'https://dl.bintray.com/giannign1/maven/'
-    }
-}
-
-dependencies {
-    compile 'io.customerly:customerly-android-sdk:ALPHA-0.9.2'
-}
-```
-
-## Manually (Discouraged)
-
-We suggest to avoid manually integration of the SDK in your project, by the way it is still possible:
-
-1. Download the `/customerly-android-sdk` folder and add it as module in your project.  
-2. Congratulations!  
-
-We recommend to use only the public methods of the class Customerly.
-
-### Permissions
+## Permissions
 
 The following permission will be added to the merged AndroidManifest of your application:
 
@@ -75,6 +47,36 @@ The following permission will be added to the merged AndroidManifest of your app
 *INTERNET* is used to perform http requests  
 *READ_EXTERNAL_STORAGE* is used to upload file attachments  
 *READ_WRITE_EXTERNAL_STORAGE_STORAGE* is used to save file attachments
+
+## Setup Customerly SDK
+
+### Integration via Gradle dependency (Recommended)
+
+To use the Customerly SDK we recommend to use Gradle dependency
+
+To integrate the Customerly SDK into your Android Studio project using Gradle dependency, open your module `build.gradle` file and add the following dependency:
+
+
+```gradle
+repositories {//When the repository will be hosted on jcenter this won't be necessary anymore
+    maven {
+        url 'https://dl.bintray.com/giannign1/maven/'
+    }
+}
+
+dependencies {
+    compile 'io.customerly:customerly-android-sdk:ALPHA-0.9.2'
+}
+```
+
+### Manual integration (Discouraged)
+
+We suggest to avoid manually integration of the SDK in your project, by the way it is still possible:
+
+1. Download the `/customerly-android-sdk` folder and add it as module in your project.  
+2. Congratulations!  
+
+We recommend to use only the public methods of the class Customerly.
 
 ### Configuration
 
@@ -173,7 +175,7 @@ In this method *user_id*, *name*, *attributes*, *success* and *failure* are opti
 
 If you don't have a login method inside your apps don't worry, users can use the chat using their emails.
 
-###Chat
+### Chat
 
 You can open the support view controller calling the method `openSupport`:
 
@@ -195,7 +197,7 @@ Customerly.with(Context.this).realTimeMessages(new Customerly.RealTimeMessagesLi
 Customerly.with(Context.this).realTimeMessages((messageContent) -> { /* ... */ });
 ```
 
-###Update
+### Update
 
 If you want to get a generic update and know about presence of any Survey or unread message, call `update`:
 
@@ -215,7 +217,7 @@ Customerly.with(Context.this).update(new Customerly.Callback.Success() {
 Customerly.with(Context.this).update( (newSurvey, newMessage) -> { /* ... */ }, () -> { /* ... */ } );
 ```
 
-###Surveys
+### Surveys
 
 With the Customerly SDK you can deliver surveys directly into your app.
 
@@ -261,7 +263,7 @@ Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager
 ```
 Remember that you can get updates about new surveys available using the `update` method.
 
-###Attributes
+### Attributes
 
 Inside attributes you can add every custom data you prefer to track. you can pass a JSONObject containing more attributes but no nested JSONObjects or JSONArray.
 
@@ -270,7 +272,7 @@ Inside attributes you can add every custom data you prefer to track. you can pas
 Customerly.with(Context.this).setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
 ```
 
-###Events
+### Events
 
 Send to Customerly every event you want to segment users better
 
