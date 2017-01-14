@@ -54,7 +54,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Locale;
 
 /**
  * Created by Gianni on 03/09/16.
@@ -520,10 +519,8 @@ public final class IAct_Chat extends IAct_AInput {
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
             this._Content.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.io_customerly__ic_email_grey_32dp, 0, 0);
             View.OnClickListener clickListener = v -> {
-                if(pMessage != null && pMessage.rich_mail_token != null) {
-                    IU_Utils.intentUrl(IAct_Chat.this,
-                            String.format(Locale.UK, "https://app.customerly.io/email/view/%d/%s",
-                                    pMessage.conversation_message_id, pMessage.rich_mail_token));
+                if(pMessage != null && pMessage.rich_mail_url != null) {
+                    IU_Utils.intentUrl(IAct_Chat.this, pMessage.rich_mail_url);
                 }
             };
             this.itemView.setOnClickListener(clickListener);
@@ -726,7 +723,7 @@ public final class IAct_Chat extends IAct_AInput {
                 IE_Message message = _ChatList.get(position);
                 if(message.isUserMessage()) {
                     return R.layout.io_customerly__li_message_user;
-                } else if(message.rich_mail_token == null) {
+                } else if(message.rich_mail_url == null) {
                     return R.layout.io_customerly__li_message_account;
                 } else {
                     return R.layout.io_customerly__li_message_account_rich;

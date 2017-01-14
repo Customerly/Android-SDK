@@ -204,7 +204,7 @@ public class Customerly {
     interface __SOCKET__IMessage_listener {   void onMessageEvent(@NonNull ArrayList<IE_Message> news);   }
     @Nullable __SOCKET__ITyping_listener __SOCKET__Typing_listener = null;
     @Nullable __SOCKET__IMessage_listener __SOCKET__Message_listener = null;
-    @Nullable private RealTimeMessagesCallback __SOCKET__RealTimeMessagesCallback = null;
+    @Nullable private RealTimeMessagesListener __SOCKET__RealTimeMessagesListener = null;
     @Nullable private String __SOCKET__Endpoint = null, __SOCKET__Port = null;
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     @NonNull private final Runnable __SOCKET__ping = () -> {
@@ -303,7 +303,7 @@ public class Customerly {
                                                 && socket_user_id != 0 && timestamp != 0
                                                 && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
                                             final __SOCKET__IMessage_listener listener = this.__SOCKET__Message_listener;
-                                            final RealTimeMessagesCallback rtcCallback = this.__SOCKET__RealTimeMessagesCallback;
+                                            final RealTimeMessagesListener rtcCallback = this.__SOCKET__RealTimeMessagesListener;
                                             if (listener != null || rtcCallback != null) {
                                                 new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
                                                         .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
@@ -544,10 +544,10 @@ public class Customerly {
     }
 
     /**
-     * Implement this interface to register a callback for incoming real time chat messages with {@link #realTimeMessages(RealTimeMessagesCallback)}.<br>
+     * Implement this interface to register a listener for incoming real time chat messages with {@link #realTimeMessages(RealTimeMessagesListener)}.<br>
      * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
      */
-    public interface RealTimeMessagesCallback {
+    public interface RealTimeMessagesListener {
         /**
          * Invoked when the user receive a message from the support.
          * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
@@ -558,7 +558,7 @@ public class Customerly {
     /**
      * Call this method to obtain the reference to the Customerly SDK
      * @param pContext A Context
-     * @return The Customerly SDK
+     * @return The Customerly SDK instance reference
      */
     @NonNull public static Customerly with(@NonNull Context pContext) {
         if(! Customerly._Instance.initialized) {//Avoid to perform lock if not needed
@@ -689,6 +689,18 @@ public class Customerly {
                 }
             }
         }
+    }
+
+    /**
+     * Call this method to link your app user to the Customerly session.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * @param email The mail address of the user, this is mandatory
+     * @param user_id The optional user_id of the user, null otherwise
+     * @param name The optional name of the user, null otherwise
+     */
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name) {
+        this.registerUser(email, user_id, name, null, null, null);
     }
 
     /**
@@ -1001,9 +1013,9 @@ public class Customerly {
      * Call this method to register a callback for incoming real time chat messages when no support activities are displayed.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param pRealTimeMessagesCallback The callback
+     * @param pRealTimeMessagesListener The callback
      */
-    public void realTimeMessages(@Nullable RealTimeMessagesCallback pRealTimeMessagesCallback) {
-        this.__SOCKET__RealTimeMessagesCallback = pRealTimeMessagesCallback;
+    public void realTimeMessages(@Nullable RealTimeMessagesListener pRealTimeMessagesListener) {
+        this.__SOCKET__RealTimeMessagesListener = pRealTimeMessagesListener;
     }
 }

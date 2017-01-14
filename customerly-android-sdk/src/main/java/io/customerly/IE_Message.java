@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Gianni on 11/09/16.
@@ -20,7 +21,7 @@ class IE_Message {
     private final long user_id, account_id, seen_date;
 
     @Nullable final Customerly.HtmlMessage content;
-    @Nullable final String if_account__name, rich_mail_token;
+    @Nullable final String if_account__name, rich_mail_url;
     @Nullable final IE_Attachment[] _Attachments;
 
     @Nullable private String _Cached__toStringDate = null;
@@ -48,7 +49,7 @@ class IE_Message {
         this.content = IU_Utils.decodeHtmlStringWithEmojiTag(pMessage);
         this._Attachments = pAttachments;
         this.if_account__name = null;
-        this.rich_mail_token = null;
+        this.rich_mail_url = null;
     }
 
     IE_Message(@NonNull JSONObject pMessageItem) {
@@ -63,7 +64,15 @@ class IE_Message {
         this.sent_date = pMessageItem.optLong("sent_date", 0);
         this.seen_date = pMessageItem.optLong("seen_date", 0);
         this.content = IU_Utils.decodeHtmlStringWithEmojiTag(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
-        this.rich_mail_token = pMessageItem.optInt("rich_mail", 0) == 0 ? null : IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_token");
+        this.rich_mail_url = pMessageItem.optInt("rich_mail", 0) == 0 ? null :
+
+                /* TODO sparisce * */
+                pMessageItem.isNull("rich_mail_url") ?
+                        String.format(Locale.UK, "https://app.customerly.io/email/view/%d/%s",
+                                this.conversation_message_id, IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_token")) :
+                /* *************** */
+
+                IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_url");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {

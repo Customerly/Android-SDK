@@ -73,7 +73,6 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp3:okhttp-ws:3.4.2'
     compile ('io.socket:socket.io-client:0.8.3') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'

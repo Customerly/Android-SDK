@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +48,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING_BASE_URL = /*TODO"https://1e317987.ngrok.io";*/ "https://tracking.customerly.io";
+    private static final String ENDPOINT_TRACKING_BASE_URL = "https://tracking.customerly.io";
     private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
     static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
     static final String ENDPOINT_CONVERSATION_RETRIEVE = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";
@@ -339,7 +340,9 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                 os.write(pJsonPayload.toString().getBytes());
                 os.flush();
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        conn.getResponseCode() == HttpURLConnection.HTTP_OK ? conn.getInputStream() : conn.getErrorStream()
+                ));
                 StringBuilder responseStrBuilder = new StringBuilder();
 
                 String inputStr;
@@ -369,7 +372,13 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
                     }
 
-                    if(response_root.has("error")) {
+                    if(! response_root.has("error")) {
+                        this._ResponseState = RESPONSE_STATE__OK;
+                        if (ENDPOINT_PING.equals(pEndpoint)) {
+                            Customerly._Instance._TOKEN__update(response_root);
+                        }
+                        return response_root;
+                    } else {
                         /*  {   "error": "exception_title",
                                 "message": "Exception_message",
                                 "code": "ExceptionCode"     }   */
@@ -385,13 +394,8 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                                     return null;
                             }
                         }
+                        this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
                     }
-
-                    this._ResponseState = RESPONSE_STATE__OK;
-                    if(ENDPOINT_PING.equals(pEndpoint)) {
-                        Customerly._Instance._TOKEN__update(response_root);
-                    }
-                    return response_root;
                 } catch (JSONException error) {
                     Customerly._Instance._log("The server received the request but an error has come");
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;

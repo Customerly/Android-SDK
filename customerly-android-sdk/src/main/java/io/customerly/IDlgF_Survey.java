@@ -381,6 +381,7 @@ public class IDlgF_Survey extends DialogFragment {
                                 case IE_Survey.TYPE_TEXT_AREA:
                                     editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
                                     editText.setHint(R.string.io_customerly__hint_insert_a_text);
+                                    editText.setMinLines(2);
                                     break;
                                 case IE_Survey.TYPE_BUTTON:
                                 case IE_Survey.TYPE_END_SURVEY:
@@ -450,12 +451,9 @@ public class IDlgF_Survey extends DialogFragment {
                     this.applySurvey(survey);
                 })
                 .opt_trials(2)
-                .param("survey_id", pSurvey.survey_id);
-        if(choice_id != -1) {
-            builder = builder.param("choice_id", choice_id);
-        } else {
-            builder = builder.param("answer", answer);
-        }
+                .param("survey_id", pSurvey.survey_id)
+                .param("answer", answer != null ? answer : "")
+                .param("choice_id", choice_id == -1 ? "" : String.valueOf(choice_id));
         builder.start();
     }
 }
