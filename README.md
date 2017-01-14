@@ -105,7 +105,7 @@ Optionally, if you want to enable the logging in console you have to call the fo
 Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
 ```
 
-**If in doubt, you can look at the examples in the demo application. (See at https://github.com/customerly/Customerly-Android-SDK-demo/blob/master/app/src/main/java/io/customerly/demo/CustomApplication.java)**
+**If in doubt, you can look at the examples in the demo application. (See the demo's [CustomApplication.java](https://github.com/customerly/Customerly-Android-SDK-demo/blob/master/app/src/main/java/io/customerly/demo/CustomApplication.java))**
 
 ### User registration
 
