@@ -57,6 +57,25 @@ We suggest to avoid manually integration of the SDK in your project, by the way 
 
 We recommend to use only the public methods of the class Customerly.
 
+### Permissions
+
+The following permission will be added to the merged AndroidManifest of your application:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="YOUR.PACKAGE">
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    //...
+</manifest>
+```
+*ACCESS_NETWORK_STATE* is used to verify if an internet connection is available  
+*INTERNET* is used to perform http requests  
+*READ_EXTERNAL_STORAGE* is used to upload file attachments  
+*READ_WRITE_EXTERNAL_STORAGE_STORAGE* is used to save file attachments
+
 ### Configuration
 
 **1)** Create a new AndroidStudio project or open an existing one

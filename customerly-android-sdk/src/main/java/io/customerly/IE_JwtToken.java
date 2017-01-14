@@ -75,14 +75,17 @@ class IE_JwtToken {
         return this._EncodedToken;
     }
 
+    @Contract(pure=true)
     boolean isUser() {
         return (USER_TYPE__USER & _UserType) != 0;
     }
 
+    @Contract(pure=true)
     boolean isLead() {
         return (USER_TYPE__LEAD & _UserType) != 0;
     }
 
+    @Contract(pure=true)
     boolean isAnonymous() {
         return (USER_TYPE__ANONYMOUS & _UserType) != 0;
     }
