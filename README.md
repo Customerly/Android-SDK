@@ -281,6 +281,10 @@ Send to Customerly every event you want to segment users better
 Customerly.with(Context.this).trackEvent("added_to_cart")
 ```
 
+### JavaDoc
+
+Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/)
+
 
 ## Contributing
 
