@@ -4,6 +4,7 @@
 </a>
 </p>
 
+  [![Language](https://www.cdn.customerly.io/assets/img/Logo_Customerly_Name_Colored.svg)](http://www.customerly.io)
 
  
   [![Language](https://img.shields.io/badge/Android-9+-green.svg)]()
