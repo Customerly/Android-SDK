@@ -284,7 +284,7 @@ Customerly.with(Context.this).trackEvent("added_to_cart")
 
 ## JavaDoc
 
-Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/1.0)
+Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/1.0+)
 
 ## Proguard
 
