@@ -1,5 +1,21 @@
 package io.customerly;
 
+/*
+ * Copyright (C) 2017 Customerly
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -34,6 +50,10 @@ import java.util.Locale;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+/**
+ * Created by Gianni on 29/11/16.
+ * Project: Customerly Android SDK
+ */
 class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
     @StringDef({ENDPOINT_PING, ENDPOINT_CONVERSATION_RETRIEVE, ENDPOINT_MESSAGE_SEEN, ENDPOINT_MESSAGE_NEWS,

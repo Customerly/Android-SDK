@@ -286,6 +286,15 @@ Customerly.with(Context.this).trackEvent("added_to_cart")
 
 Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/1.0)
 
+## Proguard
+
+The library needs the following two rules to work with proguard enabled
+```
+-dontwarn java.lang.invoke.*
+-dontwarn okio.**
+```
+
+By the way should not be necessary to explicitly add them in your proguard file because they should be automatically inherited.
 
 ## Contributing
 

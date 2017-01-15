@@ -1,5 +1,21 @@
 package io.customerly;
 
+/*
+ * Copyright (C) 2017 Customerly
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -33,7 +49,7 @@ import java.util.Locale;
 
 /**
  * Created by Gianni on 03/09/16.
- * Project: CustomerlySDK
+ * Project: Customerly Android SDK
  */
 public final class IAct_List extends IAct_AInput {
 
@@ -117,7 +133,7 @@ public final class IAct_List extends IAct_AInput {
                     }
                 }
                 //New message of a new conversation
-                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.assigner_id, new_filtered.sent_date, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
+                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.sent_date, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
             }
             //Sort the conversation by last message date
             Collections.sort(conversations, (c1, c2) -> (int)(c2.last_message_date - c1.last_message_date));

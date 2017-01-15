@@ -1,5 +1,21 @@
 package io.customerly;
 
+/*
+ * Copyright (C) 2017 Customerly
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
@@ -11,7 +27,7 @@ import org.json.JSONObject;
 
 /**
  * Created by Gianni on 11/09/16.
- * Project: CustomerlySDK
+ * Project: Customerly Android SDK
  */
 class IE_Conversation {
 
@@ -23,13 +39,12 @@ class IE_Conversation {
     long last_message_date;
     @Nullable private String last_account__name;
 
-    final long conversation_id, assigner_id;
+    final long conversation_id;
 
-    IE_Conversation(long pConversationID, @Nullable Customerly.HtmlMessage pLastMessage, long pAssignerID, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
+    IE_Conversation(long pConversationID, @Nullable Customerly.HtmlMessage pLastMessage, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
         this.last_message_abstract = pLastMessage;
-        this.assigner_id = pAssignerID;
 
         this.last_message_date = pLastMessageDate;
         this.last_message_writer = pLastMessageWriterID;
@@ -45,7 +60,6 @@ class IE_Conversation {
 
         this.conversation_id = pConversationItem.getLong("conversation_id");
         this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pConversationItem.getString("last_message_abstract"));
-        this.assigner_id = pConversationItem.getLong("assigner_id");
 
         this.last_message_date = pConversationItem.getLong("last_message_date");
         this.last_message_writer = pConversationItem.optLong("last_message_writer");

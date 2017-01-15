@@ -1,5 +1,21 @@
 package io.customerly;
 
+/*
+ * Copyright (C) 2017 Customerly
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.SystemClock;
@@ -10,7 +26,7 @@ import org.jetbrains.annotations.Contract;
 
 /**
  * Created by Gianni on 08/03/16.
- * Project: CustomerlyAndroidSDK
+ * Project: Customerly Android SDK
  */
 @SuppressWarnings("unused")
 class IU_NTP_Utils {
@@ -23,10 +39,11 @@ class IU_NTP_Utils {
         if(onNetworkTime == null && (onNetworkTimeNotNull == null || onNetworkError == null))
             throw new IllegalStateException("You have to specify a ResultUtils.OnResult or both ResultUtils.OnNonNullResult and ResultUtils.OnNoResult");
         if(context != null && ! IU_Utils.checkConnection(context)) {
-            if(onNetworkTime != null)
+            if(onNetworkTime != null) {
                 onNetworkTime.onResult(null);
-            else
+            } else {
                 onNetworkError.onResult();
+            }
         }
 
         new AsyncTask<Void, Void, Long>() {
@@ -36,12 +53,13 @@ class IU_NTP_Utils {
             }
             @Override
             protected void onPostExecute(Long time) {
-                if(onNetworkTime != null)
+                if(onNetworkTime != null) {
                     onNetworkTime.onResult(time);
-                else if(time != null)
+                } else if(time != null) {
                     onNetworkTimeNotNull.onResult(time);
-                else
+                } else {
                     onNetworkError.onResult();
+                }
             }
         }.execute();
     }
@@ -49,12 +67,15 @@ class IU_NTP_Utils {
     private static IU_SntpClient _SntpClient;
     @SuppressWarnings("WeakerAccess")
     @Nullable static Long getSafeNow_fromBackgroundThread() {
-        if(IU_NTP_Utils._SntpClient == null)
+        if(IU_NTP_Utils._SntpClient == null) {
             IU_NTP_Utils._SntpClient = new IU_SntpClient();
+        }
         int server = 0;
-        while(server < SERVERS.length)
-            if (IU_NTP_Utils._SntpClient.requestTime(SERVERS[server++], 5000))
+        while(server < SERVERS.length) {
+            if (IU_NTP_Utils._SntpClient.requestTime(SERVERS[server++], 5000)) {
                 return IU_NTP_Utils._SntpClient.getNtpTime() + SystemClock.elapsedRealtime() - IU_NTP_Utils._SntpClient.getNtpTimeReference();
+            }
+        }
         return null;
     }
     private static final String[] SERVERS = new String[] {
