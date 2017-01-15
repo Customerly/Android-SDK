@@ -1,5 +1,7 @@
 <p align="center">
+<a href="http://www.customerly.io">
 <img src="https://www.cdn.customerly.io/assets/img/Logo_Customerly_Name_Colored.svg">
+</a>
 </p>
 
 
