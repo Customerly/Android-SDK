@@ -13,6 +13,10 @@ Deliver Surveys directly into your app and get the responses in one place. Study
 
 The Customerly Android SDK is really simple to integrate in your apps, and allow your users to contact you via chat.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/chat-preview.jpg?raw=true" width=500 alt="Icon"/>
+</p>
+
 ## Features
 
 - [x] Register your users
