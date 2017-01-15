@@ -121,7 +121,8 @@ If you want to specify a custom widget_color for the application ignoring the se
 ```java
 Customerly.with(this).configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
 ```
-Optionally, if you want to enable the logging in console you have to call the following method. Our suggest is to call it soon after the configure:
+Optionally, if you want to enable the logging in console you have to call the following method.  
+Our suggest is to call it soon after the configure:
 ```java
 Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
 ```
@@ -281,7 +282,7 @@ Send to Customerly every event you want to segment users better
 Customerly.with(Context.this).trackEvent("added_to_cart")
 ```
 
-### JavaDoc
+## JavaDoc
 
 Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/)
 
@@ -301,4 +302,5 @@ Made with ❤️ by [Gianni Genovesi](https://www.linkedin.com/in/ggenovesi/) fo
 
 ## License
 
-Customerly Android SDK is available under the Apache License 2.0. See the [Customerly_LICENSE.txt](https://github.com/customerly/Customerly-Android-SDK/blob/master/Customerly_LICENSE.txt) file for more info.
+Customerly Android SDK is available under the Apache License 2.0.  
+See the [Customerly_LICENSE.txt](https://github.com/customerly/Customerly-Android-SDK/blob/master/Customerly_LICENSE.txt) file for more info.
