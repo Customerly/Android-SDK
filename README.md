@@ -1,9 +1,9 @@
 <p align="center">
+<a href="http://www.customerly.io">
 <img src="https://www.cdn.customerly.io/assets/img/Logo_Customerly_Name_Colored.svg">
+</a>
 </p>
 
-
- 
   [![Language](https://img.shields.io/badge/Android-9+-green.svg)]()
   [![Language](https://img.shields.io/badge/Java-6+-red.svg)]()
   
