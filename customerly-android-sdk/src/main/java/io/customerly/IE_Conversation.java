@@ -98,8 +98,8 @@ class IE_Conversation {
         return IU_TimeAgoUtils.calculate(this.last_message_date,
                 seconds -> resources.getString(R.string.io_customerly__XX_sec_ago, seconds),
                 minutes -> resources.getString(R.string.io_customerly__XX_min_ago, minutes),
-                hours -> resources.getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, (int)hours, hours),
-                days -> resources.getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, (int)days, days));
+                hours -> resources.getQuantityString(R.plurals.io_customerly__XX_hours_ago, (int)hours, hours),
+                days -> resources.getQuantityString(R.plurals.io_customerly__XX_days_ago, (int)days, days));
     }
 
 }
