@@ -69,9 +69,10 @@ repositories {//When the repository will be hosted on jcenter this won't be nece
 }
 
 dependencies {
-    compile 'io.customerly:customerly-android-sdk:ALPHA-0.9.2'
+    compile 'io.customerly:customerly-android-sdk:VERSION_NAME'
 }
 ```
+Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
 
 ### Manual integration (Discouraged)
 
