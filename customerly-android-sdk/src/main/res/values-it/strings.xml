@@ -29,6 +29,17 @@
         <item quantity="other">Ultima attivit&#225; %1$d giorni fa</item>
     </plurals>
 
+    <string name="io_customerly__XX_sec_ago">%1$d sec fa</string>
+    <string name="io_customerly__XX_min_ago">%1$d min fa</string>
+    <plurals name="io_customerly__XX_hour_ago">
+        <item quantity="one">%1$d ora fa</item>
+        <item quantity="other">%1$d ore fa</item>
+    </plurals>
+    <plurals name="io_customerly__XX_days_ago">
+        <item quantity="one">%1$d giorno fa</item>
+        <item quantity="other">%1$d giorni fa</item>
+    </plurals>
+
     <!-- Localized -->
     <string name="io_customerly__powered_by_">Offerto da&#160;</string>
     <string name="io_customerly__contact_the_support_writing_your_question_below">Contatta l\'assistenza scrivendo la tua domanda qui sotto.</string>
@@ -58,10 +69,6 @@
     <string name="io_customerly__attachments_max_size_error">Non puoi allegare file così grandi</string>
     <string name="io_customerly__last_activity_now">Adesso in linea</string>
     <string name="io_customerly__icon">Icona</string>
-    <string name="io_customerly__XXs_ago">%1$ds fa</string>
-    <string name="io_customerly__XXm_ago">%1$dm fa</string>
-    <string name="io_customerly__XXh_ago">%1$do fa</string>
-    <string name="io_customerly__XXd_ago">%1$dg fa</string>
     <string name="io_customerly__survey">Sondaggio</string>
     <string name="io_customerly__choose_an_answer">Scegli una risposta</string>
     <string name="io_customerly__confirm">Conferma</string>

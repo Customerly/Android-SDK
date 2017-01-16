@@ -33,6 +33,17 @@
         <item quantity="other">Last activity %1$d days ago</item>
     </plurals>
 
+    <string name="io_customerly__XX_sec_ago">%1$d sec ago</string>
+    <string name="io_customerly__XX_min_ago">%1$d min ago</string>
+    <plurals name="io_customerly__XX_hour_ago">
+        <item quantity="one">%1$d hour ago</item>
+        <item quantity="other">%1$d hours ago</item>
+    </plurals>
+    <plurals name="io_customerly__XX_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+
     <!-- Localized -->
     <string name="io_customerly__powered_by_">Powered by&#160;</string>
     <string name="io_customerly__contact_the_support_writing_your_question_below">Contact the support writing your question below</string>
@@ -62,10 +73,6 @@
     <string name="io_customerly__attachments_max_size_error">This file is too big to be attached</string>
     <string name="io_customerly__last_activity_now">Online</string>
     <string name="io_customerly__icon">Icon</string>
-    <string name="io_customerly__XXs_ago">%1$ds ago</string>
-    <string name="io_customerly__XXm_ago">%1$dm ago</string>
-    <string name="io_customerly__XXh_ago">%1$dh ago</string>
-    <string name="io_customerly__XXd_ago">%1$dd ago</string>
     <string name="io_customerly__survey">Survey</string>
     <string name="io_customerly__choose_an_answer">Choose an answer</string>
     <string name="io_customerly__confirm">Confirm</string>
