@@ -4,7 +4,7 @@
 </a>
 </p>
 
-  [![Language](https://img.shields.io/badge/Android-9+-green.svg)]()
+  [![Language](https://img.shields.io/badge/Android-API_9+-green.svg)]()
   [![Language](https://img.shields.io/badge/Java-6+-red.svg)]()
   
 **customerly.io** is the perfect tool to getting closer to your customers. Help them where they are with the customer support widget. Manage your audience based on their behaviours, build campaigns and automations.
@@ -69,10 +69,10 @@ repositories {//When the repository will be hosted on jcenter this won't be nece
 }
 
 dependencies {
-    compile 'io.customerly:customerly-android-sdk:VERSION_NAME'
+    compile 'io.customerly:customerly-android-sdk:<VERSION_NAME>'
 }
 ```
-Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
+Instead of <VERSION_NAME> use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
 
 ### Manual integration (Discouraged)
 
