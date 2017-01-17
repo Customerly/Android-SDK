@@ -15,10 +15,11 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal" >
+    android:gravity="center_horizontal">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -78,7 +79,9 @@
                                 android:layout_marginBottom="10dp"
                                 android:textColor="@color/io_customerly__grey_99"
                                 android:textSize="13sp"
-                                android:visibility="gone" />
+                                android:visibility="gone"
+                                android:fontFamily="sans-serif"
+                                tools:ignore="UnusedAttribute" />
 
                             <TextView android:id="@id/io_customerly__layout_first_contact__welcome_card__welcome"
                                 android:layout_width="wrap_content"
@@ -87,6 +90,8 @@
                                 android:layout_marginBottom="10dp"
                                 android:textColor="@color/io_customerly__grey_99"
                                 android:textSize="14sp"
+                                android:fontFamily="sans-serif"
+                                tools:ignore="UnusedAttribute"
                                 android:visibility="gone" />
 
                         </LinearLayout>
@@ -115,6 +120,8 @@
                             android:layout_marginEnd="10dp"
                             android:textColor="@color/io_customerly__grey_99"
                             android:textSize="14sp"
+                            android:fontFamily="sans-serif"
+                            tools:ignore="UnusedAttribute"
                             android:text="@string/io_customerly__contact_the_support_writing_your_question_below" />
 
                     </android.support.v7.widget.CardView>
@@ -167,6 +174,8 @@
             android:paddingTop="10dp"
             android:textColorHint="@color/io_customerly__grey_99"
             android:textColor="@color/io_customerly__dark_text"
+            android:fontFamily="sans-serif"
+            tools:ignore="UnusedAttribute"
             android:inputType="textEmailAddress"
             android:hint="@string/io_customerly__insert_your_email"
             android:background="@android:color/transparent" />
@@ -184,6 +193,8 @@
             android:background="@drawable/io_customerly__button_blue2"
             android:foreground="?attr/selectableItemBackground"
             android:textColor="@android:color/white"
+            android:fontFamily="sans-serif"
+            tools:ignore="UnusedAttribute"
             android:text="@string/io_customerly__start_the_conversation"/>
 
     </LinearLayout>
@@ -207,6 +218,8 @@
             android:background="@drawable/io_customerly__button_blue2"
             android:foreground="?attr/selectableItemBackground"
             android:textColor="@android:color/white"
+            android:fontFamily="sans-serif"
+            tools:ignore="UnusedAttribute"
             android:text="@string/io_customerly__start_a_new_conversation"/>
 
     </LinearLayout>

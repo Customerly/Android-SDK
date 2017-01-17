@@ -19,6 +19,7 @@ package io.customerly;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -239,6 +240,7 @@ public final class IAct_List extends IAct_AInput {
                         name.setMinLines(2);
                         name.setMaxLines(3);
                         name.setGravity(Gravity.CENTER_HORIZONTAL);
+                        name.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                         ll.addView(name);
 
                         layout_first_contact__admin_container.addView(ll);

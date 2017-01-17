@@ -26,6 +26,8 @@
         android:textColor="@color/io_customerly__grey_99"
         android:layout_centerHorizontal="true"
         android:padding="7.5dp"
+        android:fontFamily="sans-serif"
+        tools:ignore="UnusedAttribute"
         android:visibility="gone"/>
 
     <ImageView android:id="@id/io_customerly__icon"
@@ -71,6 +73,8 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
+                android:fontFamily="sans-serif"
+                tools:ignore="UnusedAttribute"
                 android:drawablePadding="5dp" />
 
             <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"

@@ -13,13 +13,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<android.support.v7.widget.AppCompatRadioButton
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.AppCompatRadioButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:theme="@style/io_customerly__RadioButton_Blue1"
     android:layout_width="match_parent"
     android:layout_height="40dp"
     android:textColor="@android:color/black"
     android:textSize="16sp"
+    android:fontFamily="sans-serif"
+    tools:ignore="UnusedAttribute"
     android:gravity="center_vertical"
     android:layout_marginBottom="5dp"
     android:layout_marginTop="5dp" />

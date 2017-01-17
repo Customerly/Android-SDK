@@ -40,13 +40,14 @@
             android:textSize="16sp"
             android:textColorHint="@color/io_customerly__grey_99"
             android:textColor="@color/io_customerly__dark_text"
+            android:fontFamily="sans-serif"
             android:singleLine="false"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:maxLines="3"
             android:inputType="text|textCapSentences|textMultiLine|textImeMultiLine"
             android:hint="@string/io_customerly__write_your_question"
-            tools:ignore="Deprecated"
+            tools:ignore="Deprecated,UnusedAttribute"
             android:lineSpacingExtra="5dp"
             android:background="@android:color/transparent" />
 

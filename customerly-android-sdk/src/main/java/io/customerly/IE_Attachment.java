@@ -17,6 +17,7 @@ package io.customerly;
  */
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -76,6 +77,7 @@ class IE_Attachment {
         tv.setLines(1);
         tv.setSingleLine();
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        tv.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
         tv.setText(this.name);
         tv.setOnClickListener(textView -> new AlertDialog.Builder(pA_Customerly_Activity)
                 .setTitle(R.string.io_customerly__choose_a_file_to_attach)

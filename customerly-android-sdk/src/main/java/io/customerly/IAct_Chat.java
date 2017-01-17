@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -691,6 +692,7 @@ public final class IAct_Chat extends IAct_AInput {
                         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
                         tv.setText(attachment.name);
                         tv.setPadding(0, IU_Utils.px(10), 0, 0);
+                        tv.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                         ll.addView(tv);
                         this._AttachmentLayout.addView(ll);
                         ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = IU_Utils.px(3);

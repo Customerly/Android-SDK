@@ -322,7 +322,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
             this._ResponseState = RESPONSE_STATE__PENDING;
             OutputStream os = null;
             try {
-                HttpsURLConnection conn = (HttpsURLConnection) new URL(pEndpoint).openConnection();
+                HttpURLConnection conn = (HttpURLConnection) new URL(pEndpoint).openConnection();
                 conn.setDoOutput(true);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
@@ -348,12 +348,14 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                                     "\n-----------------------------------------------------------");
                 }
 
-                try {
-                    SSLContext sc = SSLContext.getInstance("TLS");
-                    sc.init(null, null, new java.security.SecureRandom());
-                    conn.setSSLSocketFactory(sc.getSocketFactory());
-                } catch (NoSuchAlgorithmException | KeyManagementException e) {
-                    e.printStackTrace();
+                if(conn instanceof HttpsURLConnection) {
+                    try {
+                        SSLContext sc = SSLContext.getInstance("TLS");
+                        sc.init(null, null, new java.security.SecureRandom());
+                        ((HttpsURLConnection)conn).setSSLSocketFactory(sc.getSocketFactory());
+                    } catch (NoSuchAlgorithmException | KeyManagementException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 os = conn.getOutputStream();

@@ -13,8 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<android.support.v7.widget.AppCompatEditText
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.AppCompatEditText xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:theme="@style/io_customerly__EditText_Blue2"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -24,4 +24,6 @@
     android:background="@drawable/io_customerly__edit_text_blue2_bkg"
     android:textColor="@android:color/black"
     android:textColorHint="@android:color/darker_gray"
-    android:padding="10dp"/>
+    android:fontFamily="sans-serif"
+    tools:ignore="UnusedAttribute"
+    android:padding="10dp" />

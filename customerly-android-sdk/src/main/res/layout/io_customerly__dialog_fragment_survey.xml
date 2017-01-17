@@ -47,7 +47,9 @@
             android:gravity="center"
             android:text="@string/io_customerly__survey"
             android:textColor="@android:color/black"
-            android:textSize="22sp" />
+            android:textSize="22sp"
+            android:fontFamily="sans-serif"
+            tools:ignore="UnusedAttribute" />
 
         <ImageView android:id="@id/io_customerly__close"
             style="@style/io_customerly__selectableItemBackgroundBorderless__onWhite"
@@ -74,14 +76,18 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
-                android:paddingBottom="10dp" />
+                android:paddingBottom="10dp"
+                android:fontFamily="sans-serif"
+                tools:ignore="UnusedAttribute" />
 
             <TextView android:id="@id/io_customerly__subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
-                android:paddingBottom="5dp" />
+                android:paddingBottom="5dp"
+                android:fontFamily="sans-serif"
+                tools:ignore="UnusedAttribute" />
 
             <ScrollView
                 android:layout_width="match_parent"

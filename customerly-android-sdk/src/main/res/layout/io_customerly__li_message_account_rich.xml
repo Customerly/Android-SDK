@@ -25,6 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/io_customerly__grey_99"
+        android:fontFamily="sans-serif"
+        tools:ignore="UnusedAttribute"
         android:layout_centerHorizontal="true"
         android:padding="7.5dp"
         android:visibility="gone" />
@@ -61,6 +63,8 @@
             android:textColor="@color/io_customerly__grey_99"
             android:background="@drawable/io_customerly__bkg_chat_message_account_rounded"
             android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            tools:ignore="UnusedAttribute"
             android:text="@string/io_customerly__rich_message_text"
             android:paddingTop="15dp"
             android:drawablePadding="5dp"

@@ -45,7 +45,9 @@
         android:maxLines="1"
         android:textColor="@color/io_customerly__grey_66"
         android:textSize="13sp"
-        tools:ignore="Deprecated" />
+        android:textStyle="italic"
+        android:fontFamily="sans-serif"
+        tools:ignore="Deprecated,UnusedAttribute" />
 
     <TextView android:id="@id/io_customerly__nome"
         android:layout_width="wrap_content"
@@ -62,7 +64,8 @@
         android:textStyle="bold"
         android:textColor="@color/io_customerly__grey_99"
         android:textSize="15sp"
-        tools:ignore="Deprecated" />
+        android:fontFamily="sans-serif"
+        tools:ignore="Deprecated,UnusedAttribute" />
 
     <TextView android:id="@id/io_customerly__last_message"
         android:layout_width="match_parent"
@@ -76,7 +79,8 @@
         android:ellipsize="end"
         android:textColor="@color/io_customerly__text_color_grey__dark"
         android:textSize="14sp"
-        android:duplicateParentState="true"
-        tools:ignore="Deprecated" />
+        android:fontFamily="sans-serif"
+        tools:ignore="Deprecated,UnusedAttribute"
+        android:duplicateParentState="true" />
 
 </RelativeLayout>

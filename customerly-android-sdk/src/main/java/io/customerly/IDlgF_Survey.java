@@ -19,6 +19,7 @@ package io.customerly;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -167,6 +168,7 @@ public class IDlgF_Survey extends DialogFragment {
             survey.isRejectedOrConcluded = true;
             TextView thank_you = new TextView(this.getContext());
             thank_you.setTextColor(Color.BLACK);
+            thank_you.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
             thank_you.setText(IU_Utils.decodeHtmlStringWithEmojiTag(survey.thank_you_text));
             int _10dp = IU_Utils.px(10);
             thank_you.setPadding(_10dp, _10dp, _10dp, _10dp);
@@ -190,6 +192,7 @@ public class IDlgF_Survey extends DialogFragment {
                                 b.setTextColor(Color.WHITE);
                                 b.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
                                 b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                                b.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                                 b.setText(c.value);
                                 b.setGravity(Gravity.CENTER);
                                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, IU_Utils.px(40));
@@ -284,6 +287,7 @@ public class IDlgF_Survey extends DialogFragment {
                                             tv.setText(R.string.io_customerly__choose_an_answer);
                                             tv.setTextColor(Color.GRAY);
                                             tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                                            tv.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                                             tv.setGravity(Gravity.CENTER);
                                             return tv;
                                         }
@@ -317,6 +321,7 @@ public class IDlgF_Survey extends DialogFragment {
                             {
                                 min.setTextColor(Color.BLACK);
                                 min.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                                min.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                                 min.setText(String.valueOf(survey.limit_from));
                                 min.setGravity(Gravity.CENTER);
                                 min.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -343,6 +348,7 @@ public class IDlgF_Survey extends DialogFragment {
                             {
                                 max.setTextColor(Color.BLACK);
                                 max.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                                max.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                                 max.setText(String.valueOf(survey.limit_to));
                                 max.setGravity(Gravity.CENTER);
                                 max.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -355,6 +361,7 @@ public class IDlgF_Survey extends DialogFragment {
                             confirm.setTextColor(Color.WHITE);
                             confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
                             confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                            confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                             confirm.setText(this.getContext().getString(R.string.io_customerly__confirm_x, survey.limit_from));
                             confirm.setTag(survey.limit_from);
                             confirm.setGravity(Gravity.CENTER);
@@ -416,6 +423,7 @@ public class IDlgF_Survey extends DialogFragment {
                             confirm.setTextColor(Color.WHITE);
                             confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
                             confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                            confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                             confirm.setText(R.string.io_customerly__confirm);
                             confirm.setTag(survey.limit_from);
                             confirm.setGravity(Gravity.CENTER);

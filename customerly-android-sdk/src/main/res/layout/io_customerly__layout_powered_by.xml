@@ -14,17 +14,20 @@
     limitations under the License.
 -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@id/io_customerly__powered_by"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:textColor="@color/io_customerly__text_color_dark_grey"
     android:textSize="13sp"
+    android:fontFamily="sans-serif"
+    tools:ignore="UnusedAttribute"
     android:gravity="center"
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:visibility="gone" >
+    android:visibility="gone">
 
     <requestFocus />
 

@@ -40,10 +40,10 @@
         android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:background="@drawable/io_customerly__bkg_chat_message_account_rounded"
         android:gravity="center"
-        tools:ignore="RtlHardcoded"
+        tools:ignore="RtlHardcoded,UnusedAttribute"
         android:elevation="1dp"
         android:textStyle="bold"
-        tools:targetApi="lollipop"
+        android:fontFamily="sans-serif"
         android:layout_marginBottom="3dp" />
 
 </LinearLayout>

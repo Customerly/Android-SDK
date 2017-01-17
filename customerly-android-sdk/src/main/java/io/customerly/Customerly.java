@@ -57,13 +57,6 @@ import io.socket.client.Socket;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
-    private static final String EMAIL_PATTERN_MATCHER =
-            "[a-zA-Z0-9+._%\\-+]{1,256}" +
-                    "@" +
-                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
-                    "(\\." +
-                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+";
-
 //    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
@@ -664,7 +657,7 @@ public class Customerly {
             prefs.edit().putString("CONFIG_APP_ID", pCustomerlyAppID).putInt("CONFIG_HC_WCOLOR", pWidgetColor).apply();
         }
 
-        this._AppID = pCustomerlyAppID;
+        this._AppID = pCustomerlyAppID.trim();
 
         this.__WidgetColor__HardCoded = pWidgetColor;
         this.__PING__LAST_widget_color = Customerly._Instance.__WidgetColor__Fallback =
@@ -752,7 +745,8 @@ public class Customerly {
      * @param pFailureCallback To receive failure async response
      */
     public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
-        if(Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        final String trimmedEmail = email.trim();
+        if(Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
             SharedPreferences pref = this._SharedPreferences;
             if (this._isConfigured() && pref != null) {
                 try {
@@ -772,12 +766,14 @@ public class Customerly {
                         }
                     }
 
+                    final String trimmedUserID = user_id == null || user_id.trim().length() == 0 ? null : user_id.trim();
+
                     new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                             .opt_converter(this.__PING__response_converter)
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                     //noinspection SpellCheckingInspection
-                                    pref.edit().putString("regusrml", email).putString("regusrid", user_id).apply();
+                                    pref.edit().putString("regusrml", trimmedEmail).putString("regusrid", trimmedUserID).apply();
                                     if(pSuccessCallback != null) {
                                         pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
                                     }
@@ -788,9 +784,9 @@ public class Customerly {
                                 }
                             })
 
-                            .param("email", email)
-                            .param("user_id", user_id == null || user_id.length() == 0 ? null : user_id)
-                            .param("name", name == null || name.length() == 0 ? null : name)
+                            .param("email", trimmedEmail)
+                            .param("user_id", trimmedUserID)
+                            .param("name", name == null || name.trim().length() == 0 ? null : name.trim())
 
                             .param("attributes", pAttributes)
 
@@ -942,6 +938,7 @@ public class Customerly {
      * @param pEventName The event custom label
      */
     public void trackEvent(@NonNull String pEventName) {
+        pEventName = pEventName.trim();
         if(this._isConfigured() && pEventName.length() != 0) {
             try {
                 IE_JwtToken token = this._JwtToken;
