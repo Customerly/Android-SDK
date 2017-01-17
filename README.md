@@ -4,6 +4,7 @@
 </a>
 </p>
 
+  
   [![Language](https://img.shields.io/badge/Android-API_9+-green.svg)]()
   [![Language](https://img.shields.io/badge/Java-6+-red.svg)]()
   
@@ -54,12 +55,14 @@ The following permission will be added to the merged AndroidManifest of your app
 
 ## Setup Customerly SDK
 
-### Integration via Gradle dependency (Recommended)
+### Integration via Gradle or Maven dependency (Recommended)
 
-To use the Customerly SDK we recommend to use Gradle dependency
+To use the Customerly SDK we recommend to use Gradle or Maven dependency
 
-To integrate the Customerly SDK into your Android Studio project using Gradle dependency, open your module `build.gradle` file and add the following dependency:
+Instead of <VERSION_NAME> use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
 
+##### Gradle
+In your module `build.gradle` add:
 
 ```gradle
 repositories {//When the repository will be hosted on jcenter this won't be necessary anymore
@@ -72,7 +75,16 @@ dependencies {
     compile 'io.customerly:customerly-android-sdk:<VERSION_NAME>'
 }
 ```
-Instead of <VERSION_NAME> use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
+
+##### Maven
+```xml
+<dependency>
+  <groupId>io.customerly</groupId>
+  <artifactId>customerly-android-sdk</artifactId>
+  <version>ALPHA-1.0</version>
+  <type>pom</type>
+</dependency>
+```
 
 ### Manual integration (Discouraged)
 
