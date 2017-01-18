@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -33,22 +34,19 @@ import java.util.Locale;
  */
 class IE_Message {
 
-    final long conversation_id, conversation_message_id, sent_date, assigner_id;
+    private static final SimpleDateFormat _TIME_FORMATTER = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private static final DateFormat _DATE_FORMATTER = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG);
+
+    final long conversation_id, conversation_message_id, sent_datetime_sec, assigner_id;
     private final long user_id, account_id, seen_date;
 
     @Nullable final Customerly.HtmlMessage content;
-    @Nullable final String if_account__name, rich_mail_url;
+    @Nullable final String if_account__name, rich_mail_link;
+    @NonNull final String dateString, timeString;
     @Nullable final IE_Attachment[] _Attachments;
 
-    @Nullable private String _Cached__toStringDate = null;
-    @NonNull String toStringDate(long pTODAY_inSec) {
-        if(this._Cached__toStringDate == null) {
-            this._Cached__toStringDate =
-            (pTODAY_inSec == (this.sent_date / (/*1000**/60 * 60 * 24)) * (/*1000*/ 60 * 60 * 24)
-                    ? SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.SHORT) : SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG))
-                    .format(new Date(this.sent_date * 1000));
-        }
-        return this._Cached__toStringDate;
+    boolean sameSentDayOf(@NonNull IE_Message other) {
+        return (this.sent_datetime_sec / (/*1000**/60 * 60 * 24)) == (other.sent_datetime_sec / (/*1000**/60 * 60 * 24));
     }
 
     private enum STATE {    COMPLETE, SENDING, FAILED   }
@@ -61,34 +59,37 @@ class IE_Message {
         this.conversation_id = pConversationID;
         this.conversation_message_id = 0;
         this.account_id = this.assigner_id = 0;
-        this.sent_date = this.seen_date = System.currentTimeMillis() / 1000;
+        this.sent_datetime_sec = this.seen_date = System.currentTimeMillis() / 1000;
+        this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
+        this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.content = IU_Utils.decodeHtmlStringWithEmojiTag(pMessage);
         this._Attachments = pAttachments;
         this.if_account__name = null;
-        this.rich_mail_url = null;
+        this.rich_mail_link = null;
     }
 
     IE_Message(@NonNull JSONObject pMessageItem) {
         super();
         this._STATE = STATE.COMPLETE;
-
+        this.user_id = pMessageItem.optLong("user_id", 0);
         this.conversation_id = pMessageItem.optLong("conversation_id", 0);
         this.conversation_message_id = pMessageItem.optLong("conversation_message_id", 0);
-        this.user_id = pMessageItem.optLong("user_id", 0);
         this.account_id = pMessageItem.optLong("account_id", 0);
         this.assigner_id = pMessageItem.optLong("assigner_id", 0);
-        this.sent_date = pMessageItem.optLong("sent_date", 0);
         this.seen_date = pMessageItem.optLong("seen_date", 0);
+        this.sent_datetime_sec = pMessageItem.optLong("sent_date", 0);
+        this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
+        this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.content = IU_Utils.decodeHtmlStringWithEmojiTag(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
-        this.rich_mail_url = pMessageItem.optInt("rich_mail", 0) == 0 ? null :
+        this.rich_mail_link = pMessageItem.optInt("rich_mail", 0) == 0 ? null :
 
                 /* TODO sparisce * */
-                pMessageItem.isNull("rich_mail_url") ?
+                pMessageItem.isNull("rich_mail_link") ?
                         String.format(Locale.UK, "https://app.customerly.io/email/view/%d/%s",
                                 this.conversation_message_id, IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_token")) :
                 /* *************** */
 
-                IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_url");
+                IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_link");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {

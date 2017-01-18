@@ -20,7 +20,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical" >
 
-    <TextView android:id="@id/io_customerly__time"
+    <TextView android:id="@id/io_customerly__date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/io_customerly__grey_99"
@@ -40,7 +40,7 @@
 
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@id/io_customerly__time"
+        android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true"  />
 
     <LinearLayout
@@ -57,33 +57,51 @@
         tools:ignore="RtlHardcoded"
         android:elevation="1dp"
         tools:targetApi="lollipop"
-        android:layout_below="@id/io_customerly__time"
+        android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true" >
 
         <LinearLayout android:id="@id/io_customerly__content_layout__only_user_li"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:orientation="vertical"
             android:background="@drawable/io_customerly__bkg_chat_message_user_rounded"
-            android:layout_marginBottom="3dp" >
+            android:gravity="right|end">
 
-            <TextView android:id="@id/io_customerly__content"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+
+                    android:visibility="gone" />
+
+                <TextView android:id="@id/io_customerly__content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif"
+                    tools:ignore="UnusedAttribute"
+                    android:drawablePadding="5dp" />
+
+            </LinearLayout>
+
+            <TextView android:id="@id/io_customerly__time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+
                 android:textColor="@android:color/white"
-                android:textSize="15sp"
+                android:textSize="11sp"
+                android:textStyle="italic"
                 android:fontFamily="sans-serif"
-                tools:ignore="UnusedAttribute"
-                android:drawablePadding="5dp" />
-
-            <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
-
-                android:visibility="gone" />
+                tools:ignore="SmallSp,UnusedAttribute" />
 
         </LinearLayout>
 

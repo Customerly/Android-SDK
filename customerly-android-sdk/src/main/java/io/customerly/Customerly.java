@@ -330,7 +330,7 @@ public class Customerly {
                                                                     listener.onMessageEvent(newsResponse);
                                                                 } else if (/*rtcCallback != null && */newsResponse.size() != 0) {
                                                                     IE_Message last_message = newsResponse.get(0);
-                                                                    this._PING__LAST_messages.put(last_message.conversation_id, last_message.sent_date);
+                                                                    this._PING__LAST_messages.put(last_message.conversation_id, last_message.sent_datetime_sec);
                                                                     rtcCallback.onMessage(last_message.content);
                                                                 }
                                                             }

@@ -37,6 +37,7 @@
     <item type="id" name="io_customerly__nome" />
     <item type="id" name="io_customerly__last_message" />
     <item type="id" name="io_customerly__time" />
+    <item type="id" name="io_customerly__date" />
     <item type="id" name="io_customerly__content" />
     <item type="id" name="io_customerly__attachment_layout" />
     <item type="id" name="io_customerly__content_layout__only_user_li" />

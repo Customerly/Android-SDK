@@ -440,12 +440,13 @@ public final class IAct_Chat extends IAct_AInput {
     }
 
     private abstract class A_ChatVH extends RecyclerView.ViewHolder {
-        @NonNull final TextView _Data, _Content;
+        @NonNull final TextView _Date, _Time, _Content;
         @NonNull final ImageView _Icon;
         final int _IconSize;
         private A_ChatVH(@LayoutRes int pLayoutRes) {
             super(getLayoutInflater().inflate(pLayoutRes, _ListRecyclerView, false));
-            this._Data = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
+            this._Date = (TextView)this.itemView.findViewById(R.id.io_customerly__date);
+            this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
             this._Content = (TextView)this.itemView.findViewById(R.id.io_customerly__content);
             this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icon);
             ViewGroup.LayoutParams lp = this._Icon.getLayoutParams();
@@ -536,8 +537,8 @@ public final class IAct_Chat extends IAct_AInput {
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
             this._Content.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.io_customerly__ic_email_grey_32dp, 0, 0);
             View.OnClickListener clickListener = v -> {
-                if(pMessage != null && pMessage.rich_mail_url != null) {
-                    IU_Utils.intentUrl(IAct_Chat.this, pMessage.rich_mail_url);
+                if(pMessage != null && pMessage.rich_mail_link != null) {
+                    IU_Utils.intentUrl(IAct_Chat.this, pMessage.rich_mail_link);
                 }
             };
             this.itemView.setOnClickListener(clickListener);
@@ -563,11 +564,12 @@ public final class IAct_Chat extends IAct_AInput {
         @Override protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             if (pMessage != null) {//Always != null for this ViewHolder
                 if(pDateToDisplay != null) {
-                    this._Data.setText(pDateToDisplay);
-                    this._Data.setVisibility(View.VISIBLE);
+                    this._Date.setText(pDateToDisplay);
+                    this._Date.setVisibility(View.VISIBLE);
                 } else {
-                    this._Data.setVisibility(View.GONE);
+                    this._Date.setVisibility(View.GONE);
                 }
+                this._Time.setText(pMessage.timeString);
 
                 if (pIsFirstMessageOfSender) {
                     Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
@@ -741,7 +743,7 @@ public final class IAct_Chat extends IAct_AInput {
                 IE_Message message = _ChatList.get(position);
                 if(message.isUserMessage()) {
                     return R.layout.io_customerly__li_message_user;
-                } else if(message.rich_mail_url == null) {
+                } else if(message.rich_mail_link == null) {
                     return R.layout.io_customerly__li_message_account;
                 } else {
                     return R.layout.io_customerly__li_message_account_rich;
@@ -759,7 +761,6 @@ public final class IAct_Chat extends IAct_AInput {
         public void onBindViewHolder(A_ChatVH holder, @SuppressLint("RecyclerView") int position) {
             IE_Message thisMessage = null, previousMessage;
             boolean shouldAnimate = false, firstMessageOfSender;
-            String dateToDisplay = null;
             if(_TypingAccountId == TYPING_NO_ONE || position != this.getItemCount() - 1) {
                 if(position < this.lastPositionAnimated) {
                     shouldAnimate = true;
@@ -778,14 +779,9 @@ public final class IAct_Chat extends IAct_AInput {
                         ? ! previousMessage.isUserMessage()
                         : ! thisMessage.hasSameSenderOf(previousMessage) );
 
-            if(thisMessage != null) {
-                dateToDisplay = thisMessage.toStringDate(_TODAY_inSec);
-                if(previousMessage != null && dateToDisplay.equals(previousMessage.toStringDate(_TODAY_inSec))) {
-                    dateToDisplay = null;
-                }
-            }
-
-            holder.apply(thisMessage, dateToDisplay, firstMessageOfSender, shouldAnimate);
+            holder.apply(thisMessage,
+                    thisMessage == null || (previousMessage != null && thisMessage.sameSentDayOf(previousMessage)) ? null : thisMessage.dateString
+                    , firstMessageOfSender, shouldAnimate);
 
             holder.itemView.setPadding(0, firstMessageOfSender ? this._FirstMessageOfSenderTopPadding : 0, 0, position == this.getItemCount() - 1 ? this._5dp : 0);
             //paddingTop = 15dp to every first message of the group

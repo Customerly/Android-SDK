@@ -73,7 +73,7 @@ class IE_Conversation {
 
     void onNewMessage(@NonNull IE_Message pNewMessage) {
         this.last_message_abstract = pNewMessage.content;
-        this.last_message_date = pNewMessage.sent_date;
+        this.last_message_date = pNewMessage.sent_datetime_sec;
         this.last_message_writer = pNewMessage.getWriterID();
         this.last_message_writer_type = pNewMessage.getWriterType();
         this.unread = true;
