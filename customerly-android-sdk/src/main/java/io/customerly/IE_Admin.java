@@ -58,13 +58,7 @@ class IE_Admin {
         if(json == null)
             return null;
         try {
-            //TODO Admin name scorciato da rimuovere
-            String[] nameSplit = json.getString("name").split(" ");
-            String name = nameSplit[0];
-            if(name.length() <= 4 && nameSplit.length > 1) {
-                name += " " + nameSplit[1];
-            }
-            return new IE_Admin(json.getLong("account_id"), name, json.getLong("last_active"));
+            return new IE_Admin(json.getLong("account_id"), json.getString("name"), json.getLong("last_active"));
         } catch (JSONException e) {
             return null;
         }

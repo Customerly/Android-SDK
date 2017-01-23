@@ -138,7 +138,7 @@ public final class IAct_Chat extends IAct_AInput {
                     .opt_trials(2)
                     .param("conversation_id", this._ConversationID)
                     .param("per_page", MESSAGES_PER_PAGE)
-                    .param("messages_from_id", this._ChatList.stream().map(m -> m.conversation_message_id).min((id1, id2) -> ((int)(id1 - id2))).orElse(Long.MAX_VALUE))//TODO diventa messages_before_id
+                    .param("messages_before_id", this._ChatList.stream().map(m -> m.conversation_message_id).min((id1, id2) -> ((int)(id1 - id2))).orElse(Long.MAX_VALUE))
                     .start();
         }
     };
