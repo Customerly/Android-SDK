@@ -7,6 +7,7 @@
   
   [![Language](https://img.shields.io/badge/Android-API_9+-green.svg)]()
   [![Language](https://img.shields.io/badge/Java-6+-red.svg)]()
+  [![License](https://img.shields.io/badge/license-Apache%20License%202.0-red.svg)]()
   
 **customerly.io** is the perfect tool to getting closer to your customers. Help them where they are with the customer support widget. Manage your audience based on their behaviours, build campaigns and automations.
 
