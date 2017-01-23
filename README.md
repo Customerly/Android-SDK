@@ -59,7 +59,7 @@ The following permission will be added to the merged AndroidManifest of your app
 
 To use the Customerly SDK we recommend to use Gradle or Maven dependency
 
-Instead of <VERSION_NAME> use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
+Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
 
 ##### Gradle
 In your module `build.gradle` add:
@@ -72,7 +72,7 @@ repositories {//When the repository will be hosted on jcenter this won't be nece
 }
 
 dependencies {
-    compile 'io.customerly:customerly-android-sdk:<VERSION_NAME>'
+    compile 'io.customerly:customerly-android-sdk:VERSION_NAME'
 }
 ```
 
