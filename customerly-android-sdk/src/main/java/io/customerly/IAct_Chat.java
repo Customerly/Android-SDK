@@ -71,6 +71,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 /**
  * Created by Gianni on 03/09/16.
@@ -78,16 +79,69 @@ import java.util.Collections;
  */
 public final class IAct_Chat extends IAct_AInput {
 
-    static final String EXTRA_CONVERSATION_ID = "EXTRA_CONVERSATION_ID";
+    static final String EXTRA_CONVERSATION_ID= "EXTRA_CONVERSATION_ID";
+    private static final int MESSAGES_PER_PAGE = 20, TYPING_NO_ONE = 0;
 
-    private RecyclerView _ListRecyclerView;
-    private ChatAdapter _Adapter;
-    private static final long TYPING_NO_ONE = 0, UNKNOWN_ASSIGNER_ID = 0;
-    private long _TypingAccountId = TYPING_NO_ONE;
-    private LinearLayoutManager _LinearLayoutManager;
+    @Nullable private RecyclerView _ListRecyclerView;
+    @Nullable private IU_ProgressiveScrollListener _IU_ProgressiveScrollListener;
+    @Nullable private ProgressBar _Progress_view;
+    @NonNull private ChatAdapter _Adapter = new ChatAdapter();
+    private long _TypingAccountId = TYPING_NO_ONE, _ConversationID = 0;
+    @Nullable private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<IE_Message> _ChatList = new ArrayList<>(0);
-    private long _ConversationID = 0, _AssignerID = UNKNOWN_ASSIGNER_ID;
     @NonNull private final ArrayList<BroadcastReceiver> _BroadcastReceiver = new ArrayList<>(1);
+    @NonNull private final IU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
+        if(Customerly._Instance._isConfigured()) {
+            new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
+                    .opt_checkConn(this)
+                    .opt_onPreExecute(() -> IU_NullSafe.setVisibility(this._Progress_view, View.VISIBLE))
+                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
+                    .opt_tokenMandatory()
+                    .opt_receiver((responseState, pNewMessages) -> {
+                        if (responseState == IApi_Request.RESPONSE_STATE__OK && pNewMessages != null) {
+                            Stream<IE_Message> nuoviMessaggi = pNewMessages.stream()
+                                    .filter(m1 -> this._ChatList.stream().noneMatch(m2 -> m2.conversation_message_id == m1.conversation_message_id) )//Avoid duplicates
+                                    .sorted((m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC);
+
+                            final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
+                            int previoussize = new_messages.size();
+                            nuoviMessaggi.forEachOrdered(new_messages::add);
+                            int addeditem = new_messages.size() - previoussize;
+                            IU_NullSafe.post(this._ListRecyclerView, () -> {
+                                IU_NullSafe.setVisibility(this._Progress_view, View.GONE);
+                                IU_NullSafe.setVisibility(this._ListRecyclerView, View.VISIBLE);
+                                if(addeditem > 0) {
+                                    this._ChatList = new_messages;
+                                    this.adjustBottomScroll();
+                                    if (previoussize != 0) {
+                                        this._Adapter.notifyItemChanged(previoussize - 1);
+                                    }
+                                    this._Adapter.notifyItemRangeInserted(previoussize, addeditem);
+                                }
+                            });
+
+                            if(new_messages.size() != 0) {
+                                IE_Message last = new_messages.get(0);
+                                if (last.isNotSeen()) {
+                                    this.sendSeen(last.conversation_message_id);
+                                }
+                            }
+
+                            if(scrollListener != null && pNewMessages.size() >= MESSAGES_PER_PAGE) {
+                                scrollListener.onFinishedUpdating();
+                            }
+                        } else {
+                            IU_NullSafe.setVisibility(this._Progress_view, View.GONE);
+                            Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .opt_trials(2)
+                    .param("conversation_id", this._ConversationID)
+                    .param("per_page", MESSAGES_PER_PAGE)
+                    .param("messages_from_id", this._ChatList.stream().map(m -> m.conversation_message_id).min((id1, id2) -> ((int)(id1 - id2))).orElse(Long.MAX_VALUE))//TODO diventa messages_before_id
+                    .start();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,13 +155,17 @@ public final class IAct_Chat extends IAct_AInput {
         if(this._ConversationID == 0) {
             this.finish();
         } else if(this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
-            this._ListRecyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recycler_view);
+            this._Progress_view = (ProgressBar) this.findViewById(R.id.io_customerly__progress_view);
+            this._Progress_view.getIndeterminateDrawable().setColorFilter(Customerly._Instance.__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
+            RecyclerView recyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recycler_view);
             this._LinearLayoutManager = new LinearLayoutManager(this.getApplicationContext());
-            this._LinearLayoutManager.setStackFromEnd(true);
-            this._ListRecyclerView.setLayoutManager(this._LinearLayoutManager);
-            this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
-            this._ListRecyclerView.setHasFixedSize(true);
-            this._ListRecyclerView.setAdapter(this._Adapter = new ChatAdapter());
+            this._LinearLayoutManager.setReverseLayout(true);
+            recyclerView.setLayoutManager(this._LinearLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setAdapter(this._Adapter);
+            recyclerView.addOnScrollListener(this._IU_ProgressiveScrollListener = new IU_ProgressiveScrollListener(this._LinearLayoutManager, this._OnBottomReachedListener));
+            this._ListRecyclerView = recyclerView;
 
             this.input_input.addTextChangedListener(new TextWatcher() {
                 boolean _TypingSent = false;
@@ -129,154 +187,79 @@ public final class IAct_Chat extends IAct_AInput {
             });
 
             Customerly._Instance._PING__LAST_messages.remove(this._ConversationID);
+
+            Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
+                if(pTyping) {
+                    if(this._TypingAccountId == account_id) {
+                        return;
+                    }
+                } else {
+                    if(this._TypingAccountId == TYPING_NO_ONE) {
+                        return;
+                    }
+                }
+                if (this._ConversationID == pConversationID) {
+                    this._ListRecyclerView.post(() -> {
+                        if (pTyping) {
+                            this._TypingAccountId = account_id;
+                            this._Adapter.notifyItemInserted(0);
+                            this.adjustBottomScroll();
+                        } else {
+                            this._TypingAccountId = TYPING_NO_ONE;
+                            this._Adapter.notifyItemRemoved(0);
+                        }
+                    });
+                }
+            };
+
+            Customerly._Instance.__SOCKET__Message_listener = pNewMessages -> {
+                Stream<IE_Message> nuoviMessaggi = pNewMessages.stream()
+                        .filter(m1 -> m1.conversation_id == this._ConversationID                                                           //Filter by conversation_id
+                                && this._ChatList.stream().noneMatch(m2 -> m2.conversation_message_id == m1.conversation_message_id) );    //Avoid duplicates
+
+                final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
+                nuoviMessaggi.forEach(new_messages::add);
+
+                Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
+
+                this._ListRecyclerView.post(() -> {
+                    this._ChatList = new_messages;
+                    this.adjustBottomScroll();
+                    this._Adapter.notifyDataSetChanged();
+                });
+
+                if(new_messages.size() != 0) {
+                    IE_Message last = new_messages.get(0);
+                    if (last.isNotSeen()) {
+                        this.sendSeen(last.conversation_message_id);
+                    }
+                }
+            };
+        }
+    }
+
+    private void adjustBottomScroll() {
+        if (this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
+            //Bottom of reversed list
+            this._LinearLayoutManager.scrollToPosition(0);
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        this.onReconnection();
+        this._OnBottomReachedListener.onReached(this._IU_ProgressiveScrollListener);
     }
 
     @Override
     protected void onReconnection() {
-        if(Customerly._Instance._isConfigured()) {
-            final ProgressBar progress_view = (ProgressBar) this.findViewById(R.id.io_customerly__progress_view);
-            progress_view.getIndeterminateDrawable().setColorFilter(Customerly._Instance.__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
-
-            new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
-                    .opt_checkConn(this)
-                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
-                    .opt_tokenMandatory()
-                    .opt_receiver((responseState, list) -> {
-                        if (responseState == IApi_Request.RESPONSE_STATE__OK && list != null) {
-                            if(this._AssignerID == UNKNOWN_ASSIGNER_ID) {
-                                for (IE_Message m : list) {
-                                    if (! m.isUserMessage() && m.getWriterID() != TYPING_NO_ONE) {
-                                        this._AssignerID = m.getWriterID();
-                                        break;
-                                    }
-                                }
-                            }
-                            this._ListRecyclerView.post(() -> {
-                                progress_view.setVisibility(View.GONE);
-                                int visibleItemCount = this._LinearLayoutManager.getChildCount();
-                                int totalItemCount = this._LinearLayoutManager.getItemCount();
-                                int pastVisibleItems = this._LinearLayoutManager.findFirstVisibleItemPosition();
-                                this._ChatList = list;
-                                if (pastVisibleItems + visibleItemCount >= totalItemCount) {
-                                    //End of list
-                                    this._LinearLayoutManager.scrollToPosition(list.size() - 1);
-                                }
-                                this._Adapter.notifyDataSetChanged();
-                                this._ListRecyclerView.setVisibility(View.VISIBLE);
-                            });
-                            Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
-                                if(pTyping) {
-                                    if(this._TypingAccountId == account_id) {
-                                        return;
-                                    }
-                                } else {
-                                    if(this._TypingAccountId == TYPING_NO_ONE) {
-                                        return;
-                                    }
-                                }
-                                if (this._ConversationID == pConversationID) {
-                                    this._ListRecyclerView.post(() -> {
-                                        if (pTyping) {
-                                            int visibleItemCount = this._LinearLayoutManager.getChildCount();
-                                            int totalItemCount = this._LinearLayoutManager.getItemCount();
-                                            int pastVisibleItems = this._LinearLayoutManager.findFirstVisibleItemPosition();
-                                            this._TypingAccountId = account_id;
-                                            this._Adapter.notifyItemInserted(this._ChatList.size());
-                                            if (pastVisibleItems + visibleItemCount >= totalItemCount) {
-                                                //End of list
-                                                this._LinearLayoutManager.scrollToPosition(this._ChatList.size());
-                                            }
-                                        } else {
-                                            this._TypingAccountId = TYPING_NO_ONE;
-                                            this._Adapter.notifyItemRemoved(this._ChatList.size());
-                                        }
-                                    });
-                                }
-                            };
-
-                            Customerly._Instance.__SOCKET__Message_listener = pNewMessages -> {
-                                final ArrayList<IE_Message> newMessagesList = new ArrayList<>(this._ChatList);
-
-                                //Sorting necessary to speedup the duplicate search
-                                Collections.sort(newMessagesList, (m1, m2) -> (int) (m1.conversation_message_id - m2.conversation_message_id));
-                                long mostRecentMessageId = -1;
-                                ArrayList<IE_Message> messages_to_add = new ArrayList<>(pNewMessages.size());
-                                message_already_in_list__do_not_add:
-                                for (IE_Message message : pNewMessages) {
-                                    if (message.conversation_id == this._ConversationID) {//Filter by conversation ID
-                                        if (message.assigner_id != UNKNOWN_ASSIGNER_ID && this._AssignerID == UNKNOWN_ASSIGNER_ID) {
-                                            this._AssignerID = message.assigner_id;
-                                        }
-                                        if (message.conversation_message_id > mostRecentMessageId) {
-                                            mostRecentMessageId = message.conversation_message_id;
-                                        }
-                                        for (int i = newMessagesList.size() - 1; i >= 0; i--) {
-                                            long existingID = newMessagesList.get(i).conversation_message_id;
-                                            if (existingID == message.conversation_message_id) {
-                                                continue message_already_in_list__do_not_add;
-                                            }
-                                            if (existingID < message.conversation_message_id) {
-                                                break; //Thanks to the sorting, i can tell that there are any other duplicated messages
-                                            }
-                                        }
-                                        messages_to_add.add(message);
-                                    }
-                                }
-
-                                newMessagesList.addAll(messages_to_add);
-                                Collections.sort(newMessagesList, (m1, m2) -> (int) (m1.conversation_message_id - m2.conversation_message_id));
-
-                                this._ListRecyclerView.post(() -> {
-                                    int visibleItemCount = this._LinearLayoutManager.getChildCount();
-                                    int totalItemCount = this._LinearLayoutManager.getItemCount();
-                                    int pastVisibleItems = this._LinearLayoutManager.findFirstVisibleItemPosition();
-                                    this._ChatList = newMessagesList;
-                                    if (pastVisibleItems + visibleItemCount >= totalItemCount) {
-                                        //End of list
-                                        this._LinearLayoutManager.scrollToPosition(newMessagesList.size() - 1);
-                                    }
-                                    this._Adapter.notifyDataSetChanged();
-                                });
-
-                                if (mostRecentMessageId != -1) {
-                                    this.sendSeen(mostRecentMessageId);
-                                }
-                            };
-
-                            long messageID_seen = -1;
-                            for (IE_Message message : list) {
-                                if (message.isNotSeen() && message.conversation_message_id > messageID_seen) {
-                                    messageID_seen = message.conversation_message_id;
-                                }
-                            }
-
-                            if (messageID_seen != -1) {
-                                this.sendSeen(messageID_seen);
-                            }
-                        } else {
-                            this.finish();
-                            Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .opt_trials(2)
-                    .param("conversation_id", this._ConversationID)
-                    .start();
-        }
+        this._OnBottomReachedListener.onReached(this._IU_ProgressiveScrollListener);
     }
 
     private void sendSeen(final long messageID_seen) {
         final IU_ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
             utc /= 1000;
-            if(this._AssignerID != UNKNOWN_ASSIGNER_ID) {
-                Customerly._Instance.__SOCKET_SEND_Seen(messageID_seen, utc);
-            }
+            Customerly._Instance.__SOCKET_SEND_Seen(messageID_seen, utc);
             new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_MESSAGE_SEEN)
                     .opt_checkConn(this)
                     .opt_tokenMandatory()
@@ -294,9 +277,7 @@ public final class IAct_Chat extends IAct_AInput {
             this.unregisterReceiver(br);
         }
         Customerly._Instance.__SOCKET__Typing_listener = null;
-        if(this._AssignerID != UNKNOWN_ASSIGNER_ID) {
-            Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false);
-        }
+        Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false);
         super.onDestroy();
     }
 
@@ -305,17 +286,11 @@ public final class IAct_Chat extends IAct_AInput {
         IE_JwtToken token = Customerly._Instance._JwtToken;
         if(token != null && token._UserID != null) {
             IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
-            this._ListRecyclerView.post(() -> {
-                int visibleItemCount = this._LinearLayoutManager.getChildCount();
-                int totalItemCount = this._LinearLayoutManager.getItemCount();
-                int pastVisibleItems = this._LinearLayoutManager.findFirstVisibleItemPosition();
+            IU_NullSafe.post(this._ListRecyclerView, () -> {
                 message.setSending();
-                this._ChatList.add(message);
-                this._Adapter.notifyItemInserted(this._ChatList.size() - 1);
-                if (pastVisibleItems + visibleItemCount >= totalItemCount) {
-                    //End of list
-                    this._LinearLayoutManager.scrollToPosition(_Adapter.getItemCount() - 1);
-                }
+                this._ChatList.add(0, message);
+                this._Adapter.notifyItemInserted(this._TypingAccountId == TYPING_NO_ONE ? 0 : 1);
+                this.adjustBottomScroll();
                 this.startSendMessageRequest(message);
             });
         }
@@ -332,7 +307,7 @@ public final class IAct_Chat extends IAct_AInput {
                     return new IE_Message(data.optJSONObject("message"));
                 })
                 .opt_receiver((responseState, messageSent) ->
-                    this._ListRecyclerView.post(() -> {
+                    IU_NullSafe.post(this._ListRecyclerView, () -> {
                         int pos = this._ChatList.indexOf(message);
                         if (pos != -1) {
                             if(responseState == IApi_Request.RESPONSE_STATE__OK) {
@@ -581,7 +556,7 @@ public final class IAct_Chat extends IAct_AInput {
                             .placeholder(R.drawable.io_customerly__ic_default_admin));
                     this._Icon.setVisibility(View.VISIBLE);
                 } else {
-                    this._Icon.setVisibility(View.GONE);
+                    this._Icon.setVisibility(View.INVISIBLE);
                 }
 
                 if(pMessage.content != null && pMessage.content.length() != 0) {
@@ -734,20 +709,22 @@ public final class IAct_Chat extends IAct_AInput {
         final int _5dp = IU_Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
         int lastPositionAnimated = Integer.MAX_VALUE;
         int firstPositionAnimated = -1;
-        private final long _TODAY_inSec = (System.currentTimeMillis() / (1000 * 60 * 60 * 24)) * (/*1000**/ 60 * 60 * 24);
         @Override
         public int getItemViewType(int position) {
-            if(_TypingAccountId != TYPING_NO_ONE && position == this.getItemCount() - 1) {
-                return R.layout.io_customerly__li_message_account_typing;
-            } else {
-                IE_Message message = _ChatList.get(position);
-                if(message.isUserMessage()) {
-                    return R.layout.io_customerly__li_message_user;
-                } else if(message.rich_mail_link == null) {
-                    return R.layout.io_customerly__li_message_account;
+            if(_TypingAccountId != TYPING_NO_ONE) {
+                if(position == 0) {
+                    return R.layout.io_customerly__li_message_account_typing;
                 } else {
-                    return R.layout.io_customerly__li_message_account_rich;
+                    position--;
                 }
+            }
+            IE_Message message = _ChatList.get(position);
+            if(message.isUserMessage()) {
+                return R.layout.io_customerly__li_message_user;
+            } else if(message.rich_mail_link == null) {
+                return R.layout.io_customerly__li_message_account;
+            } else {
+                return R.layout.io_customerly__li_message_account_rich;
             }
         }
         @Override
@@ -759,9 +736,11 @@ public final class IAct_Chat extends IAct_AInput {
         }
         @Override
         public void onBindViewHolder(A_ChatVH holder, @SuppressLint("RecyclerView") int position) {
+            position -= _TypingAccountId != TYPING_NO_ONE ? 1 : 0;//No typing -> same position. Yes typing -> position reduced by 1 (it becomes -1 if it is the typing item)
+
             IE_Message thisMessage = null, previousMessage;
             boolean shouldAnimate = false, firstMessageOfSender;
-            if(_TypingAccountId == TYPING_NO_ONE || position != this.getItemCount() - 1) {
+            if(position != -1) { //No typing item
                 if(position < this.lastPositionAnimated) {
                     shouldAnimate = true;
                     this.lastPositionAnimated = position;
@@ -772,24 +751,24 @@ public final class IAct_Chat extends IAct_AInput {
                 }
                 thisMessage = _ChatList.get(position);
             }
-            previousMessage = position == 0 ? null : _ChatList.get(position - 1);
+            previousMessage = position == _ChatList.size() - 1 ? null : _ChatList.get(position + 1);//Get previous message if the current is not the first of chat
 
             firstMessageOfSender = previousMessage == null
                     || ( thisMessage == null
-                        ? ! previousMessage.isUserMessage()
-                        : ! thisMessage.hasSameSenderOf(previousMessage) );
+                    ? ! previousMessage.isUserMessage()
+                    : ! thisMessage.hasSameSenderOf(previousMessage) );
 
             holder.apply(thisMessage,
                     thisMessage == null || (previousMessage != null && thisMessage.sameSentDayOf(previousMessage)) ? null : thisMessage.dateString
                     , firstMessageOfSender, shouldAnimate);
 
-            holder.itemView.setPadding(0, firstMessageOfSender ? this._FirstMessageOfSenderTopPadding : 0, 0, position == this.getItemCount() - 1 ? this._5dp : 0);
+            holder.itemView.setPadding(0, firstMessageOfSender ? this._FirstMessageOfSenderTopPadding : 0, 0, position <= 0 /* -1 is typing item */ ? this._5dp : 0);
             //paddingTop = 15dp to every first message of the group
-            //paddingBottom = 5dp to the last message of the group
+            //paddingBottom = 5dp to the last message of the chat
         }
         @Override
         public int getItemCount() {
-            return _ChatList.size() + (_TypingAccountId == TYPING_NO_ONE ? 0 : 1);
+            return _TypingAccountId == TYPING_NO_ONE ? _ChatList.size() : _ChatList.size() + 1;
         }
         @Override
         public void onViewDetachedFromWindow(final A_ChatVH holder) {

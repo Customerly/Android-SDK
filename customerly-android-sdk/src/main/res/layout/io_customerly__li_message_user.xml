@@ -43,6 +43,20 @@
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true"  />
 
+    <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
+        android:layout_width="@dimen/io_customerly__chat_li_icon_size"
+        android:layout_height="@dimen/io_customerly__chat_li_icon_size"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="@dimen/io_customerly__chat_li_margin_icon_screen_border"
+        android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_icon_screen_border"
+        android:layout_below="@id/io_customerly__icon"
+        android:layout_marginTop="5dp"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
@@ -50,6 +64,7 @@
         android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginRight="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
+        android:layout_marginBottom="3dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -67,31 +82,15 @@
             android:background="@drawable/io_customerly__bkg_chat_message_user_rounded"
             android:gravity="right|end">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView android:id="@id/io_customerly__content"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
 
-                <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginLeft="5dp"
-
-                    android:visibility="gone" />
-
-                <TextView android:id="@id/io_customerly__content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:textColor="@android:color/white"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif"
-                    tools:ignore="UnusedAttribute"
-                    android:drawablePadding="5dp" />
-
-            </LinearLayout>
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif"
+                tools:ignore="UnusedAttribute"
+                android:drawablePadding="5dp" />
 
             <TextView android:id="@id/io_customerly__time"
                 android:layout_width="wrap_content"
@@ -110,8 +109,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="right|end"
-            tools:ignore="RtlHardcoded"
-            android:layout_marginBottom="3dp" />
+            tools:ignore="RtlHardcoded" />
 
     </LinearLayout>
 

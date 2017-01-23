@@ -61,7 +61,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="right|end"
             android:background="@drawable/io_customerly__bkg_chat_message_account_rounded" >
 
             <TextView android:id="@id/io_customerly__content"
@@ -75,6 +74,7 @@
             <TextView android:id="@id/io_customerly__time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="right|end"
 
                 android:textColor="@color/io_customerly__grey_99"
                 android:textSize="11sp"

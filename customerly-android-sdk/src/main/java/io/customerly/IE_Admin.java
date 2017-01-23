@@ -36,14 +36,15 @@ class IE_Admin {
     @NonNull static IE_Admin[] from(@Nullable JSONArray jsonArray) {
         if(jsonArray == null || jsonArray.length() == 0)
             return new IE_Admin[0];
-        IE_Admin[] adminArray = new IE_Admin[jsonArray.length()];
+        int adminsCount = Math.min(3, jsonArray.length());//Limit to 3 Admins
+        IE_Admin[] adminArray = new IE_Admin[adminsCount];
         int a = 0;
-        for(int j = 0; j < jsonArray.length(); j++) {
+        for(int j = 0; j < adminsCount; j++) {
             adminArray[a] = IE_Admin.from(jsonArray.optJSONObject(j));
             if(adminArray[a] != null)
                 a++;
         }
-        if(a == jsonArray.length()) {
+        if(a == adminsCount) {
             return adminArray;
         } else { //Added less Admin than array length
             IE_Admin[] newArray = new IE_Admin[a];

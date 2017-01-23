@@ -59,9 +59,22 @@ public final class IAct_List extends IAct_AInput {
     private View input_email_layout, new_conversation_layout;
     private SwipeRefreshLayout _FirstContact_SRL, _RecyclerView_SRL;
     private RecyclerView _ListRecyclerView;
-    private SwipeRefreshLayout.OnRefreshListener _OnRefreshListener;
+    @NonNull private List<IE_Conversation> _Conversations = new ArrayList<>();
+    @NonNull private SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
+        IE_JwtToken token = Customerly._Instance._JwtToken;
+        if(token != null && (token.isUser() || token.isLead())) {
+            new IApi_Request.Builder<ArrayList<IE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
+                    .opt_checkConn(this)
+                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "conversations", IE_Conversation::new))
+                    .opt_tokenMandatory()
+                    .opt_receiver((responseState, list) -> this.displayInterface(list))
+                    .opt_trials(2)
+                    .start();
+        } else {
+            this.displayInterface(null);
+        }
+    };
 
-    private List<IE_Conversation> _Conversations = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,20 +98,6 @@ public final class IAct_List extends IAct_AInput {
                 this.input_layout.setVisibility(View.VISIBLE);
             });
 
-            this._OnRefreshListener = () -> {
-                IE_JwtToken token = Customerly._Instance._JwtToken;
-                if(token != null && (token.isUser() || token.isLead())) {
-                    new IApi_Request.Builder<ArrayList<IE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
-                            .opt_checkConn(this)
-                            .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "conversations", IE_Conversation::new))
-                            .opt_tokenMandatory()
-                            .opt_receiver((responseState, list) -> this.displayInterface(list))
-                            .opt_trials(2)
-                            .start();
-                } else {
-                    this.displayInterface(null);
-                }
-            };
             this._RecyclerView_SRL.setOnRefreshListener(this._OnRefreshListener);
             this._FirstContact_SRL.setOnRefreshListener(this._OnRefreshListener);
             this.onReconnection();
@@ -158,7 +157,7 @@ public final class IAct_List extends IAct_AInput {
 
     @Override
     protected void onReconnection() {
-        if(this._RecyclerView_SRL != null && this._OnRefreshListener != null) {
+        if(this._RecyclerView_SRL != null) {
             this._RecyclerView_SRL.setRefreshing(true);
             this._FirstContact_SRL.setRefreshing(true);
             this._OnRefreshListener.onRefresh();
