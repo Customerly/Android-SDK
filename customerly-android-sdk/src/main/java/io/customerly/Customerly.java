@@ -145,6 +145,7 @@ public class Customerly {
             this.__PING__LAST_welcome_message_visitors = null;
         }
 
+
         this.__PING__LAST_active_admins = IE_Admin.from(root.optJSONArray("active_admins"));
 
         JSONArray last_messages_array = root.optJSONArray("last_messages");
