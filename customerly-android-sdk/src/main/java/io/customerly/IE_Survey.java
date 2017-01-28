@@ -34,7 +34,68 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Survey {
+class IE_Survey implements Parcelable {
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeInt(this.survey_id);
+        dest.writeInt(this.limit_from);
+        dest.writeInt(this.limit_to);
+        dest.writeInt(this.step);
+        dest.writeInt(this.seen ? 1 : 0);
+        dest.writeInt(this.type);
+        dest.writeString(this.title);
+        dest.writeString(this.subtitle);
+        dest.writeString(this.thank_you_text);
+        dest.writeParcelableArray(this.choices, 0);
+
+    }
+    private IE_Survey(@NonNull Parcel in) {
+        this.survey_id = in.readInt();
+        this.limit_from = in.readInt();
+        this.limit_to = in.readInt();
+        this.step = in.readInt();
+        this.seen = in.readInt() == 1;
+        switch(in.readInt()) {
+            case TYPE_END_SURVEY:
+                this.type = TYPE_END_SURVEY;
+                break;
+            case TYPE_RADIO:
+                this.type = TYPE_RADIO;
+                break;
+            case TYPE_LIST:
+                this.type = TYPE_LIST;
+                break;
+            case TYPE_SCALE:
+                this.type = TYPE_SCALE;
+                break;
+            case TYPE_STAR:
+                this.type = TYPE_STAR;
+                break;
+            case TYPE_NUMBER:
+                this.type = TYPE_NUMBER;
+                break;
+            case TYPE_TEXT_BOX:
+                this.type = TYPE_TEXT_BOX;
+                break;
+            case TYPE_TEXT_AREA:
+                this.type = TYPE_TEXT_AREA;
+                break;
+            case TYPE_BUTTON:
+            default:
+                this.type = TYPE_BUTTON;
+                break;
+        }
+        this.title = in.readString();
+        this.subtitle = in.readString();
+        this.thank_you_text = in.readString();
+        this.choices = (Choice[])in.readParcelableArray(Choice.class.getClassLoader());
+    }
+    @Override public int describeContents() { return 0; }
+    @NonNull public static final Parcelable.Creator<IE_Survey> CREATOR = new Parcelable.Creator<IE_Survey>() {
+        @Contract(pure = true) @NonNull public IE_Survey createFromParcel(@NonNull Parcel in) { return new IE_Survey(in); }
+        @Contract(pure = true) @NonNull public IE_Survey[] newArray(int size) { return new IE_Survey[size]; }
+    };
 
     @IntDef({ TYPE_END_SURVEY, TYPE_BUTTON, TYPE_RADIO, TYPE_LIST, TYPE_SCALE, TYPE_STAR, TYPE_NUMBER, TYPE_TEXT_BOX, TYPE_TEXT_AREA})
     @Retention(RetentionPolicy.SOURCE)
@@ -183,10 +244,8 @@ class IE_Survey {
         }
         @Override public int describeContents() { return 0; }
         @NonNull public static final Creator<Choice> CREATOR = new Creator<Choice>() {
-            @Contract("_ -> !null")
-            @Override public Choice createFromParcel(@NonNull Parcel in) { return new Choice(in); }
-            @Contract(value = "_ -> !null", pure = true)
-            @Override public Choice[] newArray(int size) { return new Choice[size]; }
+            @Contract(pure = true) @Override public Choice createFromParcel(@NonNull Parcel in) { return new Choice(in); }
+            @Contract(pure = true) @Override public Choice[] newArray(int size) { return new Choice[size]; }
         };
     }
 }

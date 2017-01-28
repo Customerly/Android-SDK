@@ -16,14 +16,12 @@ package io.customerly;
  * limitations under the License.
  */
 
-import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import android.app.DialogFragment;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -44,6 +42,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.Contract;
+
 import static io.customerly.IE_Survey.TYPE_END_SURVEY;
 
 /**
@@ -55,16 +55,17 @@ public class IDlgF_Survey extends DialogFragment {
     private LinearLayout _SurveyContainer;
     private TextView _Title, _Subtitle;
     private View _ProgressView, _Back;
-    @Nullable private IE_Survey _CurrentSurvey;
+    @Nullable
+    private IE_Survey _CurrentSurvey;
     private boolean _SurveyCompleted = false;
-    @Nullable private Customerly.SurveyListener.OnShow _SurveyShowListener;
-    @Nullable private Customerly.SurveyListener.OnDismiss _SurveyDismissListener;
 
-    @NonNull public static IDlgF_Survey newInstance(@Nullable Customerly.SurveyListener.OnShow pSurveyShowListener, @Nullable Customerly.SurveyListener.OnDismiss pSurveyDismissListener) {
-        IDlgF_Survey dialog = new IDlgF_Survey();
-        dialog._SurveyShowListener = pSurveyShowListener;
-        dialog._SurveyDismissListener = pSurveyDismissListener;
-        return dialog;
+    @Contract(pure = true)
+    @NonNull public static IDlgF_Survey newInstance(@NonNull IE_Survey survey) {
+        IDlgF_Survey dlg = new IDlgF_Survey();
+        Bundle b = new Bundle();
+        b.putParcelable("IE_Survey", survey);
+        dlg.setArguments(b);
+        return dlg;
     }
 
     @Override
@@ -73,74 +74,65 @@ public class IDlgF_Survey extends DialogFragment {
         this.setStyle(DialogFragment.STYLE_NO_TITLE, R.style.io_customerly__SurveyFragment);
     }
 
-    @SuppressLint("RtlHardcoded")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        IE_Survey[] surveys = Customerly._Instance.__PING__LAST_surveys;
-        if(surveys != null) {
-            for (IE_Survey survey : surveys) {
-                if (survey != null && !survey.isRejectedOrConcluded) {
-                    View view = inflater.inflate(R.layout.io_customerly__dialog_fragment_survey, container, false);
-                    this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
-                    this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
-                    this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
-                    this._ProgressView = view.findViewById(R.id.io_customerly__progress_view);
-                    this._Back = view.findViewById(R.id.io_customerly__back);
-                    this._Back.setOnClickListener(v -> {
+        Bundle args = this.getArguments();
+        if(args != null) {
+            IE_Survey survey = args.getParcelable("IE_Survey");
+            if(survey != null && !survey.isRejectedOrConcluded) {
+                View view = inflater.inflate(R.layout.io_customerly__dialog_fragment_survey, container, false);
+                this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
+                this._Subtitle = (TextView) view.findViewById(R.id.io_customerly__subtitle);
+                this._SurveyContainer = (LinearLayout) view.findViewById(R.id.io_customerly__input_layout);
+                this._ProgressView = view.findViewById(R.id.io_customerly__progress_view);
+                this._Back = view.findViewById(R.id.io_customerly__back);
+                this._Back.setOnClickListener(v -> {
+                    IE_Survey currentSurvey = this._CurrentSurvey;
+                    if (currentSurvey != null && this._Back.getVisibility() == View.VISIBLE && this._ProgressView.getVisibility() == View.GONE) {
+                        this._SurveyContainer.removeAllViews();
+                        new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_BACK)
+                                .opt_checkConn(this.getActivity())
+                                .opt_tokenMandatory()
+                                .opt_trials(2)
+                                .opt_onPreExecute(() -> {
+                                    this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
+                                    this._Title.setVisibility(View.GONE);
+                                    this._Subtitle.setVisibility(View.GONE);
+                                    this._SurveyContainer.removeAllViews();
+                                    this._ProgressView.setVisibility(View.VISIBLE);
+                                })
+                                .opt_converter(IE_Survey::from)
+                                .opt_receiver((responseState, surveyBack) -> {
+                                    if (responseState != IApi_Request.RESPONSE_STATE__OK) {
+                                        Toast.makeText(this.getActivity().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                    }
+                                    this._ProgressView.setVisibility(View.GONE);
+                                    this.applySurvey(surveyBack);
+                                })
+                                .param("survey_id", currentSurvey.survey_id)
+                                .start();
+                    }
+                });
+                view.findViewById(R.id.io_customerly__close).setOnClickListener(v -> {
+                    if (this._ProgressView.getVisibility() == View.GONE) {
                         IE_Survey currentSurvey = this._CurrentSurvey;
-                        if (currentSurvey != null && this._Back.getVisibility() == View.VISIBLE && this._ProgressView.getVisibility() == View.GONE) {
-                            this._SurveyContainer.removeAllViews();
-                            new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_BACK)
-                                    .opt_checkConn(this.getContext())
+                        if (!this._SurveyCompleted && currentSurvey != null) {
+                            currentSurvey.isRejectedOrConcluded = true;
+                            new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_REJECT)
+                                    .opt_checkConn(this.getActivity())
                                     .opt_tokenMandatory()
                                     .opt_trials(2)
-                                    .opt_onPreExecute(() -> {
-                                        this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
-                                        this._Title.setVisibility(View.GONE);
-                                        this._Subtitle.setVisibility(View.GONE);
-                                        this._SurveyContainer.removeAllViews();
-                                        this._ProgressView.setVisibility(View.VISIBLE);
-                                    })
-                                    .opt_converter(IE_Survey::from)
-                                    .opt_receiver((responseState, surveyBack) -> {
-                                        if(responseState != IApi_Request.RESPONSE_STATE__OK) {
-                                            Toast.makeText(this.getContext().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
-                                        }
-                                        this._ProgressView.setVisibility(View.GONE);
-                                        this.applySurvey(surveyBack);
-                                    })
                                     .param("survey_id", currentSurvey.survey_id)
                                     .start();
                         }
-                    });
-                    view.findViewById(R.id.io_customerly__close).setOnClickListener(v -> {
-                        if (this._ProgressView.getVisibility() == View.GONE) {
-                            IE_Survey currentSurvey = this._CurrentSurvey;
-                            if (! this._SurveyCompleted && currentSurvey != null) {
-                                currentSurvey.isRejectedOrConcluded = true;
-                                if(this._SurveyDismissListener != null) {
-                                    this._SurveyDismissListener.onDismiss(Customerly.SurveyListener.OnDismiss.REJECTED);
-                                }
-                                new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_REJECT)
-                                        .opt_checkConn(this.getContext())
-                                        .opt_tokenMandatory()
-                                        .opt_trials(2)
-                                        .param("survey_id", currentSurvey.survey_id)
-                                        .start();
-                            }
-                            this.dismissAllowingStateLoss();
-                        }
-                    });
-
-                    this.applySurvey(survey);
-
-                    if(this._SurveyShowListener != null) {
-                        this._SurveyShowListener.onShow();
+                        this.dismissAllowingStateLoss();
                     }
+                });
 
-                    return view;
-                }
+                this.applySurvey(survey);
+
+                return view;
             }
         }
         Customerly._Instance._log("No surveys available");
@@ -148,25 +140,17 @@ public class IDlgF_Survey extends DialogFragment {
         return null;
     }
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        if(this._SurveyDismissListener != null) {
-            this._SurveyDismissListener.onDismiss(this._SurveyCompleted ? Customerly.SurveyListener.OnDismiss.COMPLETED : Customerly.SurveyListener.OnDismiss.POSTPONED);
-        }
-    }
-
     private void applySurvey(@Nullable IE_Survey survey) {
-        if(survey == null) {
+        if (survey == null) {
             this.dismissAllowingStateLoss();
             return;
         }
         this._CurrentSurvey = survey;
-        if(survey.type == IE_Survey.TYPE_END_SURVEY) {
+        if (survey.type == IE_Survey.TYPE_END_SURVEY) {
             this._Back.setVisibility(View.INVISIBLE);
             this._SurveyCompleted = true;
             survey.isRejectedOrConcluded = true;
-            TextView thank_you = new TextView(this.getContext());
+            TextView thank_you = new TextView(this.getActivity());
             thank_you.setTextColor(Color.BLACK);
             thank_you.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
             thank_you.setText(IU_Utils.decodeHtmlStringWithEmojiTag(survey.thank_you_text));
@@ -185,9 +169,9 @@ public class IDlgF_Survey extends DialogFragment {
             this._Subtitle.setVisibility(View.VISIBLE);
             switch (survey.type) {
                 case IE_Survey.TYPE_BUTTON:
-                    if(survey.choices != null) {
+                    if (survey.choices != null) {
                         for (IE_Survey.Choice c : survey.choices) {
-                            Button b = new Button(this.getContext());
+                            Button b = new Button(this.getActivity());
                             {
                                 b.setTextColor(Color.WHITE);
                                 b.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
@@ -205,8 +189,8 @@ public class IDlgF_Survey extends DialogFragment {
                     }
                     break;
                 case IE_Survey.TYPE_RADIO:
-                    if(survey.choices != null) {
-                        LayoutInflater inflater = LayoutInflater.from(this.getContext());
+                    if (survey.choices != null) {
+                        LayoutInflater inflater = LayoutInflater.from(this.getActivity());
                         for (IE_Survey.Choice c : survey.choices) {
 
                             AppCompatRadioButton radio = (AppCompatRadioButton) inflater.inflate(R.layout.io_customerly__surveyitem_radio, this._SurveyContainer, false);
@@ -219,8 +203,8 @@ public class IDlgF_Survey extends DialogFragment {
                     }
                     break;
                 case IE_Survey.TYPE_LIST:
-                    if(survey.choices != null) {
-                        AppCompatSpinner spinner = new AppCompatSpinner(this.getContext());
+                    if (survey.choices != null) {
+                        AppCompatSpinner spinner = new AppCompatSpinner(this.getActivity());
                         {
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, IU_Utils.px(40));
                             lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
@@ -238,7 +222,7 @@ public class IDlgF_Survey extends DialogFragment {
                                 public void onNothingSelected(AdapterView<?> parent) {
                                 }
                             });
-                            spinner.setAdapter(new ArrayAdapter<IE_Survey.Choice>(this.getContext(), android.R.layout.simple_spinner_dropdown_item, survey.choices) {
+                            spinner.setAdapter(new ArrayAdapter<IE_Survey.Choice>(this.getActivity(), android.R.layout.simple_spinner_dropdown_item, survey.choices) {
                                 @Override
                                 public long getItemId(int position) {
                                     if (position == 0) {
@@ -301,152 +285,159 @@ public class IDlgF_Survey extends DialogFragment {
                     }
                     break;
                 case IE_Survey.TYPE_SCALE:
-                    LinearLayout ll_root = new LinearLayout(this.getContext());
+                    LinearLayout ll_root = new LinearLayout(this.getActivity());
+                {
+                    ll_root.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    ll_root.setOrientation(LinearLayout.VERTICAL);
+                    ll_root.setGravity(Gravity.CENTER_HORIZONTAL);
+
+                    Button confirm = new Button(this.getActivity());
+
+                    LinearLayout ll_seek = new LinearLayout(this.getActivity());
                     {
-                        ll_root.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        ll_root.setOrientation(LinearLayout.VERTICAL);
-                        ll_root.setGravity(Gravity.CENTER_HORIZONTAL);
+                        ll_seek.setOrientation(LinearLayout.HORIZONTAL);
+                        ll_seek.setGravity(Gravity.CENTER_VERTICAL);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
+                        ll_seek.setLayoutParams(lp);
 
-                        Button confirm = new Button(this.getContext());
-
-                        LinearLayout ll_seek = new LinearLayout(this.getContext());
+                        TextView min = new TextView(this.getActivity());
                         {
-                            ll_seek.setOrientation(LinearLayout.HORIZONTAL);
-                            ll_seek.setGravity(Gravity.CENTER_VERTICAL);
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
-                            ll_seek.setLayoutParams(lp);
+                            min.setTextColor(Color.BLACK);
+                            min.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                            min.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
+                            min.setText(String.valueOf(survey.limit_from));
+                            min.setGravity(Gravity.CENTER);
+                            min.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                        }
+                        ll_seek.addView(min);
 
-                            TextView min = new TextView(this.getContext());
-                            {
-                                min.setTextColor(Color.BLACK);
-                                min.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                                min.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-                                min.setText(String.valueOf(survey.limit_from));
-                                min.setGravity(Gravity.CENTER);
-                                min.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            }
-                            ll_seek.addView(min);
-
-                            AppCompatSeekBar seekBar = (AppCompatSeekBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
-                            {
-                                seekBar.setMax(survey.limit_to - survey.limit_from);
-                                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                    @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                        if(fromUser) {
-                                            confirm.setTag(survey.limit_from + seekBar.getProgress());
-                                            confirm.setText(seekBar.getContext().getString(R.string.io_customerly__confirm_x, survey.limit_from + progress));
-                                        }
+                        AppCompatSeekBar seekBar = (AppCompatSeekBar) LayoutInflater.from(this.getActivity()).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
+                        {
+                            seekBar.setMax(survey.limit_to - survey.limit_from);
+                            seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser) {
+                                        confirm.setTag(survey.limit_from + seekBar.getProgress());
+                                        confirm.setText(seekBar.getContext().getString(R.string.io_customerly__confirm_x, survey.limit_from + progress));
                                     }
-                                    @Override public void onStartTrackingTouch(SeekBar seekBar) { }
-                                    @Override public void onStopTrackingTouch(SeekBar seekBar) { }
-                                });
-                            }
-                            ll_seek.addView(seekBar);
+                                }
 
-                            TextView max = new TextView(this.getContext());
-                            {
-                                max.setTextColor(Color.BLACK);
-                                max.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                                max.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-                                max.setText(String.valueOf(survey.limit_to));
-                                max.setGravity(Gravity.CENTER);
-                                max.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            }
-                            ll_seek.addView(max);
-                        }
-                        ll_root.addView(ll_seek);
+                                @Override
+                                public void onStartTrackingTouch(SeekBar seekBar) {
+                                }
 
-                        {
-                            confirm.setTextColor(Color.WHITE);
-                            confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
-                            confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                            confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-                            confirm.setText(this.getContext().getString(R.string.io_customerly__confirm_x, survey.limit_from));
-                            confirm.setTag(survey.limit_from);
-                            confirm.setGravity(Gravity.CENTER);
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
-                            lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
-                            confirm.setLayoutParams(lp);
-                            confirm.setOnClickListener(v -> this.nextSurvey(survey, -1, String.valueOf(confirm.getTag())));
-                        }
-                        ll_root.addView(confirm);
-                    }
-                    this._SurveyContainer.addView(ll_root);
-                    break;
-                case IE_Survey.TYPE_STAR:
-                    AppCompatRatingBar ratingBar = (AppCompatRatingBar) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
-                    {
-                        ratingBar.setOnRatingBarChangeListener((rBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
-                    }
-                    this._SurveyContainer.addView(ratingBar);
-                    break;
-                case IE_Survey.TYPE_NUMBER:
-                case IE_Survey.TYPE_TEXT_BOX:
-                case IE_Survey.TYPE_TEXT_AREA:
-                    LinearLayout ll = new LinearLayout(this.getContext());
-                    {
-                        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        ll.setOrientation(LinearLayout.VERTICAL);
-                        ll.setGravity(Gravity.CENTER_HORIZONTAL);
-
-                        AppCompatEditText editText = (AppCompatEditText) LayoutInflater.from(this.getContext()).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
-                        {
-                            switch (survey.type) {
-                                case IE_Survey.TYPE_NUMBER:
-                                    editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                                    editText.setHint(R.string.io_customerly__hint_insert_a_number);
-                                    break;
-                                case IE_Survey.TYPE_TEXT_BOX:
-                                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                                    editText.setHint(R.string.io_customerly__hint_insert_a_text);
-                                    break;
-                                case IE_Survey.TYPE_TEXT_AREA:
-                                    editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
-                                    editText.setHint(R.string.io_customerly__hint_insert_a_text);
-                                    editText.setMinLines(2);
-                                    break;
-                                case IE_Survey.TYPE_BUTTON:
-                                case IE_Survey.TYPE_END_SURVEY:
-                                case IE_Survey.TYPE_LIST:
-                                case IE_Survey.TYPE_RADIO:
-                                case IE_Survey.TYPE_SCALE:
-                                case IE_Survey.TYPE_STAR:
-                                    //Not reachable
-                                    break;
-                            }
-                        }
-                        ll.addView(editText);
-
-                        Button confirm = new Button(this.getContext());
-                        {
-                            confirm.setTextColor(Color.WHITE);
-                            confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
-                            confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                            confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-                            confirm.setText(R.string.io_customerly__confirm);
-                            confirm.setTag(survey.limit_from);
-                            confirm.setGravity(Gravity.CENTER);
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
-                            lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
-                            confirm.setLayoutParams(lp);
-                            confirm.setOnClickListener(v -> {
-                                if(editText.getText().length() != 0) {
-                                    this.nextSurvey(survey, -1, editText.getText().toString().trim());
+                                @Override
+                                public void onStopTrackingTouch(SeekBar seekBar) {
                                 }
                             });
                         }
-                        ll.addView(confirm);
+                        ll_seek.addView(seekBar);
+
+                        TextView max = new TextView(this.getActivity());
+                        {
+                            max.setTextColor(Color.BLACK);
+                            max.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                            max.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
+                            max.setText(String.valueOf(survey.limit_to));
+                            max.setGravity(Gravity.CENTER);
+                            max.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                        }
+                        ll_seek.addView(max);
                     }
-                    this._SurveyContainer.addView(ll);
-                    break;
+                    ll_root.addView(ll_seek);
+
+                    {
+                        confirm.setTextColor(Color.WHITE);
+                        confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
+                        confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                        confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
+                        confirm.setText(this.getActivity().getString(R.string.io_customerly__confirm_x, survey.limit_from));
+                        confirm.setTag(survey.limit_from);
+                        confirm.setGravity(Gravity.CENTER);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
+                        lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
+                        confirm.setLayoutParams(lp);
+                        confirm.setOnClickListener(v -> this.nextSurvey(survey, -1, String.valueOf(confirm.getTag())));
+                    }
+                    ll_root.addView(confirm);
+                }
+                this._SurveyContainer.addView(ll_root);
+                break;
+                case IE_Survey.TYPE_STAR:
+                    AppCompatRatingBar ratingBar = (AppCompatRatingBar) LayoutInflater.from(this.getActivity()).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
+                {
+                    ratingBar.setOnRatingBarChangeListener((rBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
+                }
+                this._SurveyContainer.addView(ratingBar);
+                break;
+                case IE_Survey.TYPE_NUMBER:
+                case IE_Survey.TYPE_TEXT_BOX:
+                case IE_Survey.TYPE_TEXT_AREA:
+                    LinearLayout ll = new LinearLayout(this.getActivity());
+                {
+                    ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    ll.setOrientation(LinearLayout.VERTICAL);
+                    ll.setGravity(Gravity.CENTER_HORIZONTAL);
+
+                    AppCompatEditText editText = (AppCompatEditText) LayoutInflater.from(this.getActivity()).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
+                    {
+                        switch (survey.type) {
+                            case IE_Survey.TYPE_NUMBER:
+                                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                editText.setHint(R.string.io_customerly__hint_insert_a_number);
+                                break;
+                            case IE_Survey.TYPE_TEXT_BOX:
+                                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+                                editText.setHint(R.string.io_customerly__hint_insert_a_text);
+                                break;
+                            case IE_Survey.TYPE_TEXT_AREA:
+                                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
+                                editText.setHint(R.string.io_customerly__hint_insert_a_text);
+                                editText.setMinLines(2);
+                                break;
+                            case IE_Survey.TYPE_BUTTON:
+                            case IE_Survey.TYPE_END_SURVEY:
+                            case IE_Survey.TYPE_LIST:
+                            case IE_Survey.TYPE_RADIO:
+                            case IE_Survey.TYPE_SCALE:
+                            case IE_Survey.TYPE_STAR:
+                                //Not reachable
+                                break;
+                        }
+                    }
+                    ll.addView(editText);
+
+                    Button confirm = new Button(this.getActivity());
+                    {
+                        confirm.setTextColor(Color.WHITE);
+                        confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
+                        confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                        confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
+                        confirm.setText(R.string.io_customerly__confirm);
+                        confirm.setTag(survey.limit_from);
+                        confirm.setGravity(Gravity.CENTER);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
+                        lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
+                        confirm.setLayoutParams(lp);
+                        confirm.setOnClickListener(v -> {
+                            if (editText.getText().length() != 0) {
+                                this.nextSurvey(survey, -1, editText.getText().toString().trim());
+                            }
+                        });
+                    }
+                    ll.addView(confirm);
+                }
+                this._SurveyContainer.addView(ll);
+                break;
                 case TYPE_END_SURVEY:
                 default:
                     break;
             }
-            if(! survey.seen) {
+            if (!survey.seen) {
                 new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_SEEN)
-                        .opt_checkConn(this.getContext())
+                        .opt_checkConn(this.getActivity())
                         .opt_tokenMandatory()
                         .opt_trials(2)
                         .param("survey_id", survey.survey_id)
@@ -457,7 +448,7 @@ public class IDlgF_Survey extends DialogFragment {
 
     private void nextSurvey(IE_Survey pSurvey, int choice_id, @Nullable String answer) {
         IApi_Request.Builder builder = new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_SUBMIT)
-                .opt_checkConn(this.getContext())
+                .opt_checkConn(this.getActivity())
                 .opt_tokenMandatory()
                 .opt_onPreExecute(() -> {
                     this._ProgressView.getLayoutParams().height = this._Title.getHeight() + this._Subtitle.getHeight() + this._SurveyContainer.getHeight();
@@ -468,8 +459,8 @@ public class IDlgF_Survey extends DialogFragment {
                 })
                 .opt_converter(pSurvey::updateFrom)
                 .opt_receiver((responseState, survey) -> {
-                    if(responseState != IApi_Request.RESPONSE_STATE__OK) {
-                        Toast.makeText(this.getContext().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                    if (responseState != IApi_Request.RESPONSE_STATE__OK) {
+                        Toast.makeText(this.getActivity().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                     }
                     this._ProgressView.setVisibility(View.GONE);
                     this.applySurvey(survey);

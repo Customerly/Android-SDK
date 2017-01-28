@@ -33,7 +33,7 @@
 
     <style name="io_customerly__RadioButton_Blue1" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="colorControlNormal">@color/io_customerly__blue_2</item>
-        <item name="colorControlActivated">@color/io_customerly__blue_1</item>
+        <item name="colorControlActivated">@color/io_customerly__blue_malibu</item>
     </style>
 
     <style name="io_customerly__SeekBar_Blue2" parent="Widget.AppCompat.SeekBar" >

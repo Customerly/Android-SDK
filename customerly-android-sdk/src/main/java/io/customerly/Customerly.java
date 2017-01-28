@@ -26,13 +26,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.util.LongSparseArray;
+import android.support.annotation.UiThread;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Patterns;
@@ -42,8 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -57,127 +55,162 @@ import io.socket.client.Socket;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
-//    private static final String PREFS_PING_RESPONSE__APP_NAME = "PREFS_PING_RESPONSE__APP_NAME";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
     private static final String PREFS_PING_RESPONSE__WELCOME_USERS = "PREFS_PING_RESPONSE__WELCOME_USERS";
     private static final String PREFS_PING_RESPONSE__WELCOME_VISITORS = "PREFS_PING_RESPONSE__WELCOME_VISITORS";
-    private static final long SOCKET_PING_INTERVAL = 60000;
+    private static final long SOCKET_PING_INTERVAL = 60000, SURVEY_DISPLAY_DELAY = 5000L;
     private static final String SOCKET_EVENT__PING = "p";
     private static final String SOCKET_EVENT__PING_ACTIVE = "a";
     private static final String SOCKET_EVENT__TYPING = "typing";
     private static final String SOCKET_EVENT__SEEN = "seen";
     private static final String SOCKET_EVENT__MESSAGE = "message";
-    @ColorInt private static final int DEF_WIDGET_COLOR_INT = 0xff1fb1fc;
+    @ColorInt private static final int DEF_WIDGET_COLOR_MALIBU_INT = 0xff65a9e7;//Blue Malibu
 
     @NonNull final IU_RemoteImageHandler _RemoteImageHandler = new IU_RemoteImageHandler();
-    @NonNull private final Handler __SOCKET_PingHandler = new Handler();
+    @NonNull private final Handler __Handler = new Handler();
 
     private boolean initialized = false;
     private @Nullable SharedPreferences _SharedPreferences;
     @Nullable String _AppID, _AppCacheDir;
     @ColorInt private int
-            __WidgetColor__Fallback = DEF_WIDGET_COLOR_INT,
+            __WidgetColor__Fallback = DEF_WIDGET_COLOR_MALIBU_INT,
             __WidgetColor__HardCoded = Color.TRANSPARENT;
-    @Nullable
-    IE_JwtToken _JwtToken;
 
-    @Nullable Class<? extends Activity> _CurrentActivityClass = null;
+    @Nullable IE_JwtToken _JwtToken;
 
     private boolean __VerboseLogging = true;
 
     @Nullable private Socket _Socket;
 
     private long __PING__next_ping_allowed = 0L;
-//    @Nullable String __PING__LAST_app_name;
     @ColorInt int __PING__LAST_widget_color;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable IE_Admin[] __PING__LAST_active_admins;
-    @Nullable IE_Survey[] __PING__LAST_surveys;
+
     @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
-    @NonNull LongSparseArray<Long> _PING__LAST_messages = new android.support.v4.util.LongSparseArray<>(1);
 
-    @NonNull private final IApi_Request.ResponseConverter<Void> __PING__response_converter = root -> {
-        this.__PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
-
-        JSONObject webSocket = root.optJSONObject("websocket");
-        if (webSocket != null) {
-                                /*  "webSocket": {
-                                      "endpoint": "https://ws2.customerly.io",
-                                      "port": "8080"  }  */
-            Customerly._Instance.__SOCKET_setEndpoint(IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint"), IU_Utils.jsonOptStringWithNullCheck(webSocket, "port"));
+    @Nullable private WeakReference<Activity> _CurrentActivity;
+    @NonNull private final Application.ActivityLifecycleCallbacks __ActivityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
+        private boolean paused = false, foreground = false;
+        @NonNull private Runnable checkBackground = () -> {
+            if (this.foreground && this.paused) {
+                this.foreground = false;
+                __SOCKET__disconnect();
+            }
+        };
+        @Override public void onActivityResumed(Activity activity) {
+            _CurrentActivity = new WeakReference<>(activity);
+            this.paused = false;
+            boolean wasBackground = !this.foreground;
+            this.foreground = true;
+            __Handler.removeCallbacks(this.checkBackground);
+            if (wasBackground) {
+                __PING__Start();
+            }
         }
-        Customerly._Instance.__SOCKET__connect();
+        @Override public void onActivityPaused(Activity activity) {
+            this.paused = true;
+            __Handler.removeCallbacks(this.checkBackground);
+            __Handler.postDelayed(this.checkBackground, 500);
+        }
+        @Override public void onActivityStopped(Activity activity) { }
+        @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
+        @Override public void onActivityDestroyed(Activity activity) { }
+        @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
+        @Override public void onActivityStarted(Activity activity) { }
+    };
 
-//        JSONObject app_config = root.optJSONObject("app");
-//        if(app_config != null) {
-//            String app_name = Internal_Utils__Utils.jsonOptStringWithNullCheck(app_config, "name");
-//            if(app_name != null) {
-//                this.__PING__LAST_app_name = app_name;
-//            }
-//        }
-
-        JSONObject app_config = root.optJSONObject("app_config");
-
-        if(app_config != null) {
-            if(this.__WidgetColor__HardCoded == Color.TRANSPARENT) {
-                String pingWidgetColor = IU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
-                if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
-                    if (pingWidgetColor.charAt(0) != '#') {
-                        pingWidgetColor = '#' + pingWidgetColor;
+    private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
+        private final boolean _ManageSurvey;
+        private PingResponseConverter(boolean manageSurvey) {
+            super();
+            this._ManageSurvey = manageSurvey;
+        }
+        @Nullable
+        @Override
+        @SuppressLint("CommitTransaction")
+        public final Void convert(@NonNull JSONObject root) throws JSONException {
+            __PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
+            __SOCKET__connect(root.optJSONObject("websocket"));
+            JSONObject app_config = root.optJSONObject("app_config");
+            if(app_config != null) {
+                if(__WidgetColor__HardCoded == Color.TRANSPARENT) {
+                    String pingWidgetColor = IU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
+                    if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
+                        if (pingWidgetColor.charAt(0) != '#') {
+                            pingWidgetColor = '#' + pingWidgetColor;
+                        }
+                        try {
+                            __PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
+                        } catch (IllegalArgumentException notCorrectColor) {
+                            IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
+                            __PING__LAST_widget_color = __WidgetColor__Fallback;
+                        }
                     }
-                    try {
-                        this.__PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
-                    } catch (IllegalArgumentException notCorrectColor) {
-                        IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
-                        this.__PING__LAST_widget_color = this.__WidgetColor__Fallback;
+                }
+                __PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
+                __PING__LAST_welcome_message_users = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
+                __PING__LAST_welcome_message_visitors = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
+            } else {
+                __PING__LAST_widget_color = __WidgetColor__Fallback;
+                __PING__LAST_powered_by = false;
+                __PING__LAST_welcome_message_users = null;
+                __PING__LAST_welcome_message_visitors = null;
+            }
+            __PING__LAST_active_admins = IE_Admin.from(root.optJSONArray("active_admins"));
+
+            final SharedPreferences prefs = _SharedPreferences;
+            if(prefs != null) {
+                prefs.edit()
+                        .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, __PING__LAST_widget_color)
+                        .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, __PING__LAST_powered_by)
+                        .putString(PREFS_PING_RESPONSE__WELCOME_USERS, __PING__LAST_welcome_message_users)
+                        .putString(PREFS_PING_RESPONSE__WELCOME_VISITORS, __PING__LAST_welcome_message_visitors)
+                        .apply();
+            }
+
+            if(this._ManageSurvey) {
+                IE_Survey[] surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
+                if(surveys != null) {
+                    for (final IE_Survey survey : surveys) {
+                        if (survey != null && !survey.isRejectedOrConcluded) {
+                            __Handler.postDelayed(() -> {
+                                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                if(activity != null) {
+                                    try {
+                                        IDlgF_Survey.newInstance(survey).show(activity.getFragmentManager().beginTransaction().addToBackStack(null), "SURVEYS");
+                                    } catch (Exception generic) {
+                                        _log("A generic error occurred in Customerly.openSurvey");
+                                        IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
+                                    }
+                                }
+                            }, SURVEY_DISPLAY_DELAY);
+                            return null;
+                        }
                     }
                 }
             }
-            this.__PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
-            this.__PING__LAST_welcome_message_users = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
-            this.__PING__LAST_welcome_message_visitors = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
-        } else {
-            this.__PING__LAST_widget_color = this.__WidgetColor__Fallback;
-            this.__PING__LAST_powered_by = false;
-            this.__PING__LAST_welcome_message_users = null;
-            this.__PING__LAST_welcome_message_visitors = null;
-        }
 
-
-        this.__PING__LAST_active_admins = IE_Admin.from(root.optJSONArray("active_admins"));
-
-        JSONArray last_messages_array = root.optJSONArray("last_messages");
-        this._PING__LAST_messages.clear();
-        if(last_messages_array != null && last_messages_array.length() != 0) {
-            JSONObject message;
-            for (int i = 0; i < last_messages_array.length(); i++) {
-                try {
-                    message = last_messages_array.getJSONObject(i);
-                    if (message == null)
-                        continue;
-                    this._PING__LAST_messages.put(message.optLong("conversation_id"), message.optLong("sent_date"));
-                    break;
-                } catch (JSONException ignored) { }
+            JSONArray last_messages_array = root.optJSONArray("last_messages");
+            if(last_messages_array != null && last_messages_array.length() != 0) {
+                for (int i = 0; i < last_messages_array.length(); i++) {
+                    try {
+                        final JSONObject message = last_messages_array.getJSONObject(i);
+                        if (message != null) {
+                            __Handler.post(() -> __showMessageAlert(new IE_Message(message)));
+                            return null;
+                        }
+                    } catch (JSONException ignored) { }
+                }
             }
+            return null;
         }
+    }
 
-        this.__PING__LAST_surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
-
-        final SharedPreferences prefs = this._SharedPreferences;
-        if(prefs != null) {
-            prefs.edit()
-//                    .putString(PREFS_PING_RESPONSE__APP_NAME, this.__PING__LAST_app_name)
-                    .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, this.__PING__LAST_widget_color)
-                    .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, this.__PING__LAST_powered_by)
-                    .putString(PREFS_PING_RESPONSE__WELCOME_USERS, this.__PING__LAST_welcome_message_users)
-                    .putString(PREFS_PING_RESPONSE__WELCOME_VISITORS, this.__PING__LAST_welcome_message_visitors)
-                    .apply();
-        }
-
-        return null;
-    };
+    @NonNull private final PingResponseConverter __PING__response_converter = new PingResponseConverter(true),
+            __PING__response_converter__ignoresurvey = new PingResponseConverter(false);
 
     @NonNull static final Customerly _Instance = new Customerly();
 
@@ -218,31 +251,29 @@ public class Customerly {
     }
 
     interface __SOCKET__ITyping_listener {   void onTypingEvent(long pConversationID, long account_id, boolean pTyping);   }
-    interface __SOCKET__IMessage_listener {   void onMessageEvent(@NonNull ArrayList<IE_Message> news);   }
     @Nullable __SOCKET__ITyping_listener __SOCKET__Typing_listener = null;
-    @Nullable __SOCKET__IMessage_listener __SOCKET__Message_listener = null;
-    @Nullable private RealTimeMessagesListener __SOCKET__RealTimeMessagesListener = null;
     @Nullable private String __SOCKET__Endpoint = null, __SOCKET__Port = null;
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     @NonNull private final Runnable __SOCKET__ping = () -> {
         Socket socket = this._Socket;
         if(socket != null && socket.connected()) {
-            Class<? extends Activity> currentActivityClass = this._CurrentActivityClass;
-            socket.emit(currentActivityClass != null && (currentActivityClass == IAct_Chat.class
-                    || currentActivityClass == IAct_List.class)
-                    ? SOCKET_EVENT__PING_ACTIVE
-
-                    : SOCKET_EVENT__PING);
-            this.__SOCKET_PingHandler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+            Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+            socket.emit(activity != null && activity instanceof SocketMessageReceiver ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
+            this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
         }
     };
-    private void __SOCKET_setEndpoint(@Nullable String endpoint, @Nullable String port) {
-        if(endpoint != null && port != null) {
-            this.__SOCKET__Endpoint = endpoint;
-            this.__SOCKET__Port = port;
-        }
+    interface SocketMessageReceiver {
+        void onNewMessages(@NonNull ArrayList<IE_Message> messages);
     }
-    private void __SOCKET__connect() {
+    private void __SOCKET__connect(@Nullable JSONObject webSocket) {
+        if (webSocket != null) {
+            /*  "webSocket": {
+                  "endpoint": "https://ws2.customerly.io",
+                  "port": "8080"  }  */
+            this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
+            this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
+        }
+
         if(this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
             IE_JwtToken token = this._JwtToken;
             if (token != null && token._UserID != null) {
@@ -319,26 +350,21 @@ public class Customerly {
                                         if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
                                                 && socket_user_id != 0 && timestamp != 0
                                                 && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
-                                            final __SOCKET__IMessage_listener listener = this.__SOCKET__Message_listener;
-                                            final RealTimeMessagesListener rtcCallback = this.__SOCKET__RealTimeMessagesListener;
-                                            if (listener != null || rtcCallback != null) {
-                                                new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
-                                                        .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
-                                                        .opt_tokenMandatory()
-                                                        .opt_receiver((responseState, newsResponse) -> {
-                                                            if (responseState == IApi_Request.RESPONSE_STATE__OK && newsResponse != null) {
-                                                                if (listener != null) {
-                                                                    listener.onMessageEvent(newsResponse);
-                                                                } else if (/*rtcCallback != null && */newsResponse.size() != 0) {
-                                                                    IE_Message last_message = newsResponse.get(0);
-                                                                    this._PING__LAST_messages.put(last_message.conversation_id, last_message.sent_datetime_sec);
-                                                                    rtcCallback.onMessage(last_message.content);
-                                                                }
+                                            new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
+                                                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
+                                                    .opt_tokenMandatory()
+                                                    .opt_receiver((responseState, new_messages) -> {
+                                                        if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
+                                                            Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                            if(activity != null && activity instanceof SocketMessageReceiver) {
+                                                                ((SocketMessageReceiver)activity).onNewMessages(new_messages);
+                                                            } else {
+                                                                this.__showMessageAlert(new_messages.get(0));
                                                             }
-                                                        })
-                                                        .param("timestamp", timestamp)
-                                                        .start();
-                                            }
+                                                        }
+                                                    })
+                                                    .param("timestamp", timestamp)
+                                                    .start();
                                         }
                                     }
                                 } catch (JSONException ignored) { }
@@ -346,7 +372,7 @@ public class Customerly {
                         });
 
                         socket.connect();
-                        this.__SOCKET_PingHandler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+                        this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
                     } catch (URISyntaxException ignored) { }
                 }
             }
@@ -360,7 +386,7 @@ public class Customerly {
             }
             this._Socket = null;
         }
-        this.__SOCKET_PingHandler.removeCallbacks(this.__SOCKET__ping);
+        this.__Handler.removeCallbacks(this.__SOCKET__ping);
     }
     private void __SOCKET__SEND(@NonNull String event, @NonNull JSONObject payloadJson) {
         Socket socket = this._Socket;
@@ -412,22 +438,14 @@ public class Customerly {
         }
     }
 
-    private void __PING__Start(@Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
-        SharedPreferences pref = this._SharedPreferences;
+    @SuppressLint("CommitTransaction")
+    private boolean __ExecutingPing = false;
+    private synchronized void __PING__Start() {
+        this.__ExecutingPing = true;
         //noinspection SpellCheckingInspection
         new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                 .opt_converter(this.__PING__response_converter)
-                .opt_receiver((responseState, _void) -> {
-                    if(responseState == IApi_Request.RESPONSE_STATE__OK) {
-                        if (pSuccessCallback != null) {
-                            pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
-                        }
-                    } else {
-                        if (pFailureCallback != null) {
-                            pFailureCallback.onFailure();
-                        }
-                    }
-                })
+                .opt_receiver((state, _null) -> this.__ExecutingPing = false)
                 .param("email", IU_Utils.getStringSafe(this._SharedPreferences, "regusrml"))
                 .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, "regusrid"))
                 .start();
@@ -449,40 +467,13 @@ public class Customerly {
         }
     }
 
-    private void __internal_openLastSupportConversation(@NonNull Activity activity, boolean firstTry) {
-        try {
-            if(this._PING__LAST_messages.size() != 0) {
-                long most_recent_conv_ID = -1;
-                long most_recent_sent_date = Long.MAX_VALUE;
-                try {
-                    for (int i = 0; i < this._PING__LAST_messages.size(); i++) {
-                        long convID = this._PING__LAST_messages.keyAt(i);
-                        // get the object by the key.
-                        Long sent_date = this._PING__LAST_messages.get(convID);
-                        if(sent_date < most_recent_sent_date) {
-                            most_recent_sent_date = sent_date;
-                            most_recent_conv_ID = convID;
-                        }
-                    }
-                } catch (Exception concurrent_modification) {
-                    if(firstTry) {
-                        this.__internal_openLastSupportConversation(activity, false);//Only 2 try, to avoid infinite recursion
-                    } else {
-                        this._log("No last support conversation available");
-                    }
-                    return;
-                }
-                if(most_recent_conv_ID != -1) {
-                    activity.startActivity(new Intent(activity, IAct_Chat.class)
-                            .putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, false)
-                            .putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, most_recent_conv_ID));
-                }
-            } else {
-                this._log("No last support conversation available");
+    @UiThread
+    private void __showMessageAlert(@Nullable IE_Message message) {
+        if(message != null) {
+            Activity activity = this._CurrentActivity == null ? null : this._CurrentActivity.get();
+            if(activity != null) {
+                PW_AlertMessage.show(activity, message);
             }
-        } catch (Exception generic) {
-            this._log("A generic error occurred in Customerly.openLastSupportConversation");
-            IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openLastSupportConversation", generic);
         }
     }
 
@@ -503,73 +494,27 @@ public class Customerly {
 
     public interface Callback {
         /**
-         * Implement this interface to obtain async success response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+         * Implement this interface to obtain async success response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
          * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
          */
         interface Success {
             /**
-             * Invoked on the async success response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+             * Invoked on the async success response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
              * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
-             * @param newSurvey true if at least one Survey is available, false otherwise
-             * @param newMessage true there is at least one unread message from the support, false otherwise
              */
-            void onSuccess(boolean newSurvey, boolean newMessage);
+            void onSuccess();
         }
         /**
-         * Implement this interface to obtain async failure response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+         * Implement this interface to obtain async failure response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
          * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
          */
         interface Failure {
             /**
-             * Invoked on the async failure response from {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
+             * Invoked on the async failure response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
              * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
              */
             void onFailure();
         }
-    }
-
-    public interface SurveyListener {
-        /**
-         * Implement this interface to obtain async event of the effective displaying of a Survey Dialog started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
-         */
-        interface OnShow {
-            /**
-             * Invoked when the Survey has actually been displayed to the user
-             */
-            void onShow();
-        }
-        /**
-         * Implement this interface to obtain async event of the disposing of a Survey Dialog started with {@link #openSurvey(FragmentManager, SurveyListener.OnShow, SurveyListener.OnDismiss)}
-         */
-        interface OnDismiss {
-            int POSTPONED = 0x00, COMPLETED = 0x01, REJECTED = 0x02;
-            /**
-             * Indicates the reason of the disposing of the Survey<br>
-             *     {@link #COMPLETED} - survey closed without invalidation (tap out of alert)
-             *     {@link #REJECTED} - survey closed after that user completed it (user closed survey in "thank you message" step)
-             *     {@link #POSTPONED} - survey closed and reject (user closed survey before "thank you message" step)
-             */
-            @IntDef({POSTPONED, COMPLETED, REJECTED})
-            @Retention(value = RetentionPolicy.SOURCE)
-            @interface DismissMode {}
-            /**
-             * Invoked when the Survey has been dismissed.
-             * @param pDismissMode Indicate the state of the dismissed survey. {@link #POSTPONED} for a Survey just dismissed but still pending and available for a next openSurvey, {@link #COMPLETED} for a completed Survey and {@link #REJECTED} for a rejected Survey
-             */
-            void onDismiss(@DismissMode int pDismissMode);
-        }
-    }
-
-    /**
-     * Implement this interface to register a listener for incoming real time chat messages with {@link #realTimeMessages(RealTimeMessagesListener)}.<br>
-     * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
-     */
-    public interface RealTimeMessagesListener {
-        /**
-         * Invoked when the user receive a message from the support.
-         * This callback won't be invoked if the Customerly Support or Chat Activity is currently displayed
-         */
-        void onMessage(HtmlMessage messageContent);
     }
 
     /**
@@ -611,19 +556,17 @@ public class Customerly {
                     Customerly._Instance.__WidgetColor__Fallback =
                             Customerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
                                     ? Customerly._Instance.__WidgetColor__HardCoded
-                                    : DEF_WIDGET_COLOR_INT;
+                                    : DEF_WIDGET_COLOR_MALIBU_INT;
 
                     //JWT TOKEN
                     Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
 
                     //PING
-//                    Customerly._Instance.__PING__LAST_app_name = prefs.getString(PREFS_PING_RESPONSE__APP_NAME, Customerly._Instance._ApplicationName);
                     Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
                     Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
                     Customerly._Instance.__PING__LAST_welcome_message_users = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
                     Customerly._Instance.__PING__LAST_welcome_message_visitors = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
                     Customerly._Instance.__PING__LAST_active_admins = null;
-                    Customerly._Instance.__PING__LAST_surveys = null;
 
                     Customerly._Instance._AppID = IU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
 
@@ -637,10 +580,11 @@ public class Customerly {
     /**
      * Call this method to configure the SDK indicating the Customerly App ID before accessing it.<br>
      * Call this from your custom Application {@link Application#onCreate()}
+     * @param pApplication The application class reference
      * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
      */
-    public void configure(@NonNull String pCustomerlyAppID) {
-        this.configure(pCustomerlyAppID, Color.TRANSPARENT);
+    public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID) {
+        Customerly.configure(pApplication, pCustomerlyAppID, Color.TRANSPARENT);
     }
 
     /**
@@ -651,22 +595,25 @@ public class Customerly {
      * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
      * @param pWidgetColor The custom widget_color. If Color.TRANSPARENT, it will be ignored
      */
-    public void configure(@NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
-        final SharedPreferences prefs = this._SharedPreferences;
+    public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
+        Customerly customerly = Customerly.with(pApplication);
+        final SharedPreferences prefs = customerly._SharedPreferences;
         if(prefs != null) {
             //noinspection SpellCheckingInspection
             prefs.edit().putString("CONFIG_APP_ID", pCustomerlyAppID).putInt("CONFIG_HC_WCOLOR", pWidgetColor).apply();
         }
 
-        this._AppID = pCustomerlyAppID.trim();
+        customerly._AppID = pCustomerlyAppID.trim();
 
-        this.__WidgetColor__HardCoded = pWidgetColor;
-        this.__PING__LAST_widget_color = Customerly._Instance.__WidgetColor__Fallback =
+        customerly.__WidgetColor__HardCoded = pWidgetColor;
+        customerly.__PING__LAST_widget_color = Customerly._Instance.__WidgetColor__Fallback =
                 pWidgetColor == Color.TRANSPARENT
-                        ? DEF_WIDGET_COLOR_INT
+                        ? DEF_WIDGET_COLOR_MALIBU_INT
                         : pWidgetColor;
 
-        this.__PING__Start(null, null);
+        pApplication.registerActivityLifecycleCallbacks(customerly.__ActivityLifecycleCallbacks);
+
+        customerly.__PING__Start();
     }
 
     /**
@@ -679,31 +626,21 @@ public class Customerly {
     }
 
     /**
-     * Call this method to check for pending Surveys or Message for the current user.<br>
+     * Call this method to force a check for pending Surveys or Message for the current user.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param pSuccessCallback To receive success async response
-     * @param pFailureCallback To receive failure async response
-     *
-     * @see Customerly.Callback
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      */
-    public void update(@Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
+    public void update() {
         if(this._isConfigured()) {
             try {
-                if (System.currentTimeMillis() < this.__PING__next_ping_allowed) {
-                    this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
-                    if(pFailureCallback != null) {
-                        pFailureCallback.onFailure();
-                    }
+                if (System.currentTimeMillis() > this.__PING__next_ping_allowed) {
+                    this.__PING__Start();
                 } else {
-                    this.__PING__Start(pSuccessCallback, pFailureCallback);
+                    this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.update");
                 IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
-                if(pFailureCallback != null) {
-                    pFailureCallback.onFailure();
-                }
             }
         }
     }
@@ -711,7 +648,7 @@ public class Customerly {
     /**
      * Call this method to link your app user to the Customerly session.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param email The mail address of the user, this is mandatory
      * @param user_id The optional user_id of the user, null otherwise
      * @param name The optional name of the user, null otherwise
@@ -723,7 +660,7 @@ public class Customerly {
     /**
      * Call this method to link your app user to the Customerly session.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param email The mail address of the user, this is mandatory
      * @param user_id The optional user_id of the user, null otherwise
      * @param name The optional name of the user, null otherwise
@@ -737,7 +674,7 @@ public class Customerly {
     /**
      * Call this method to link your app user to the Customerly session.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param email The mail address of the user, this is mandatory
      * @param user_id The optional user_id of the user, null otherwise
      * @param name The optional name of the user, null otherwise
@@ -770,13 +707,15 @@ public class Customerly {
                     final String trimmedUserID = user_id == null || user_id.trim().length() == 0 ? null : user_id.trim();
 
                     new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
-                            .opt_converter(this.__PING__response_converter)
+                            .opt_converter(root -> {
+                                //noinspection SpellCheckingInspection
+                                pref.edit().putString("regusrml", trimmedEmail).putString("regusrid", trimmedUserID).apply();
+                                return this.__PING__response_converter__ignoresurvey.convert(root);
+                            })
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == IApi_Request.RESPONSE_STATE__OK) {
-                                    //noinspection SpellCheckingInspection
-                                    pref.edit().putString("regusrml", trimmedEmail).putString("regusrid", trimmedUserID).apply();
                                     if(pSuccessCallback != null) {
-                                        pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
+                                        pSuccessCallback.onSuccess();
                                     }
                                 } else {
                                     if(pFailureCallback != null) {
@@ -811,7 +750,7 @@ public class Customerly {
     /**
      * Call this method to add new custom attributes to the user.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
@@ -841,7 +780,7 @@ public class Customerly {
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                     if(pSuccessCallback != null) {
-                                        pSuccessCallback.onSuccess(this.isSurveyAvailable(), this._PING__LAST_messages.size() != 0);
+                                        pSuccessCallback.onSuccess();
                                     }
                                 } else {
                                     if(pFailureCallback != null) {
@@ -870,7 +809,7 @@ public class Customerly {
     /**
      * Call this method to open the Support Activity.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param activity The current activity
      */
     public void openSupport(@NonNull Activity activity) {
@@ -885,31 +824,9 @@ public class Customerly {
     }
 
     /**
-     * Call this method to indicate if from a previous {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)} an unread message is available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @return If an unread message is available
-     */
-    public boolean isLastSupportConversationAvailable() {
-        return this._PING__LAST_messages.size() != 0;
-    }
-
-    /**
-     * Call this method to open directly the Chat Activity if an unread message is available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param activity The current activity
-     */
-    public void openLastSupportConversation(@NonNull Activity activity) {
-        if(this._isConfigured()) {
-            this.__internal_openLastSupportConversation(activity, true);
-        }
-    }
-
-    /**
      * Call this method to close the user's Customerly session.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      */
     public void logoutUser() {
         if(this._isConfigured()) {
@@ -925,9 +842,7 @@ public class Customerly {
 
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
-                this._PING__LAST_messages.clear();
-                this.__PING__LAST_surveys = null;
-                this.__PING__Start(null, null);
+                this.__PING__Start();
             } catch (Exception ignored) { }
         }
     }
@@ -935,7 +850,7 @@ public class Customerly {
     /**
      * Call this method to keep track of custom labelled events.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pEventName The event custom label
      */
     public void trackEvent(@NonNull String pEventName) {
@@ -954,89 +869,5 @@ public class Customerly {
                 IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
             }
         }
-    }
-
-    /**
-     * Call this method to indicate if from a previous {@link #update(Callback.Success, Callback.Failure)}, {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)} a survey is available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @return If a survey is available
-     */
-    public boolean isSurveyAvailable() {
-        IE_Survey[] surveys = this.__PING__LAST_surveys;
-        if(surveys != null) {
-            for (IE_Survey survey : surveys) {
-                if (survey != null && !survey.isRejectedOrConcluded) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Call this method to start a survey in a DialogFragment, if available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param fm The SupportFragmentManager to show the DialogFragment
-     */
-    public void openSurvey(@NonNull FragmentManager fm) {
-        this.openSurvey(fm, null, null);
-    }
-
-    /**
-     * Call this method to start a survey in a DialogFragment, if available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param fm The SupportFragmentManager to show the DialogFragment
-     * @param pSurveyShowListener If a survey is actually displayed this callback will be invoked
-     */
-    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnShow pSurveyShowListener) {
-        this.openSurvey(fm, pSurveyShowListener, null);
-    }
-
-    /**
-     * Call this method to start a survey in a DialogFragment, if available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param fm The SupportFragmentManager to show the DialogFragment
-     * @param pSurveyDismissListener This callback will be invoked when the Survey Dialog will be dismissed.
-     */
-    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnDismiss pSurveyDismissListener) {
-        this.openSurvey(fm, null, pSurveyDismissListener);
-    }
-
-    /**
-     * Call this method to start a survey in a DialogFragment, if available.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param fm The SupportFragmentManager to show the DialogFragment
-     * @param pSurveyShowListener If a survey is actually displayed this callback will be invoked
-     * @param pSurveyDismissListener This callback will be invoked when the Survey Dialog will be dismissed.
-     */
-    @SuppressLint("CommitTransaction")
-    public void openSurvey(@NonNull FragmentManager fm, @Nullable SurveyListener.OnShow pSurveyShowListener, @Nullable SurveyListener.OnDismiss pSurveyDismissListener) {
-        if(this._isConfigured()) {
-            if (this.isSurveyAvailable()) {
-                try {
-                    IDlgF_Survey.newInstance(pSurveyShowListener, pSurveyDismissListener).show(fm.beginTransaction().addToBackStack(null), "SURVEYS");
-                } catch (Exception generic) {
-                    this._log("A generic error occurred in Customerly.openSurvey");
-                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
-                }
-            } else {
-                this._log("No surveys available");
-            }
-        }
-    }
-
-    /**
-     * Call this method to register a callback for incoming real time chat messages when no support activities are displayed.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(String)}
-     * @param pRealTimeMessagesListener The callback
-     */
-    public void realTimeMessages(@Nullable RealTimeMessagesListener pRealTimeMessagesListener) {
-        this.__SOCKET__RealTimeMessagesListener = pRealTimeMessagesListener;
     }
 }

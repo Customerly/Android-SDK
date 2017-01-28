@@ -52,7 +52,7 @@ import java.util.Locale;
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
-public final class IAct_List extends IAct_AInput {
+public final class IAct_List extends IAct_AInput implements Customerly.SocketMessageReceiver {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 
@@ -105,43 +105,40 @@ public final class IAct_List extends IAct_AInput {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Customerly._Instance.__SOCKET__Message_listener = pNewMessages -> {
-            ArrayList<IE_Message> filtered = new ArrayList<>(pNewMessages.size());
-            next_new_message: for(IE_Message new_message : pNewMessages) {
-                for(IE_Message new_message_filtered : filtered) {
-                    if(new_message_filtered.conversation_id == new_message.conversation_id) {
-                        if(new_message_filtered.conversation_message_id >= new_message.conversation_message_id) {
-                            continue next_new_message;//Already found a most recent message for that conversation
-                        } else {
-                            filtered.remove(new_message_filtered);
-                            filtered.add(new_message);
-                            continue next_new_message;//Already found a message for that conversation but this is most recent
-                        }
+    public void onNewMessages(@NonNull ArrayList<IE_Message> messages) {
+        ArrayList<IE_Message> filtered = new ArrayList<>(messages.size());
+        next_new_message: for(IE_Message new_message : messages) {
+            for(IE_Message new_message_filtered : filtered) {
+                if(new_message_filtered.conversation_id == new_message.conversation_id) {
+                    if(new_message_filtered.conversation_message_id >= new_message.conversation_message_id) {
+                        continue next_new_message;//Already found a most recent message for that conversation
+                    } else {
+                        filtered.remove(new_message_filtered);
+                        filtered.add(new_message);
+                        continue next_new_message;//Already found a message for that conversation but this is most recent
                     }
                 }
-                filtered.add(new_message);//This is the first message found for that conversation
             }
+            filtered.add(new_message);//This is the first message found for that conversation
+        }
 
-            ArrayList<IE_Conversation> conversations = new ArrayList<>(this._Conversations);
-            next_new_filtered: for(IE_Message new_filtered : filtered) {
-                for(IE_Conversation conversation : conversations) {
-                    if(conversation.conversation_id == new_filtered.conversation_id) { //New message of an existing conversation
-                        conversation.onNewMessage(new_filtered);
-                        continue next_new_filtered;
-                    }
+        ArrayList<IE_Conversation> conversations = new ArrayList<>(this._Conversations);
+        next_new_filtered: for(IE_Message new_filtered : filtered) {
+            for(IE_Conversation conversation : conversations) {
+                if(conversation.conversation_id == new_filtered.conversation_id) { //New message of an existing conversation
+                    conversation.onNewMessage(new_filtered);
+                    continue next_new_filtered;
                 }
-                //New message of a new conversation
-                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
             }
-            //Sort the conversation by last message date
-            Collections.sort(conversations, (c1, c2) -> (int)(c2.last_message_date - c1.last_message_date));
-            this._ListRecyclerView.post(() -> {
-                this._Conversations = conversations;
-                this._ListRecyclerView.getAdapter().notifyDataSetChanged();
-            });
-        };
+            //New message of a new conversation
+            conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
+        }
+        //Sort the conversation by last message date
+        Collections.sort(conversations, (c1, c2) -> (int)(c2.last_message_date - c1.last_message_date));
+        this._ListRecyclerView.post(() -> {
+            this._Conversations = conversations;
+            this._ListRecyclerView.getAdapter().notifyDataSetChanged();
+        });
     }
 
     @Override
@@ -150,7 +147,6 @@ public final class IAct_List extends IAct_AInput {
             this.input_layout.setVisibility(View.VISIBLE);
             this.input_email_layout.setVisibility(View.GONE);
         } else {
-            Customerly._Instance.__SOCKET__Message_listener = null;
             super.onBackPressed();
         }
     }
@@ -447,7 +443,7 @@ public final class IAct_List extends IAct_AInput {
             this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icon);
             ViewGroup.LayoutParams lp = this._Icon.getLayoutParams();
             lp.width = lp.height = _Icon_Size;
-            this._Nome = (TextView)this.itemView.findViewById(R.id.io_customerly__nome);
+            this._Nome = (TextView)this.itemView.findViewById(R.id.io_customerly__name);
             this._LastMessage = (TextView)this.itemView.findViewById(R.id.io_customerly__last_message);
             this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
             this.itemView.setOnClickListener(item_view -> openConversationById(this._ConversationID, false));

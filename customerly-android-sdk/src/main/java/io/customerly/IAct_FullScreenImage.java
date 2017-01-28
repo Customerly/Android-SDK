@@ -48,12 +48,14 @@ import android.widget.Toast;
 
 import org.jetbrains.annotations.Contract;
 
+import java.util.ArrayList;
+
 /**
  * Created by Gianni on 23/09/16.
  * Project: Customerly Android SDK
  */
 
-public final class IAct_FullScreenImage extends AppCompatActivity {
+public final class IAct_FullScreenImage extends AppCompatActivity implements Customerly.SocketMessageReceiver {
     static final String EXTRA_IMAGE_SOURCE = "EXTRA_IMAGE_SOURCE";
 
     private String _SourceUrl;
@@ -108,18 +110,6 @@ public final class IAct_FullScreenImage extends AppCompatActivity {
             }
         }
         this.finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Customerly._Instance._CurrentActivityClass = this.getClass();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Customerly._Instance._CurrentActivityClass = null;
     }
 
     @Override
@@ -209,6 +199,9 @@ public final class IAct_FullScreenImage extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    public void onNewMessages(@NonNull ArrayList<IE_Message> messages) { }
 
 //    private void saveImageToGallery() {
 //        if(this._ImageView != null) {

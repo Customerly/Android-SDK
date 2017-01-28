@@ -15,9 +15,8 @@
 -->
 <resources>
     <color name="io_customerly__message_account">#ffeceff1</color>
-    <color name="io_customerly__message_user">@color/io_customerly__blue_1</color>
     <color name="io_customerly__light_blue_1">#fff2faff</color>
-    <color name="io_customerly__blue_1">#ff1fb1fc</color>
+    <color name="io_customerly__blue_malibu">#ff65a9e7</color>
     <color name="io_customerly__blue_2">#ff007db9</color>
     <color name="io_customerly__blue_2_transparent">#00007db9</color>
     <color name="io_customerly__blue_3">#ff4561ff</color>

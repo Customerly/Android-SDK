@@ -87,14 +87,12 @@ abstract class IAct_AInput extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Customerly._Instance._CurrentActivityClass = this.getClass();
         this.registerReceiver(this._BroadcastReceiver, this._IntentFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Customerly._Instance._CurrentActivityClass = null;
         this.unregisterReceiver(this._BroadcastReceiver);
     }
 
@@ -143,26 +141,15 @@ abstract class IAct_AInput extends AppCompatActivity {
             }
 
             if (Customerly._Instance.__PING__LAST_powered_by) {
-                SpannableStringBuilder ssb = new SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_));
-                SpannableString redBoldSpannable= new SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME);
-
-                if(Customerly._Instance.__PING__LAST_widget_color != 0) {
-                    int linkColor = Customerly._Instance.__PING__LAST_widget_color;
-
-                    while (IU_Utils.getContrastColor(linkColor) == Color.BLACK) {
-                        linkColor = IU_Utils.alterColor(linkColor, 0.95f);
-                    }
-
-                    redBoldSpannable.setSpan(new ForegroundColorSpan(linkColor), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                }
+                SpannableString redBoldSpannable = new SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME);
+                redBoldSpannable.setSpan(new ForegroundColorSpan(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                ssb.append(redBoldSpannable);
-                powered_by.setText(ssb);
+                powered_by.setText(new SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable));
                 powered_by.setOnClickListener(v -> IU_Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
                 powered_by.setVisibility(View.VISIBLE);
-            }/* else {
-                powered_by.setVisibility(View.GONE);//Da layout
-            }*/
+            }else {
+                powered_by.setVisibility(View.GONE);
+            }
 
             input_button_attach.setOnClickListener(this._AttachButtonListener);
 

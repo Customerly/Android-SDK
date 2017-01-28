@@ -5,7 +5,7 @@
 </p>
 
   
-  [![Language](https://img.shields.io/badge/Android-API_9+-green.svg)]()
+  [![Language](https://img.shields.io/badge/Android-API_14+-green.svg)]()
   [![Language](https://img.shields.io/badge/Java-6+-red.svg)]()
   [![License](https://img.shields.io/badge/license-Apache%20License%202.0-red.svg)]()
   
@@ -31,7 +31,7 @@ The Customerly Android SDK is really simple to integrate in your apps, and allow
 
 ## Requirements
 
-- Android 2.3+ (API level 9+)
+- Android 4.0.1+ (API level 14+)
 - Android Studio 2.0+
 - Java 6+
 
@@ -131,15 +131,15 @@ public class CustomApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Customerly.with(this).configure("YOUR_CUSTOMERLY_SECRET_KEY");
+        Customerly.configure("YOUR_CUSTOMERLY_SECRET_KEY");
     }
 }
 ```
 If you want to specify a custom widget_color for the application ignoring the server-defined one you have to specify it in the configure method:
 ```java
-Customerly.with(this).configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
+Customerly.configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
 ```
-Optionally, if you want to enable the logging in console you have to call the following method.  
+Optionally and after the configure, if you want to enable the logging in console you have to call the following method.  
 Our suggest is to call it soon after the configure:
 ```java
 Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk

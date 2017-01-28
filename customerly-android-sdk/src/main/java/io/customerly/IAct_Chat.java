@@ -77,7 +77,7 @@ import java.util.stream.Stream;
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
-public final class IAct_Chat extends IAct_AInput {
+public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMessageReceiver {
 
     static final String EXTRA_CONVERSATION_ID= "EXTRA_CONVERSATION_ID";
     private static final int MESSAGES_PER_PAGE = 20, TYPING_NO_ONE = 0;
@@ -186,8 +186,6 @@ public final class IAct_Chat extends IAct_AInput {
                 }
             });
 
-            Customerly._Instance._PING__LAST_messages.remove(this._ConversationID);
-
             Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
                 if(pTyping) {
                     if(this._TypingAccountId == account_id) {
@@ -211,30 +209,31 @@ public final class IAct_Chat extends IAct_AInput {
                     });
                 }
             };
+        }
+    }
 
-            Customerly._Instance.__SOCKET__Message_listener = pNewMessages -> {
-                Stream<IE_Message> nuoviMessaggi = pNewMessages.stream()
-                        .filter(m1 -> m1.conversation_id == this._ConversationID                                                           //Filter by conversation_id
-                                && this._ChatList.stream().noneMatch(m2 -> m2.conversation_message_id == m1.conversation_message_id) );    //Avoid duplicates
+    @Override
+    public void onNewMessages(@NonNull ArrayList<IE_Message> messages) {
+        Stream<IE_Message> nuoviMessaggi = messages.stream()
+                .filter(m1 -> m1.conversation_id == this._ConversationID                                                           //Filter by conversation_id
+                        && this._ChatList.stream().noneMatch(m2 -> m2.conversation_message_id == m1.conversation_message_id) );    //Avoid duplicates
 
-                final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
-                nuoviMessaggi.forEach(new_messages::add);
+        final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
+        nuoviMessaggi.forEach(new_messages::add);
 
-                Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
+        Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
 
-                this._ListRecyclerView.post(() -> {
-                    this._ChatList = new_messages;
-                    this.adjustBottomScroll();
-                    this._Adapter.notifyDataSetChanged();
-                });
+        IU_NullSafe.post(this._ListRecyclerView, () -> {
+            this._ChatList = new_messages;
+            this.adjustBottomScroll();
+            this._Adapter.notifyDataSetChanged();
+        });
 
-                if(new_messages.size() != 0) {
-                    IE_Message last = new_messages.get(0);
-                    if (last.isNotSeen()) {
-                        this.sendSeen(last.conversation_message_id);
-                    }
-                }
-            };
+        if(new_messages.size() != 0) {
+            IE_Message last = new_messages.get(0);
+            if (last.isNotSeen()) {
+                this.sendSeen(last.conversation_message_id);
+            }
         }
     }
 
