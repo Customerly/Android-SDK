@@ -42,13 +42,13 @@ import android.widget.TextView;
  */
 class PW_AlertMessage extends PopupWindow {
 
-    private static final int DRAG_MIN_DISTANCE = IU_Utils.px(40), SWIPE_MIN_DISTANCE = IU_Utils.px(100), AUTO_DISMISS_DELAY = 4000, FADE_OUT_DURATION = 2000, ENTER_TRANSLATE_DURATION = 500, ABORT_CLICK_AFTER_MS = 700;
+    private static final int DRAG_MIN_DISTANCE = IU_Utils.px(40), SWIPE_MIN_DISTANCE = IU_Utils.px(100), AUTO_FADE_OUT_DELAY = 4000, FADE_OUT_DURATION = 2000, ENTER_TRANSLATE_DURATION = 500, ABORT_CLICK_AFTER_MS = 700;
 
     @Nullable private static PW_AlertMessage _CurrentVisible = null;
 
     private long _ConversationID = 0, _MessageID = 0;
 
-    private Runnable _DismissAfterTOT = this::fadeOut;
+    private Runnable _FadeOutAfterTOT = this::fadeOut;
     private boolean _FadingOut = false;
 
     @SuppressLint("InflateParams")
@@ -90,7 +90,7 @@ class PW_AlertMessage extends PopupWindow {
                                     .x(this._ViewXStart)
                                     .setDuration(0)
                                     .start();
-                            PW_AlertMessage.this.getContentView().postDelayed(PW_AlertMessage.this._DismissAfterTOT, AUTO_DISMISS_DELAY);
+                            PW_AlertMessage.this.getContentView().postDelayed(PW_AlertMessage.this._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
                         }
                         return true;
                 }
@@ -118,6 +118,7 @@ class PW_AlertMessage extends PopupWindow {
             if(alert._MessageID == message.conversation_message_id) { //Already displaying that message
                 alert.bindMessage(message);
                 alert.abortFadeOut();
+                alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
                 return;
             }
             alert.fadeOut();
@@ -134,7 +135,7 @@ class PW_AlertMessage extends PopupWindow {
         }
         alert.showAtLocation(activity.getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, top_offset_fix);
         PW_AlertMessage._CurrentVisible = alert;
-        alert.getContentView().postDelayed(alert._DismissAfterTOT, AUTO_DISMISS_DELAY);
+        alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
     }
 
     private void bindMessage(@NonNull IE_Message message) {
@@ -157,7 +158,7 @@ class PW_AlertMessage extends PopupWindow {
 
     private void fadeOut() {
         this._FadingOut = true;
-        PW_AlertMessage.this.getContentView().removeCallbacks(PW_AlertMessage.this._DismissAfterTOT);
+        PW_AlertMessage.this.getContentView().removeCallbacks(PW_AlertMessage.this._FadeOutAfterTOT);
         this.getContentView().clearAnimation();
         this.getContentView().animate().alpha(0).setDuration(FADE_OUT_DURATION).setListener(new Animator.AnimatorListener() {
             @Override public void onAnimationStart(Animator animation) { }
@@ -172,7 +173,7 @@ class PW_AlertMessage extends PopupWindow {
     }
 
     private void abortFadeOut() {
-        PW_AlertMessage.this.getContentView().removeCallbacks(PW_AlertMessage.this._DismissAfterTOT);
+        PW_AlertMessage.this.getContentView().removeCallbacks(PW_AlertMessage.this._FadeOutAfterTOT);
         if(PW_AlertMessage.this._FadingOut) {
             PW_AlertMessage.this._FadingOut = false;
             PW_AlertMessage.this.getContentView().animate().cancel();
