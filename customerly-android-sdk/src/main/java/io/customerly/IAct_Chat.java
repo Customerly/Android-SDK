@@ -71,7 +71,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.stream.Stream;
 
 /**
  * Created by Gianni on 03/09/16.
@@ -92,6 +91,16 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
     @NonNull private final ArrayList<BroadcastReceiver> _BroadcastReceiver = new ArrayList<>(1);
     @NonNull private final IU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
         if(Customerly._Instance._isConfigured()) {
+            long oldestMessageId = Long.MAX_VALUE;
+            for(int i = 0; i < this._ChatList.size(); i++) {
+                try {
+                    long currentMessageId = this._ChatList.get(i).conversation_message_id;
+                    if(currentMessageId < oldestMessageId) {
+                        oldestMessageId = currentMessageId;
+                    }
+                } catch (Exception ignored) { /* concurrence */ }
+            }
+
             new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
                     .opt_checkConn(this)
                     .opt_onPreExecute(() -> IU_NullSafe.setVisibility(this._Progress_view, View.VISIBLE))
@@ -99,13 +108,17 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
                     .opt_tokenMandatory()
                     .opt_receiver((responseState, pNewMessages) -> {
                         if (responseState == IApi_Request.RESPONSE_STATE__OK && pNewMessages != null) {
-                            Stream<IE_Message> nuoviMessaggi = pNewMessages.stream()
-                                    .filter(m1 -> this._ChatList.stream().noneMatch(m2 -> m2.conversation_message_id == m1.conversation_message_id) )//Avoid duplicates
-                                    .sorted((m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC);
 
                             final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
                             int previoussize = new_messages.size();
-                            nuoviMessaggi.forEachOrdered(new_messages::add);
+
+                            Collections.sort(pNewMessages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC);
+                            //noinspection Convert2streamapi
+                            for(IE_Message newMsg : pNewMessages) {
+                                if(! this._ChatList.contains(newMsg)) {           //Avoid duplicates;
+                                    new_messages.add(newMsg);
+                                }
+                            }
                             int addeditem = new_messages.size() - previoussize;
                             IU_NullSafe.post(this._ListRecyclerView, () -> {
                                 IU_NullSafe.setVisibility(this._Progress_view, View.GONE);
@@ -138,7 +151,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
                     .opt_trials(2)
                     .param("conversation_id", this._ConversationID)
                     .param("per_page", MESSAGES_PER_PAGE)
-                    .param("messages_before_id", this._ChatList.stream().map(m -> m.conversation_message_id).min((id1, id2) -> ((int)(id1 - id2))).orElse(Long.MAX_VALUE))
+                    .param("messages_before_id", oldestMessageId)
                     .start();
         }
     };
@@ -214,12 +227,14 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
 
     @Override
     public void onNewMessages(@NonNull ArrayList<IE_Message> messages) {
-        Stream<IE_Message> nuoviMessaggi = messages.stream()
-                .filter(m1 -> m1.conversation_id == this._ConversationID                                                           //Filter by conversation_id
-                        && this._ChatList.stream().noneMatch(m2 -> m2.conversation_message_id == m1.conversation_message_id) );    //Avoid duplicates
-
         final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
-        nuoviMessaggi.forEach(new_messages::add);
+        //noinspection Convert2streamapi
+        for(IE_Message newMsg : messages) {
+            if(newMsg.conversation_id == this._ConversationID       //Filter by conversation_id
+                    && ! new_messages.contains(newMsg)) {           //Avoid duplicates;
+                new_messages.add(newMsg);
+            }
+        }
 
         Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
 

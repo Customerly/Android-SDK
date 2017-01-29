@@ -82,7 +82,7 @@ dependencies {
 <dependency>
   <groupId>io.customerly</groupId>
   <artifactId>customerly-android-sdk</artifactId>
-  <version>ALPHA-1.0</version>
+  <version>VERSION_NAME</version>
   <type>pom</type>
 </dependency>
 ```
@@ -154,40 +154,40 @@ You can register logged in users of your app into Customerly calling the method 
 Example:
 
 ```java
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
+Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
 ```
 
 or using a closure:
 
 ```java
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
- new Customerly.Callback.Success() {
+Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
+ new Customerly.SuccessCallback() {
      @Override
-     public void onSuccess(boolean newSurvey, boolean newMessage) {
+     public void onSuccess() {
         //...
      }
- }, new Customerly.Callback.Failure() {
-         @Override
-         public void onFailure() {
-            //...
-         }
-     });
+ }, new Customerly.FailureCallback() {
+     @Override
+     public void onFailure() {
+        //...
+     }
+ });
      
 //Java8:
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
- (newSurvey, newMessage) -> { /* ... */ }, () -> { /* ... */ });
+Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
+ () -> { /* ... */ }, () -> { /* ... */ });
 ```
 
 You can pass custom attribute for the user as JSONObject. The JSONObject cannot contain other JSONObject or JSONArray:
 ```java
-Customerly.with(Context.this).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
+Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
 new JSONObject().putString("attrKey", "attrValue"));
 ```
 
 You can also logout users:
 
 ```java
-Customerly.with(Context.this).logoutUser()
+Customerly.with(YOUR_CONTEXT).logoutUser()
 ```
 
 In this method *user_id*, *name*, *attributes*, *success* and *failure* are optionals.
@@ -199,88 +199,14 @@ If you don't have a login method inside your apps don't worry, users can use the
 You can open the support view controller calling the method `openSupport`:
 
 ```java
-Customerly.with(Context.this).openSupport(Activity.this)
-```
-
-If you need to know in your app when a new message is coming, you can register the *realTimeMessages:* handler
-
-```java
-Customerly.with(Context.this).realTimeMessages(new Customerly.RealTimeMessagesListener() {
-            @Override
-            public void onMessage(Customerly.HtmlMessage messageContent) {
-                //messageContent is a SpannableStringBuilder containing the message with the html-formatting
-                //messageContent.toPlainTextString() returns the message in plain text
-            }});
-      
-//Java8:
-Customerly.with(Context.this).realTimeMessages((messageContent) -> { /* ... */ });
-```
-
-### Update
-
-If you want to get a generic update and know about presence of any Survey or unread message, call `update`:
-
-```java
-Customerly.with(Context.this).update(new Customerly.Callback.Success() {
-                                          @Override
-                                          public void onSuccess(boolean newSurvey, boolean newMessage) {
-                                             //...
-                                          }
-                                      }, new Customerly.Callback.Failure() {
-                                              @Override
-                                              public void onFailure() {
-                                                 //...
-                                              }
-                                          });
-//JAVA8:
-Customerly.with(Context.this).update( (newSurvey, newMessage) -> { /* ... */ }, () -> { /* ... */ } );
+Customerly.with(YOUR_CONTEXT).openSupport(Activity.this)
 ```
 
 ### Surveys
 
 With the Customerly SDK you can deliver surveys directly into your app.
 
-You can present a survey in a dialogfragment from your activity support FragmentManager like this:
-
-```java
-if Customerly.with(Context.this).isSurveyAvailable(){
-    Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager(),
-    new Customerly.SurveyListener.OnShow() {
-        @Override
-        public void onShow() {
-            //Called if and when the Survey is actually showed
-        }
-    }, new Customerly.SurveyListener.OnDismiss() {
-        @Override
-        public void onDismiss(int pDismissMode) {
-            //Called if the Survey has been disposed, the parameter pDismissMode indicates the state of the survey
-            switch(pDismissMode) {
-                case Customerly.SurveyListener.OnDismiss.COMPLETED:
-                    //The Survey has been disposed after the completion
-                    break;
-                case Customerly.SurveyListener.OnDismiss.REJECTED:
-                    //The Survey has been rejected
-                    break;
-                case Customerly.SurveyListener.OnDismiss.POSTPONED:
-                default:
-                    //The Survey dialog has been disposed but the survey is still available and can be continued with a new openSurvey call
-                    break;
-            }
-        }
-    });
-}
-     
-//JAVA8:        
-Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager(),
-    () -> { /* ... */ }, (pDismissMode) -> { /* ... */ });
-```
-
-The SurveyListener are totally optional, you can call `openSurvey` like this if you don't need them:
-
-```java
-Customerly.with(Context.this).openSurvey(Activity.this.getSupportFragmentManager())
-```
-Remember that you can get updates about new surveys available using the `update` method.
+They will be automatically displayed to your user as soon as possible.
 
 ### Attributes
 
@@ -288,7 +214,7 @@ Inside attributes you can add every custom data you prefer to track. you can pas
 
 ```java
 // Eg. This attribute define what kind of pricing plan the user has purchased 
-Customerly.with(Context.this).setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
+Customerly.with(YOUR_CONTEXT).setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
 ```
 
 ### Events
@@ -297,7 +223,7 @@ Send to Customerly every event you want to segment users better
 
 ```java
 // Eg. This send an event that track a potential purchase
-Customerly.with(Context.this).trackEvent("added_to_cart")
+Customerly.with(YOUR_CONTEXT).trackEvent("added_to_cart")
 ```
 
 ## JavaDoc

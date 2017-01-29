@@ -21,13 +21,15 @@ buildscript {
 
     dependencies {
         classpath 'me.tatarka:gradle-retrolambda:3.5.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = 'BUILD-3'
+def CustomerlySDKVersion = 'BUILD-9'
 
 ext {
     bintrayRepo = 'maven'
