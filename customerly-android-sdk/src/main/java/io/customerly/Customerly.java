@@ -456,14 +456,16 @@ public class Customerly {
     @SuppressLint("CommitTransaction")
     private boolean __ExecutingPing = false;
     private synchronized void __PING__Start() {
-        this.__ExecutingPing = true;
-        //noinspection SpellCheckingInspection
-        new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
-                .opt_converter(this.__PING__response_converter)
-                .opt_receiver((state, _null) -> this.__ExecutingPing = false)
-                .param("email", IU_Utils.getStringSafe(this._SharedPreferences, "regusrml"))
-                .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, "regusrid"))
-                .start();
+        if(this._isConfigured()) {
+            this.__ExecutingPing = true;
+            //noinspection SpellCheckingInspection
+            new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                    .opt_converter(this.__PING__response_converter)
+                    .opt_receiver((state, _null) -> this.__ExecutingPing = false)
+                    .param("email", IU_Utils.getStringSafe(this._SharedPreferences, "regusrml"))
+                    .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, "regusrid"))
+                    .start();
+        }
     }
 
     void _TOKEN__update(@NonNull JSONObject obj) {
@@ -608,8 +610,6 @@ public class Customerly {
                         : pWidgetColor;
 
         pApplication.registerActivityLifecycleCallbacks(customerly.__ActivityLifecycleCallbacks);
-
-        customerly.__PING__Start();
     }
 
     /**
