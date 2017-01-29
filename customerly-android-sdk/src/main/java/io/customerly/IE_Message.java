@@ -155,4 +155,9 @@ class IE_Message {
     boolean isFailed() {
         return this._STATE == STATE.FAILED;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null && obj instanceof IE_Message && ((IE_Message)obj).conversation_message_id == this.conversation_message_id;
+    }
 }

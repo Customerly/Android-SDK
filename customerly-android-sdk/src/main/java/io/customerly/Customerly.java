@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Patterns;
@@ -117,7 +116,9 @@ public class Customerly {
         }
         @Override public void onActivityStopped(Activity activity) { }
         @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
-        @Override public void onActivityDestroyed(Activity activity) { }
+        @Override public void onActivityDestroyed(Activity activity) {
+            PW_AlertMessage.onActivityDestroyed(activity);//Need to dismiss the alert or leak window exception comes out
+        }
         @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
         @Override public void onActivityStarted(Activity activity) { }
     };
@@ -199,7 +200,18 @@ public class Customerly {
                     try {
                         final JSONObject message = last_messages_array.getJSONObject(i);
                         if (message != null) {
-                            __Handler.post(() -> __showMessageAlert(new IE_Message(message)));
+                            __Handler.post(() -> {
+                                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                if(activity != null) {
+                                    if(activity instanceof SocketMessageReceiver) {
+                                        ArrayList<IE_Message> list = new ArrayList<>(1);
+                                        list.add(new IE_Message(message));
+                                        ((SocketMessageReceiver)activity).onNewMessages(list);
+                                    } else {
+                                        PW_AlertMessage.show(activity, new IE_Message(message));
+                                    }
+                                }
+                            });
                             return null;
                         }
                     } catch (JSONException ignored) { }
@@ -356,10 +368,12 @@ public class Customerly {
                                                     .opt_receiver((responseState, new_messages) -> {
                                                         if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
                                                             Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                                            if(activity != null && activity instanceof SocketMessageReceiver) {
-                                                                ((SocketMessageReceiver)activity).onNewMessages(new_messages);
-                                                            } else {
-                                                                this.__showMessageAlert(new_messages.get(0));
+                                                            if(activity != null) {
+                                                                if (activity instanceof SocketMessageReceiver) {
+                                                                    ((SocketMessageReceiver) activity).onNewMessages(new_messages);
+                                                                } else {
+                                                                    PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                }
                                                             }
                                                         }
                                                     })
@@ -385,6 +399,7 @@ public class Customerly {
                 socket.disconnect();
             }
             this._Socket = null;
+            this.__SOCKET__CurrentConfiguration = null;
         }
         this.__Handler.removeCallbacks(this.__SOCKET__ping);
     }
@@ -467,23 +482,13 @@ public class Customerly {
         }
     }
 
-    @UiThread
-    private void __showMessageAlert(@Nullable IE_Message message) {
-        if(message != null) {
-            Activity activity = this._CurrentActivity == null ? null : this._CurrentActivity.get();
-            if(activity != null) {
-                PW_AlertMessage.show(activity, message);
-            }
-        }
-    }
-
     /* ****************************************************************************************************************************************************************/
     /* ********************************************************************************************************************************************** Public Methods **/
     /* ****************************************************************************************************************************************************************/
     /**
      * A class representing a {@link SpannableStringBuilder} with a method {@link #toPlainTextString()} that convert the formatted text to a plain string
      */
-    public static class HtmlMessage extends SpannableStringBuilder {
+    static class HtmlMessage extends SpannableStringBuilder {
         HtmlMessage(SpannableStringBuilder ssb) {
             super(ssb);
         }
@@ -492,29 +497,20 @@ public class Customerly {
         }
     }
 
-    public interface Callback {
+    public interface SuccessCallback {
         /**
-         * Implement this interface to obtain async success response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
-         * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
+         * Implement this interface to obtain async success response from {@link #registerUser(String, String, String, SuccessCallback, FailureCallback)},
+         * {@link #registerUser(String, String, String, JSONObject, SuccessCallback, FailureCallback)} or {@link #setAttributes(JSONObject, SuccessCallback, FailureCallback)}
          */
-        interface Success {
-            /**
-             * Invoked on the async success response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
-             * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
-             */
-            void onSuccess();
-        }
+        void onSuccess();
+    }
+
+    public interface FailureCallback {
         /**
-         * Implement this interface to obtain async failure response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
-         * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
+         * Implement this interface to obtain async failure response from {@link #registerUser(String, String, String, SuccessCallback, FailureCallback)},
+         * {@link #registerUser(String, String, String, JSONObject, SuccessCallback, FailureCallback)} or {@link #setAttributes(JSONObject, SuccessCallback, FailureCallback)}
          */
-        interface Failure {
-            /**
-             * Invoked on the async failure response from {@link #registerUser(String, String, String, Callback.Success, Callback.Failure)},
-             * {@link #registerUser(String, String, String, JSONObject,Callback.Success, Callback.Failure)} or {@link #setAttributes(JSONObject, Callback.Success, Callback.Failure)}
-             */
-            void onFailure();
-        }
+        void onFailure();
     }
 
     /**
@@ -667,7 +663,7 @@ public class Customerly {
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
      */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
         this.registerUser(email, user_id, name, null, pSuccessCallback, pFailureCallback);
     }
 
@@ -682,7 +678,7 @@ public class Customerly {
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
      */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
+    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
         final String trimmedEmail = email.trim();
         if(Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
             SharedPreferences pref = this._SharedPreferences;
@@ -755,7 +751,7 @@ public class Customerly {
      * @param pSuccessCallback To receive success async response
      * @param pFailureCallback To receive failure async response
      */
-    public void setAttributes(@Nullable JSONObject pAttributes, @Nullable Callback.Success pSuccessCallback, @Nullable Callback.Failure pFailureCallback) {
+    public void setAttributes(@Nullable JSONObject pAttributes, @Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
         if(this._isConfigured()) {
             IE_JwtToken token = this._JwtToken;
             if(token != null && token.isUser()) {
