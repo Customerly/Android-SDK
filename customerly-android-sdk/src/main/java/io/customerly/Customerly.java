@@ -36,6 +36,7 @@ import android.util.Log;
 import android.util.Patterns;
 
 import org.intellij.lang.annotations.Subst;
+import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -532,11 +533,17 @@ public class Customerly {
 
     /**
      * Call this method to obtain the reference to the Customerly SDK
-     * @param pContext A Context
+     * @param pContext A Context. We strongly recommend to pass this parameter, even if it is optional, for stability reasons.
+     *                 Passing a context the return value will be surely not null.
+     *                 Besides, if not passed, due to some events in your application, the result can be null.
      * @return The Customerly SDK instance reference
      */
-    @NonNull public static Customerly with(@NonNull Context pContext) {
+    @Contract("!null -> !null; null -> _")
+    @Nullable public static Customerly with(@Nullable Context pContext) {
         if(! Customerly._Instance.initialized) {//Avoid to perform lock if not needed
+            if(pContext == null) {
+                return null;
+            }
             synchronized (Customerly.class) {
                 if(! Customerly._Instance.initialized) {//After lock we check again to avoid concurrence
                     pContext = pContext.getApplicationContext();

@@ -147,6 +147,33 @@ Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig
 
 **If in doubt, you can look at the examples in the demo application. (See the demo's [CustomApplication.java](https://github.com/customerly/Customerly-Android-SDK-demo/blob/master/app/src/main/java/io/customerly/demo/CustomApplication.java))**
 
+### Obtain the SDK singleton reference
+
+You can obtain a reference to the SDK singleton by calling.
+
+```java
+Customerly reference = Customerly.with(YOUR_CONTEXT);
+```
+
+We strongly discourage this but if needed, if you have not a Context reference, you can not pass it because it is used only to perform a re-configuration of the sdk if, for some event in your application (like a crash event), it lost the instance state.
+```java
+Customerly reference = Customerly.with(null);
+```
+
+In this case the reference returned will be null if the sdk lost the configuration so please perform a null-check verification before accessing it
+```java
+//Example:
+Customerly.with(YOUR_CONTEXT).openSupport(Activity.this); //This is safe
+
+Customerly.with(null).openSupport(Activity.this); //This is not safe and could cause a NullPointerException throw
+
+Customerly customerly = Customerly.with(null);
+if(customerly) {
+    customerly.openSupport(Activity.this); //This is safe
+}
+
+```
+
 ### User registration
 
 You can register logged in users of your app into Customerly calling the method `registerUser:`. You’ll also need to register your user anywhere they log in.
