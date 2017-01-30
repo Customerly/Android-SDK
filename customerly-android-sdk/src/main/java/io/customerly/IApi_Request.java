@@ -68,34 +68,32 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    private static final String ENDPOINT_TRACKING_BASE_URL = "https://tracking.customerly.io";
-    private static final String ENDPOINT_TRACKING_API_VERSION = "/v1";
-    static final String ENDPOINT_PING = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/ping/index/";
-    static final String ENDPOINT_CONVERSATION_RETRIEVE = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/conversation/retrieve/";
-    static final String ENDPOINT_MESSAGE_SEEN = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/message/seen/";
-    static final String ENDPOINT_MESSAGE_NEWS = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/message/news/";
-    static final String ENDPOINT_MESSAGE_RETRIEVE = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/message/retrieve/";
-    static final String ENDPOINT_MESSAGE_SEND = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/message/send/";
-    static final String ENDPOINT_EVENT_TRACKING = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/event/";
-    static final String ENDPOINT_REPORT_CRASH = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/crash/";
-    static final String ENDPOINT_SURVEY_SUBMIT = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/submit/";
-    static final String ENDPOINT_SURVEY_SEEN = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/seen/";
-    static final String ENDPOINT_SURVEY_BACK = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/back/";
-    static final String ENDPOINT_SURVEY_REJECT = ENDPOINT_TRACKING_BASE_URL + ENDPOINT_TRACKING_API_VERSION + "/survey/reject/";
+    static final String ENDPOINT_PING =                     BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/ping/index/";
+    static final String ENDPOINT_CONVERSATION_RETRIEVE =    BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/conversation/retrieve/";
+    static final String ENDPOINT_MESSAGE_SEEN =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/seen/";
+    static final String ENDPOINT_MESSAGE_NEWS =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/news/";
+    static final String ENDPOINT_MESSAGE_RETRIEVE =         BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/retrieve/";
+    static final String ENDPOINT_MESSAGE_SEND =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/send/";
+    static final String ENDPOINT_EVENT_TRACKING =           BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/event/";
+    static final String ENDPOINT_REPORT_CRASH =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/crash/";
+    static final String ENDPOINT_SURVEY_SUBMIT =            BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/submit/";
+    static final String ENDPOINT_SURVEY_SEEN =              BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/seen/";
+    static final String ENDPOINT_SURVEY_BACK =              BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/back/";
+    static final String ENDPOINT_SURVEY_REJECT =            BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/reject/";
 
-    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__PENDING = 0;
-    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__OK = -1;
-    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_NO_CONNECTION = -2;
-    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_BAD_REQUEST = -3;
-    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_NETWORK = -4;
-    @SuppressWarnings("WeakerAccess") static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
-    @SuppressWarnings("WeakerAccess") static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED = 403;
-    @SuppressWarnings("WeakerAccess") static final int RESPONSE_STATE__NO_TOKEN_AVAILABLE = -6;
+    static final byte RESPONSE_STATE__PENDING = 0;
+    static final byte RESPONSE_STATE__OK = -1;
+    static final byte RESPONSE_STATE__ERROR_NO_CONNECTION = -2;
+    static final byte RESPONSE_STATE__ERROR_BAD_REQUEST = -3;
+    static final byte RESPONSE_STATE__ERROR_NETWORK = -4;
+    static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
+    static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED = 403;
+    static final int RESPONSE_STATE__NO_TOKEN_AVAILABLE = -6;
 
     @NonNull @Endpoint private final String _Endpoint;
     @NonNull private final ResponseConverter<RES> _ResponseConverter;
     @NonNull private final ResponseReceiver<RES> _ResponseReceiver;
-    @IntRange(from=1, to=5) private int _Trials;
+    @IntRange(from=1, to=5) private final int _Trials;
     private final boolean _TokenMandatory;
 
     @ResponseState private int _ResponseState = RESPONSE_STATE__PENDING;
@@ -316,7 +314,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
         return null;
     }
 
-    @Nullable private JSONObject executeRequest(@NonNull String pEndpoint, @NonNull JSONObject pJsonPayload) {
+    @Nullable private JSONObject executeRequest(@NonNull @Endpoint String pEndpoint, @NonNull JSONObject pJsonPayload) {
         int trials = this._Trials;
         while(trials > 0) {
             this._ResponseState = RESPONSE_STATE__PENDING;
@@ -387,7 +385,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
                                 "-----------------------------------------------------------" +
                                         "\nHTTP RESPONSE" +
-                                        "\n+ Endpoint:        " + this._Endpoint +
+                                        "\n+ Endpoint:        " + pEndpoint +
                                         "\nJSON BODY:\n" +
                                         rootToString +
                                         "\n-----------------------------------------------------------");
@@ -439,7 +437,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
             Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
                     "-----------------------------------------------------------" +
                             "\nHTTP RESPONSE" +
-                            "\n+ Endpoint:        " + this._Endpoint +
+                            "\n+ Endpoint:        " + pEndpoint +
                             "\n!!!ERROR!!!\n" +
                             "\n-----------------------------------------------------------");
 

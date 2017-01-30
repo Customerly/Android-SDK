@@ -84,7 +84,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
     @Nullable private RecyclerView _ListRecyclerView;
     @Nullable private IU_ProgressiveScrollListener _IU_ProgressiveScrollListener;
     @Nullable private ProgressBar _Progress_view;
-    @NonNull private ChatAdapter _Adapter = new ChatAdapter();
+    @NonNull private final ChatAdapter _Adapter = new ChatAdapter();
     private long _TypingAccountId = TYPING_NO_ONE, _ConversationID = 0;
     @Nullable private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<IE_Message> _ChatList = new ArrayList<>(0);

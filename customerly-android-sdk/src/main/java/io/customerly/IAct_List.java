@@ -60,7 +60,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
     private SwipeRefreshLayout _FirstContact_SRL, _RecyclerView_SRL;
     private RecyclerView _ListRecyclerView;
     @NonNull private List<IE_Conversation> _Conversations = new ArrayList<>();
-    @NonNull private SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
+    @NonNull private final SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
         IE_JwtToken token = Customerly._Instance._JwtToken;
         if(token != null && (token.isUser() || token.isLead())) {
             new IApi_Request.Builder<ArrayList<IE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)

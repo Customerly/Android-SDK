@@ -24,15 +24,15 @@
     android:foreground="?attr/selectableItemBackground"
     android:paddingTop="15dp"
     android:paddingBottom="15dp"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp" >
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp" >
 
     <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:scaleType="fitCenter"
-        android:layout_marginRight="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
         android:contentDescription="@string/io_customerly__icon" />
 
     <TextView android:id="@id/io_customerly__time"

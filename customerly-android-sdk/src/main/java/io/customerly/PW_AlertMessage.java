@@ -42,13 +42,19 @@ import android.widget.TextView;
  */
 class PW_AlertMessage extends PopupWindow {
 
-    private static final int DRAG_MIN_DISTANCE = IU_Utils.px(40), SWIPE_MIN_DISTANCE = IU_Utils.px(100), AUTO_FADE_OUT_DELAY = 4000, FADE_OUT_DURATION = 2000, ENTER_TRANSLATE_DURATION = 500, ABORT_CLICK_AFTER_MS = 700;
+    private static final int
+            DRAG_MIN_DISTANCE = IU_Utils.px(40),
+            SWIPE_MIN_DISTANCE = IU_Utils.px(100),
+            AUTO_FADE_OUT_DELAY = 4000,
+            FADE_OUT_DURATION = 2000,
+            ENTER_TRANSLATE_DURATION = 500,
+            ABORT_CLICK_AFTER_MS = 700;
 
     @Nullable private static PW_AlertMessage _CurrentVisible = null;
 
     private long _ConversationID = 0, _MessageID = 0;
 
-    private Runnable _FadeOutAfterTOT = this::fadeOut;
+    private final Runnable _FadeOutAfterTOT = this::fadeOut;
     private boolean _FadingOut = false;
 
     @SuppressLint("InflateParams")
@@ -121,7 +127,11 @@ class PW_AlertMessage extends PopupWindow {
                 alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
                 return;
             }
-            alert.fadeOut();
+            if(activity == alert.getActivity()) {
+                alert.fadeOut();
+            } else {
+                alert.dismissAllowingStateLoss();
+            }
         }
         alert = new PW_AlertMessage(activity);
         alert.bindMessage(message);
@@ -197,7 +207,7 @@ class PW_AlertMessage extends PopupWindow {
 
     static void onActivityDestroyed(@NonNull Activity activity) {
         PW_AlertMessage alert = PW_AlertMessage._CurrentVisible;
-        if(alert != null && activity.equals(alert.getActivity())) {
+        if(alert != null && activity == alert.getActivity()) {
             alert.dismissAllowingStateLoss();
         }
     }

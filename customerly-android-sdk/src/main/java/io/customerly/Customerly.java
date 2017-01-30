@@ -106,7 +106,7 @@ public class Customerly {
             this.foreground = true;
             __Handler.removeCallbacks(this.checkBackground);
             if (wasBackground) {
-                __PING__Start();
+                __PING__Start(null, null);
             }
         }
         @Override public void onActivityPaused(Activity activity) {
@@ -455,16 +455,31 @@ public class Customerly {
 
     @SuppressLint("CommitTransaction")
     private boolean __ExecutingPing = false;
-    private synchronized void __PING__Start() {
+    private synchronized void __PING__Start(@Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
         if(this._isConfigured()) {
             this.__ExecutingPing = true;
             //noinspection SpellCheckingInspection
             new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                     .opt_converter(this.__PING__response_converter)
-                    .opt_receiver((state, _null) -> this.__ExecutingPing = false)
+                    .opt_receiver((responseState, _null) -> {
+                        this.__ExecutingPing = false;
+                        if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                            if(pSuccessCallback != null) {
+                                pSuccessCallback.onSuccess();
+                            }
+                        } else {
+                            if(pFailureCallback != null) {
+                                pFailureCallback.onFailure();
+                            }
+                        }
+                    })
                     .param("email", IU_Utils.getStringSafe(this._SharedPreferences, "regusrml"))
                     .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, "regusrid"))
                     .start();
+        } else {
+            if(pFailureCallback != null) {
+                pFailureCallback.onFailure();
+            }
         }
     }
 
@@ -621,22 +636,40 @@ public class Customerly {
         this.__VerboseLogging = pVerboseLogging;
     }
 
-    /**
+    /*
      * Call this method to force a check for pending Surveys or Message for the current user.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      */
     public void update() {
+        this.update(null, null);
+    }
+    /*
+     * Call this method to force a check for pending Surveys or Message for the current user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     */
+    public void update(@Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
         if(this._isConfigured()) {
             try {
                 if (System.currentTimeMillis() > this.__PING__next_ping_allowed) {
-                    this.__PING__Start();
+                    this.__PING__Start(pSuccessCallback, pFailureCallback);
                 } else {
+                    if(pFailureCallback != null) {
+                        pFailureCallback.onFailure();
+                    }
                     this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
                 }
             } catch (Exception generic) {
+                if(pFailureCallback != null) {
+                    pFailureCallback.onFailure();
+                }
                 this._log("A generic error occurred in Customerly.update");
                 IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
+            }
+        } else {
+            if(pFailureCallback != null) {
+                pFailureCallback.onFailure();
             }
         }
     }
@@ -734,6 +767,10 @@ public class Customerly {
                         pFailureCallback.onFailure();
                     }
                 }
+            } else {
+                if(pFailureCallback != null) {
+                    pFailureCallback.onFailure();
+                }
             }
         } else {
             this._log("You are trying to register an user passing a not valid email");
@@ -799,6 +836,10 @@ public class Customerly {
                     pFailureCallback.onFailure();
                 }
             }
+        } else {
+            if (pFailureCallback != null) {
+                pFailureCallback.onFailure();
+            }
         }
     }
 
@@ -838,7 +879,7 @@ public class Customerly {
 
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
-                this.__PING__Start();
+                this.__PING__Start(null, null);
             } catch (Exception ignored) { }
         }
     }
