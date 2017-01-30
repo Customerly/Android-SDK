@@ -163,13 +163,13 @@ Customerly reference = Customerly.with(null);
 In this case the reference returned will be null if the sdk lost the configuration so please perform a null-check verification before accessing it
 ```java
 //Example:
-Customerly.with(YOUR_CONTEXT).openSupport(Activity.this); //This is safe
+Customerly.with(YOUR_CONTEXT).logoutUser(); //This is safe
 
-Customerly.with(null).openSupport(Activity.this); //This is not safe and could cause a NullPointerException throw
+Customerly.with(null).logoutUser(); //This is not safe and could cause a NullPointerException throw
 
 Customerly customerly = Customerly.with(null);
 if(customerly) {
-    customerly.openSupport(Activity.this); //This is safe
+    customerly.logoutUser(); //This is safe
 }
 
 ```
