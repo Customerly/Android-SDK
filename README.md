@@ -4,10 +4,9 @@
 </a>
 </p>
 
-  
-  [![Language](https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/Android-API_14%2B-green.svg?raw=true)]()
-  [![Language](https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/Java-6%2B-red.svg?raw=true)]()
-  [![License](https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/license-Apache%20License%202.0-red.svg?raw=true)]()
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/Android-API_14%2B-green.svg?raw=true">
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/Java-6%2B-red.svg?raw=true">
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/license-Apache%20License%202.0-red.svg?raw=true">
   
 **customerly.io** is the perfect tool to getting closer to your customers. Help them where they are with the customer support widget. Manage your audience based on their behaviours, build campaigns and automations.
 
