@@ -37,7 +37,7 @@ The Customerly Android SDK is really simple to integrate in your apps, and allow
 
 ## Permissions
 
-The following permission will be added to the merged AndroidManifest of your application:
+The following permission will be AUTOMATICALLY added to the merged AndroidManifest of your application:
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"

@@ -162,8 +162,15 @@ class PW_AlertMessage extends PopupWindow {
 
         ((TextView)this.getContentView().findViewById(R.id.io_customerly__name))
                 .setText(message.if_account__name != null ? message.if_account__name : this.getContentView().getResources().getString(R.string.io_customerly__support));
-        ((TextView)this.getContentView().findViewById(R.id.io_customerly__content))
-                .setText(message.content);
+
+
+        if(message.rich_mail_link == null) {
+            ((TextView) this.getContentView().findViewById(R.id.io_customerly__content))
+                    .setText(message.content);
+        } else {
+            ((TextView) this.getContentView().findViewById(R.id.io_customerly__content))
+                    .setText(R.string.io_customerly__rich_message_text);
+        }
     }
 
     private void fadeOut() {
