@@ -19,6 +19,7 @@ package io.customerly;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -61,8 +62,8 @@ public class IDlgF_Survey extends DialogFragment {
 
     @SuppressLint("CommitTransaction")
     static void show(@NonNull Activity activity, @NonNull IE_Survey survey) {
-        DialogFragment prev = (DialogFragment)activity.getFragmentManager().findFragmentByTag("io.customerly.IDlgF_Survey");
-        if (prev == null || prev.getDialog() == null || !prev.getDialog().isShowing()) {
+        Fragment prev = activity.getFragmentManager().findFragmentByTag("io.customerly.IDlgF_Survey");
+        if (prev == null || !(prev instanceof IDlgF_Survey) || ((IDlgF_Survey)prev).getDialog() == null || !((IDlgF_Survey)prev).getDialog().isShowing()) {
             IDlgF_Survey dlg = new IDlgF_Survey();
             Bundle b = new Bundle();
             b.putParcelable("IE_Survey", survey);
