@@ -146,7 +146,7 @@ In this case the reference returned will be null if the sdk lost the configurati
 //Example:
 Customerly.with(YOUR_CONTEXT).logoutUser(); //This is safe
 
-Customerly.with(null).logoutUser(); //This is not safe and could cause a NullPointerException throw
+Customerly.with(null).logoutUser(); //This is not safe and could cause a NullPointerException
 
 Customerly customerly = Customerly.with(null);
 if(customerly) {
