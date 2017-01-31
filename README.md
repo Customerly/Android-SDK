@@ -77,7 +77,7 @@ We suggest to avoid manually integration of the SDK in your project, by the way 
 
 We recommend to use only the public methods of the class Customerly.
 
-### Configuration
+### Configuration (Mandatory)
 
 **1)** Create a new AndroidStudio project or open an existing one
 
@@ -155,7 +155,7 @@ if(customerly) {
 
 ```
 
-### Chat
+### Chat (Mandatory)
 
 Don't forget to show a button or something to your user for opening the Support Activity. Just call the method `openSupport`:
 
@@ -167,7 +167,7 @@ Customerly.with(YOUR_CONTEXT).openSupport(Activity.this)
   <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/chat.gif?raw=true" width=200 alt="Chat"/>
 </p>
 
-### Survey
+### Survey (Nothing to do)
 
 With the Customerly SDK you can deliver surveys directly into your app without any lines of code.
 
@@ -177,7 +177,7 @@ They will be automatically displayed to your user as soon as possible.
   <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/survey.gif?raw=true" width=200 alt="Survey"/>
 </p>
 
-### User registration
+### User registration and logout (Optional but recommended)
 
 If you don't have a login method inside your apps don't worry, users can use the chat using their emails.
 
@@ -224,7 +224,7 @@ Please remember to logout users from customerly when they logout in your applica
 Customerly.with(YOUR_CONTEXT).logoutUser()
 ```
 
-### Attributes
+### Attributes (Optional)
 
 Inside attributes you can add every custom data you prefer to track. you can pass a JSONObject containing more attributes but no nested JSONObjects or JSONArray.
 
@@ -233,7 +233,7 @@ Inside attributes you can add every custom data you prefer to track. you can pas
 Customerly.with(YOUR_CONTEXT).setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
 ```
 
-### Events
+### Events (Optional)
 
 Send to Customerly every event you want to segment users better
 
