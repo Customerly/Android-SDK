@@ -56,6 +56,7 @@ class PW_AlertMessage extends PopupWindow {
 
     private final Runnable _FadeOutAfterTOT = this::fadeOut;
     private boolean _FadingOut = false;
+    @Nullable private String _MessageRawLink;
 
     @SuppressLint("InflateParams")
     private PW_AlertMessage(@NonNull Activity activity) {
@@ -90,6 +91,9 @@ class PW_AlertMessage extends PopupWindow {
                             activity.startActivity(new Intent(activity, IAct_Chat.class)
                                     .putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, false)
                                     .putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, PW_AlertMessage.this._ConversationID));
+                            if(PW_AlertMessage.this._MessageRawLink != null) {
+                                IU_Utils.intentUrl(activity, PW_AlertMessage.this._MessageRawLink);
+                            }
                             PW_AlertMessage.this.dismissAllowingStateLoss();
                         } else {
                             view.animate()
@@ -151,6 +155,7 @@ class PW_AlertMessage extends PopupWindow {
     private void bindMessage(@NonNull IE_Message message) {
         this._ConversationID = message.conversation_id;
         this._MessageID = message.conversation_message_id;
+        this._MessageRawLink = message.rich_mail_link;
         int _50dp = IU_Utils.px(50);
         Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                 .fitCenter()
@@ -169,7 +174,7 @@ class PW_AlertMessage extends PopupWindow {
                     .setText(message.content);
         } else {
             ((TextView) this.getContentView().findViewById(R.id.io_customerly__content))
-                    .setText(R.string.io_customerly__rich_message_text);
+                    .setText(R.string.io_customerly__rich_message_text__condensed_for_alert);
         }
     }
 

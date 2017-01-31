@@ -16,12 +16,14 @@ package io.customerly;
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.DialogFragment;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.app.DialogFragment;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -42,8 +44,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.jetbrains.annotations.Contract;
-
 import static io.customerly.IE_Survey.TYPE_END_SURVEY;
 
 /**
@@ -59,13 +59,16 @@ public class IDlgF_Survey extends DialogFragment {
     private IE_Survey _CurrentSurvey;
     private boolean _SurveyCompleted = false;
 
-    @Contract(pure = true)
-    @NonNull public static IDlgF_Survey newInstance(@NonNull IE_Survey survey) {
-        IDlgF_Survey dlg = new IDlgF_Survey();
-        Bundle b = new Bundle();
-        b.putParcelable("IE_Survey", survey);
-        dlg.setArguments(b);
-        return dlg;
+    @SuppressLint("CommitTransaction")
+    static void show(@NonNull Activity activity, @NonNull IE_Survey survey) {
+        DialogFragment prev = (DialogFragment)activity.getFragmentManager().findFragmentByTag("io.customerly.IDlgF_Survey");
+        if (prev == null || prev.getDialog() == null || !prev.getDialog().isShowing()) {
+            IDlgF_Survey dlg = new IDlgF_Survey();
+            Bundle b = new Bundle();
+            b.putParcelable("IE_Survey", survey);
+            dlg.setArguments(b);
+            dlg.show(activity.getFragmentManager().beginTransaction().addToBackStack(null), "io.customerly.IDlgF_Survey");
+        }
     }
 
     @Override

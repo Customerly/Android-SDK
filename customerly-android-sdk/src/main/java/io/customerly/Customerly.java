@@ -125,14 +125,14 @@ public class Customerly {
     };
 
     private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
-        private final boolean _ManageSurvey;
-        private PingResponseConverter(boolean manageSurvey) {
+        private final boolean _HandleAlertMessage, _HandleSurvey;
+        private PingResponseConverter(boolean handleSurvey, boolean handleAlertMessage) {
             super();
-            this._ManageSurvey = manageSurvey;
+            this._HandleSurvey = handleSurvey;
+            this._HandleAlertMessage = handleAlertMessage;
         }
         @Nullable
         @Override
-        @SuppressLint("CommitTransaction")
         public final Void convert(@NonNull JSONObject root) throws JSONException {
             __PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
             __SOCKET__connect(root.optJSONObject("websocket"));
@@ -173,7 +173,7 @@ public class Customerly {
                         .apply();
             }
 
-            if(this._ManageSurvey) {
+            if(this._HandleSurvey) {
                 IE_Survey[] surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
                 if(surveys != null) {
                     for (final IE_Survey survey : surveys) {
@@ -182,7 +182,7 @@ public class Customerly {
                                 Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                 if(activity != null) {
                                     try {
-                                        IDlgF_Survey.newInstance(survey).show(activity.getFragmentManager().beginTransaction().addToBackStack(null), "SURVEYS");
+                                        IDlgF_Survey.show(activity, survey);
                                     } catch (Exception generic) {
                                         _log("A generic error occurred in Customerly.openSurvey");
                                         IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
@@ -195,35 +195,39 @@ public class Customerly {
                 }
             }
 
-            JSONArray last_messages_array = root.optJSONArray("last_messages");
-            if(last_messages_array != null && last_messages_array.length() != 0) {
-                for (int i = 0; i < last_messages_array.length(); i++) {
-                    try {
-                        final JSONObject message = last_messages_array.getJSONObject(i);
-                        if (message != null) {
-                            __Handler.post(() -> {
-                                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                if(activity != null) {
-                                    if(activity instanceof SocketMessageReceiver) {
-                                        ArrayList<IE_Message> list = new ArrayList<>(1);
-                                        list.add(new IE_Message(message));
-                                        ((SocketMessageReceiver)activity).onNewMessages(list);
-                                    } else {
-                                        PW_AlertMessage.show(activity, new IE_Message(message));
+            if(this._HandleAlertMessage) {
+                JSONArray last_messages_array = root.optJSONArray("last_messages");
+                if (last_messages_array != null && last_messages_array.length() != 0) {
+                    for (int i = 0; i < last_messages_array.length(); i++) {
+                        try {
+                            final JSONObject message = last_messages_array.getJSONObject(i);
+                            if (message != null) {
+                                __Handler.post(() -> {
+                                    Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                    if (activity != null) {
+                                        if (activity instanceof SocketMessageReceiver) {
+                                            ArrayList<IE_Message> list = new ArrayList<>(1);
+                                            list.add(new IE_Message(message));
+                                            ((SocketMessageReceiver) activity).onNewMessages(list);
+                                        } else {
+                                            PW_AlertMessage.show(activity, new IE_Message(message));
+                                        }
                                     }
-                                }
-                            });
-                            return null;
+                                });
+                                return null;
+                            }
+                        } catch (JSONException ignored) {
                         }
-                    } catch (JSONException ignored) { }
+                    }
                 }
             }
             return null;
         }
     }
 
-    @NonNull private final PingResponseConverter __PING__response_converter = new PingResponseConverter(true),
-            __PING__response_converter__ignoresurvey = new PingResponseConverter(false);
+    @NonNull private final PingResponseConverter __PING__response_converter__SurveyMessage = new PingResponseConverter(true, true),
+            __PING__response_converter__Message = new PingResponseConverter(false, true),
+            __PING__response_converter__NaN = new PingResponseConverter(false, false);
 
     @NonNull static final Customerly _Instance = new Customerly();
 
@@ -461,7 +465,7 @@ public class Customerly {
             this.__ExecutingPing = true;
             //noinspection SpellCheckingInspection
             new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
-                    .opt_converter(this.__PING__response_converter)
+                    .opt_converter(this.__PING__response_converter__SurveyMessage)
                     .opt_receiver((responseState, _null) -> {
                         this.__ExecutingPing = false;
                         if (responseState == IApi_Request.RESPONSE_STATE__OK) {
@@ -746,7 +750,7 @@ public class Customerly {
                             .opt_converter(root -> {
                                 //noinspection SpellCheckingInspection
                                 pref.edit().putString("regusrml", trimmedEmail).putString("regusrid", trimmedUserID).apply();
-                                return this.__PING__response_converter__ignoresurvey.convert(root);
+                                return this.__PING__response_converter__Message.convert(root);
                             })
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == IApi_Request.RESPONSE_STATE__OK) {
@@ -816,7 +820,7 @@ public class Customerly {
                         }
                     }
                     new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
-                            .opt_converter(this.__PING__response_converter)
+                            .opt_converter(this.__PING__response_converter__NaN)
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                     if(pSuccessCallback != null) {
