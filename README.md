@@ -143,14 +143,16 @@ Customerly reference = Customerly.with(null);
 
 In this case the reference returned will be null if the sdk lost the configuration so please perform a null-check verification before accessing it
 ```java
-//Example:
-Customerly.with(YOUR_CONTEXT).logoutUser(); //This is safe
+//This is safe and recommended:
+Customerly.with(YOUR_CONTEXT).logoutUser(); 
 
-Customerly.with(null).logoutUser(); //This is not safe and could cause a NullPointerException
+//This is discouraged and NOT safe (Could cause a NullPointerException):
+Customerly.with(null).logoutUser();
 
+//This is discouraged but safe
 Customerly customerly = Customerly.with(null);
 if(customerly) {
-    customerly.logoutUser(); //This is safe
+    customerly.logoutUser();
 }
 
 ```
