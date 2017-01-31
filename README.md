@@ -252,6 +252,7 @@ The library needs the following two rules to work with proguard enabled
 ```
 -dontwarn java.lang.invoke.*
 -dontwarn okio.**
+-dontwarn io.customerly.**
 ```
 
 By the way should not be necessary to explicitly add them in your proguard file because they should be automatically inherited.

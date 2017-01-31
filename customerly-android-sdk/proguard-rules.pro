@@ -12,3 +12,4 @@
 #   limitations under the License.
 -dontwarn java.lang.invoke.*
 -dontwarn okio.**
+-dontwarn io.customerly.**
