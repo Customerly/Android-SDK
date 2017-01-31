@@ -721,8 +721,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
 
     private class ChatAdapter extends RecyclerView.Adapter<A_ChatVH> {
         final int _5dp = IU_Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
-        int lastPositionAnimated = Integer.MAX_VALUE;
-        int firstPositionAnimated = -1;
+        long mostRecentAnimatedMessageID = -1, mostOldAnimatedMessageID = Integer.MAX_VALUE;
         @Override
         public int getItemViewType(int position) {
             if(_TypingAccountId != TYPING_NO_ONE) {
@@ -755,15 +754,15 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
             IE_Message thisMessage = null, previousMessage;
             boolean shouldAnimate = false, firstMessageOfSender;
             if(position != -1) { //No typing item
-                if(position < this.lastPositionAnimated) {
-                    shouldAnimate = true;
-                    this.lastPositionAnimated = position;
-                }
-                if(position > this.firstPositionAnimated) {
-                    shouldAnimate = true;
-                    this.firstPositionAnimated = position;
-                }
                 thisMessage = _ChatList.get(position);
+                if(thisMessage.conversation_message_id > this.mostRecentAnimatedMessageID) {
+                    shouldAnimate = true;
+                    this.mostRecentAnimatedMessageID = thisMessage.conversation_message_id;
+                }
+                if(thisMessage.conversation_message_id < this.mostOldAnimatedMessageID) {
+                    shouldAnimate = true;
+                    this.mostOldAnimatedMessageID = thisMessage.conversation_message_id;
+                }
             }
             previousMessage = position == _ChatList.size() - 1 ? null : _ChatList.get(position + 1);//Get previous message if the current is not the first of chat
 

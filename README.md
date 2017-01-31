@@ -35,25 +35,6 @@ The Customerly Android SDK is really simple to integrate in your apps, and allow
 - Android Studio 2.0+
 - Java 6+
 
-## Permissions
-
-The following permission will be AUTOMATICALLY added to the merged AndroidManifest of your application:
-
-```xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="YOUR.PACKAGE">
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    //...
-</manifest>
-```
-`ACCESS_NETWORK_STATE` is used to verify if an internet connection is available  
-`INTERNET` is used to perform http requests  
-`READ_EXTERNAL_STORAGE` is used to upload file attachments  
-`READ_WRITE_EXTERNAL_STORAGE_STORAGE` is used to save file attachments
-
 ## Setup Customerly SDK
 
 ### Integration via Gradle or Maven dependency (Recommended)
@@ -135,17 +116,17 @@ public class CustomApplication extends Application {
     }
 }
 ```
-If you want to specify a custom widget_color for the application ignoring the server-defined one you have to specify it in the configure method:
+*OPTIONALLY*, if you want to specify a custom widget_color for the application ignoring the server-defined one you have to specify it in the configure method:
 ```java
 Customerly.configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
 ```
-Optionally and after the configure, if you want to enable the logging in console you have to call the following method.  
+*OPTIONALLY*, after the configure, if you want to enable the logging in console you have to call the following method.  
 Our suggest is to call it soon after the configure:
 ```java
 Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
 ```
 
-**If in doubt, you can look at the examples in the demo application. (See the demo's [CustomApplication.java](https://github.com/customerly/Customerly-Android-SDK-demo/blob/master/app/src/main/java/io/customerly/demo/CustomApplication.java))**
+*If in doubt, you can look at the examples in the demo application. (See the demo's [CustomApplication.java](https://github.com/customerly/Customerly-Android-SDK-demo/blob/master/app/src/main/java/io/customerly/demo/CustomApplication.java))*
 
 ### Obtain the SDK singleton reference
 
@@ -174,9 +155,31 @@ if(customerly) {
 
 ```
 
+### Chat
+
+Don't forget to show a button or something to your user for opening the Support Activity. Just call the method `openSupport`:
+
+```java
+Customerly.with(YOUR_CONTEXT).openSupport(Activity.this)
+```
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/chat.gif?raw=true" width=200 alt="Chat"/>
+</p>
+
+### Survey
+
+You don't have to worry about Surveys, they are automatically handled by the SDK itself
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/survey.gif?raw=true" width=200 alt="Survey"/>
+</p>
+
 ### User registration
 
-You can register logged in users of your app into Customerly calling the method `registerUser:`. You’ll also need to register your user anywhere they log in.
+If you don't have a login method inside your apps don't worry, users can use the chat using their emails.
+
+By the way, if users login in your application please register them into Customerly calling the method `registerUser:`.  
 
 Example:
 
@@ -184,7 +187,7 @@ Example:
 Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
 ```
 
-or using a closure:
+*OPTIONALLY*, using a closure:
 
 ```java
 Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
@@ -200,7 +203,7 @@ Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es
      }
  });
      
-//Java8:
+//In Java8 you can use lambdas:
 Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
  () -> { /* ... */ }, () -> { /* ... */ });
 ```
@@ -211,22 +214,12 @@ Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es
 new JSONObject().putString("attrKey", "attrValue"));
 ```
 
-You can also logout users:
+In this method *user_id*, *name*, *attributes*, *success* and *failure* are optionals.
+
+Please remember to logout users from customerly when they logout in your application:
 
 ```java
 Customerly.with(YOUR_CONTEXT).logoutUser()
-```
-
-In this method *user_id*, *name*, *attributes*, *success* and *failure* are optionals.
-
-If you don't have a login method inside your apps don't worry, users can use the chat using their emails.
-
-### Chat
-
-You can open the support view controller calling the method `openSupport`:
-
-```java
-Customerly.with(YOUR_CONTEXT).openSupport(Activity.this)
 ```
 
 ### Surveys
@@ -256,6 +249,25 @@ Customerly.with(YOUR_CONTEXT).trackEvent("added_to_cart")
 ## JavaDoc
 
 Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/1.0+)
+
+## Permissions
+
+The following permission will be AUTOMATICALLY added to the merged AndroidManifest of your application:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="YOUR.PACKAGE">
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    //...
+</manifest>
+```
+`ACCESS_NETWORK_STATE` is used to verify if an internet connection is available  
+`INTERNET` is used to perform http requests  
+`READ_EXTERNAL_STORAGE` is used to upload file attachments  
+`READ_WRITE_EXTERNAL_STORAGE_STORAGE` is used to save file attachments
 
 ## Proguard
 
