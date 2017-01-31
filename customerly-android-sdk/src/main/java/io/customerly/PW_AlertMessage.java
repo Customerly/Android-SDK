@@ -21,7 +21,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.Intent;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -87,10 +87,8 @@ class PW_AlertMessage extends PopupWindow {
                         this._Dragging = false;
                         if (Math.abs(event.getRawX() - this._DownRawXStart) > SWIPE_MIN_DISTANCE) {
                             PW_AlertMessage.this.dismissAllowingStateLoss();
-                        } else if(PW_AlertMessage.this._ConversationID != 0 && event.getEventTime() - event.getDownTime() < ABORT_CLICK_AFTER_MS){
-                            activity.startActivity(new Intent(activity, IAct_Chat.class)
-                                    .putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, false)
-                                    .putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, PW_AlertMessage.this._ConversationID));
+                        } else if(PW_AlertMessage.this._ConversationID != 0 && event.getEventTime() - event.getDownTime() < ABORT_CLICK_AFTER_MS) {
+                            IAct_Chat.start(activity, false, PW_AlertMessage.this._ConversationID);
                             if(PW_AlertMessage.this._MessageRawLink != null) {
                                 IU_Utils.intentUrl(activity, PW_AlertMessage.this._MessageRawLink);
                             }
@@ -150,6 +148,12 @@ class PW_AlertMessage extends PopupWindow {
         alert.showAtLocation(activity.getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, top_offset_fix);
         PW_AlertMessage._CurrentVisible = alert;
         alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
+        MediaPlayer mp = MediaPlayer.create(activity, R.raw.notif_2);
+        mp.setOnCompletionListener(mp1 -> {
+            mp1.reset();
+            mp1.release();
+        });
+        mp.start();
     }
 
     private void bindMessage(@NonNull IE_Message message) {

@@ -48,7 +48,7 @@
     <item>
         <shape android:shape="rectangle">
             <stroke android:color="#CCCCCC" android:width="1dp" />
-            <padding android:top="7.5dp" android:right="15dp" android:bottom="7.5dp" android:left="15dp" />
+            <padding android:top="12.5dp" android:bottom="12.5dp" android:left="15dp" android:right="15dp" />
             <solid android:color="#FFFFFF" />
             <corners android:radius="2dp" />
         </shape>

@@ -20,6 +20,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -122,23 +123,32 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
             filtered.add(new_message);//This is the first message found for that conversation
         }
 
-        ArrayList<IE_Conversation> conversations = new ArrayList<>(this._Conversations);
-        next_new_filtered: for(IE_Message new_filtered : filtered) {
-            for(IE_Conversation conversation : conversations) {
-                if(conversation.conversation_id == new_filtered.conversation_id) { //New message of an existing conversation
-                    conversation.onNewMessage(new_filtered);
-                    continue next_new_filtered;
+        if(! filtered.isEmpty()) {
+            ArrayList<IE_Conversation> conversations = new ArrayList<>(this._Conversations);
+            next_new_filtered:
+            for (IE_Message new_filtered : filtered) {
+                for (IE_Conversation conversation : conversations) {
+                    if (conversation.conversation_id == new_filtered.conversation_id) { //New message of an existing conversation
+                        conversation.onNewMessage(new_filtered);
+                        continue next_new_filtered;
+                    }
                 }
+                //New message of a new conversation
+                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
             }
-            //New message of a new conversation
-            conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
+            //Sort the conversation by last message date
+            Collections.sort(conversations, (c1, c2) -> (int) (c2.last_message_date - c1.last_message_date));
+            this._ListRecyclerView.post(() -> {
+                this._Conversations = conversations;
+                this._ListRecyclerView.getAdapter().notifyDataSetChanged();
+                MediaPlayer mp = MediaPlayer.create(this, R.raw.notif_2);
+                mp.setOnCompletionListener(mp1 -> {
+                    mp1.reset();
+                    mp1.release();
+                });
+                mp.start();
+            });
         }
-        //Sort the conversation by last message date
-        Collections.sort(conversations, (c1, c2) -> (int)(c2.last_message_date - c1.last_message_date));
-        this._ListRecyclerView.post(() -> {
-            this._Conversations = conversations;
-            this._ListRecyclerView.getAdapter().notifyDataSetChanged();
-        });
     }
 
     @Override
@@ -421,9 +431,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
     private void openConversationById(long id, boolean andFinishCurrent) {
         if(id != 0) {
             if(IU_Utils.checkConnection(IAct_List.this)) {
-                IAct_List.this.startActivityForResult(new Intent(IAct_List.this, IAct_Chat.class)
-                        .putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, ! andFinishCurrent)
-                        .putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, id), RESULT_CODE_REFRESH_LIST);
+                IAct_Chat.startForResult(IAct_List.this, ! andFinishCurrent, id, RESULT_CODE_REFRESH_LIST);
                 if(andFinishCurrent) {
                     this.finish();
                 }

@@ -17,7 +17,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="95dp"
+    android:layout_height="105dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:background="@drawable/io_customerly__alertmessage_bkg_w_shadow"

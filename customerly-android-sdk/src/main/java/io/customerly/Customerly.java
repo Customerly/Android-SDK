@@ -36,7 +36,6 @@ import android.util.Log;
 import android.util.Patterns;
 
 import org.intellij.lang.annotations.Subst;
-import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -535,66 +534,68 @@ public class Customerly {
         void onFailure();
     }
 
+    private void __init(@NonNull Context pApplicationContext) {
+        Customerly._Instance._AppCacheDir = pApplicationContext.getCacheDir().getPath();
+        //APP INFORMATION
+        try {
+            Customerly._Instance.__PING__DeviceJSON.put("app_name", pApplicationContext.getApplicationInfo().loadLabel(pApplicationContext.getPackageManager()).toString());
+        } catch (JSONException | NullPointerException err) {
+            try {
+                Customerly._Instance.__PING__DeviceJSON.put("app_name", "<Error retrieving the app name>");
+            } catch (JSONException ignored) { }
+        }
+        try {
+            PackageInfo pinfo = pApplicationContext.getPackageManager().getPackageInfo(pApplicationContext.getPackageName(), 0);
+            Customerly._Instance.__PING__DeviceJSON.put("app_version", pinfo.versionName).put("app_build", pinfo.versionCode);
+        } catch (JSONException | PackageManager.NameNotFoundException err) {
+            try {
+                Customerly._Instance.__PING__DeviceJSON.put("app_version", 0);
+            } catch (JSONException ignored) { }
+        }
+
+        //PREFS
+        final SharedPreferences prefs = pApplicationContext.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE);
+        Customerly._Instance._SharedPreferences = prefs;
+
+        //WIDGET COLOR
+        //noinspection SpellCheckingInspection
+        Customerly._Instance.__WidgetColor__HardCoded = IU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
+
+        Customerly._Instance.__WidgetColor__Fallback =
+                Customerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
+                        ? Customerly._Instance.__WidgetColor__HardCoded
+                        : DEF_WIDGET_COLOR_MALIBU_INT;
+
+        //JWT TOKEN
+        Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
+
+        //PING
+        Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
+        Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
+        Customerly._Instance.__PING__LAST_welcome_message_users = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
+        Customerly._Instance.__PING__LAST_welcome_message_visitors = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
+        Customerly._Instance.__PING__LAST_active_admins = null;
+
+        Customerly._Instance._AppID = IU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
+
+        Customerly._Instance.initialized = true;
+    }
+
     /**
      * Call this method to obtain the reference to the Customerly SDK
-     * @param pContext A Context. We strongly recommend to pass this parameter, even if it is optional, for stability reasons.
-     *                 Passing a context the return value will be surely not null.
-     *                 Besides, if not passed, due to some events in your application, the result can be null.
      * @return The Customerly SDK instance reference
      */
-    @Contract("!null -> !null; null -> _")
-    @Nullable public static Customerly with(@Nullable Context pContext) {
+    @NonNull public static Customerly get() {
         if(! Customerly._Instance.initialized) {//Avoid to perform lock if not needed
-            if(pContext == null) {
-                return null;
-            }
             synchronized (Customerly.class) {
                 if(! Customerly._Instance.initialized) {//After lock we check again to avoid concurrence
-                    pContext = pContext.getApplicationContext();
-                    Customerly._Instance._AppCacheDir = pContext.getCacheDir().getPath();
-                    //APP INFORMATION
-                    try {
-                        Customerly._Instance.__PING__DeviceJSON.put("app_name", pContext.getApplicationInfo().loadLabel(pContext.getPackageManager()).toString());
-                    } catch (JSONException | NullPointerException err) {
-                        try {
-                            Customerly._Instance.__PING__DeviceJSON.put("app_name", "<Error retrieving the app name>");
-                        } catch (JSONException ignored) { }
+                    WeakReference<Activity> activityWeakRef = Customerly._Instance._CurrentActivity;
+                    if(activityWeakRef != null) {
+                        Activity activity = activityWeakRef.get();
+                        if(activity != null) {
+                            Customerly._Instance.__init(activity.getApplicationContext());
+                        }
                     }
-                    try {
-                        PackageInfo pinfo = pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), 0);
-                        Customerly._Instance.__PING__DeviceJSON.put("app_version", pinfo.versionName).put("app_build", pinfo.versionCode);
-                    } catch (JSONException | PackageManager.NameNotFoundException err) {
-                        try {
-                            Customerly._Instance.__PING__DeviceJSON.put("app_version", 0);
-                        } catch (JSONException ignored) { }
-                    }
-
-                    //PREFS
-                    final SharedPreferences prefs = pContext.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE);
-                    Customerly._Instance._SharedPreferences = prefs;
-
-                    //WIDGET COLOR
-                    //noinspection SpellCheckingInspection
-                    Customerly._Instance.__WidgetColor__HardCoded = IU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
-
-                    Customerly._Instance.__WidgetColor__Fallback =
-                            Customerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
-                                    ? Customerly._Instance.__WidgetColor__HardCoded
-                                    : DEF_WIDGET_COLOR_MALIBU_INT;
-
-                    //JWT TOKEN
-                    Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
-
-                    //PING
-                    Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
-                    Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
-                    Customerly._Instance.__PING__LAST_welcome_message_users = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
-                    Customerly._Instance.__PING__LAST_welcome_message_visitors = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
-                    Customerly._Instance.__PING__LAST_active_admins = null;
-
-                    Customerly._Instance._AppID = IU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
-
-                    Customerly._Instance.initialized = true;
                 }
             }
         }
@@ -620,7 +621,8 @@ public class Customerly {
      * @param pWidgetColor The custom widget_color. If Color.TRANSPARENT, it will be ignored
      */
     public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
-        Customerly customerly = Customerly.with(pApplication);
+        Customerly customerly = Customerly._Instance;
+        customerly.__init(pApplication.getApplicationContext());
         final SharedPreferences prefs = customerly._SharedPreferences;
         if(prefs != null) {
             //noinspection SpellCheckingInspection

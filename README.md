@@ -123,7 +123,7 @@ Customerly.configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
 *OPTIONALLY*, after the configure, if you want to enable the logging in console you have to call the following method.  
 Our suggest is to call it soon after the configure:
 ```java
-Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
+Customerly.get().setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
 ```
 
 *If in doubt, you can look at the examples in the demo application. (See the demo's [CustomApplication.java](https://github.com/customerly/Customerly-Android-SDK-demo/blob/master/app/src/main/java/io/customerly/demo/CustomApplication.java))*
@@ -133,28 +133,7 @@ Customerly.with(this).setVerboseLogging(BuildConfig.DEBUG);//Passing BuildConfig
 You can obtain a reference to the SDK singleton by calling.
 
 ```java
-Customerly reference = Customerly.with(YOUR_CONTEXT);
-```
-
-We strongly discourage this but if needed, if you have not a Context reference, you can not pass it because it is used only to perform a re-configuration of the sdk if, for some event in your application (like a crash event), it lost the instance state.
-```java
-Customerly reference = Customerly.with(null);
-```
-
-In this case the reference returned will be null if the sdk lost the configuration so please perform a null-check verification before accessing it
-```java
-//This is safe and recommended:
-Customerly.with(YOUR_CONTEXT).logoutUser(); 
-
-//This is discouraged and NOT safe (Could cause a NullPointerException):
-Customerly.with(null).logoutUser();
-
-//This is discouraged but safe
-Customerly customerly = Customerly.with(null);
-if(customerly) {
-    customerly.logoutUser();
-}
-
+Customerly reference = Customerly.get();
 ```
 
 ### Chat (Mandatory)
@@ -162,7 +141,7 @@ if(customerly) {
 Don't forget to show a button or something to your user for opening the Support Activity. Just call the method `openSupport`:
 
 ```java
-Customerly.with(YOUR_CONTEXT).openSupport(Activity.this)
+Customerly.get().openSupport(Activity.this)
 ```
 
 <p align="center">
@@ -188,13 +167,13 @@ By the way, if users login in your application please register them into Custome
 Example:
 
 ```java
-Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
+Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
 ```
 
 *OPTIONALLY*, using a closure:
 
 ```java
-Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
+Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
  new Customerly.SuccessCallback() {
      @Override
      public void onSuccess() {
@@ -208,13 +187,13 @@ Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es
  });
      
 //In Java8 you can use lambdas:
-Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
+Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
  () -> { /* ... */ }, () -> { /* ... */ });
 ```
 
 You can pass custom attribute for the user as JSONObject. The JSONObject cannot contain other JSONObject or JSONArray:
 ```java
-Customerly.with(YOUR_CONTEXT).registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
+Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
 new JSONObject().putString("attrKey", "attrValue"));
 ```
 
@@ -223,7 +202,7 @@ In this method *user_id*, *name*, *attributes*, *success* and *failure* are opti
 Please remember to logout users from customerly when they logout in your application:
 
 ```java
-Customerly.with(YOUR_CONTEXT).logoutUser()
+Customerly.get().logoutUser()
 ```
 
 ### Attributes (Optional)
@@ -232,7 +211,7 @@ Inside attributes you can add every custom data you prefer to track. you can pas
 
 ```java
 // Eg. This attribute define what kind of pricing plan the user has purchased 
-Customerly.with(YOUR_CONTEXT).setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
+Customerly.get().setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
 ```
 
 ### Events (Optional)
@@ -241,7 +220,7 @@ Send to Customerly every event you want to segment users better
 
 ```java
 // Eg. This send an event that track a potential purchase
-Customerly.with(YOUR_CONTEXT).trackEvent("added_to_cart")
+Customerly.get().trackEvent("added_to_cart")
 ```
 
 ## JavaDoc
@@ -265,7 +244,7 @@ The following permission will be AUTOMATICALLY added to the merged AndroidManife
 `ACCESS_NETWORK_STATE` is used to verify if an internet connection is available  
 `INTERNET` is used to perform http requests  
 `READ_EXTERNAL_STORAGE` is used to upload file attachments  
-`READ_WRITE_EXTERNAL_STORAGE_STORAGE` is used to save file attachments
+`WRITE_EXTERNAL_STORAGE` is used to save file attachments
 
 ## Proguard
 

@@ -19,6 +19,7 @@ package io.customerly;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -225,15 +226,48 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
         }
     }
 
+    static void start(@NonNull Activity activity, boolean mustShowBack, long conversationID) {
+        IAct_Chat.startForResult(activity, mustShowBack, conversationID, -1);
+    }
+
+    static void startForResult(@NonNull Activity activity, boolean mustShowBack, long conversationID, int requestCode) {
+        Intent intent = new Intent(activity, IAct_Chat.class).putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, mustShowBack);
+        if(conversationID > 0) {
+            intent.putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, conversationID);
+        }
+        if(requestCode == -1) {
+            if(activity instanceof IAct_Chat) {
+                //If i am starting a IAct_Chat Activity from a IAct_Chat activity i'll show the back button only if it is visible in the current IAct_Chat activity.
+                //Then i finish the current activity to avoid long stack of IAct_Chat activities
+                activity.startActivity(intent.putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, ((IAct_Chat)activity)._MustShowBack));
+                activity.finish();
+            } else {
+                activity.startActivity(intent);
+            }
+        } else {
+            activity.startActivityForResult(intent, requestCode);
+        }
+    }
+
     @Override
     public void onNewMessages(@NonNull ArrayList<IE_Message> messages) {
         final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
+        IE_Message otherConversationMessage = null;
         //noinspection Convert2streamapi
         for(IE_Message newMsg : messages) {
-            if(newMsg.conversation_id == this._ConversationID       //Filter by conversation_id
-                    && ! new_messages.contains(newMsg)) {           //Avoid duplicates;
-                new_messages.add(newMsg);
+            if(newMsg.conversation_id == this._ConversationID) {       //Filter by conversation_id
+                if(! new_messages.contains(newMsg)) {           //Avoid duplicates;
+                    new_messages.add(newMsg);
+                }
+            } else {
+                if(otherConversationMessage == null || otherConversationMessage.conversation_message_id < newMsg.conversation_message_id) {
+                    otherConversationMessage = newMsg;
+                }
             }
+        }
+
+        if(otherConversationMessage != null) {
+            PW_AlertMessage.show(this, otherConversationMessage);
         }
 
         Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
