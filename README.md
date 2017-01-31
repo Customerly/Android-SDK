@@ -169,7 +169,9 @@ Customerly.with(YOUR_CONTEXT).openSupport(Activity.this)
 
 ### Survey
 
-You don't have to worry about Surveys, they are automatically handled by the SDK itself
+With the Customerly SDK you can deliver surveys directly into your app without any lines of code.
+
+They will be automatically displayed to your user as soon as possible.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/survey.gif?raw=true" width=200 alt="Survey"/>
@@ -221,12 +223,6 @@ Please remember to logout users from customerly when they logout in your applica
 ```java
 Customerly.with(YOUR_CONTEXT).logoutUser()
 ```
-
-### Surveys
-
-With the Customerly SDK you can deliver surveys directly into your app.
-
-They will be automatically displayed to your user as soon as possible.
 
 ### Attributes
 
