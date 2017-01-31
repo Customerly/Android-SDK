@@ -39,7 +39,7 @@ The Customerly Android SDK is really simple to integrate in your apps, and allow
 
 ### Integration via Gradle or Maven dependency (Recommended)
 
-To use the Customerly SDK we recommend to use Gradle or Maven dependency
+To integrate the Customerly SDK we recommend to use Gradle or Maven dependency
 
 Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
 
