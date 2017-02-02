@@ -137,8 +137,9 @@ class IU_Utils {
             startEmojiTag = message.indexOf(EMOJI_TAG_START, start);
             if(startEmojiTag != -1) {
                 endEmojiTag = message.indexOf(EMOJI_TAG_END, start);
-                if(start < startEmojiTag)
+                if(start < startEmojiTag) {
                     sb.append(message.substring(start, startEmojiTag));
+                }
                 sb.append(Character.toChars(Integer.decode("0x" + message.substring(startEmojiTag + EMOJI_TAG_START.length(), endEmojiTag).trim())));
                 start = endEmojiTag + EMOJI_TAG_END.length();
             } else {

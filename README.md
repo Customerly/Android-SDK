@@ -112,13 +112,13 @@ public class CustomApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Customerly.configure("YOUR_CUSTOMERLY_SECRET_KEY");
+        Customerly.configure("YOUR_CUSTOMERLY_APP_ID");
     }
 }
 ```
 *OPTIONALLY*, if you want to specify a custom widget_color for the application ignoring the server-defined one you have to specify it in the configure method:
 ```java
-Customerly.configure("YOUR_CUSTOMERLY_SECRET_KEY", Color.RED);
+Customerly.configure("YOUR_CUSTOMERLY_APP_ID", Color.RED);
 ```
 *OPTIONALLY*, after the configure, if you want to enable the logging in console you have to call the following method.  
 Our suggest is to call it soon after the configure:
