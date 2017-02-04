@@ -228,6 +228,13 @@ class PW_AlertMessage extends PopupWindow {
         }
     }
 
+    static void onUserLogout() {
+        PW_AlertMessage alert = PW_AlertMessage._CurrentVisible;
+        if(alert != null) {
+            alert.dismissAllowingStateLoss();
+        }
+    }
+
     @Nullable private Activity getActivity() {
         Context context = this.getContentView().getContext();
         while (context instanceof ContextWrapper) {

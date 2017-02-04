@@ -72,6 +72,13 @@ public class IDlgF_Survey extends DialogFragment {
         }
     }
 
+    static void dismiss(@NonNull Activity activity) {
+        Fragment existing = activity.getFragmentManager().findFragmentByTag("io.customerly.IDlgF_Survey");
+        if (existing != null) {
+            ((DialogFragment)existing).dismiss();
+        }
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

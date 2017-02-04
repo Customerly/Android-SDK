@@ -57,7 +57,7 @@
             android:minLines="1"
             android:maxLines="2"
             android:ellipsize="end"
-            android:textColor="@color/io_customerly__text_color_grey__dark"
+            android:textColor="@color/io_customerly__text_color_conversation_alertmessage"
             android:textSize="14sp"
             android:fontFamily="sans-serif"
             tools:ignore="Deprecated,UnusedAttribute"

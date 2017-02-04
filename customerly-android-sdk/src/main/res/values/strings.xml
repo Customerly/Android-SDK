@@ -46,7 +46,6 @@
 
     <!-- Localized -->
     <string name="io_customerly__powered_by_">Powered by&#160;</string>
-    <string name="io_customerly__contact_the_support_writing_your_question_below">Contact the support writing your question below</string>
     <string name="io_customerly__write_your_question">Ask your question…</string>
     <string name="io_customerly__attach_file">Attach file</string>
     <string name="io_customerly__insert_your_email">Insert your email</string>
@@ -83,5 +82,6 @@
     <string name="io_customerly__rich_message_text">This message was sent by email. Tap to read.</string>
     <string name="io_customerly__rich_message_text__condensed_for_alert">Message sent by email.\nTap to read.</string>
     <string name="io_customerly__support">Support</string>
+    <string name="io_customerly__open_conversation">Open conversation</string>
 
 </resources>

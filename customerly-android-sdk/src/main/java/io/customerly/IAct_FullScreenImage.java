@@ -55,7 +55,7 @@ import java.util.ArrayList;
  * Project: Customerly Android SDK
  */
 
-public final class IAct_FullScreenImage extends AppCompatActivity implements Customerly.SocketMessageReceiver {
+public final class IAct_FullScreenImage extends AppCompatActivity implements Customerly.SDKActivity {
     static final String EXTRA_IMAGE_SOURCE = "EXTRA_IMAGE_SOURCE";
 
     private String _SourceUrl;
@@ -116,6 +116,20 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
     public boolean onCreateOptionsMenu(Menu menu) {
         this.getMenuInflater().inflate(R.menu.io_customerly__menu_download_image, menu);
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IE_JwtToken jwt = Customerly._Instance._JwtToken;
+        if (jwt == null || jwt.isAnonymous()) {
+            this.onLogoutUser();
+        }
+    }
+
+    @Override
+    public void onLogoutUser() {
+        this.finish();
     }
 
     @Override
@@ -201,7 +215,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
     }
 
     @Override
-    public void onNewMessages(@NonNull ArrayList<IE_Message> messages) { }
+    public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) { }
 
 //    private void saveImageToGallery() {
 //        if(this._ImageView != null) {

@@ -204,10 +204,10 @@ public class Customerly {
                                 __Handler.post(() -> {
                                     Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                     if (activity != null) {
-                                        if (activity instanceof SocketMessageReceiver) {
+                                        if (activity instanceof SDKActivity) {
                                             ArrayList<IE_Message> list = new ArrayList<>(1);
                                             list.add(new IE_Message(message));
-                                            ((SocketMessageReceiver) activity).onNewMessages(list);
+                                            ((SDKActivity) activity).onNewSocketMessages(list);
                                         } else {
                                             PW_AlertMessage.show(activity, new IE_Message(message));
                                         }
@@ -274,12 +274,13 @@ public class Customerly {
         Socket socket = this._Socket;
         if(socket != null && socket.connected()) {
             Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-            socket.emit(activity != null && activity instanceof SocketMessageReceiver ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
+            socket.emit(activity != null && activity instanceof SDKActivity ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
             this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
         }
     };
-    interface SocketMessageReceiver {
-        void onNewMessages(@NonNull ArrayList<IE_Message> messages);
+    interface SDKActivity {
+        void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages);
+        void onLogoutUser();
     }
     private void __SOCKET__connect(@Nullable JSONObject webSocket) {
         if (webSocket != null) {
@@ -373,8 +374,8 @@ public class Customerly {
                                                         if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
                                                             Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                             if(activity != null) {
-                                                                if (activity instanceof SocketMessageReceiver) {
-                                                                    ((SocketMessageReceiver) activity).onNewMessages(new_messages);
+                                                                if (activity instanceof SDKActivity) {
+                                                                    ((SDKActivity) activity).onNewSocketMessages(new_messages);
                                                                 } else {
                                                                     PW_AlertMessage.show(activity, new_messages.get(0));
                                                                 }
@@ -889,9 +890,17 @@ public class Customerly {
                     //noinspection SpellCheckingInspection
                     prefs.edit().remove("regusrml").remove("regusrid").apply();
                 }
-
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
+
+                PW_AlertMessage.onUserLogout();
+                Activity current = this._CurrentActivity == null ? null : this._CurrentActivity.get();
+                if(current != null) {
+                    if(current instanceof SDKActivity) {
+                        ((SDKActivity) current).onLogoutUser();
+                    }
+                    IDlgF_Survey.dismiss(current);
+                }
                 this.__PING__Start(null, null);
             } catch (Exception ignored) { }
         }

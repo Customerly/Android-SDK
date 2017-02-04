@@ -34,6 +34,7 @@
     <item type="id" name="io_customerly__new_conversation_button" />
     <item type="id" name="io_customerly__powered_by" />
     <item type="id" name="io_customerly__icon" />
+    <item type="id" name="io_customerly__arrow" />
     <item type="id" name="io_customerly__name" />
     <item type="id" name="io_customerly__last_message" />
     <item type="id" name="io_customerly__time" />

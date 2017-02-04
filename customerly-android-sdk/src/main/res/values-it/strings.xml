@@ -42,7 +42,6 @@
 
     <!-- Localized -->
     <string name="io_customerly__powered_by_">Offerto da&#160;</string>
-    <string name="io_customerly__contact_the_support_writing_your_question_below">Contatta l\'assistenza scrivendo la tua domanda qui sotto.</string>
     <string name="io_customerly__write_your_question">Scrivi la tua domanda…</string>
     <string name="io_customerly__attach_file">Allega file</string>
     <string name="io_customerly__insert_your_email">Inserisci la tua email</string>
@@ -79,5 +78,6 @@
     <string name="io_customerly__rich_message_text">Questo messaggio è stato inviato via email. Tocca qui per leggerlo.</string>
     <string name="io_customerly__rich_message_text__condensed_for_alert">Messaggio inviato via email.\nTocca per leggerlo.</string>
     <string name="io_customerly__support">Supporto</string>
+    <string name="io_customerly__open_conversation">Apri conversazione</string>
 
 </resources>

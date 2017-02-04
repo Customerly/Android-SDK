@@ -15,7 +15,7 @@
 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="@color/io_customerly__blue_malibu" />
+    <solid android:color="@color/io_customerly__bubble_user" />
     <corners android:radius="10dp" />
     <padding android:top="10dp" android:left="10dp" android:right="10dp" android:bottom="10dp" />
 </shape>

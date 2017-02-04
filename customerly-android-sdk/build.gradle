@@ -29,7 +29,7 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = 'ALPHA-2.2'
+def CustomerlySDKVersion = 'ALPHA-2.1'
 
 ext {
     bintrayRepo = 'maven'

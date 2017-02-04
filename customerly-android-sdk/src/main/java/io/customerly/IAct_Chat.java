@@ -77,7 +77,7 @@ import java.util.Collections;
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
-public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMessageReceiver {
+public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivity {
 
     static final String EXTRA_CONVERSATION_ID= "EXTRA_CONVERSATION_ID";
     private static final int MESSAGES_PER_PAGE = 20, TYPING_NO_ONE = 0;
@@ -250,7 +250,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
     }
 
     @Override
-    public void onNewMessages(@NonNull ArrayList<IE_Message> messages) {
+    public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) {
         final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
         IE_Message otherConversationMessage = null;
         //noinspection Convert2streamapi
@@ -296,7 +296,17 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SocketMes
     @Override
     protected void onResume() {
         super.onResume();
-        this._OnBottomReachedListener.onReached(this._IU_ProgressiveScrollListener);
+        IE_JwtToken jwt = Customerly._Instance._JwtToken;
+        if(jwt == null || jwt.isAnonymous()) {
+            this.onLogoutUser();
+        } else {
+            this._OnBottomReachedListener.onReached(this._IU_ProgressiveScrollListener);
+        }
+    }
+
+    @Override
+    public void onLogoutUser() {
+        this.finish();
     }
 
     @Override

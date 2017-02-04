@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:overScrollMode="never"
-                android:background="@color/io_customerly__grey_f0" >
+                android:background="@android:color/white" >
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -68,7 +68,7 @@
                             android:layout_marginEnd="20dp" >
 
                             <LinearLayout android:id="@id/io_customerly__layout_first_contact__admin_container"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:gravity="center_horizontal" />
@@ -95,34 +95,6 @@
                                 android:visibility="gone" />
 
                         </LinearLayout>
-
-                    </android.support.v7.widget.CardView>
-
-                    <android.support.v7.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginBottom="10dp"
-                        android:padding="30dp"
-                        card_view:cardCornerRadius="4dp"
-                        card_view:cardUseCompatPadding="true" >
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginBottom="10dp"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginRight="10dp"
-                            android:layout_marginEnd="10dp"
-                            android:textColor="@color/io_customerly__grey_99"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif"
-                            tools:ignore="UnusedAttribute"
-                            android:text="@string/io_customerly__contact_the_support_writing_your_question_below" />
 
                     </android.support.v7.widget.CardView>
 

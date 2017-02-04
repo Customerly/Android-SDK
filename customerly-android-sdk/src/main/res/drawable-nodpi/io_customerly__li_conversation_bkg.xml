@@ -19,7 +19,7 @@
             <item >
                 <shape android:shape="rectangle" >
                     <size android:width="3dp" />
-                    <solid android:color="@color/io_customerly__blue_3" />
+                    <solid android:color="@color/io_customerly__blue_malibu" />
                 </shape>
             </item>
             <item

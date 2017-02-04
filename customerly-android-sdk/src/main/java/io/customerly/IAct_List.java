@@ -53,7 +53,7 @@ import java.util.Locale;
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
-public final class IAct_List extends IAct_AInput implements Customerly.SocketMessageReceiver {
+public final class IAct_List extends IAct_AInput implements Customerly.SDKActivity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 
@@ -89,7 +89,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
             this._ListRecyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
             this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
             this._ListRecyclerView.setHasFixedSize(true);
-            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(this.getResources(), IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTH));
+            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(this.getResources(), R.color.io_customerly__grey_e7, IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTTOM));
             this._ListRecyclerView.setAdapter(new ConversationAdapter());
 
             this.input_layout.setVisibility(View.GONE);
@@ -106,7 +106,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
     }
 
     @Override
-    public void onNewMessages(@NonNull ArrayList<IE_Message> messages) {
+    public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) {
         ArrayList<IE_Message> filtered = new ArrayList<>(messages.size());
         next_new_message: for(IE_Message new_message : messages) {
             for(IE_Message new_message_filtered : filtered) {
@@ -149,6 +149,20 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
                 mp.start();
             });
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IE_JwtToken jwt = Customerly._Instance._JwtToken;
+        if (jwt == null) {
+            this.onLogoutUser();
+        }
+    }
+
+    @Override
+    public void onLogoutUser() {
+        this.finish();
     }
 
     @Override
@@ -220,6 +234,8 @@ public final class IAct_List extends IAct_AInput implements Customerly.SocketMes
                         ll.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                         ll.setGravity(Gravity.CENTER_HORIZONTAL);
                         ll.setOrientation(LinearLayout.VERTICAL);
+                        int _10dp = IU_Utils.px(10);
+                        ll.setPadding(_10dp, 0, _10dp, 0);
 
                         final ImageView icon = new ImageView(this);
                         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(adminIconSizePX, adminIconSizePX);
