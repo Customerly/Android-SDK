@@ -41,7 +41,6 @@
     <item type="id" name="io_customerly__date" />
     <item type="id" name="io_customerly__content" />
     <item type="id" name="io_customerly__attachment_layout" />
-    <item type="id" name="io_customerly__content_layout__only_user_li" />
     <item type="id" name="io_customerly__content_sending__only_user_li" />
     <item type="id" name="io_customerly__menu__download" />
     <item type="id" name="io_customerly__back" />

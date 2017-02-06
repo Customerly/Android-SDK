@@ -14,20 +14,29 @@
     limitations under the License.
 -->
 <resources>
-    <color name="io_customerly__light_blue_1">#FFF2FAFF</color>
-    <color name="io_customerly__blue_malibu">#FF65A9E7</color>
-    <color name="io_customerly__bubble_user">#FF01B0FF</color>
-    <color name="io_customerly__bubble_account">#FFECEFF1</color>
-    <color name="io_customerly__blue_2">#FF007DB9</color>
-    <color name="io_customerly__blue_2_transparent">#00007DB9</color>
-    <color name="io_customerly__blue_3">#FF4561FF</color>
-    <color name="io_customerly__grey_66">#FF666666</color>
-    <color name="io_customerly__grey_99">#FF999999</color>
     <color name="io_customerly__grey_cc">#FFCCCCCC</color>
-    <color name="io_customerly__grey_e7">#FFE7E7E7</color>
     <color name="io_customerly__grey_f0">#FFF0F0F0</color>
     <color name="io_customerly__grey_f3">#FFF3F3F3</color>
     <color name="io_customerly__dark_text">#FF282828</color>
+
+
+    <color name="io_customerly__chat_date_accounttime">#FF999999</color>
+    <color name="io_customerly__hints_textcolor">#FF999999</color>
+    <color name="io_customerly__welcomecard_texts">#FF999999</color>
+
+    <color name="io_customerly__blue_malibu">#FF65A9E7</color>
+    <color name="io_customerly__blue_malibu_transparent">#00007DB9</color>
+
+    <color name="io_customerly__view_accent">#FF007DB9</color>
+
+    <color name="io_customerly__bubble_user_bkg">#FF01B0FF</color>
+    <color name="io_customerly__bubble_account_bkg">#FFECEFF1</color>
+    <color name="io_customerly__bubble_account_textcolor">#FF1A1A1A</color>
+
+    <color name="io_customerly__li_conversation_divider_color">#FFE7E7E7</color>
+    <color name="io_customerly__li_conversation_selected_left_vertical_line">@color/io_customerly__blue_malibu</color>
+    <color name="io_customerly__li_conversation_selected_bkg">#FFF2FAFF</color>
     <color name="io_customerly__li_conversation_name">#FF1A1A1A</color>
     <color name="io_customerly__li_conversation_content">#CC60686E</color>
+    <color name="io_customerly__li_conversation_time">#CC60686E</color>
 </resources>

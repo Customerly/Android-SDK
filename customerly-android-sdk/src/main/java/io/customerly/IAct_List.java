@@ -89,7 +89,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             this._ListRecyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
             this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
             this._ListRecyclerView.setHasFixedSize(true);
-            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(this.getResources(), R.color.io_customerly__grey_e7, IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTTOM));
+            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(this.getResources(), R.color.io_customerly__li_conversation_divider_color, IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTTOM));
             this._ListRecyclerView.setAdapter(new ConversationAdapter());
 
             this.input_layout.setVisibility(View.GONE);
@@ -254,7 +254,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
 
                         final TextView name = new TextView(this);
                         name.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        name.setTextColor(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__grey_99));
+                        name.setTextColor(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__welcomecard_texts));
                         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
                         name.setText(admin.name);
                         name.setSingleLine(false);

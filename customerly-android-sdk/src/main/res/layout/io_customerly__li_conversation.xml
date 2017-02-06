@@ -57,7 +57,7 @@
         android:singleLine="true"
         android:lines="1"
         android:maxLines="1"
-        android:textColor="@color/io_customerly__grey_cc"
+        android:textColor="@color/io_customerly__li_conversation_time"
         android:textSize="13sp"
         android:textStyle="italic"
         android:fontFamily="sans-serif"

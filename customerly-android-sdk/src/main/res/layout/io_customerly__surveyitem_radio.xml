@@ -15,7 +15,7 @@
 -->
 <android.support.v7.widget.AppCompatRadioButton xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:theme="@style/io_customerly__RadioButton_Blue1"
+    android:theme="@style/io_customerly__RadioButton_ViewsAccent"
     android:layout_width="match_parent"
     android:layout_height="40dp"
     android:textColor="@android:color/black"

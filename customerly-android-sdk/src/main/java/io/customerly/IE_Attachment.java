@@ -73,7 +73,7 @@ class IE_Attachment {
         int _5dp = IU_Utils.px(5);
         tv.setCompoundDrawablePadding(_5dp);
         tv.setPadding(_5dp, 0, 0, 0);
-        tv.setTextColor(IU_Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_blue2_grey));
+        tv.setTextColor(IU_Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_malibu_grey));
         tv.setLines(1);
         tv.setSingleLine();
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);

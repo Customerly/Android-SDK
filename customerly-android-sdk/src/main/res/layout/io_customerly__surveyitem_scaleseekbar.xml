@@ -15,7 +15,7 @@
 -->
 <android.support.v7.widget.AppCompatSeekBar
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:theme="@style/io_customerly__SeekBar_Blue2"
+    android:theme="@style/io_customerly__SeekBar_ViewsAccent"
     android:layout_width="0dp"
     android:layout_weight="1"
     android:layout_height="wrap_content"

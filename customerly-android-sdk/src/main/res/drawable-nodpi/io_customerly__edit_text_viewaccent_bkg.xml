@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright (C) 2017 Customerly
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@color/io_customerly__bubble_account" />
-    <corners android:radius="10dp" />
-    <padding android:top="10dp" android:left="10dp" android:right="10dp" android:bottom="10dp"/>
+<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android" >
+    <solid android:color="@android:color/white"/>
+    <corners android:radius="4dp" />
+    <stroke android:color="@color/io_customerly__view_accent" android:width="1dp"/>
+    <padding android:right="39dp" />
 </shape>

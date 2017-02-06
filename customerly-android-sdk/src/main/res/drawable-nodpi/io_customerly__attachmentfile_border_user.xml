@@ -15,11 +15,17 @@
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:state_pressed="true" >
-        <shape
-            android:shape="rectangle" >
-            <solid android:color="@color/io_customerly__blue_malibu" />
-            <corners android:radius="7.5dp" />
+        <shape android:shape="rectangle" >
+            <stroke android:dashWidth="5dp" android:dashGap="5dp" android:width="1dp"
+                android:color="#ff666666" />
+            <corners android:radius="5dp" />
         </shape>
     </item>
-    <item android:drawable="@drawable/io_customerly__button_viewaccent" />
+    <item >
+        <shape android:shape="rectangle" >
+            <stroke android:dashWidth="5dp" android:dashGap="5dp" android:width="1dp"
+                android:color="@android:color/white" />
+            <corners android:radius="5dp" />
+        </shape>
+    </item>
 </selector>

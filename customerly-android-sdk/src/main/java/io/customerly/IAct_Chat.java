@@ -36,7 +36,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
-import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -60,6 +59,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
@@ -68,8 +68,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -267,7 +265,9 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         }
 
         if(otherConversationMessage != null) {
-            PW_AlertMessage.show(this, otherConversationMessage);
+            try {
+                PW_AlertMessage.show(this, otherConversationMessage);
+            } catch (WindowManager.BadTokenException ignored) { }
         }
 
         Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
@@ -495,7 +495,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     private class ChatTypingVH extends A_ChatVH {
         private static final long DOTS_SPEED = 500;
         private ChatTypingVH() {
-            super(R.layout.io_customerly__li_message_account_typing);
+            super(R.layout.io_customerly__li_bubble_account_typing);
             this.startAnimation();
         }
 
@@ -531,44 +531,25 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     }
 
     private class ChatUserMessageVH extends A_ChatMessageVH {
-        @NonNull private final View _IfUserMessage_ContentLayout;
         private ChatUserMessageVH() {
-            super(R.layout.io_customerly__li_message_user, R.drawable.io_customerly__bkg_chat_message_user_rounded, R.drawable.io_customerly__ic_attach_user, 0.9f);
-            this._IfUserMessage_ContentLayout = this.itemView.findViewById(R.id.io_customerly__content_layout__only_user_li);
-        }
-        @Override protected void setContentVisibility(@ContentVisibility int visibility, boolean isSending) {
-            if(visibility == View.VISIBLE) {
-                this._IfUserMessage_ContentLayout.setVisibility(View.VISIBLE);
-            } else if(isSending) {
-                this._Content.setText(null);
-                this._IfUserMessage_ContentLayout.setVisibility(View.VISIBLE);
-            } else {
-                this._IfUserMessage_ContentLayout.setVisibility(View.GONE);
-            }
+            super(R.layout.io_customerly__li_bubble_user, R.drawable.io_customerly__ic_attach_user, 0.9f);
         }
     }
 
     private class ChatAccountMessageVH extends A_ChatMessageVH {
         private ChatAccountMessageVH() {
-            super(R.layout.io_customerly__li_message_account, R.drawable.io_customerly__bkg_chat_message_account_rounded, R.drawable.io_customerly__ic_attach_account, -0.9f);
-        }
-        @Override protected void setContentVisibility(@ContentVisibility int visibility, boolean isSending) {
-            this._Content.setVisibility(visibility);
+            super(R.layout.io_customerly__li_bubble_account, R.drawable.io_customerly__ic_attach_account_40dp, -0.9f);
         }
     }
 
     private class ChatAccountRichMessageVH extends A_ChatMessageVH {
         private ChatAccountRichMessageVH() {
-            super(R.layout.io_customerly__li_message_account_rich, R.drawable.io_customerly__bkg_chat_message_account_rounded, R.drawable.io_customerly__ic_attach_account, -0.9f);
-        }
-        @Override protected void setContentVisibility(@ContentVisibility int visibility, boolean isSending) {
-            //Do nothing. Content text defined in xml
+            super(R.layout.io_customerly__li_bubble_account_rich, R.drawable.io_customerly__ic_attach_account_40dp, -0.9f);
         }
 
         @Override
         protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
-            this._Content.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.io_customerly__ic_email_grey_32dp, 0, 0);
             View.OnClickListener clickListener = v -> {
                 if(pMessage != null && pMessage.rich_mail_link != null) {
                     IU_Utils.intentUrl(IAct_Chat.this, pMessage.rich_mail_link);
@@ -582,15 +563,16 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     private abstract class A_ChatMessageVH extends A_ChatVH {
         @NonNull private final LinearLayout _AttachmentLayout;
         @Nullable private final View _Sending;
-        @DrawableRes private final int _BubbleBkgResID, _IcAttachResID;
+        @DrawableRes private final int _IcAttachResID;
         private final float _ItemFromXValueRelative;
 
-        private A_ChatMessageVH(@LayoutRes int pLayoutRes, @DrawableRes int pBubbleBkgRedID, @DrawableRes int pIcAttachResID, @FloatRange(from=-1, to=1) float pItemFromXValueRelative) {
+        private final int MIN_ATTACHMENT_WIDTH = IU_Utils.px(150);
+
+        private A_ChatMessageVH(@LayoutRes int pLayoutRes, @DrawableRes int pIcAttachResID, @FloatRange(from=-1, to=1) float pItemFromXValueRelative) {
             super(pLayoutRes);
             this._Sending = this.itemView.findViewById(R.id.io_customerly__content_sending__only_user_li);
             this._Content.setMovementMethod(LinkMovementMethod.getInstance());
             this._AttachmentLayout = (LinearLayout)this.itemView.findViewById(R.id.io_customerly__attachment_layout);
-            this._BubbleBkgResID = pBubbleBkgRedID;
             this._IcAttachResID = pIcAttachResID;
             this._ItemFromXValueRelative = pItemFromXValueRelative;
         }
@@ -636,9 +618,10 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                     }
 
                     this._Content.setText(pMessage.content);
-                    this.setContentVisibility(View.VISIBLE, pMessage.isSending());
+                    this._Content.setVisibility(View.VISIBLE);
                 } else {
-                    this.setContentVisibility(View.GONE, pMessage.isSending());
+                    this._Content.setText(null);
+                    this._Content.setVisibility(View.GONE);
                 }
 
                 if (this._Sending != null) {
@@ -647,6 +630,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
 
                 if (pMessage.isFailed()) {
                     this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.io_customerly__ic_error, 0);
+                    this._Content.setVisibility(View.VISIBLE);
                     View.OnClickListener clickListener = v -> {
                         if(Customerly._Instance._isConfigured()) {
                             pMessage.setSending();
@@ -674,7 +658,8 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                         ll.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         ll.setOrientation(LinearLayout.VERTICAL);
                         ll.setGravity(Gravity.CENTER_HORIZONTAL);
-                        ll.setBackgroundResource(this._BubbleBkgResID);
+                        ll.setMinimumWidth(MIN_ATTACHMENT_WIDTH);
+
                         ImageView iv = new ImageView(IAct_Chat.this);
                         if(attachment.isImage()) {
                             //Image attachment
@@ -704,7 +689,10 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                                 }
                             }
                         } else { //No image attachment
-                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, IU_Utils.px(80)));
+                            ll.setBackgroundResource(pMessage.isUserMessage() ? R.drawable.io_customerly__attachmentfile_border_user : R.drawable.io_customerly__attachmentfile_border_account);
+                            ll.setPadding(IU_Utils.px(10), 0, IU_Utils.px(10), IU_Utils.px(10));
+                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, IU_Utils.px(40)));
+                            iv.setPadding(0, IU_Utils.px(15), 0, 0);
                             iv.setImageResource(this._IcAttachResID);
 
                             if (attachment.path != null && attachment.path.length() != 0) {
@@ -718,10 +706,9 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                             }
                         }
                         ll.addView(iv);
-
                         TextView tv = new TextView(IAct_Chat.this);
                         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        tv.setTextColor(IU_Utils.getColorStateListFromResource(getResources(), R.color.io_customerly__textcolor_blue2_grey));
+                        tv.setTextColor(IU_Utils.getColorStateListFromResource(getResources(), pMessage.isUserMessage() ? R.color.io_customerly__textcolor_white_grey : R.color.io_customerly__textcolor_malibu_grey));
                         tv.setLines(1);
                         tv.setSingleLine();
                         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
@@ -730,7 +717,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                         tv.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                         ll.addView(tv);
                         this._AttachmentLayout.addView(ll);
-                        ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = IU_Utils.px(3);
+                        ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = IU_Utils.px(10);
                     }
                     this._AttachmentLayout.setVisibility(View.VISIBLE);
                 } else {
@@ -756,12 +743,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 this._AttachmentLayout.setVisibility(View.GONE);
             }
         }
-        protected abstract void setContentVisibility(@ContentVisibility int visibility, boolean isSending);
     }
-
-    @IntDef({View.VISIBLE, View.GONE})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface ContentVisibility {}
 
     private class ChatAdapter extends RecyclerView.Adapter<A_ChatVH> {
         final int _5dp = IU_Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
@@ -770,25 +752,25 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         public int getItemViewType(int position) {
             if(_TypingAccountId != TYPING_NO_ONE) {
                 if(position == 0) {
-                    return R.layout.io_customerly__li_message_account_typing;
+                    return R.layout.io_customerly__li_bubble_account_typing;
                 } else {
                     position--;
                 }
             }
             IE_Message message = _ChatList.get(position);
             if(message.isUserMessage()) {
-                return R.layout.io_customerly__li_message_user;
+                return R.layout.io_customerly__li_bubble_user;
             } else if(message.rich_mail_link == null) {
-                return R.layout.io_customerly__li_message_account;
+                return R.layout.io_customerly__li_bubble_account;
             } else {
-                return R.layout.io_customerly__li_message_account_rich;
+                return R.layout.io_customerly__li_bubble_account_rich;
             }
         }
         @Override
         public A_ChatVH onCreateViewHolder(ViewGroup parent, int viewType) {
-            return viewType == R.layout.io_customerly__li_message_account_typing ? new ChatTypingVH()
-                    : viewType == R.layout.io_customerly__li_message_user ? new ChatUserMessageVH()
-                    : viewType == R.layout.io_customerly__li_message_account ? new ChatAccountMessageVH()
+            return viewType == R.layout.io_customerly__li_bubble_account_typing ? new ChatTypingVH()
+                    : viewType == R.layout.io_customerly__li_bubble_user ? new ChatUserMessageVH()
+                    : viewType == R.layout.io_customerly__li_bubble_account ? new ChatAccountMessageVH()
                     : /*viewType == R.layout.io_customerly__li_message_account_rich ? */ new ChatAccountRichMessageVH();
         }
         @Override

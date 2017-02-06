@@ -19,7 +19,7 @@
             <item >
                 <shape android:shape="rectangle" >
                     <size android:width="3dp" />
-                    <solid android:color="@color/io_customerly__blue_malibu" />
+                    <solid android:color="@color/io_customerly__li_conversation_selected_left_vertical_line" />
                 </shape>
             </item>
             <item
@@ -28,7 +28,7 @@
                 android:right="0dp"
                 android:top="0dp">
                 <shape android:shape="rectangle" >
-                    <solid android:color="@color/io_customerly__light_blue_1" />
+                    <solid android:color="@color/io_customerly__li_conversation_selected_bkg" />
                 </shape>
             </item>
         </layer-list>
