@@ -34,6 +34,7 @@ import android.support.annotation.Nullable;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.WindowManager;
 
 import org.intellij.lang.annotations.Subst;
 import org.json.JSONArray;
@@ -181,7 +182,18 @@ public class Customerly {
                                 Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                 if(activity != null) {
                                     try {
-                                        IDlgF_Survey.show(activity, survey);
+                                        try {
+                                            IDlgF_Survey.show(activity, survey);
+                                        } catch (WindowManager.BadTokenException changedActivityWhileRunning) {
+                                            activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                            if (activity != null) {
+                                                try {
+                                                    IDlgF_Survey.show(activity, survey);
+                                                } catch (WindowManager.BadTokenException ignored) {
+                                                    //Second failure.
+                                                }
+                                            }
+                                        }
                                     } catch (Exception generic) {
                                         _log("A generic error occurred in Customerly.openSurvey");
                                         IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
@@ -209,7 +221,24 @@ public class Customerly {
                                             list.add(new IE_Message(message));
                                             ((SDKActivity) activity).onNewSocketMessages(list);
                                         } else {
-                                            PW_AlertMessage.show(activity, new IE_Message(message));
+                                            try {
+                                                PW_AlertMessage.show(activity, new IE_Message(message));
+                                            } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
+                                                activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                if (activity != null) {
+                                                    if (activity instanceof SDKActivity) {
+                                                        ArrayList<IE_Message> list = new ArrayList<>(1);
+                                                        list.add(new IE_Message(message));
+                                                        ((SDKActivity) activity).onNewSocketMessages(list);
+                                                    } else {
+                                                        try {
+                                                            PW_AlertMessage.show(activity, new IE_Message(message));
+                                                        } catch (WindowManager.BadTokenException ignored) {
+                                                            //Second try failure.
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 });
@@ -377,7 +406,22 @@ public class Customerly {
                                                                 if (activity instanceof SDKActivity) {
                                                                     ((SDKActivity) activity).onNewSocketMessages(new_messages);
                                                                 } else {
-                                                                    PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                    try {
+                                                                        PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                    } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
+                                                                        activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                        if(activity != null) {
+                                                                            if (activity instanceof SDKActivity) {
+                                                                                ((SDKActivity) activity).onNewSocketMessages(new_messages);
+                                                                            } else {
+                                                                                try {
+                                                                                    PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                                } catch (WindowManager.BadTokenException ignored) {
+                                                                                    //Second try failure.
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
                                                                 }
                                                             }
                                                         }

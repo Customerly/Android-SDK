@@ -16,7 +16,7 @@
 <resources >
     <style name="io_customerly__Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorAccent">@color/io_customerly__grey_99</item>
+        <item name="colorAccent">@color/io_customerly__blue_malibu</item>
         <item name="android:windowBackground">@android:color/white</item><!-- Background color -->
         <item name="android:colorBackground">@android:color/white</item><!-- Background color -->
     </style>
@@ -26,23 +26,23 @@
         <item name="android:colorBackground">@android:color/white</item><!-- Background color -->
     </style>
 
-    <style name="io_customerly__EditText_Blue2" parent="Widget.AppCompat.EditText" >
-        <item name="colorAccent">@color/io_customerly__blue_2</item>
-        <item name="colorControlNormal">@color/io_customerly__blue_2</item>
+    <style name="io_customerly__EditText_ViewsAccent" parent="Widget.AppCompat.EditText" >
+        <item name="colorAccent">@color/io_customerly__view_accent</item>
+        <item name="colorControlNormal">@color/io_customerly__view_accent</item>
     </style>
 
-    <style name="io_customerly__RadioButton_Blue1" parent="Widget.AppCompat.CompoundButton.RadioButton">
-        <item name="colorControlNormal">@color/io_customerly__blue_2</item>
+    <style name="io_customerly__RadioButton_ViewsAccent" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="colorControlNormal">@color/io_customerly__view_accent</item>
         <item name="colorControlActivated">@color/io_customerly__blue_malibu</item>
     </style>
 
-    <style name="io_customerly__SeekBar_Blue2" parent="Widget.AppCompat.SeekBar" >
-        <item name="colorAccent">@color/io_customerly__blue_2</item>
+    <style name="io_customerly__SeekBar_ViewsAccent" parent="Widget.AppCompat.SeekBar" >
+        <item name="colorAccent">@color/io_customerly__view_accent</item>
     </style>
 
-    <style name="io_customerly__RatingBar_Blue2" parent="Widget.AppCompat.RatingBar" >
-        <item name="colorAccent">@color/io_customerly__blue_2</item>
-        <item name="colorControlNormal">@color/io_customerly__blue_2</item>
+    <style name="io_customerly__RatingBar_ViewsAccent" parent="Widget.AppCompat.RatingBar" >
+        <item name="colorAccent">@color/io_customerly__view_accent</item>
+        <item name="colorControlNormal">@color/io_customerly__view_accent</item>
     </style>
 
     <style name="io_customerly__selectableItemBackgroundBorderless__onWhite">

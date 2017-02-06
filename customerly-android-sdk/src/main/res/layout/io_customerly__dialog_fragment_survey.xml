@@ -108,7 +108,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            android:indeterminateDrawable="@drawable/io_customerly__progress_image_blue2" />
+            android:indeterminateDrawable="@drawable/io_customerly__progress_image_blue_malibu" />
 
     </FrameLayout>
 
