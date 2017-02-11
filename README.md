@@ -160,14 +160,14 @@ They will be automatically displayed to your user as soon as possible.
 
 ### User registration and logout (Optional but recommended)
 
-If you don't have a login method inside your apps don't worry, users can use the chat using their emails.
+If you don't have a login method inside your apps don't worry, users can use the chat inserting their emails.
 
 By the way, if users login in your application please register them into Customerly calling the method `registerUser:`.  
 
 Example:
 
 ```java
-Customerly.get().registerUser("axlrose@example.com").start();
+Customerly.get().registerUser("axlrose@example.com").start();//Don't forget to call the start method. It starts the task!
 ```
 
 As seen above, you only need an email address to register the user
@@ -175,23 +175,23 @@ As seen above, you only need an email address to register the user
 
 ```java
 Customerly.get().registerUser("axlrose@example.com")
-.user_id("12345")                       //Optionally you can pass the user ID 
-.name("Gianni")                         //Optionally you can pass the user name
-.attributes(attributesMap)              //Optionally you can pass some custom attributes (See the *Attributes* section below for the map building)
-.company(companyMap)                    //Optionally you can pass the user company informations (See the *Companies* section below for the map building)
-.success(new Customerly.Callback() {    //Optionally you can pass a callback to be notified of the success of the task
+.user_id("12345")                       //OPTIONALLY you can pass the user ID 
+.name("Gianni")                         //OPTIONALLY you can pass the user name
+.attributes(attributesMap)              //OPTIONALLY you can pass some custom attributes (See the *Attributes* section below for the map building)
+.company(companyMap)                    //OPTIONALLY you can pass the user company informations (See the *Companies* section below for the map building)
+.success(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
               @Override
               public void callback() {
-                 //Called if the registerUser completes successfully
+                 //Called if the task completes successfully
               }
           })
-.failure(new Customerly.Callback() {    //Optionally you can pass a callback to be notified of the failure of the task
+.failure(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
             @Override
             public void callback() {
-               //Called if the registerUser fails
+               //Called if the task fails
             }
         })
-.start();
+.start();                               //Don't forget to call the start method. It starts the task!
 ```
 
 So *user_id*, *name*, *attributes*, *company*, *success* and *failure* are totally optional.
@@ -216,7 +216,20 @@ attributesMap.put("job", "Employee");
 
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
 ```java
-Customerly.get().setAttributes(attributesMap);
+Customerly.get().setAttributes(attributesMap)
+    .success(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
+                  @Override
+                  public void callback() {
+                     //Called if the task completes successfully
+                  }
+              })
+    .failure(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
+                @Override
+                public void callback() {
+                   //Called if the task fails
+                }
+            })
+    .start();                               //Don't forget to call the start method. It starts the task!
 ```
 
 ### Companies (Optional)
@@ -237,7 +250,20 @@ companyMap.put("foundation year", 2017);
 
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
 ```java
-Customerly.get().setCompany(companyMap);
+Customerly.get().setCompany(companyMap)
+    .success(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
+                  @Override
+                  public void callback() {
+                     //Called if the task completes successfully
+                  }
+              })
+    .failure(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
+                @Override
+                public void callback() {
+                   //Called if the task fails
+                }
+            })
+    .start();                               //Don't forget to call the start method. It starts the task!
 ```
 
 ### Events (Optional)
@@ -246,7 +272,7 @@ Send to Customerly every event you want to segment users better
 
 ```java
 // Eg. This send an event that track a potential purchase
-Customerly.get().trackEvent("added_to_cart")
+Customerly.get().trackEvent("added_to_cart");
 ```
 
 ## JavaDoc
