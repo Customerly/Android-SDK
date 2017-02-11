@@ -141,7 +141,7 @@ Customerly reference = Customerly.get();
 Don't forget to show a button or something to your user for opening the Support Activity. Just call the method `openSupport`:
 
 ```java
-Customerly.get().openSupport(Activity.this)
+Customerly.get().openSupport(Activity.this);
 ```
 
 <p align="center">
@@ -199,12 +199,12 @@ So *user_id*, *name*, *attributes*, *company*, *success* and *failure* are total
 Please remember to logout users from customerly when they logout in your application:
 
 ```java
-Customerly.get().logoutUser()
+Customerly.get().logoutUser();
 ```
 
 ### Attributes (Optional)
 
-Inside attributes you can add every custom data you prefer to track for user segmentation.
+Inside attributes you can add every custom data you prefer to track for user segmentation.  
 Attributes can be only String, char, int, long, float, double.
 
 ```java
@@ -236,8 +236,10 @@ Customerly.get().setAttributes(attributesMap)
 
 If in your application the user can handle two or more companies maybe you would like to add some attributes related to them
 The Company map MUST contain the following two key/values:  
+```
 "company_id" -> containing the id of the company  
-"name" -> containing the name of the company  
+"name" -> containing the name of the company
+```
 Then you can add as many company attributes as you want, but remember: they can be only String, char, int, long, float, double.
 
 ```java
