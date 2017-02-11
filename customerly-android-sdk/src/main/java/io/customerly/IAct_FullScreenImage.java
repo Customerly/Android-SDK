@@ -199,18 +199,27 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
         }
     }
 
-    private static final int PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE = 99;
+    private static final int PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE = 4321;
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    this.startAttachmentDownload();
-                } else {
-                    Toast.makeText(this, R.string.io_customerly__permission_denied_write, Toast.LENGTH_LONG).show();
+                int length = Math.min(grantResults.length, permissions.length);
+                if (length > 0) {
+                    for(int i = 0; i < length; i++) {
+                        if(Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])
+                            && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            this.startAttachmentDownload();
+                            return;
+                        }
+                    }
                 }
+                Toast.makeText(this, R.string.io_customerly__permission_denied_write, Toast.LENGTH_LONG).show();
+                break;
             }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                break;
         }
     }
 

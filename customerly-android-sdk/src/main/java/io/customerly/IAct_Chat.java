@@ -395,7 +395,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         }
     }
 
-    private static final int PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE = 99;
+    private static final int PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE = 4321;
     private String _PermissionRequest__pendingFileName, _PermissionRequest__pendingPath;
     private void startAttachmentDownload(@NonNull String filename, @NonNull String full_path) {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -457,18 +457,27 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(this._PermissionRequest__pendingFileName != null && this._PermissionRequest__pendingFileName.length() != 0
-                            && this._PermissionRequest__pendingPath != null && this._PermissionRequest__pendingPath.length() != 0) {
-                        this.startAttachmentDownload(this._PermissionRequest__pendingFileName, this._PermissionRequest__pendingPath);
-                        this._PermissionRequest__pendingFileName = null;
-                        this._PermissionRequest__pendingPath = null;
+                int length = Math.min(grantResults.length, permissions.length);
+                if (length > 0) {
+                    for(int i = 0; i < length; i++) {
+                        if(Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])
+                                && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            if(this._PermissionRequest__pendingFileName != null && this._PermissionRequest__pendingFileName.length() != 0
+                                    && this._PermissionRequest__pendingPath != null && this._PermissionRequest__pendingPath.length() != 0) {
+                                this.startAttachmentDownload(this._PermissionRequest__pendingFileName, this._PermissionRequest__pendingPath);
+                                this._PermissionRequest__pendingFileName = null;
+                                this._PermissionRequest__pendingPath = null;
+                            }
+                            return;
+                        }
                     }
-                } else {
-                    Toast.makeText(this, R.string.io_customerly__permission_denied_write, Toast.LENGTH_LONG).show();
                 }
+                Toast.makeText(this, R.string.io_customerly__permission_denied_write, Toast.LENGTH_LONG).show();
+                break;
             }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                break;
         }
     }
 
@@ -546,7 +555,6 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         private ChatAccountRichMessageVH() {
             super(R.layout.io_customerly__li_bubble_account_rich, R.drawable.io_customerly__ic_attach_account_40dp, -0.9f);
         }
-
         @Override
         protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
@@ -558,6 +566,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this.itemView.setOnClickListener(clickListener);
             this._Content.setOnClickListener(clickListener);
         }
+        void onEmptyContent() { }
     }
 
     private abstract class A_ChatMessageVH extends A_ChatVH {
@@ -620,8 +629,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                     this._Content.setText(pMessage.content);
                     this._Content.setVisibility(View.VISIBLE);
                 } else {
-                    this._Content.setText(null);
-                    this._Content.setVisibility(View.GONE);
+                    this.onEmptyContent();
                 }
 
                 if (this._Sending != null) {
@@ -742,6 +750,10 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 this._AttachmentLayout.removeAllViews();
                 this._AttachmentLayout.setVisibility(View.GONE);
             }
+        }
+        void onEmptyContent() {
+            this._Content.setText(null);
+            this._Content.setVisibility(View.GONE);
         }
     }
 

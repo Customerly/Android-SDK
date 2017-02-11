@@ -481,6 +481,18 @@ class IU_Utils {
         }
     }
 
+    @Contract(value = "_,_,true -> !null; null,_,false -> null; !null,_,false -> _", pure = true)
+    @Nullable static JSONObject getStringJSONSafe(@Nullable SharedPreferences pref, @NonNull String key, boolean nonNull) {
+        try {
+            String stringa = pref == null ? null : pref.getString(key, null);
+            return stringa == null
+                    ? nonNull ? new JSONObject() : null
+                    : new JSONObject(stringa);
+        } catch (Exception not_string) {
+            return nonNull ? new JSONObject() : null;
+        }
+    }
+
     @Contract(pure = true)
     static int getIntSafe(@Nullable SharedPreferences pref, @NonNull String key, int default_value) {
         try {

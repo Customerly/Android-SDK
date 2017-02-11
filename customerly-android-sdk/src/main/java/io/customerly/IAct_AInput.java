@@ -182,7 +182,8 @@ abstract class IAct_AInput extends AppCompatActivity {
             Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok, v -> {}).setActionTextColor(Customerly._Instance.__PING__LAST_widget_color).show();
         } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
                     this.startActivityForResult(
                             Intent.createChooser(new Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
@@ -205,17 +206,22 @@ abstract class IAct_AInput extends AppCompatActivity {
         }
     };
 
-    private static final int PERMISSION_REQUEST__READ_EXTERNAL_STORAGE = 99;
+    private static final int PERMISSION_REQUEST__READ_EXTERNAL_STORAGE = 1234;
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST__READ_EXTERNAL_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    this._AttachButtonListener.onClick(null);
-                } else {
-                    Toast.makeText(this, R.string.io_customerly__permission_denied_read, Toast.LENGTH_LONG).show();
+                int length = Math.min(grantResults.length, permissions.length);
+                if (length > 0) {
+                    for(int i = 0; i < length; i++) {
+                        if(Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i])
+                                && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                            this._AttachButtonListener.onClick(null);
+                            return;
+                        }
+                    }
                 }
+                Toast.makeText(this, R.string.io_customerly__permission_denied_read, Toast.LENGTH_LONG).show();
             }
         }
     }

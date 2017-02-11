@@ -148,7 +148,7 @@ Customerly.get().openSupport(Activity.this)
   <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/chat.gif?raw=true" width=200 alt="Chat"/>
 </p>
 
-### Survey (Nothing to do)
+### Survey (No action required)
 
 With the Customerly SDK you can deliver surveys directly into your app without any lines of code.
 
@@ -167,37 +167,34 @@ By the way, if users login in your application please register them into Custome
 Example:
 
 ```java
-Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni");
+Customerly.get().registerUser("axlrose@example.com").start();
 ```
 
-*OPTIONALLY*, using a closure:
+As seen above, you only need an email address to register the user
+*BUT, OPTIONALLY,* you can chain one or more other stuff to the registerUser task:
 
 ```java
-Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
- new Customerly.SuccessCallback() {
-     @Override
-     public void onSuccess() {
-        //...
-     }
- }, new Customerly.FailureCallback() {
-     @Override
-     public void onFailure() {
-        //...
-     }
- });
-     
-//In Java8 you can use lambdas:
-Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
- () -> { /* ... */ }, () -> { /* ... */ });
+Customerly.get().registerUser("axlrose@example.com")
+.user_id("12345")                       //Optionally you can pass the user ID 
+.name("Gianni")                         //Optionally you can pass the user name
+.attributes(attributesMap)              //Optionally you can pass some custom attributes (See the *Attributes* section below for the map building)
+.company(companyMap)                    //Optionally you can pass the user company informations (See the *Companies* section below for the map building)
+.success(new Customerly.Callback() {    //Optionally you can pass a callback to be notified of the success of the task
+              @Override
+              public void callback() {
+                 //Called if the registerUser completes successfully
+              }
+          })
+.failure(new Customerly.Callback() {    //Optionally you can pass a callback to be notified of the failure of the task
+            @Override
+            public void callback() {
+               //Called if the registerUser fails
+            }
+        })
+.start();
 ```
 
-You can pass custom attribute for the user as JSONObject. The JSONObject cannot contain other JSONObject or JSONArray:
-```java
-Customerly.get().registerUser("axlrose@example.com", "Opt.UserID es 12345", "Opt.Name es Gianni",
-new JSONObject().putString("attrKey", "attrValue"));
-```
-
-In this method *user_id*, *name*, *attributes*, *success* and *failure* are optionals.
+So *user_id*, *name*, *attributes*, *company*, *success* and *failure* are totally optional.
 
 Please remember to logout users from customerly when they logout in your application:
 
@@ -207,11 +204,40 @@ Customerly.get().logoutUser()
 
 ### Attributes (Optional)
 
-Inside attributes you can add every custom data you prefer to track. you can pass a JSONObject containing more attributes but no nested JSONObjects or JSONArray.
+Inside attributes you can add every custom data you prefer to track for user segmentation.
+Attributes can be only String, char, int, long, float, double.
 
 ```java
-// Eg. This attribute define what kind of pricing plan the user has purchased 
-Customerly.get().setAttributes(new JSONObject().putString("pricing_plan_type", "basic"));
+// Eg. This is an attribute map that contains the experience in year and the job of the current user
+HashMap<String, Object> attributesMap = new HashMap<String, Object>();
+attributesMap.put("experience", 3);
+attributesMap.put("job", "Employee");
+```
+
+The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
+```java
+Customerly.get().setAttributes(attributesMap);
+```
+
+### Companies (Optional)
+
+If in your application the user can handle two or more companies maybe you would like to add some attributes related to them
+The Company map MUST contain the following two key/values:  
+"company_id" -> containing the id of the company  
+"name" -> containing the name of the company  
+Then you can add as many company attributes as you want, but remember: they can be only String, char, int, long, float, double.
+
+```java
+// Eg. This is a company map that contains the company necessary fields (company_id and name) and a custom "foundation year" attribute
+HashMap<String, Object> companyMap = new HashMap<String, Object>();
+companyMap.put("company_id", "123abc");
+companyMap.put("name", "Customerly");
+companyMap.put("foundation year", 2017);
+```
+
+The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
+```java
+Customerly.get().setCompany(companyMap);
 ```
 
 ### Events (Optional)
@@ -225,7 +251,7 @@ Customerly.get().trackEvent("added_to_cart")
 
 ## JavaDoc
 
-Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/1.0+)
+Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/BETA-2.0+)
 
 ## Permissions
 

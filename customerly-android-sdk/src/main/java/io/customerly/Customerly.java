@@ -28,6 +28,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.CheckResult;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +45,8 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Locale;
 
 import io.socket.client.IO;
@@ -59,6 +62,7 @@ public class Customerly {
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
     private static final String PREFS_PING_RESPONSE__WELCOME_USERS = "PREFS_PING_RESPONSE__WELCOME_USERS";
     private static final String PREFS_PING_RESPONSE__WELCOME_VISITORS = "PREFS_PING_RESPONSE__WELCOME_VISITORS";
+    private static final String PREF_CURRENT_EMAIL = "regusrml", PREF_CURRENT_ID = "regusrid", PREF_CURRENT_COMPANY_INFO = "cmpnynfo";
     private static final long SOCKET_PING_INTERVAL = 60000, SURVEY_DISPLAY_DELAY = 5000L;
     private static final String SOCKET_EVENT__PING = "p";
     private static final String SOCKET_EVENT__PING_ACTIVE = "a";
@@ -504,7 +508,7 @@ public class Customerly {
 
     @SuppressLint("CommitTransaction")
     private boolean __ExecutingPing = false;
-    private synchronized void __PING__Start(@Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
+    private synchronized void __PING__Start(@Nullable io.customerly.Customerly.Callback pSuccessCallback, @Nullable Callback pFailureCallback) {
         if(this._isConfigured()) {
             this.__ExecutingPing = true;
             //noinspection SpellCheckingInspection
@@ -514,20 +518,21 @@ public class Customerly {
                         this.__ExecutingPing = false;
                         if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                             if(pSuccessCallback != null) {
-                                pSuccessCallback.onSuccess();
+                                pSuccessCallback.callback();
                             }
                         } else {
                             if(pFailureCallback != null) {
-                                pFailureCallback.onFailure();
+                                pFailureCallback.callback();
                             }
                         }
                     })
-                    .param("email", IU_Utils.getStringSafe(this._SharedPreferences, "regusrml"))
-                    .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, "regusrid"))
+                    .param("email", IU_Utils.getStringSafe(this._SharedPreferences, PREF_CURRENT_EMAIL))
+                    .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, PREF_CURRENT_ID))
+                    .param("company", IU_Utils.getStringJSONSafe(this._SharedPreferences, PREF_CURRENT_COMPANY_INFO, false))
                     .start();
         } else {
             if(pFailureCallback != null) {
-                pFailureCallback.onFailure();
+                pFailureCallback.callback();
             }
         }
     }
@@ -551,7 +556,7 @@ public class Customerly {
     /* ****************************************************************************************************************************************************************/
     /* ********************************************************************************************************************************************** Public Methods **/
     /* ****************************************************************************************************************************************************************/
-    /**
+    /*
      * A class representing a {@link SpannableStringBuilder} with a method {@link #toPlainTextString()} that convert the formatted text to a plain string
      */
     static class HtmlMessage extends SpannableStringBuilder {
@@ -561,22 +566,6 @@ public class Customerly {
         @NonNull public String toPlainTextString() {
             return super.toString().replace("\uFFFC", "<IMAGE>");
         }
-    }
-
-    public interface SuccessCallback {
-        /**
-         * Implement this interface to obtain async success response from {@link #registerUser(String, String, String, SuccessCallback, FailureCallback)},
-         * {@link #registerUser(String, String, String, JSONObject, SuccessCallback, FailureCallback)} or {@link #setAttributes(JSONObject, SuccessCallback, FailureCallback)}
-         */
-        void onSuccess();
-    }
-
-    public interface FailureCallback {
-        /**
-         * Implement this interface to obtain async failure response from {@link #registerUser(String, String, String, SuccessCallback, FailureCallback)},
-         * {@link #registerUser(String, String, String, JSONObject, SuccessCallback, FailureCallback)} or {@link #setAttributes(JSONObject, SuccessCallback, FailureCallback)}
-         */
-        void onFailure();
     }
 
     private void __init(@NonNull Context pApplicationContext) {
@@ -694,211 +683,411 @@ public class Customerly {
         this.__VerboseLogging = pVerboseLogging;
     }
 
-    /*
-     * Call this method to force a check for pending Surveys or Message for the current user.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
-     */
-    public void update() {
-        this.update(null, null);
+    public interface Callback {
+        /**
+         * Implement this interface to obtain async success or failure response from {@link #registerUser(String)},
+         * {@link #setCompany(HashMap)} or {@link #setAttributes(HashMap)}
+         */
+        void callback();
     }
-    /*
-     * Call this method to force a check for pending Surveys or Message for the current user.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
-     */
-    public void update(@Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
-        if(this._isConfigured()) {
-            try {
-                if (System.currentTimeMillis() > this.__PING__next_ping_allowed) {
-                    this.__PING__Start(pSuccessCallback, pFailureCallback);
-                } else {
-                    if(pFailureCallback != null) {
-                        pFailureCallback.onFailure();
-                    }
-                    this._log("You cannot call twice the update so fast. You have to wait " + (this.__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
-                }
-            } catch (Exception generic) {
-                if(pFailureCallback != null) {
-                    pFailureCallback.onFailure();
-                }
-                this._log("A generic error occurred in Customerly.update");
-                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.update", generic);
-            }
-        } else {
-            if(pFailureCallback != null) {
-                pFailureCallback.onFailure();
-            }
+
+    public interface Task {
+        /**
+         * @param successCallback To receive success async response
+         * @return The Task itself for method chaining
+         */
+        @CheckResult @NonNull Task successCallback(@Nullable io.customerly.Customerly.Callback successCallback);//TODO unificare le 2 callback in un'unica interface
+        /**
+         * @param failureCallback To receive failure async response
+         * @return The Task itself for method chaining
+         */
+        @CheckResult @NonNull Task failureCallback(@Nullable Callback failureCallback);
+        /**
+         * Don't forget to call this method to start the task
+         */
+        void start();
+    }
+
+    private abstract class __Task implements Task{
+        @Nullable protected io.customerly.Customerly.Callback successCallback;
+        @Nullable protected Callback failureCallback;
+        /**
+         * @param successCallback To receive success async response
+         * @return The Task itself for method chaining
+         */
+        @CheckResult @NonNull public Task successCallback(@Nullable io.customerly.Customerly.Callback successCallback) {//TODO unificare le 2 callback in un'unica interface
+            this.successCallback = successCallback;
+            return this;
         }
-    }
-
-    /**
-     * Call this method to link your app user to the Customerly session.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
-     * @param email The mail address of the user, this is mandatory
-     * @param user_id The optional user_id of the user, null otherwise
-     * @param name The optional name of the user, null otherwise
-     */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name) {
-        this.registerUser(email, user_id, name, null, null, null);
-    }
-
-    /**
-     * Call this method to link your app user to the Customerly session.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
-     * @param email The mail address of the user, this is mandatory
-     * @param user_id The optional user_id of the user, null otherwise
-     * @param name The optional name of the user, null otherwise
-     * @param pSuccessCallback To receive success async response
-     * @param pFailureCallback To receive failure async response
-     */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
-        this.registerUser(email, user_id, name, null, pSuccessCallback, pFailureCallback);
-    }
-
-    /**
-     * Call this method to link your app user to the Customerly session.<br>
-     * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
-     * @param email The mail address of the user, this is mandatory
-     * @param user_id The optional user_id of the user, null otherwise
-     * @param name The optional name of the user, null otherwise
-     * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
-     * @param pSuccessCallback To receive success async response
-     * @param pFailureCallback To receive failure async response
-     */
-    public void registerUser(@NonNull String email, @Nullable String user_id, @Nullable String name, @Nullable JSONObject pAttributes, @Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
-        final String trimmedEmail = email.trim();
-        if(Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
-            SharedPreferences pref = this._SharedPreferences;
-            if (this._isConfigured() && pref != null) {
+        /**
+         * @param failureCallback To receive failure async response
+         * @return The Task itself for method chaining
+         */
+        @CheckResult @NonNull public Task failureCallback(@Nullable Callback failureCallback) {
+            this.failureCallback = failureCallback;
+            return this;
+        }
+        /**
+         * Don't forget to call this method to start the task
+         */
+        public void start() {
+            if(_isConfigured()) {
                 try {
-                    if (pAttributes != null) {//Check attributes validity
-                        JSONArray keys = pAttributes.names();
-                        for (int i = 0; i < keys.length(); i++) {
-                            try {
-                                Object obj = keys.get(i);
-                                if (obj instanceof JSONObject || obj instanceof JSONArray) {
-                                    if(pFailureCallback != null) {
-                                        pFailureCallback.onFailure();
-                                    }
-                                    this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
-                                    return;
-                                }
-                            } catch (JSONException ignored) { }
-                        }
-                    }
-
-                    final String trimmedUserID = user_id == null || user_id.trim().length() == 0 ? null : user_id.trim();
-
-                    new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
-                            .opt_converter(root -> {
-                                //noinspection SpellCheckingInspection
-                                pref.edit().putString("regusrml", trimmedEmail).putString("regusrid", trimmedUserID).apply();
-                                return this.__PING__response_converter__Message.convert(root);
-                            })
-                            .opt_receiver((responseState, _void) -> {
-                                if (responseState == IApi_Request.RESPONSE_STATE__OK) {
-                                    if(pSuccessCallback != null) {
-                                        pSuccessCallback.onSuccess();
-                                    }
-                                } else {
-                                    if(pFailureCallback != null) {
-                                        pFailureCallback.onFailure();
-                                    }
-                                }
-                            })
-
-                            .param("email", trimmedEmail)
-                            .param("user_id", trimmedUserID)
-                            .param("name", name == null || name.trim().length() == 0 ? null : name.trim())
-
-                            .param("attributes", pAttributes)
-
-                            .start();
+                    this._executeTask();
                 } catch (Exception generic) {
-                    this._log("A generic error occurred in Customerly.registerUser");
-                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
-                    if(pFailureCallback != null) {
-                        pFailureCallback.onFailure();
+                    _log("A generic error occurred in " + this.getClass().getSimpleName());
+                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in " + this.getClass().getSimpleName(), generic);
+                    if(this.failureCallback != null) {
+                        this.failureCallback.callback();
                     }
                 }
             } else {
-                if(pFailureCallback != null) {
-                    pFailureCallback.onFailure();
+                if(this.failureCallback != null) {
+                    this.failureCallback.callback();
                 }
             }
-        } else {
-            this._log("You are trying to register an user passing a not valid email");
-            if(pFailureCallback != null) {
-                pFailureCallback.onFailure();
+        }
+        protected abstract void _executeTask();
+    }
+
+    public final class UpdateTask extends __Task {
+        private UpdateTask() {
+            super();
+        }
+        @Override
+        public void _executeTask() {
+            if (System.currentTimeMillis() > __PING__next_ping_allowed) {
+                __PING__Start(this.successCallback, this.failureCallback);
+            } else {
+                _log("You cannot call twice the update so fast. You have to wait " + (__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
+                if(this.failureCallback != null) {
+                    this.failureCallback.callback();
+                }
             }
         }
+    }
+
+    public final class RegisterUserTask extends __Task {
+        @NonNull private final String email;
+        @Nullable private String user_id, name;
+        @Nullable private JSONObject attributes, company;
+
+        private RegisterUserTask(@NonNull String email) {
+            super();
+            this.email = email.trim();
+        }
+        /**
+         * Optionally you can specify the user ID
+         * @param user_id The ID of the user
+         * @return The Task itself for method chaining
+         */
+        @CheckResult @NonNull public RegisterUserTask user_id(@NonNull String user_id) {
+            user_id = user_id.trim();
+            if(user_id.length() != 0) {
+                this.user_id = user_id;
+            }
+            return this;
+        }
+        /**
+         * Optionally you can specify the user name
+         * @param name The name of the user
+         * @return The Task itself for method chaining
+         */
+        @CheckResult @NonNull public RegisterUserTask name(@NonNull String name) {
+            name = name.trim();
+            if(name.length() != 0) {
+                this.name = name;
+            }
+            return this;
+        }
+        /**
+         * Optionally you can specify the user attributes
+         * @param attributes The attributes of the user. Can contain only String, char, int, long, float or double values
+         * @return The Task itself for method chaining
+         * @throws IllegalArgumentException if the attributes map check fails
+         */
+        @CheckResult @NonNull public RegisterUserTask attributes(@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
+            Collection<Object> attrs = attributes.values();
+            for(Object attr : attrs) {
+                if(     attr instanceof String ||
+                        attr instanceof Integer ||
+                        attr instanceof Long ||
+                        attr instanceof Double ||
+                        attr instanceof Float ||
+                        attr instanceof Character) {
+                    continue;
+                }
+                _log("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+                throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+            }
+            this.attributes = new JSONObject(attributes);
+            return this;
+        }
+
+        /**
+         * Optionally you can specify the user company
+         * @param company The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values
+         * @return The Task itself for method chaining
+         * @throws IllegalArgumentException if the company map check fails
+         */
+        @CheckResult @NonNull public RegisterUserTask company(@NonNull HashMap<String,Object> company) throws IllegalArgumentException{
+            Collection<Object> attrs = company.values();
+            for(Object attr : attrs) {
+                if(     attr instanceof String ||
+                        attr instanceof Integer ||
+                        attr instanceof Long ||
+                        attr instanceof Double ||
+                        attr instanceof Float ||
+                        attr instanceof Character) {
+                    continue;
+                }
+                _log("Company HashMap can contain only Strings, int, float, long, double or char values");
+                throw new IllegalArgumentException("Company HashMap can contain only Strings, int, float, long, double or char values");
+            }
+            if(! company.containsKey("company_id") && ! company.containsKey("name")) {
+                _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
+                throw new IllegalArgumentException(
+                        "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
+                );
+            }
+            this.company = new JSONObject(company);
+            return this;
+        }
+
+        protected void _executeTask() {
+            SharedPreferences pref = _SharedPreferences;
+            if(pref != null && Patterns.EMAIL_ADDRESS.matcher(this.email).matches()) {
+                pref.edit().remove(PREF_CURRENT_EMAIL).remove(PREF_CURRENT_ID).remove(PREF_CURRENT_COMPANY_INFO).apply();
+                new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                        .opt_converter(root -> {
+                            SharedPreferences.Editor editor = pref.edit()
+                                    .putString(PREF_CURRENT_EMAIL, this.email)
+                                    .putString(PREF_CURRENT_ID, this.user_id);
+                            if(this.company != null) {
+                                try {
+                                    editor.putString(PREF_CURRENT_COMPANY_INFO,
+                                            new JSONObject()
+                                                    .put("company_id", this.company.getString("company_id"))
+                                                    .put("name", this.company.getString("name"))
+                                                    .toString());
+                                } catch (JSONException ignored) { }
+                            }
+                            editor.apply();
+                            return __PING__response_converter__Message.convert(root);
+                        })
+                        .opt_receiver((responseState, _void) -> {
+                            if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                                if(this.successCallback != null) {
+                                    this.successCallback.callback();
+                                }
+                            } else {
+                                if(this.failureCallback != null) {
+                                    this.failureCallback.callback();
+                                }
+                            }
+                        })
+
+                        .param("email", this.email)
+                        .param("user_id", this.user_id)
+                        .param("name", this.name)
+
+                        .param("attributes", this.attributes)
+                        .param("company", this.company)
+
+                        .start();
+            } else {
+                _log("A generic error occurred in RegisterUserTask");
+                if(this.failureCallback != null) {
+                    this.failureCallback.callback();
+                }
+            }
+        }
+    }
+
+    public final class SetAttributesTask extends __Task {
+        @NonNull private final JSONObject attributes;
+        /**
+         * @param attributes The attributes of the user. Can contain only String, char, int, long, float or double values
+         * @throws IllegalArgumentException is thrown if the attributes check fails
+         */
+        public SetAttributesTask (@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
+            Collection<Object> attrs = attributes.values();
+            for(Object attr : attrs) {
+                if(     attr instanceof String ||
+                        attr instanceof Integer ||
+                        attr instanceof Long ||
+                        attr instanceof Double ||
+                        attr instanceof Float ||
+                        attr instanceof Character) {
+                    continue;
+                }
+                _log("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+                throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+            }
+            this.attributes = new JSONObject(attributes);
+        }
+        @Override
+        public void _executeTask() {
+            IE_JwtToken token = _JwtToken;
+            if(token != null && token.isUser()) {
+                IApi_Request.Builder<Void> builder = new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                        .opt_converter(__PING__response_converter__NaN)
+                        .opt_receiver((responseState, _void) -> {
+                            if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                                if (this.successCallback != null) {
+                                    this.successCallback.callback();
+                                }
+                            } else {
+                                if (this.failureCallback != null) {
+                                    this.failureCallback.callback();
+                                }
+                            }
+                        })
+                        .param("attributes", this.attributes);
+
+                SharedPreferences pref = _SharedPreferences;
+                if(pref != null) {
+                    builder = builder.param("email", IU_Utils.getStringSafe(pref, PREF_CURRENT_EMAIL))
+                            .param("user_id", IU_Utils.getStringSafe(pref, PREF_CURRENT_ID))
+                            .param("company", IU_Utils.getStringJSONSafe(pref, PREF_CURRENT_COMPANY_INFO, false));
+                }
+                builder.start();
+            } else {
+                _log("Cannot setAttributes for lead users");
+                if(this.failureCallback != null) {
+                    this.failureCallback.callback();
+                }
+            }
+        }
+    }
+
+    public final class SetCompanyTask extends __Task {
+        @NonNull private final JSONObject company;
+        /**
+         * @param company The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values.
+         * @throws IllegalArgumentException is thrown if company map check fails
+         */
+        public SetCompanyTask(@NonNull HashMap<String,Object> company) throws IllegalArgumentException {
+            Collection<Object> attrs = company.values();
+            for(Object attr : attrs) {
+                if(     attr instanceof String ||
+                        attr instanceof Integer ||
+                        attr instanceof Long ||
+                        attr instanceof Double ||
+                        attr instanceof Float ||
+                        attr instanceof Character) {
+                    continue;
+                }
+                _log("Company HashMap can contain only Strings, int, float, long, double or char values");
+                throw new IllegalArgumentException("Company HashMap can contain only Strings, int, float, long, double or char values");
+            }
+            if(! company.containsKey("company_id") && ! company.containsKey("name")) {
+                _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
+                throw new IllegalArgumentException(
+                        "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
+                );
+            }
+            this.company = new JSONObject(company);
+        }
+        @Override
+        public void _executeTask() {
+            IE_JwtToken token = _JwtToken;
+            if(token != null && token.isUser()) {
+                try {
+                    SharedPreferences pref = _SharedPreferences;
+                    if(pref != null) {
+                        pref.edit().remove(PREF_CURRENT_COMPANY_INFO).apply();
+                    }
+                    IApi_Request.Builder<Void> builder = new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                            .opt_converter(__PING__response_converter__NaN)
+                            .opt_receiver((responseState, _void) -> {
+                                if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                                    if (this.successCallback != null) {
+                                        this.successCallback.callback();
+                                        if(pref != null) {
+                                            try {
+                                                pref.edit()
+                                                        .putString(PREF_CURRENT_COMPANY_INFO,
+                                                new JSONObject()
+                                                        .put("company_id", this.company.getString("company_id"))
+                                                        .put("name", this.company.getString("name"))
+                                                        .toString())
+                                                        .apply();
+                                            } catch (JSONException ignored) { }
+                                        }
+                                    }
+                                } else {
+                                    if (this.failureCallback != null) {
+                                        this.failureCallback.callback();
+                                    }
+                                }
+                            })
+                            .param("company", this.company);
+
+                    if(pref != null) {
+                        builder = builder.param("email", IU_Utils.getStringSafe(pref, PREF_CURRENT_EMAIL))
+                                .param("user_id", IU_Utils.getStringSafe(pref, PREF_CURRENT_ID));
+                    }
+
+                    builder.start();
+                } catch (Exception generic) {
+                    _log("A generic error occurred in Customerly.setCompany");
+                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.setCompany", generic);
+                    if(this.failureCallback != null) {
+                        this.failureCallback.callback();
+                    }
+                }
+            } else {
+                _log("Cannot setCompany for lead users");
+                if(this.failureCallback != null) {
+                    this.failureCallback.callback();
+                }
+            }
+        }
+    }
+
+    /*
+     * Call this method to force a check for pending Surveys or Message for the current user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     */
+    @CheckResult @NonNull public UpdateTask update() {
+        return new UpdateTask();
+    }
+
+    /**
+     * Call this method to link your app user to the Customerly session.<br>
+     * This method returns a {@link RegisterUserTask} that has to be started with his method {@link RegisterUserTask#start()}
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * @param email The mail address of the user
+     *
+     */
+    @CheckResult @NonNull public RegisterUserTask registerUser(@NonNull String email) {
+        return new RegisterUserTask(email);
     }
 
     /**
      * Call this method to add new custom attributes to the user.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
-     * @param pAttributes Optional attributes for the user in a single depth json (the root cannot contain other JSONObject or JSONArray)
-     * @param pSuccessCallback To receive success async response
-     * @param pFailureCallback To receive failure async response
+     * @param pAttributes Optional attributes for the user. Can contain only String, char, int, long, float or double values
+     * @throws IllegalArgumentException is thrown if the attributes check fails
      */
-    public void setAttributes(@Nullable JSONObject pAttributes, @Nullable SuccessCallback pSuccessCallback, @Nullable FailureCallback pFailureCallback) {
-        if(this._isConfigured()) {
-            IE_JwtToken token = this._JwtToken;
-            if(token != null && token.isUser()) {
-                try {
-                    if (pAttributes != null) {//Check attributes validity
-                        JSONArray keys = pAttributes.names();
-                        for (int i = 0; i < keys.length(); i++) {
-                            try {
-                                Object obj = keys.get(i);
-                                if (obj instanceof JSONObject || obj instanceof JSONArray) {
-                                    if(pFailureCallback != null) {
-                                        pFailureCallback.onFailure();
-                                    }
-                                    this._log("Attributes JSONObject cannot contain JSONArray or JSONObject");
-                                    return;
-                                }
-                            } catch (JSONException ignored) { }
-                        }
-                    }
-                    new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
-                            .opt_converter(this.__PING__response_converter__NaN)
-                            .opt_receiver((responseState, _void) -> {
-                                if (responseState == IApi_Request.RESPONSE_STATE__OK) {
-                                    if(pSuccessCallback != null) {
-                                        pSuccessCallback.onSuccess();
-                                    }
-                                } else {
-                                    if(pFailureCallback != null) {
-                                        pFailureCallback.onFailure();
-                                    }
-                                }
-                            })
-                            .param("attributes", pAttributes)
-                            .start();
-                } catch (Exception generic) {
-                    this._log("A generic error occurred in Customerly.registerUser");
-                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.registerUser", generic);
-                    if(pFailureCallback != null) {
-                        pFailureCallback.onFailure();
-                    }
-                }
-            } else {
-                this._log("Cannot setAttributes for lead users");
-                if(pFailureCallback != null) {
-                    pFailureCallback.onFailure();
-                }
-            }
-        } else {
-            if (pFailureCallback != null) {
-                pFailureCallback.onFailure();
-            }
-        }
+    @CheckResult @NonNull public SetAttributesTask setAttributes(@NonNull HashMap<String, Object> pAttributes) throws IllegalArgumentException {
+        return new SetAttributesTask(pAttributes);
+    }
+
+    /**
+     * Call this method to add company attributes to the user.<br>
+     * The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * @param pCompany Optional company for the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name
+     * @throws IllegalArgumentException is thrown if company map check fails
+     */
+    @CheckResult @NonNull public SetCompanyTask setCompany(@NonNull HashMap<String, Object> pCompany) throws IllegalArgumentException {
+        return new SetCompanyTask(pCompany);
     }
 
     /**
@@ -932,7 +1121,7 @@ public class Customerly {
                 if (prefs != null) {
                     IE_JwtToken.remove(prefs);
                     //noinspection SpellCheckingInspection
-                    prefs.edit().remove("regusrml").remove("regusrid").apply();
+                    prefs.edit().remove(PREF_CURRENT_EMAIL).remove(PREF_CURRENT_ID).remove(PREF_CURRENT_COMPANY_INFO).apply();
                 }
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;

@@ -58,6 +58,14 @@
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true" >
 
+        <ImageView
+            android:contentDescription="@string/io_customerly__image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="15dp"
+            android:src="@drawable/io_customerly__ic_email_grey_32dp" />
+
         <TextView android:id="@id/io_customerly__content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,9 +74,7 @@
             android:fontFamily="sans-serif"
             tools:ignore="UnusedAttribute"
             android:text="@string/io_customerly__rich_message_text"
-            android:paddingTop="15dp"
-            android:drawablePadding="5dp"
-            android:drawableTop="@drawable/io_customerly__ic_email_grey_32dp" />
+            android:paddingTop="5dp" />
 
         <LinearLayout android:id="@id/io_customerly__attachment_layout"
             android:layout_width="0dp"
