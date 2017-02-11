@@ -242,13 +242,13 @@ The following permission will be AUTOMATICALLY added to the merged AndroidManife
 </manifest>
 ```
 `ACCESS_NETWORK_STATE` is used to verify if an internet connection is available  
-`INTERNET` is used to perform http requests  
+`INTERNET` is used to perform https requests  
 `READ_EXTERNAL_STORAGE` is used to upload file attachments  
 `WRITE_EXTERNAL_STORAGE` is used to save file attachments
 
 ## Proguard
 
-The library needs the following two rules to work with proguard enabled
+The library needs the following three rules to work with proguard enabled
 ```
 -dontwarn java.lang.invoke.*
 -dontwarn okio.**
