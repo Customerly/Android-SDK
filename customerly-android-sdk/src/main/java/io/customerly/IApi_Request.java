@@ -333,6 +333,11 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                     } catch (JSONException error) {
                         postObjectToString = "Malformed JSON";
                     }
+
+                    String more = null;
+                    if(postObjectToString != null && postObjectToString.length() > 500) {
+                        more = postObjectToString.substring(500);
+                    }
                     Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
                             "-----------------------------------------------------------" +
                                     "\nNEW HTTP REQUEST" +

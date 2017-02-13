@@ -178,6 +178,7 @@ public class Customerly {
             }
 
             if(this._HandleSurvey) {
+                _log("Attempting to display a Survey");
                 IE_Survey[] surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
                 if(surveys != null) {
                     for (final IE_Survey survey : surveys) {
@@ -193,6 +194,7 @@ public class Customerly {
                                             if (activity != null) {
                                                 try {
                                                     IDlgF_Survey.show(activity, survey);
+                                                    _log("Survey successfully displayed");
                                                 } catch (WindowManager.BadTokenException ignored) {
                                                     //Second failure.
                                                 }
@@ -208,9 +210,11 @@ public class Customerly {
                         }
                     }
                 }
+                _log("No Survey to display");
             }
 
             if(this._HandleAlertMessage) {
+                _log("Attempting to display an unread message");
                 JSONArray last_messages_array = root.optJSONArray("last_messages");
                 if (last_messages_array != null && last_messages_array.length() != 0) {
                     for (int i = 0; i < last_messages_array.length(); i++) {
@@ -227,6 +231,7 @@ public class Customerly {
                                         } else {
                                             try {
                                                 PW_AlertMessage.show(activity, new IE_Message(message));
+                                                _log("Message alert displayed successfully");
                                             } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                 activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                 if (activity != null) {
@@ -237,7 +242,9 @@ public class Customerly {
                                                     } else {
                                                         try {
                                                             PW_AlertMessage.show(activity, new IE_Message(message));
+                                                            _log("Message alert displayed successfully");
                                                         } catch (WindowManager.BadTokenException ignored) {
+                                                            _log("An error occours while attaching the alertmessage to the window. Activity: " + activity.toString());
                                                             //Second try failure.
                                                         }
                                                     }
@@ -252,6 +259,7 @@ public class Customerly {
                         }
                     }
                 }
+                _log("no messages to display");
             }
             return null;
         }
@@ -291,8 +299,13 @@ public class Customerly {
         }
     }
 
-    @Nullable
-    HtmlMessage _WELCOME__getMessage() {
+    private void _DEV_log(@NonNull String message) {
+        if(BuildConfig.CUSTOMERLY_DEV_MODE) {
+            Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, message);
+        }
+    }
+
+    @Nullable HtmlMessage _WELCOME__getMessage() {
         IE_JwtToken token = this._JwtToken;
         return this._isConfigured()
                 ? IU_Utils.decodeHtmlStringWithEmojiTag(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors)
@@ -361,9 +374,8 @@ public class Customerly {
                                         long account_id = client.optLong("account_id", -1L);
                                         if(account_id != -1L) {
                                             try {
-                                                this._log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__TYPING, payloadJson.toString(1)));
-                                            } catch (JSONException ignored) {
-                                            }
+                                                this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__TYPING, payloadJson.toString(1)));
+                                            } catch (JSONException ignored) { }
                                             boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
                                             payloadJson = payloadJson.getJSONObject("conversation");
                                             if (payloadJson != null) {
@@ -391,7 +403,8 @@ public class Customerly {
                                      */
                                     if (payloadJson.optBoolean("from_account")) {
                                         try {
-                                            this._log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__MESSAGE, payloadJson.toString(1)));
+                                            this._log("Message received via socket");
+                                            this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__MESSAGE, payloadJson.toString(1)));
                                         } catch (JSONException ignored) { }
                                         long timestamp = payloadJson.optLong("timestamp", 0L);
                                         long socket_user_id = payloadJson.optLong("user_id", 0L);
@@ -460,11 +473,12 @@ public class Customerly {
         Socket socket = this._Socket;
         if(socket != null && socket.connected()) {
             try {
-                this._log(String.format("SOCKET TX: %1$s -> %2$s", event, payloadJson.toString(1)));
+                this._DEV_log(String.format("SOCKET TX: %1$s -> %2$s", event, payloadJson.toString(1)));
             } catch (JSONException ignored) { }
             socket.emit(event, payloadJson);
         }
     }
+
     void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping) {
         //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "n"}
         IE_JwtToken token = this._JwtToken;
@@ -484,6 +498,7 @@ public class Customerly {
             IE_JwtToken token = this._JwtToken;
             if (token != null && token._UserID != null) {
                 try {
+                    this._log("Message send event sent via socket");
                     this.__SOCKET__SEND(SOCKET_EVENT__MESSAGE, new JSONObject()
                             .put("timestamp", pTimestamp)
                             .put("user_id", token._UserID)
@@ -497,6 +512,7 @@ public class Customerly {
         IE_JwtToken token = this._JwtToken;
         if(token != null && token._UserID != null) {
             try {
+                this._log("Message seen event sent via socket");
                 this.__SOCKET__SEND(SOCKET_EVENT__SEEN, new JSONObject()
                         .put("conversation", new JSONObject()
                                 .put("conversation_message_id", pConversationMessageID)
@@ -757,7 +773,18 @@ public class Customerly {
         @Override
         public void _executeTask() {
             if (System.currentTimeMillis() > __PING__next_ping_allowed) {
-                __PING__Start(this.successCallback, this.failureCallback);
+                _log("Customerly.update task started");
+                __PING__Start(() -> {
+                    _log("Customerly.update task completed successfully");
+                    if(this.successCallback != null) {
+                        this.successCallback.callback();
+                    }
+                }, () -> {
+                    _log("A generic error occurred in Customerly.update");
+                    if(this.failureCallback != null) {
+                        this.failureCallback.callback();
+                    }
+                });
             } else {
                 _log("You cannot call twice the update so fast. You have to wait " + (__PING__next_ping_allowed - System.currentTimeMillis()) / 1000 + " seconds.");
                 if(this.failureCallback != null) {
@@ -814,7 +841,8 @@ public class Customerly {
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
-                        attr instanceof Character) {
+                        attr instanceof Character ||
+                        attr instanceof Boolean) {
                     continue;
                 }
                 _log("Attributes HashMap can contain only Strings, int, float, long, double or char values");
@@ -838,7 +866,8 @@ public class Customerly {
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
-                        attr instanceof Character) {
+                        attr instanceof Character ||
+                        attr instanceof Boolean) {
                     continue;
                 }
                 _log("Company HashMap can contain only Strings, int, float, long, double or char values");
@@ -878,9 +907,11 @@ public class Customerly {
                         .opt_receiver((responseState, _void) -> {
                             if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                 if(this.successCallback != null) {
+                                    _log("Customerly.registerUser task completed successfully");
                                     this.successCallback.callback();
                                 }
                             } else {
+                                _log("A generic error occurred in Customerly.registerUser task");
                                 if(this.failureCallback != null) {
                                     this.failureCallback.callback();
                                 }
@@ -895,8 +926,9 @@ public class Customerly {
                         .param("company", this.company)
 
                         .start();
+                _log("Customerly.registerUser task started");
             } else {
-                _log("A generic error occurred in RegisterUserTask");
+                _log("A generic error occurred in Customerly.registerUser task");
                 if(this.failureCallback != null) {
                     this.failureCallback.callback();
                 }
@@ -918,7 +950,8 @@ public class Customerly {
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
-                        attr instanceof Character) {
+                        attr instanceof Character ||
+                        attr instanceof Boolean) {
                     continue;
                 }
                 _log("Attributes HashMap can contain only Strings, int, float, long, double or char values");
@@ -935,9 +968,11 @@ public class Customerly {
                         .opt_receiver((responseState, _void) -> {
                             if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                 if (this.successCallback != null) {
+                                    _log("Customerly.setAttributes task completed successfully");
                                     this.successCallback.callback();
                                 }
                             } else {
+                                _log("A generic error occurred in Customerly.setAttributes");
                                 if (this.failureCallback != null) {
                                     this.failureCallback.callback();
                                 }
@@ -951,6 +986,7 @@ public class Customerly {
                             .param("user_id", IU_Utils.getStringSafe(pref, PREF_CURRENT_ID))
                             .param("company", IU_Utils.getStringJSONSafe(pref, PREF_CURRENT_COMPANY_INFO, false));
                 }
+                _log("Customerly.setCompany task started");
                 builder.start();
             } else {
                 _log("Cannot setAttributes for lead users");
@@ -975,7 +1011,8 @@ public class Customerly {
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
-                        attr instanceof Character) {
+                        attr instanceof Character ||
+                        attr instanceof Boolean) {
                     continue;
                 }
                 _log("Company HashMap can contain only Strings, int, float, long, double or char values");
@@ -1003,6 +1040,7 @@ public class Customerly {
                             .opt_receiver((responseState, _void) -> {
                                 if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                                     if (this.successCallback != null) {
+                                        _log("Customerly.setCompany task completed successfully");
                                         this.successCallback.callback();
                                         if(pref != null) {
                                             try {
@@ -1017,6 +1055,7 @@ public class Customerly {
                                         }
                                     }
                                 } else {
+                                    _log("A generic error occurred in Customerly.setCompany");
                                     if (this.failureCallback != null) {
                                         this.failureCallback.callback();
                                     }
@@ -1029,6 +1068,7 @@ public class Customerly {
                                 .param("user_id", IU_Utils.getStringSafe(pref, PREF_CURRENT_ID));
                     }
 
+                    _log("Customerly.setCompany task started");
                     builder.start();
                 } catch (Exception generic) {
                     _log("A generic error occurred in Customerly.setCompany");
@@ -1100,6 +1140,7 @@ public class Customerly {
         if(this._isConfigured()) {
             try {
                 activity.startActivity(new Intent(activity, IAct_List.class));
+                this._log("Customerly.openSupport completed successfully");
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.openSupport");
                 IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSupport", generic);
@@ -1129,11 +1170,12 @@ public class Customerly {
                 PW_AlertMessage.onUserLogout();
                 Activity current = this._CurrentActivity == null ? null : this._CurrentActivity.get();
                 if(current != null) {
-                    if(current instanceof SDKActivity) {
+                    if (current instanceof SDKActivity) {
                         ((SDKActivity) current).onLogoutUser();
                     }
                     IDlgF_Survey.dismiss(current);
                 }
+                this._log("Customerly.logoutUser completed successfully");
                 this.__PING__Start(null, null);
             } catch (Exception ignored) { }
         }
@@ -1145,16 +1187,19 @@ public class Customerly {
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pEventName The event custom label
      */
-    public void trackEvent(@NonNull String pEventName) {
-        pEventName = pEventName.trim();
+    public void trackEvent(@NonNull final String pEventName) {
         if(this._isConfigured() && pEventName.length() != 0) {
             try {
                 IE_JwtToken token = this._JwtToken;
                 if(token != null && (token.isUser() || token.isLead())) {
+                    _log("Customerly.trackEvent task started for event " + pEventName);
                     new IApi_Request.Builder<IE_Message>(IApi_Request.ENDPOINT_EVENT_TRACKING)
                             .opt_trials(2)
                             .param("name", pEventName)
+                            .opt_receiver(((pResponseState, pResponse) -> this._log("Customerly.trackEvent completed successfully for event " + pEventName)))
                             .start();
+                } else {
+                    _log("Can trackEvents only for lead and registered users");
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.trackEvent");

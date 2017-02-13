@@ -179,13 +179,13 @@ Customerly.get().registerUser("axlrose@example.com")
 .name("Gianni")                         //OPTIONALLY you can pass the user name
 .attributes(attributesMap)              //OPTIONALLY you can pass some custom attributes (See the *Attributes* section below for the map building)
 .company(companyMap)                    //OPTIONALLY you can pass the user company informations (See the *Companies* section below for the map building)
-.success(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
+.successCallback(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
               @Override
               public void callback() {
                  //Called if the task completes successfully
               }
           })
-.failure(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
+.failureCallback(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
             @Override
             public void callback() {
                //Called if the task fails
@@ -205,7 +205,7 @@ Customerly.get().logoutUser();
 ### Attributes (Optional)
 
 Inside attributes you can add every custom data you prefer to track for user segmentation.  
-Attributes can be only String, char, int, long, float, double.
+Attributes can be only String, char, int, long, float, double and boolean.
 
 ```java
 // Eg. This is an attribute map that contains the experience in year and the job of the current user
@@ -217,13 +217,13 @@ attributesMap.put("job", "Employee");
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
 ```java
 Customerly.get().setAttributes(attributesMap)
-    .success(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
+    .successCallback(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
                   @Override
                   public void callback() {
                      //Called if the task completes successfully
                   }
               })
-    .failure(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
+    .failureCallback(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
                 @Override
                 public void callback() {
                    //Called if the task fails
@@ -240,7 +240,7 @@ The Company map MUST contain the following two key/values:
 "company_id" -> containing the id of the company  
 "name" -> containing the name of the company
 ```
-Then you can add as many company attributes as you want, but remember: they can be only String, char, int, long, float, double.
+Then you can add as many company attributes as you want, but remember: they can be only String, char, int, long, float, double and boolean.
 
 ```java
 // Eg. This is a company map that contains the company necessary fields (company_id and name) and a custom "foundation year" attribute
@@ -253,13 +253,13 @@ companyMap.put("foundation year", 2017);
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
 ```java
 Customerly.get().setCompany(companyMap)
-    .success(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
+    .successCallback(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the success of the task
                   @Override
                   public void callback() {
                      //Called if the task completes successfully
                   }
               })
-    .failure(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
+    .failureCallback(new Customerly.Callback() {    //OPTIONALLY you can pass a callback to be notified of the failure of the task
                 @Override
                 public void callback() {
                    //Called if the task fails
