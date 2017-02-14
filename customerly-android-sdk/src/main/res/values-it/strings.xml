@@ -58,6 +58,7 @@
     <string name="io_customerly__permission_request_explanation_read">Il permesso di accesso alla memoria esterna è necessario per caricare gli allegati</string>
     <string name="io_customerly__permission_denied_write">Hai negato il permesso necessario a scaricare gli allegati. Puoi autorizzarlo nuovamente dalle impostazioni di sistema dell\'app</string>
     <string name="io_customerly__permission_denied_read">Hai negato il permesso necessario a caricare gli allegati. Puoi autorizzarlo nuovamente dalle impostazioni di sistema dell\'app</string>
+    <string name="io_customerly__download_ongoing">Download in corso</string>
     <string name="io_customerly__download_complete">Download Completo</string>
     <string name="io_customerly__new_conversation">Nuova Conversazione</string>
     <string name="io_customerly__sending_message">Invio messaggio in corso</string>

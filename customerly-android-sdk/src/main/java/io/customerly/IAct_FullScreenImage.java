@@ -66,9 +66,10 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
         if(this.getIntent() != null) {
             this._SourceUrl = this.getIntent().getStringExtra(EXTRA_IMAGE_SOURCE);
             if(this._SourceUrl != null) {
-                ImageView _ImageView = new ImageView(this);
+                ImageView _ImageView = new IU_PinchZoom_ImageView(this);
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                _ImageView.setAdjustViewBounds(true);
                 try {
                     Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                             .fitCenter()
@@ -154,12 +155,24 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
 
     private void startAttachmentDownload() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            int index = this._SourceUrl.lastIndexOf('/');
+            String filename;
+            if(index != -1 && index < this._SourceUrl.length() - 1) {
+                filename = this._SourceUrl.substring(index + 1);
+            } else {
+                index = this._SourceUrl.lastIndexOf('\\');
+                if (index != -1 && index < this._SourceUrl.length() - 1) {
+                    filename = this._SourceUrl.substring(index + 1);
+                } else {
+                    filename = this.getString(R.string.io_customerly__image);
+                }
+            }
             final DownloadManager dm = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
             final long downloadReference = dm.enqueue(
                     new DownloadManager.Request(Uri.parse(this._SourceUrl))
-                            .setTitle(this.getString(R.string.io_customerly__image))
-                            .setDescription(this.getString(R.string.io_customerly__image))
-                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Images")
+                            .setTitle(this.getString(R.string.io_customerly__download_ongoing))
+                            .setDescription(filename)
+                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
                             .setVisibleInDownloadsUi(true)
                             .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE));
             this.registerReceiver(new BroadcastReceiver() {
@@ -169,8 +182,8 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
                                 .notify(999, new NotificationCompat.Builder(IAct_FullScreenImage.this)
                                         .setSmallIcon(IAct_FullScreenImage.this.getApplication().getApplicationInfo().icon)
-                                        .setContentTitle(getString(R.string.io_customerly__image))
-                                        .setContentText(getString(R.string.io_customerly__image))
+                                        .setContentTitle(getString(R.string.io_customerly__download_complete))
+                                        .setContentText(filename)
                                         .setAutoCancel(true)
                                         .setContentIntent(PendingIntent.getActivity(
                                                 IAct_FullScreenImage.this,

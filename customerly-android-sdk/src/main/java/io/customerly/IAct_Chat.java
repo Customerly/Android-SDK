@@ -402,7 +402,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             final DownloadManager dm = (DownloadManager) this.getSystemService(DOWNLOAD_SERVICE);
             final long downloadReference = dm.enqueue(
                     new DownloadManager.Request(Uri.parse(full_path))
-                            .setTitle(filename)
+                            .setTitle(this.getString(R.string.io_customerly__download_ongoing))
                             .setDescription(filename)
                             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
                             .setVisibleInDownloadsUi(true)
@@ -416,7 +416,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
                                 .notify(999, new NotificationCompat.Builder(IAct_Chat.this)
                                         .setSmallIcon(IAct_Chat.this.getApplication().getApplicationInfo().icon)
-                                        .setContentTitle(filename)
+                                        .setContentTitle(getString(R.string.io_customerly__download_complete))
                                         .setContentText(filename)
                                         .setAutoCancel(true)
                                         .setContentIntent(PendingIntent.getActivity(
