@@ -66,7 +66,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
         if(this.getIntent() != null) {
             this._SourceUrl = this.getIntent().getStringExtra(EXTRA_IMAGE_SOURCE);
             if(this._SourceUrl != null) {
-                ImageView _ImageView = new IU_PinchZoom_ImageView(this);
+                ImageView _ImageView = new TouchImageView(this);
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 _ImageView.setAdjustViewBounds(true);

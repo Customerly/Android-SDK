@@ -27,7 +27,7 @@ import android.widget.ScrollView;
  * Created by Gianni on 31/05/16.
  * Project: Customerly Android SDK
  */
-public class IU_MaxHeightScrollView extends ScrollView {
+class IU_MaxHeightScrollView extends ScrollView {
 
     private static final int DEFAULT_HEIGHT = 200;
 
