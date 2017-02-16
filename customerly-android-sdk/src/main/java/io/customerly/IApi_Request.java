@@ -325,6 +325,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Accept-Language", Locale.getDefault().toString());//es: "it_IT"
+                conn.setConnectTimeout(10000);
 
                 if(BuildConfig.CUSTOMERLY_DEV_MODE) {
                     @SuppressWarnings("UnusedAssignment") String postObjectToString;
@@ -334,7 +335,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         postObjectToString = "Malformed JSON";
                     }
 
-                    String more = null;
+                    String more = null;//TODO
                     if(postObjectToString != null && postObjectToString.length() > 500) {
                         more = postObjectToString.substring(500);
                     }
