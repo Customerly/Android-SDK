@@ -175,7 +175,7 @@ class PW_AlertMessage extends PopupWindow {
 
         if(message.rich_mail_link == null) {
             ((TextView) this.getContentView().findViewById(R.id.io_customerly__content))
-                    .setText(message.content);
+                    .setText(message.content_abstract);
         } else {
             ((TextView) this.getContentView().findViewById(R.id.io_customerly__content))
                     .setText(R.string.io_customerly__rich_message_text__condensed_for_alert);

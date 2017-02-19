@@ -343,7 +343,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
         IE_JwtToken token = Customerly._Instance._JwtToken;
         if(token != null && token._UserID != null) {
-            IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
+            IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pMessage, pAttachments);
             IU_NullSafe.post(this._ListRecyclerView, () -> {
                 message.setSending();
                 this._ChatList.add(0, message);

@@ -41,6 +41,7 @@ class IE_Message {
     private final long user_id, account_id, seen_date;
 
     @Nullable final Customerly.HtmlMessage content;
+    @Nullable final String content_abstract;
     @Nullable final String if_account__name, rich_mail_link;
     @NonNull final String dateString, timeString;
     @Nullable final IE_Attachment[] _Attachments;
@@ -52,7 +53,7 @@ class IE_Message {
     private enum STATE {    COMPLETE, SENDING, FAILED   }
     @NonNull private STATE _STATE = STATE.COMPLETE;
 
-    IE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pMessage, @Nullable final IE_Attachment[] pAttachments) {
+    IE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pContent, @NonNull String pContentAbstract, @Nullable final IE_Attachment[] pAttachments) {
         super();
         this._STATE = STATE.SENDING;
         this.user_id = pCustomerly_User_ID;
@@ -62,7 +63,8 @@ class IE_Message {
         this.sent_datetime_sec = this.seen_date = System.currentTimeMillis() / 1000;
         this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
-        this.content = IU_Utils.decodeHtmlStringWithEmojiTag(pMessage);
+        this.content = IU_Utils.decodeHtmlStringWithEmojiTag(pContent);
+        this.content_abstract = pContentAbstract.length() != 0 ? pContentAbstract : pAttachments != null && pAttachments.length != 0 ? "[Attachment]" : "";
         this._Attachments = pAttachments;
         this.if_account__name = null;
         this.rich_mail_link = null;
@@ -80,6 +82,7 @@ class IE_Message {
         this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.content = IU_Utils.decodeHtmlStringWithEmojiTag(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
+        this.content_abstract = IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "abstract", "");
         this.rich_mail_link = pMessageItem.optInt("rich_mail", 0) == 0 ? null : IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_link");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
