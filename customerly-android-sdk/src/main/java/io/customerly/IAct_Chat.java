@@ -20,20 +20,12 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.DownloadManager;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.LayoutRes;
@@ -42,7 +34,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -87,7 +78,6 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     private long _TypingAccountId = TYPING_NO_ONE, _ConversationID = 0;
     @Nullable private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<IE_Message> _ChatList = new ArrayList<>(0);
-    @NonNull private final ArrayList<BroadcastReceiver> _BroadcastReceiver = new ArrayList<>(1);
     @NonNull private final IU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
         if(Customerly._Instance._isConfigured()) {
             long oldestMessageId = Long.MAX_VALUE;
@@ -330,10 +320,6 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
 
     @Override
     protected void onDestroy() {
-        //noinspection Convert2streamapi
-        for(BroadcastReceiver br : this._BroadcastReceiver) {
-            this.unregisterReceiver(br);
-        }
         Customerly._Instance.__SOCKET__Typing_listener = null;
         Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false);
         super.onDestroy();
@@ -399,44 +385,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     private String _PermissionRequest__pendingFileName, _PermissionRequest__pendingPath;
     private void startAttachmentDownload(@NonNull String filename, @NonNull String full_path) {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            final DownloadManager dm = (DownloadManager) this.getSystemService(DOWNLOAD_SERVICE);
-            final long downloadReference = dm.enqueue(
-                    new DownloadManager.Request(Uri.parse(full_path))
-                            .setTitle(this.getString(R.string.io_customerly__download_ongoing))
-                            .setDescription(filename)
-                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
-                            .setVisibleInDownloadsUi(true)
-                            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE));
-
-            BroadcastReceiver br = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if(downloadReference == intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)) {
-
-                        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
-                                .notify(999, new NotificationCompat.Builder(IAct_Chat.this)
-                                        .setSmallIcon(IAct_Chat.this.getApplication().getApplicationInfo().icon)
-                                        .setContentTitle(getString(R.string.io_customerly__download_complete))
-                                        .setContentText(filename)
-                                        .setAutoCancel(true)
-                                        .setContentIntent(PendingIntent.getActivity(
-                                                IAct_Chat.this,
-                                                0,
-                                                new Intent().setAction(DownloadManager.ACTION_VIEW_DOWNLOADS),
-                                                PendingIntent.FLAG_UPDATE_CURRENT
-                                        )).build());
-
-                        Toast toast = Toast.makeText(IAct_Chat.this, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.TOP, 25, 400);
-                        toast.show();
-                    }
-                }
-            };
-
-            this._BroadcastReceiver.add(br);
-
-            this.registerReceiver(br, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
+            IBR_DownloadBroadcastReceiver.startDownload(this, filename, full_path);
         } else {
             this._PermissionRequest__pendingFileName = filename;
             this._PermissionRequest__pendingPath = full_path;

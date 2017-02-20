@@ -17,20 +17,11 @@ package io.customerly;
  */
 
 import android.Manifest;
-import android.app.DownloadManager;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -38,9 +29,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.text.Html;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -167,37 +156,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                     filename = this.getString(R.string.io_customerly__image);
                 }
             }
-            final DownloadManager dm = (DownloadManager) this.getSystemService(Context.DOWNLOAD_SERVICE);
-            final long downloadReference = dm.enqueue(
-                    new DownloadManager.Request(Uri.parse(this._SourceUrl))
-                            .setTitle(this.getString(R.string.io_customerly__download_ongoing))
-                            .setDescription(filename)
-                            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
-                            .setVisibleInDownloadsUi(true)
-                            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE));
-            this.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if(downloadReference == intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)) {
-                        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE))
-                                .notify(999, new NotificationCompat.Builder(IAct_FullScreenImage.this)
-                                        .setSmallIcon(IAct_FullScreenImage.this.getApplication().getApplicationInfo().icon)
-                                        .setContentTitle(getString(R.string.io_customerly__download_complete))
-                                        .setContentText(filename)
-                                        .setAutoCancel(true)
-                                        .setContentIntent(PendingIntent.getActivity(
-                                                IAct_FullScreenImage.this,
-                                                0,
-                                                new Intent().setAction(DownloadManager.ACTION_VIEW_DOWNLOADS),
-                                                PendingIntent.FLAG_UPDATE_CURRENT
-                                        )).build());
-
-                        Toast toast = Toast.makeText(IAct_FullScreenImage.this, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
-                        toast.setGravity(Gravity.TOP, 25, 400);
-                        toast.show();
-                    }
-                }
-            }, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+            IBR_DownloadBroadcastReceiver.startDownload(this, filename, this._SourceUrl);
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 new AlertDialog.Builder(this)
@@ -239,7 +198,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
     @Override
     public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) { }
 
-//    private void saveImageToGallery() {
+    //    private void saveImageToGallery() {
 //        if(this._ImageView != null) {
 //            this._ImageView.setDrawingCacheEnabled(true);
 //            MediaStore.Images.Media.insertImage(this.getContentResolver(), this._ImageView.getDrawingCache(), "Image", "Image");

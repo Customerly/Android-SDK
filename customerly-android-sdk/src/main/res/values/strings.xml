@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
     Copyright (C) 2017 Customerly
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -84,5 +83,6 @@
     <string name="io_customerly__rich_message_text__condensed_for_alert">Message sent by email.\nTap to read.</string>
     <string name="io_customerly__support">Support</string>
     <string name="io_customerly__open_conversation">Open conversation</string>
+    <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>
 
 </resources>

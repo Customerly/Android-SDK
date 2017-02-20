@@ -68,18 +68,18 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     @Retention(RetentionPolicy.SOURCE)
     @interface ResponseState {}
 
-    static final String ENDPOINT_PING =                     BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/ping/index/";
-    static final String ENDPOINT_CONVERSATION_RETRIEVE =    BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/conversation/retrieve/";
-    static final String ENDPOINT_MESSAGE_SEEN =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/seen/";
-    static final String ENDPOINT_MESSAGE_NEWS =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/news/";
-    static final String ENDPOINT_MESSAGE_RETRIEVE =         BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/retrieve/";
-    static final String ENDPOINT_MESSAGE_SEND =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/message/send/";
-    static final String ENDPOINT_EVENT_TRACKING =           BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/event/";
-    static final String ENDPOINT_REPORT_CRASH =             BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/crash/";
-    static final String ENDPOINT_SURVEY_SUBMIT =            BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/submit/";
-    static final String ENDPOINT_SURVEY_SEEN =              BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/seen/";
-    static final String ENDPOINT_SURVEY_BACK =              BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/back/";
-    static final String ENDPOINT_SURVEY_REJECT =            BuildConfig.CUSTOMERLY_API_ENDPOINT + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/reject/";
+    static final String ENDPOINT_PING =                     BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/ping/index/";
+    static final String ENDPOINT_CONVERSATION_RETRIEVE =    BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/conversation/retrieve/";
+    static final String ENDPOINT_MESSAGE_SEEN =             BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/message/seen/";
+    static final String ENDPOINT_MESSAGE_NEWS =             BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/message/news/";
+    static final String ENDPOINT_MESSAGE_RETRIEVE =         BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/message/retrieve/";
+    static final String ENDPOINT_MESSAGE_SEND =             BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/message/send/";
+    static final String ENDPOINT_EVENT_TRACKING =           BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/event/";
+    static final String ENDPOINT_REPORT_CRASH =             BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/crash/";
+    static final String ENDPOINT_SURVEY_SUBMIT =            BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/submit/";
+    static final String ENDPOINT_SURVEY_SEEN =              BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/seen/";
+    static final String ENDPOINT_SURVEY_BACK =              BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/back/";
+    static final String ENDPOINT_SURVEY_REJECT =            BuildConfig.CUSTOMERLY_API_ENDPOINT_BASEURL + BuildConfig.CUSTOMERLY_API_VERSION + "/survey/reject/";
 
     static final byte RESPONSE_STATE__PENDING = 0;
     static final byte RESPONSE_STATE__OK = -1;

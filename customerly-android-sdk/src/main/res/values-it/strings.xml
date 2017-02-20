@@ -80,5 +80,6 @@
     <string name="io_customerly__rich_message_text__condensed_for_alert">Messaggio inviato via email.\nTocca per leggerlo.</string>
     <string name="io_customerly__support">Supporto</string>
     <string name="io_customerly__open_conversation">Apri conversazione</string>
+    <string name="io_customerly__cant_access_external_memory">Impossibile accedere alla memoria esterna</string>
 
 </resources>

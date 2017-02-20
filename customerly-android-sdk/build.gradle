@@ -29,7 +29,7 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = 'BETA-2.1.4'
+def CustomerlySDKVersion = 'BETA-2.1.5'
 
 ext {
     bintrayRepo = 'maven'
@@ -70,7 +70,8 @@ android {
         all {
             buildConfigField "String", "CUSTOMERLY_WEB_SITE", "\"https://www.customerly.io/\""
             buildConfigField "String", "CUSTOMERLY_SDK_NAME", "\"Customerly\""
-            buildConfigField "String", "CUSTOMERLY_API_ENDPOINT", "\"https://tracking.customerly.io/\""
+            buildConfigField "String", "CUSTOMERLY_PICTURE_ENDPOINT_BASEURL", "\"http://pictures.cdn.customerly.io/\""
+            buildConfigField "String", "CUSTOMERLY_API_ENDPOINT_BASEURL", "\"https://tracking.customerly.io/\""
             buildConfigField "String", "CUSTOMERLY_API_VERSION", "\"v1\""
             buildConfigField "String", "CUSTOMERLY_SOCKET_VERSION", "\"1\""
             buildConfigField "boolean", "CUSTOMERLY_DEV_MODE", "false"

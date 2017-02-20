@@ -26,9 +26,9 @@ import java.util.Locale;
  */
 class IE_Account {
     @NonNull static String getAccountImageUrl(long pAccountID, int pSizePX) {
-        return String.format(Locale.UK, "http://pictures.cdn.customerly.io/accounts/%d/%d", pAccountID, pSizePX);
+        return String.format(Locale.UK, "%saccounts/%d/%d", BuildConfig.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL, pAccountID, pSizePX);
     }
     @NonNull static String getUserImageUrl(long pAccountID, int pSizePX) {
-        return String.format(Locale.UK, "http://pictures.cdn.customerly.io/users/%d/%d", pAccountID, pSizePX);
+        return String.format(Locale.UK, "%susers/%d/%d", BuildConfig.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL, pAccountID, pSizePX);
     }
 }
