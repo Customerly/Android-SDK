@@ -44,7 +44,7 @@
             android:theme="@android:style/Theme.NoDisplay"
             android:noHistory="true" />
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name=".IU_CustomerlyFileProvider"
             android:authorities="io.customerly.provider"
             android:exported="false"
             android:grantUriPermissions="true">
