@@ -35,6 +35,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".IAct_FullScreenImage"
+            android:screenOrientation="sensorPortrait"
             android:configChanges="orientation|screenSize|keyboard"
             android:label="@string/io_customerly__image"
             android:theme="@style/io_customerly__Activity"

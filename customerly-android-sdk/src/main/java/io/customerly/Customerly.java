@@ -479,8 +479,8 @@ public class Customerly {
         }
     }
 
-    void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping) {
-        //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "n"}
+    void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping, @Nullable String pText) {
+        //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "y", typing_preview: "I am writ"}
         IE_JwtToken token = this._JwtToken;
         if(token != null && token._UserID != null) {
             try {
@@ -489,7 +489,8 @@ public class Customerly {
                                 .put("conversation_id", pConversationID)
                                 .put("user_id", token._UserID)
                                 .put("is_note", false))
-                        .put("is_typing", pTyping ? "y" : "n"));
+                        .put("is_typing", pTyping ? "y" : "n")
+                        .put("typing_preview", pText));
             } catch (JSONException ignored) { }
         }
     }

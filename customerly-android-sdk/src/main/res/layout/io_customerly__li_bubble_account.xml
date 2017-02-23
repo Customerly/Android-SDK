@@ -58,6 +58,15 @@
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true" >
 
+        <TextView android:id="@id/io_customerly__name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/io_customerly__bubble_account_textcolor"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif"
+            tools:ignore="UnusedAttribute" />
+
         <TextView android:id="@id/io_customerly__content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -170,20 +170,20 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this._ListRecyclerView = recyclerView;
 
             this.input_input.addTextChangedListener(new TextWatcher() {
-                boolean _TypingSent = false;
+//                boolean _TypingSent = false; Logic removed with upcoming of 'typing_preview'
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if(s.length() == 0) {
-                        if(this._TypingSent) {
-                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, false);
-                            this._TypingSent = false;
-                        }
+//                        if(this._TypingSent) {
+                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, false, null);
+//                            this._TypingSent = false;
+//                        }
                     } else {
-                        if(! this._TypingSent) {
-                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, true);
-                            this._TypingSent = true;
-                        }
+//                        if(! this._TypingSent) {
+                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, true, s.toString());
+//                            this._TypingSent = true;
+//                        }
                     }
                 }
             });
@@ -321,7 +321,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     @Override
     protected void onDestroy() {
         Customerly._Instance.__SOCKET__Typing_listener = null;
-        Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false);
+        Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false, null);
         super.onDestroy();
     }
 
@@ -495,8 +495,21 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     }
 
     private class ChatAccountMessageVH extends A_ChatMessageVH {
+        private final TextView _AccountName;
         private ChatAccountMessageVH() {
             super(R.layout.io_customerly__li_bubble_account, R.drawable.io_customerly__ic_attach_account_40dp, -0.9f);
+            this._AccountName = (TextView)this.itemView.findViewById(R.id.io_customerly__name);
+        }
+
+        @Override
+        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
+            super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
+            if(pIsFirstMessageOfSender && pMessage != null && pMessage.if_account__name != null && pMessage.if_account__name.length() != 0) {
+                this._AccountName.setText(pMessage.if_account__name);
+                this._AccountName.setVisibility(View.VISIBLE);
+            } else {
+                this._AccountName.setVisibility(View.GONE);
+            }
         }
     }
 

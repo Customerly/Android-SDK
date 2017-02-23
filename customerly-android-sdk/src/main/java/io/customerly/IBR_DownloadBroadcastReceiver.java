@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.NotificationCompat;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -39,12 +38,13 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                     if (c.moveToFirst() && DownloadManager.STATUS_SUCCESSFUL == c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
                         filename = new File(Uri.parse(c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))).getPath()).getName();
                     }
+
                     if(filename != null) {
                         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
                         if(file.exists()) {
                             ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE))
                                     .notify((int) downloadID, new NotificationCompat.Builder(context)
-                                            .setSmallIcon(context.getApplicationInfo().icon)
+                                            .setSmallIcon(R.drawable.ic_file_download)
                                             .setContentTitle(context.getString(R.string.io_customerly__download_complete))
                                             .setContentText(filename)
                                             .setAutoCancel(true)
@@ -54,7 +54,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                                                             0,
                                                             new Intent(context, IAct_OpenDownloadedFileActivity.class)
                                                                     .setData(
-                                                                            FileProvider.getUriForFile(context, "io.customerly.provider", file)
+                                                                            IU_CustomerlyFileProvider.getUriForFile(context, "io.customerly.provider", file)
                                                                     ),
                                                             PendingIntent.FLAG_UPDATE_CURRENT
                                                     )).build());
