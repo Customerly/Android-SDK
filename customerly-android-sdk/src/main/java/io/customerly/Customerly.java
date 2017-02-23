@@ -128,6 +128,8 @@ public class Customerly {
         @Override public void onActivityStarted(Activity activity) { }
     };
 
+    private boolean _SupportEnabled, _SurveyEnabled;
+
     private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
         private final boolean _HandleAlertMessage, _HandleSurvey;
         private PingResponseConverter(boolean handleSurvey, boolean handleAlertMessage) {
@@ -177,7 +179,7 @@ public class Customerly {
                         .apply();
             }
 
-            if(this._HandleSurvey) {
+            if(this._HandleSurvey && _SurveyEnabled) {
                 _log("Attempting to display a Survey");
                 IE_Survey[] surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
                 if(surveys != null) {
@@ -213,7 +215,7 @@ public class Customerly {
                 _log("No Survey to display");
             }
 
-            if(this._HandleAlertMessage) {
+            if(this._HandleAlertMessage && _SupportEnabled) {
                 _log("Attempting to display an unread message");
                 JSONArray last_messages_array = root.optJSONArray("last_messages");
                 if (last_messages_array != null && last_messages_array.length() != 0) {
@@ -329,131 +331,138 @@ public class Customerly {
         void onLogoutUser();
     }
     private void __SOCKET__connect(@Nullable JSONObject webSocket) {
-        if (webSocket != null) {
+        if(this._SupportEnabled) {
+            if (webSocket != null) {
             /*  "webSocket": {
                   "endpoint": "https://ws2.customerly.io",
                   "port": "8080"  }  */
-            this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
-            this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
-        }
+                this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
+                this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
+            }
 
-        if(this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
-            IE_JwtToken token = this._JwtToken;
-            if (token != null && token._UserID != null) {
-                if(this.__SOCKET__CurrentConfiguration == null || ! this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
+            if (this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
+                IE_JwtToken token = this._JwtToken;
+                if (token != null && token._UserID != null) {
+                    if (this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
 
-                    this.__SOCKET__disconnect();
-                    this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
+                        this.__SOCKET__disconnect();
+                        this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
 
-                    String query;
-                    try {
-                        query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
-                    } catch (JSONException error) {
-                        return;
-                    }
-                    Socket socket;
-                    try {
-                        IO.Options options = new IO.Options();
-                        options.secure = true;
-                        options.forceNew = true;
-                        options.reconnectionDelay = 15000;
-                        options.reconnectionDelayMax = 60000;
-                        options.query = query;
+                        String query;
+                        try {
+                            query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
+                        } catch (JSONException error) {
+                            return;
+                        }
+                        Socket socket;
+                        try {
+                            IO.Options options = new IO.Options();
+                            options.secure = true;
+                            options.forceNew = true;
+                            options.reconnectionDelay = 15000;
+                            options.reconnectionDelayMax = 60000;
+                            options.query = query;
 
-                        socket = IO.socket(String.format("%s:%s/", this.__SOCKET__Endpoint, this.__SOCKET__Port), options);
-                        this._Socket = socket;
-                        socket.on(SOCKET_EVENT__TYPING, payload -> {
-                            if (payload.length != 0) {
-                                try {
-                                    JSONObject payloadJson = (JSONObject) payload[0];
+                            socket = IO.socket(String.format("%s:%s/", this.__SOCKET__Endpoint, this.__SOCKET__Port), options);
+                            this._Socket = socket;
+                            socket.on(SOCKET_EVENT__TYPING, payload -> {
+                                if (payload.length != 0) {
+                                    try {
+                                        JSONObject payloadJson = (JSONObject) payload[0];
                                     /*  {   client : {account_id: 82, name: "Gianni"},
                                             conversation : {conversation_id: "173922", account_id: 82, user_id: 55722, is_note: false},
                                             is_typing : "n" } */
-                                    JSONObject client = payloadJson.optJSONObject("client");
-                                    if(client != null) {
-                                        long account_id = client.optLong("account_id", -1L);
-                                        if(account_id != -1L) {
-                                            try {
-                                                this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__TYPING, payloadJson.toString(1)));
-                                            } catch (JSONException ignored) { }
-                                            boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
-                                            payloadJson = payloadJson.getJSONObject("conversation");
-                                            if (payloadJson != null) {
-                                                IE_JwtToken token2 = this._JwtToken;
-                                                if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
-                                                    long conversation_id = payloadJson.optLong("conversation_id", 0);
-                                                    __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
-                                                    if (conversation_id != 0 && listener != null) {
-                                                        listener.onTypingEvent(conversation_id, account_id, is_typing);
+                                        JSONObject client = payloadJson.optJSONObject("client");
+                                        if (client != null) {
+                                            long account_id = client.optLong("account_id", -1L);
+                                            if (account_id != -1L) {
+                                                try {
+                                                    this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__TYPING, payloadJson.toString(1)));
+                                                } catch (JSONException ignored) {
+                                                }
+                                                boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
+                                                payloadJson = payloadJson.getJSONObject("conversation");
+                                                if (payloadJson != null) {
+                                                    IE_JwtToken token2 = this._JwtToken;
+                                                    if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
+                                                        long conversation_id = payloadJson.optLong("conversation_id", 0);
+                                                        __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
+                                                        if (conversation_id != 0 && listener != null) {
+                                                            listener.onTypingEvent(conversation_id, account_id, is_typing);
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
+                                    } catch (JSONException ignored) {
                                     }
-                                } catch (JSONException ignored) { }
-                            }
-                        });
-                        socket.on(SOCKET_EVENT__MESSAGE, payload -> {
-                            if (payload.length != 0) {
-                                try {
-                                    JSONObject payloadJson = (JSONObject) payload[0];
+                                }
+                            });
+                            socket.on(SOCKET_EVENT__MESSAGE, payload -> {
+                                if (payload.length != 0) {
+                                    try {
+                                        JSONObject payloadJson = (JSONObject) payload[0];
                                     /*
                                     {user_id: 41897, account_id: 82, timestamp: 1483388854, from_account: true,
                                         conversation : {is_note: false} }
                                      */
-                                    if (payloadJson.optBoolean("from_account")) {
-                                        try {
-                                            this._log("Message received via socket");
-                                            this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__MESSAGE, payloadJson.toString(1)));
-                                        } catch (JSONException ignored) { }
-                                        long timestamp = payloadJson.optLong("timestamp", 0L);
-                                        long socket_user_id = payloadJson.optLong("user_id", 0L);
+                                        if (payloadJson.optBoolean("from_account")) {
+                                            try {
+                                                this._log("Message received via socket");
+                                                this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__MESSAGE, payloadJson.toString(1)));
+                                            } catch (JSONException ignored) {
+                                            }
+                                            long timestamp = payloadJson.optLong("timestamp", 0L);
+                                            long socket_user_id = payloadJson.optLong("user_id", 0L);
 
-                                        IE_JwtToken token2 = this._JwtToken;
-                                        if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
-                                                && socket_user_id != 0 && timestamp != 0
-                                                && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
-                                            new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
-                                                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
-                                                    .opt_tokenMandatory()
-                                                    .opt_receiver((responseState, new_messages) -> {
-                                                        if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
-                                                            Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                                            if(activity != null) {
-                                                                if (activity instanceof SDKActivity) {
-                                                                    ((SDKActivity) activity).onNewSocketMessages(new_messages);
-                                                                } else {
-                                                                    try {
-                                                                        PW_AlertMessage.show(activity, new_messages.get(0));
-                                                                    } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
-                                                                        activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                                                        if(activity != null) {
-                                                                            if (activity instanceof SDKActivity) {
-                                                                                ((SDKActivity) activity).onNewSocketMessages(new_messages);
-                                                                            } else {
-                                                                                try {
-                                                                                    PW_AlertMessage.show(activity, new_messages.get(0));
-                                                                                } catch (WindowManager.BadTokenException ignored) {
-                                                                                    //Second try failure.
+                                            IE_JwtToken token2 = this._JwtToken;
+                                            if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
+                                                    && socket_user_id != 0 && timestamp != 0
+                                                    && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
+                                                new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
+                                                        .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
+                                                        .opt_tokenMandatory()
+                                                        .opt_receiver((responseState, new_messages) -> {
+                                                            if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
+                                                                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                if (activity != null) {
+                                                                    if (activity instanceof SDKActivity) {
+                                                                        ((SDKActivity) activity).onNewSocketMessages(new_messages);
+                                                                    } else if (this._SupportEnabled) {
+                                                                        try {
+                                                                            PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                        } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
+                                                                            activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                            if (activity != null) {
+                                                                                if (activity instanceof SDKActivity) {
+                                                                                    ((SDKActivity) activity).onNewSocketMessages(new_messages);
+                                                                                } else {
+                                                                                    try {
+                                                                                        PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                                    } catch (WindowManager.BadTokenException ignored) {
+                                                                                        //Second try failure.
+                                                                                    }
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                    })
-                                                    .param("timestamp", timestamp)
-                                                    .start();
+                                                        })
+                                                        .param("timestamp", timestamp)
+                                                        .start();
+                                            }
                                         }
+                                    } catch (JSONException ignored) {
                                     }
-                                } catch (JSONException ignored) { }
-                            }
-                        });
+                                }
+                            });
 
-                        socket.connect();
-                        this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
-                    } catch (URISyntaxException ignored) { }
+                            socket.connect();
+                            this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+                        } catch (URISyntaxException ignored) {
+                        }
+                    }
                 }
             }
         }
@@ -713,7 +722,7 @@ public class Customerly {
          * @param successCallback To receive success async response
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull Task successCallback(@Nullable io.customerly.Customerly.Callback successCallback);//TODO unificare le 2 callback in un'unica interface
+        @CheckResult @NonNull Task successCallback(@Nullable Callback successCallback);
         /**
          * @param failureCallback To receive failure async response
          * @return The Task itself for method chaining
@@ -732,7 +741,7 @@ public class Customerly {
          * @param successCallback To receive success async response
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull public Task successCallback(@Nullable io.customerly.Customerly.Callback successCallback) {//TODO unificare le 2 callback in un'unica interface
+        @CheckResult @NonNull public Task successCallback(@Nullable Callback successCallback) {
             this.successCallback = successCallback;
             return this;
         }
@@ -1133,12 +1142,14 @@ public class Customerly {
 
     /**
      * Call this method to open the Support Activity.<br>
+     * A call to this method will force the enabling if the support logic if it has been previously disabled with {@link #setSupportEnabled(boolean)}
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param activity The current activity
      */
     public void openSupport(@NonNull Activity activity) {
         if(this._isConfigured()) {
+            this.setSupportEnabled(true);
             try {
                 activity.startActivity(new Intent(activity, IAct_List.class));
                 this._log("Customerly.openSupport completed successfully");
@@ -1207,5 +1218,32 @@ public class Customerly {
                 IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
             }
         }
+    }
+
+    /**
+     * Call this method to disable or enable the message receiving. It is ENABLED by default.<br>
+     * A call to the method {@link #openSupport(Activity)} will force the enabling if it is disabled
+     * @param enabled true if you want to enable it, false otherwise
+     */
+    public void setSupportEnabled(boolean enabled) {
+        if(this._SupportEnabled) {
+            if(!enabled) {
+                this._SupportEnabled = false;
+                this.__SOCKET__disconnect();
+            }
+        } else {
+            if(enabled) {
+                this._SupportEnabled = true;
+                this.__SOCKET__connect(null);
+            }
+        }
+    }
+
+    /**
+     * Call this method to disable or enable the survey receiving. It is ENABLED by default.<br>
+     * @param enabled true if you want to enable it, false otherwise
+     */
+    public void setSurveysEnabled(boolean enabled) {
+        this._SurveyEnabled = enabled;
     }
 }
