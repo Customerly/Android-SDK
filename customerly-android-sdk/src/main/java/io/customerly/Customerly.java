@@ -128,7 +128,7 @@ public class Customerly {
         @Override public void onActivityStarted(Activity activity) { }
     };
 
-    private boolean _SupportEnabled, _SurveyEnabled;
+    private boolean _SupportEnabled = true, _SurveyEnabled = true;
 
     private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
         private final boolean _HandleAlertMessage, _HandleSurvey;
@@ -331,15 +331,15 @@ public class Customerly {
         void onLogoutUser();
     }
     private void __SOCKET__connect(@Nullable JSONObject webSocket) {
-        if(this._SupportEnabled) {
-            if (webSocket != null) {
-            /*  "webSocket": {
-                  "endpoint": "https://ws2.customerly.io",
-                  "port": "8080"  }  */
-                this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
-                this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
-            }
+        if (webSocket != null) {
+        /*  "webSocket": {
+              "endpoint": "https://ws2.customerly.io",
+              "port": "8080"  }  */
+            this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
+            this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
+        }
 
+        if(this._SupportEnabled) {
             if (this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
                 IE_JwtToken token = this._JwtToken;
                 if (token != null && token._UserID != null) {

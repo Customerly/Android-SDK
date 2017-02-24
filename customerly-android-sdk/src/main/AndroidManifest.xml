@@ -46,7 +46,7 @@
             android:noHistory="true" />
         <provider
             android:name=".IU_CustomerlyFileProvider"
-            android:authorities="io.customerly.provider"
+            android:authorities="io.customerly.provider.${applicationId}"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
