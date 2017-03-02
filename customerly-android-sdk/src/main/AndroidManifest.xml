@@ -24,19 +24,18 @@
         <activity
             android:name=".IAct_List"
             android:label="@string/io_customerly__support"
-            android:screenOrientation="sensorPortrait"
             android:theme="@style/io_customerly__Activity"
+            android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".IAct_Chat"
             android:label="@string/io_customerly__activity_title_chat"
-            android:screenOrientation="sensorPortrait"
             android:theme="@style/io_customerly__Activity"
+            android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".IAct_FullScreenImage"
-            android:screenOrientation="sensorPortrait"
-            android:configChanges="orientation|screenSize|keyboard"
+            android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:label="@string/io_customerly__image"
             android:theme="@style/io_customerly__Activity"
             android:windowSoftInputMode="adjustResize" />
