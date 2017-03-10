@@ -43,7 +43,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -350,7 +349,7 @@ public class Customerly {
 
                         String query;
                         try {
-                            query = "json=" + new JSONObject().put("nsp", "user").put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
+                            query = "json=" + new JSONObject().put("nsp", "user").put("is_mobile", true).put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
                         } catch (JSONException error) {
                             return;
                         }
@@ -364,104 +363,105 @@ public class Customerly {
                             options.query = query;
 
                             socket = IO.socket(String.format("%s:%s/", this.__SOCKET__Endpoint, this.__SOCKET__Port), options);
-                            this._Socket = socket;
-                            socket.on(SOCKET_EVENT__TYPING, payload -> {
-                                if (payload.length != 0) {
-                                    try {
-                                        JSONObject payloadJson = (JSONObject) payload[0];
+                            if(socket != null) {
+                                this._Socket = socket;
+                                socket.on(SOCKET_EVENT__TYPING, payload -> {
+                                    if (payload.length != 0) {
+                                        try {
+                                            JSONObject payloadJson = (JSONObject) payload[0];
                                     /*  {   client : {account_id: 82, name: "Gianni"},
                                             conversation : {conversation_id: "173922", account_id: 82, user_id: 55722, is_note: false},
                                             is_typing : "n" } */
-                                        JSONObject client = payloadJson.optJSONObject("client");
-                                        if (client != null) {
-                                            long account_id = client.optLong("account_id", -1L);
-                                            if (account_id != -1L) {
-                                                try {
-                                                    this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__TYPING, payloadJson.toString(1)));
-                                                } catch (JSONException ignored) {
-                                                }
-                                                boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
-                                                payloadJson = payloadJson.getJSONObject("conversation");
-                                                if (payloadJson != null) {
-                                                    IE_JwtToken token2 = this._JwtToken;
-                                                    if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
-                                                        long conversation_id = payloadJson.optLong("conversation_id", 0);
-                                                        __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
-                                                        if (conversation_id != 0 && listener != null) {
-                                                            listener.onTypingEvent(conversation_id, account_id, is_typing);
+                                            JSONObject client = payloadJson.optJSONObject("client");
+                                            if (client != null) {
+                                                long account_id = client.optLong("account_id", -1L);
+                                                if (account_id != -1L) {
+                                                    try {
+                                                        this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__TYPING, payloadJson.toString(1)));
+                                                    } catch (JSONException ignored) {
+                                                    }
+                                                    boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
+                                                    payloadJson = payloadJson.getJSONObject("conversation");
+                                                    if (payloadJson != null) {
+                                                        IE_JwtToken token2 = this._JwtToken;
+                                                        if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
+                                                            long conversation_id = payloadJson.optLong("conversation_id", 0);
+                                                            __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
+                                                            if (conversation_id != 0 && listener != null) {
+                                                                listener.onTypingEvent(conversation_id, account_id, is_typing);
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
+                                        } catch (JSONException ignored) {
                                         }
-                                    } catch (JSONException ignored) {
                                     }
-                                }
-                            });
-                            socket.on(SOCKET_EVENT__MESSAGE, payload -> {
-                                if (payload.length != 0) {
-                                    try {
-                                        JSONObject payloadJson = (JSONObject) payload[0];
+                                });
+                                socket.on(SOCKET_EVENT__MESSAGE, payload -> {
+                                    if (payload.length != 0) {
+                                        try {
+                                            JSONObject payloadJson = (JSONObject) payload[0];
                                     /*
                                     {user_id: 41897, account_id: 82, timestamp: 1483388854, from_account: true,
                                         conversation : {is_note: false} }
                                      */
-                                        if (payloadJson.optBoolean("from_account")) {
-                                            try {
-                                                this._log("Message received via socket");
-                                                this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__MESSAGE, payloadJson.toString(1)));
-                                            } catch (JSONException ignored) {
-                                            }
-                                            long timestamp = payloadJson.optLong("timestamp", 0L);
-                                            long socket_user_id = payloadJson.optLong("user_id", 0L);
+                                            if (payloadJson.optBoolean("from_account")) {
+                                                try {
+                                                    this._log("Message received via socket");
+                                                    this._DEV_log(String.format("SOCKET RX: %1$s -> %2$s", SOCKET_EVENT__MESSAGE, payloadJson.toString(1)));
+                                                } catch (JSONException ignored) {
+                                                }
+                                                long timestamp = payloadJson.optLong("timestamp", 0L);
+                                                long socket_user_id = payloadJson.optLong("user_id", 0L);
 
-                                            IE_JwtToken token2 = this._JwtToken;
-                                            if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
-                                                    && socket_user_id != 0 && timestamp != 0
-                                                    && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
-                                                new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
-                                                        .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
-                                                        .opt_tokenMandatory()
-                                                        .opt_receiver((responseState, new_messages) -> {
-                                                            if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
-                                                                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                                                if (activity != null) {
-                                                                    if (activity instanceof SDKActivity) {
-                                                                        ((SDKActivity) activity).onNewSocketMessages(new_messages);
-                                                                    } else if (this._SupportEnabled) {
-                                                                        try {
-                                                                            PW_AlertMessage.show(activity, new_messages.get(0));
-                                                                        } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
-                                                                            activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                                                            if (activity != null) {
-                                                                                if (activity instanceof SDKActivity) {
-                                                                                    ((SDKActivity) activity).onNewSocketMessages(new_messages);
-                                                                                } else {
-                                                                                    try {
-                                                                                        PW_AlertMessage.show(activity, new_messages.get(0));
-                                                                                    } catch (WindowManager.BadTokenException ignored) {
-                                                                                        //Second try failure.
+                                                IE_JwtToken token2 = this._JwtToken;
+                                                if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
+                                                        && socket_user_id != 0 && timestamp != 0
+                                                        && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
+                                                    new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
+                                                            .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
+                                                            .opt_tokenMandatory()
+                                                            .opt_receiver((responseState, new_messages) -> {
+                                                                if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
+                                                                    Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                    if (activity != null) {
+                                                                        if (activity instanceof SDKActivity) {
+                                                                            ((SDKActivity) activity).onNewSocketMessages(new_messages);
+                                                                        } else if (this._SupportEnabled) {
+                                                                            try {
+                                                                                PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                            } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
+                                                                                activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                                if (activity != null) {
+                                                                                    if (activity instanceof SDKActivity) {
+                                                                                        ((SDKActivity) activity).onNewSocketMessages(new_messages);
+                                                                                    } else {
+                                                                                        try {
+                                                                                            PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                                        } catch (WindowManager.BadTokenException ignored) {
+                                                                                            //Second try failure.
+                                                                                        }
                                                                                     }
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
                                                                 }
-                                                            }
-                                                        })
-                                                        .param("timestamp", timestamp)
-                                                        .start();
+                                                            })
+                                                            .param("timestamp", timestamp)
+                                                            .start();
+                                                }
                                             }
+                                        } catch (JSONException ignored) {
                                         }
-                                    } catch (JSONException ignored) {
                                     }
-                                }
-                            });
+                                });
 
-                            socket.connect();
-                            this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
-                        } catch (URISyntaxException ignored) {
-                        }
+                                socket.connect();
+                                this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+                            }
+                        } catch (Exception ignored) { }
                     }
                 }
             }

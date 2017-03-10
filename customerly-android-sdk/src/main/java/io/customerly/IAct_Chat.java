@@ -201,9 +201,14 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 if (this._ConversationID == pConversationID) {
                     this._ListRecyclerView.post(() -> {
                         if (pTyping) {
-                            this._TypingAccountId = account_id;
-                            this._Adapter.notifyItemInserted(0);
-                            this.adjustBottomScroll();
+                            if(this._TypingAccountId == TYPING_NO_ONE) {
+                                this._TypingAccountId = account_id;
+                                this._Adapter.notifyItemInserted(0);
+                                this.adjustBottomScroll();
+                            } else {
+                                this._TypingAccountId = account_id;
+                                this._Adapter.notifyItemChanged(0);
+                            }
                         } else {
                             this._TypingAccountId = TYPING_NO_ONE;
                             this._Adapter.notifyItemRemoved(0);
