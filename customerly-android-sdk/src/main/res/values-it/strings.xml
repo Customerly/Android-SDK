@@ -29,17 +29,6 @@
         <item quantity="other">Ultima attivit&#225; %1$d giorni fa</item>
     </plurals>
 
-    <string name="io_customerly__XX_sec_ago">%1$d sec fa</string>
-    <string name="io_customerly__XX_min_ago">%1$d min fa</string>
-    <plurals name="io_customerly__XX_hours_ago">
-        <item quantity="one">%1$d ora fa</item>
-        <item quantity="other">%1$d ore fa</item>
-    </plurals>
-    <plurals name="io_customerly__XX_days_ago">
-        <item quantity="one">%1$d giorno fa</item>
-        <item quantity="other">%1$d giorni fa</item>
-    </plurals>
-
     <!-- Localized -->
     <string name="io_customerly__powered_by_">Offerto da&#160;</string>
     <string name="io_customerly__write_your_question">Scrivi la tua domanda…</string>

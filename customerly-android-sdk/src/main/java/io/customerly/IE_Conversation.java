@@ -99,7 +99,9 @@ class IE_Conversation {
                 seconds -> resources.getString(R.string.io_customerly__XX_sec_ago, seconds),
                 minutes -> resources.getString(R.string.io_customerly__XX_min_ago, minutes),
                 hours -> resources.getQuantityString(R.plurals.io_customerly__XX_hours_ago, (int)hours, hours),
-                days -> resources.getQuantityString(R.plurals.io_customerly__XX_days_ago, (int)days, days));
+                days -> resources.getQuantityString(R.plurals.io_customerly__XX_days_ago, (int)days, days),
+                weeks -> resources.getQuantityString(R.plurals.io_customerly__XX_weeks_ago, (int)weeks, weeks),
+                months -> resources.getQuantityString(R.plurals.io_customerly__XX_months_ago, (int)months, months));
     }
 
 }
