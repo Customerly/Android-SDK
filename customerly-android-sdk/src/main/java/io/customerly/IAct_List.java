@@ -24,6 +24,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,6 +54,7 @@ import java.util.Locale;
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
+@RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class IAct_List extends IAct_AInput implements Customerly.SDKActivity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;

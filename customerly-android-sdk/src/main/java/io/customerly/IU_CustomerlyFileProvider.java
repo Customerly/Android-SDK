@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.FileProvider;
-
 
 /**
  * Created by Gianni on 21/02/17.
  * Project: CustomerlyAndroidSDK
  */
-
+@RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public class IU_CustomerlyFileProvider extends FileProvider {
 }

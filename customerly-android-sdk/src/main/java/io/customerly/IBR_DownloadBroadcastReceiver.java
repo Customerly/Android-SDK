@@ -26,6 +26,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 import android.support.v7.app.NotificationCompat;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -39,7 +40,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Created by Gianni on 20/02/17.
  * Project: CustomerlyAndroidSDK-demo
  */
-
+@RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {

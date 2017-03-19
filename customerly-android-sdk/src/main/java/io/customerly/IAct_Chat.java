@@ -32,6 +32,7 @@ import android.support.annotation.FloatRange;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -65,6 +66,7 @@ import java.util.Collections;
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
+@RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivity {
 
     static final String EXTRA_CONVERSATION_ID= "EXTRA_CONVERSATION_ID";

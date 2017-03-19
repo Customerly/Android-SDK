@@ -25,6 +25,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatRatingBar;
@@ -51,6 +52,7 @@ import static io.customerly.IE_Survey.TYPE_END_SURVEY;
  * Created by Gianni on 29/11/16.
  * Project: Customerly Android SDK
  */
+@RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
 public class IDlgF_Survey extends DialogFragment {
 
     private LinearLayout _SurveyContainer;
