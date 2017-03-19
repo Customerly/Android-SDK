@@ -16,6 +16,7 @@
     <!-- Not translatable -->
     <string name="io_customerly__download" translatable="false">Download</string>
     <string name="io_customerly__activity_title_chat" translatable="false">Chat</string>
+    <string name="io_customerly__background" translatable="false">background</string>
 
     <string name="io_customerly__XX_sec_ago" translatable="false">%1$ds ago</string>
     <string name="io_customerly__XX_min_ago" translatable="false">%1$dm ago</string>

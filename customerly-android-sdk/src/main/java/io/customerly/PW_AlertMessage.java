@@ -161,7 +161,7 @@ class PW_AlertMessage extends PopupWindow {
         this._MessageID = message.conversation_message_id;
         this._MessageRawLink = message.rich_mail_link;
         int _50dp = IU_Utils.px(50);
-        Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+        Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                 .fitCenter()
                 .transformCircle()
                 .load(message.getImageUrl(_50dp))

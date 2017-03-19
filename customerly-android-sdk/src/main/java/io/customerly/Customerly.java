@@ -58,6 +58,7 @@ import io.socket.client.Socket;
 public class Customerly {
 
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
+    private static final String PREFS_PING_RESPONSE__BACKGROUND_THEME_URL = "PREFS_PING_RESPONSE__BACKGROUND_THEME_URL";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
     private static final String PREFS_PING_RESPONSE__WELCOME_USERS = "PREFS_PING_RESPONSE__WELCOME_USERS";
     private static final String PREFS_PING_RESPONSE__WELCOME_VISITORS = "PREFS_PING_RESPONSE__WELCOME_VISITORS";
@@ -88,6 +89,7 @@ public class Customerly {
 
     private long __PING__next_ping_allowed = 0L;
     @ColorInt int __PING__LAST_widget_color;
+    @Nullable String __PING__LAST_widget_background_url;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable IE_Admin[] __PING__LAST_active_admins;
@@ -157,11 +159,13 @@ public class Customerly {
                         }
                     }
                 }
+                __PING__LAST_widget_background_url = IU_Utils.jsonOptStringWithNullCheck(app_config, "widget_background_url");
                 __PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
                 __PING__LAST_welcome_message_users = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
                 __PING__LAST_welcome_message_visitors = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
             } else {
                 __PING__LAST_widget_color = __WidgetColor__Fallback;
+                __PING__LAST_widget_background_url = null;
                 __PING__LAST_powered_by = false;
                 __PING__LAST_welcome_message_users = null;
                 __PING__LAST_welcome_message_visitors = null;
@@ -172,6 +176,7 @@ public class Customerly {
             if(prefs != null) {
                 prefs.edit()
                         .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, __PING__LAST_widget_color)
+                        .putString(PREFS_PING_RESPONSE__BACKGROUND_THEME_URL, __PING__LAST_widget_background_url)
                         .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, __PING__LAST_powered_by)
                         .putString(PREFS_PING_RESPONSE__WELCOME_USERS, __PING__LAST_welcome_message_users)
                         .putString(PREFS_PING_RESPONSE__WELCOME_VISITORS, __PING__LAST_welcome_message_visitors)
@@ -270,7 +275,7 @@ public class Customerly {
             __PING__response_converter__Message = new PingResponseConverter(false, true),
             __PING__response_converter__NaN = new PingResponseConverter(false, false);
 
-    @NonNull static final Customerly _Instance = new Customerly();
+    @NonNull private static final Customerly _Instance = new Customerly();
 
     private Customerly() {
         super();
@@ -631,6 +636,7 @@ public class Customerly {
 
         //PING
         Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
+        Customerly._Instance.__PING__LAST_widget_background_url = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
         Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
         Customerly._Instance.__PING__LAST_welcome_message_users = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
         Customerly._Instance.__PING__LAST_welcome_message_visitors = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);

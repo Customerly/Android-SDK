@@ -85,7 +85,7 @@ class IU_RemoteImageHandler {
             }
         } catch (OutOfMemoryError ignored) { }
 
-        final String appCacheDir = Customerly._Instance._AppCacheDir;
+        final String appCacheDir = Customerly.get()._AppCacheDir;
         if(appCacheDir != null) {
             try {
                 File bitmapFile = new File(new File(appCacheDir, CUSTOMERLY_SDK_NAME).toString(), cache_key);

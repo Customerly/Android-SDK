@@ -146,7 +146,7 @@ public class IDlgF_Survey extends DialogFragment {
                 return view;
             }
         }
-        Customerly._Instance._log("No surveys available");
+        Customerly.get()._log("No surveys available");
         this.dismissAllowingStateLoss();
         return null;
     }

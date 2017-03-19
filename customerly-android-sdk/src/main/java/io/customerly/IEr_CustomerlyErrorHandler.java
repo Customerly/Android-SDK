@@ -61,6 +61,6 @@ class IEr_CustomerlyErrorHandler {
                 .param("fullstacktrace", sb.toString())
                 .start();
 
-        Customerly._Instance._log("Error sent -> code: " + pErrorCode + " ||| message: " + pDescription + " ||| stack:\n" + sb.toString());
+        Customerly.get()._log("Error sent -> code: " + pErrorCode + " ||| message: " + pDescription + " ||| stack:\n" + sb.toString());
     }
 }

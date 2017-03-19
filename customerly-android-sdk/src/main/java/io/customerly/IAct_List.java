@@ -62,7 +62,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
     private RecyclerView _ListRecyclerView;
     @NonNull private List<IE_Conversation> _Conversations = new ArrayList<>();
     @NonNull private final SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
-        IE_JwtToken token = Customerly._Instance._JwtToken;
+        IE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && (token.isUser() || token.isLead())) {
             new IApi_Request.Builder<ArrayList<IE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
                     .opt_checkConn(this)
@@ -154,7 +154,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
     @Override
     protected void onResume() {
         super.onResume();
-        IE_JwtToken jwt = Customerly._Instance._JwtToken;
+        IE_JwtToken jwt = Customerly.get()._JwtToken;
         if (jwt == null) {
             this.onLogoutUser();
         }
@@ -221,7 +221,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             long last_time_active_in_seconds = Long.MIN_VALUE;
             layout_first_contact__admin_container.removeAllViews();
 
-            IE_Admin[] admins = Customerly._Instance.__PING__LAST_active_admins;
+            IE_Admin[] admins = Customerly.get().__PING__LAST_active_admins;
             if(admins != null) {
                 for (IE_Admin admin : admins) {
                     if (admin != null) {
@@ -242,7 +242,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                         lp.bottomMargin = lp.topMargin = IU_Utils.px(10);
                         icon.setLayoutParams(lp);
 
-                        Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                        Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                                 .fitCenter()
                                 .transformCircle()
                                 .load(admin.getImageUrl(adminIconSizePX))
@@ -280,7 +280,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                 layout_first_contact__welcome_card__last_activity.setVisibility(View.VISIBLE);
             }
 
-            final Customerly.HtmlMessage welcome = Customerly._Instance._WELCOME__getMessage();
+            final Customerly.HtmlMessage welcome = Customerly.get()._WELCOME__getMessage();
             if(welcome != null && welcome.length() != 0){
                 final TextView layout_first_contact__welcome_card__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome_card__welcome);
                 layout_first_contact__welcome_card__welcome.setText(welcome);
@@ -297,7 +297,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        IE_JwtToken token = Customerly._Instance._JwtToken;
+        IE_JwtToken token = Customerly.get()._JwtToken;
         if((token == null || token.isAnonymous())) {
             if(ghostToVisitorEmail == null) {
                 this.input_layout.setVisibility(View.GONE);
@@ -361,7 +361,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                                             JSONObject conversation = data.optJSONObject("conversation");
                                             JSONObject message = data.optJSONObject("message");
                                             if(conversation != null && message != null) {
-                                                Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                                                Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
                                                 long conversation_id = message.optLong("conversation_id", -1L);
                                                 return conversation_id != -1L ? conversation_id : null;
                                             } else {
@@ -401,7 +401,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                         JSONObject conversation = data.optJSONObject("conversation");
                         JSONObject message = data.optJSONObject("message");
                         if(conversation != null && message != null) {
-                            Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                            Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
                             long conversation_id = message.optLong("conversation_id", -1L);
                             return conversation_id != -1L ? conversation_id : null;
                         } else {
@@ -474,7 +474,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
         }
         private void apply(@NonNull IE_Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
-            Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+            Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                     .fitCenter()
                     .transformCircle()
                     .load(pConversation.getImageUrl(this._Icon_Size))

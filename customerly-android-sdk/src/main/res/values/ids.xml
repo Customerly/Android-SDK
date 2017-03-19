@@ -47,4 +47,5 @@
     <item type="id" name="io_customerly__close" />
     <item type="id" name="io_customerly__title" />
     <item type="id" name="io_customerly__subtitle" />
+    <item type="id" name="io_customerly__background_theme" />
 </resources>

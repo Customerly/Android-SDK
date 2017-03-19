@@ -183,7 +183,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
             return this;
         }
         void start() {
-            if(Customerly._Instance._isConfigured()) {
+            if(Customerly.get()._isConfigured()) {
                 if (this._Context == null || IU_Utils.checkConnection(this._Context)) {
                     ProgressDialog pd_tmp = null;
                     if(this._Context != null && this._ProgressDialog_Title != null && this._ProgressDialog_Message != null) {
@@ -220,7 +220,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                             this._Trials, this._TokenMandatory)
                             .execute(this._Params);
                 } else if (this._ResponseReceiver != null) {
-                    Customerly._Instance._log("Check your connection");
+                    Customerly.get()._log("Check your connection");
                     this._ResponseReceiver.onResponse(RESPONSE_STATE__ERROR_NO_CONNECTION, null);
                 }
             }
@@ -230,19 +230,19 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
     @NonNull private JSONObject json_appid_E_device(@NonNull String app_id, @Nullable JSONObject params) throws JSONException {
         return (params != null ? params : new JSONObject())
-                .put("app_id", app_id).put("device", Customerly._Instance.__PING__DeviceJSON);
+                .put("app_id", app_id).put("device", Customerly.get().__PING__DeviceJSON);
     }
 
     @Nullable
     @Override
     protected final RES doInBackground(@Size(value=1) @NonNull JSONObject[] pParams) {
-        String app_id = Customerly._Instance._AppID;
+        String app_id = Customerly.get()._AppID;
         if(app_id == null) {
             return null;
         }
         JSONObject request_root = new JSONObject();
 
-        IE_JwtToken token = Customerly._Instance._JwtToken;
+        IE_JwtToken token = Customerly.get()._JwtToken;
         boolean tokenSent = false;
         if(token != null) {
             try {
@@ -269,7 +269,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         this._ResponseState = RESPONSE_STATE__NO_TOKEN_AVAILABLE;
                         return null;
                     }
-                    token = Customerly._Instance._JwtToken;
+                    token = Customerly.get()._JwtToken;
                     if (token != null) {
                         try {
                             request_root.put(IE_JwtToken.PAYLOAD_KEY, token.toString());
@@ -401,7 +401,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                     if(! response_root.has("error")) {
                         this._ResponseState = RESPONSE_STATE__OK;
                         if (ENDPOINT_PING.equals(pEndpoint)) {
-                            Customerly._Instance._TOKEN__update(response_root);
+                            Customerly.get()._TOKEN__update(response_root);
                         }
                         return response_root;
                     } else {
@@ -409,7 +409,8 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                                 "message": "Exception_message",
                                 "code": "ExceptionCode"     }   */
                         int error_code = response_root.optInt("code", -1);
-                        Customerly._Instance._log(String.format(Locale.UK, "Message: %s ErrorCode: %s",
+                        Customerly.get()._log(String.format(Locale.UK, "Error: %s Message: %s ErrorCode: %s",
+                                response_root.has("error"),
                                 IU_Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
                                 error_code));
                         if(error_code != -1) {
@@ -423,12 +424,12 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
                     }
                 } catch (JSONException error) {
-                    Customerly._Instance._log("The server received the request but an error has come");
+                    Customerly.get()._log("The server received the request but an error has come");
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
                     return null;
                 }
             } catch (IOException error) {
-                Customerly._Instance._log("An error occurs during the connection to server");
+                Customerly.get()._log("An error occurs during the connection to server");
                 this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
             } finally {
                 if (os != null) {

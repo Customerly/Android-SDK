@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
@@ -51,8 +52,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -79,7 +78,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     @Nullable private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<IE_Message> _ChatList = new ArrayList<>(0);
     @NonNull private final IU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
-        if(Customerly._Instance._isConfigured()) {
+        if(Customerly.get()._isConfigured()) {
             long oldestMessageId = Long.MAX_VALUE;
             for(int i = 0; i < this._ChatList.size(); i++) {
                 try {
@@ -158,7 +157,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this.finish();
         } else if(this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
             this._Progress_view = (ProgressBar) this.findViewById(R.id.io_customerly__progress_view);
-            this._Progress_view.getIndeterminateDrawable().setColorFilter(Customerly._Instance.__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
+            this._Progress_view.getIndeterminateDrawable().setColorFilter(Customerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
             RecyclerView recyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recycler_view);
             this._LinearLayoutManager = new LinearLayoutManager(this.getApplicationContext());
             this._LinearLayoutManager.setReverseLayout(true);
@@ -169,26 +168,29 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             recyclerView.addOnScrollListener(this._IU_ProgressiveScrollListener = new IU_ProgressiveScrollListener(this._LinearLayoutManager, this._OnBottomReachedListener));
             this._ListRecyclerView = recyclerView;
 
+            String themeUrl = Customerly.get().__PING__LAST_widget_background_url;
+            if(themeUrl != null) {
+                ImageView themeIV = (ImageView)this.findViewById(R.id.io_customerly__background_theme);
+                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                        .centerCrop()
+                        .load(themeUrl)
+                        .into(themeIV));
+                themeIV.setVisibility(View.VISIBLE);
+            }
+
             this.input_input.addTextChangedListener(new TextWatcher() {
-//                boolean _TypingSent = false; Logic removed with upcoming of 'typing_preview'
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if(s.length() == 0) {
-//                        if(this._TypingSent) {
-                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, false, null);
-//                            this._TypingSent = false;
-//                        }
+                        Customerly.get().__SOCKET_SEND_Typing(_ConversationID, false, null);
                     } else {
-//                        if(! this._TypingSent) {
-                            Customerly._Instance.__SOCKET_SEND_Typing(_ConversationID, true, s.toString());
-//                            this._TypingSent = true;
-//                        }
+                        Customerly.get().__SOCKET_SEND_Typing(_ConversationID, true, s.toString());
                     }
                 }
             });
 
-            Customerly._Instance.__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
+            Customerly.get().__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
                 if(pTyping) {
                     if(this._TypingAccountId == account_id) {
                         return;
@@ -291,7 +293,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     @Override
     protected void onResume() {
         super.onResume();
-        IE_JwtToken jwt = Customerly._Instance._JwtToken;
+        IE_JwtToken jwt = Customerly.get()._JwtToken;
         if(jwt == null || jwt.isAnonymous()) {
             this.onLogoutUser();
         } else {
@@ -312,7 +314,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     private void sendSeen(final long messageID_seen) {
         final IU_ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
             utc /= 1000;
-            Customerly._Instance.__SOCKET_SEND_Seen(messageID_seen, utc);
+            Customerly.get().__SOCKET_SEND_Seen(messageID_seen, utc);
             new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_MESSAGE_SEEN)
                     .opt_checkConn(this)
                     .opt_tokenMandatory()
@@ -325,14 +327,14 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
 
     @Override
     protected void onDestroy() {
-        Customerly._Instance.__SOCKET__Typing_listener = null;
-        Customerly._Instance.__SOCKET_SEND_Typing(this._ConversationID, false, null);
+        Customerly.get().__SOCKET__Typing_listener = null;
+        Customerly.get().__SOCKET_SEND_Typing(this._ConversationID, false, null);
         super.onDestroy();
     }
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        IE_JwtToken token = Customerly._Instance._JwtToken;
+        IE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && token._UserID != null) {
             IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pMessage, pAttachments);
             IU_NullSafe.post(this._ListRecyclerView, () -> {
@@ -352,7 +354,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 .opt_checkConn(this)
                 .opt_tokenMandatory()
                 .opt_converter(data -> {
-                    Customerly._Instance.__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                    Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
                     return new IE_Message(data.optJSONObject("message"));
                 })
                 .opt_receiver((responseState, messageSent) ->
@@ -452,7 +454,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this.itemView.clearAnimation();
         }
 
-        protected abstract void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate);
+        protected abstract void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender);//, boolean pShouldAnimate);
     }
 
     private class ChatTypingVH extends A_ChatVH {
@@ -462,10 +464,10 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this.startAnimation();
         }
 
-        protected void apply(@Nullable IE_Message __null, @Nullable String _NoDatesForTyping, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
+        protected void apply(@Nullable IE_Message __null, @Nullable String _NoDatesForTyping, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             long typingAccountID = _TypingAccountId;
             if (pIsFirstMessageOfSender && typingAccountID != TYPING_NO_ONE) {
-                Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
                         .load(IE_Account.getAccountImageUrl(typingAccountID, this._IconSize))
@@ -496,6 +498,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     private class ChatUserMessageVH extends A_ChatMessageVH {
         private ChatUserMessageVH() {
             super(R.layout.io_customerly__li_bubble_user, R.drawable.io_customerly__ic_attach_user, 0.9f);
+            ((GradientDrawable) this.itemView.findViewById(R.id.bubble).getBackground()).setColor(Customerly.get().__PING__LAST_widget_color);
         }
     }
 
@@ -507,8 +510,8 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         }
 
         @Override
-        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
-            super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
+        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
+            super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender);//, pShouldAnimate);
             if(pIsFirstMessageOfSender && pMessage != null && pMessage.if_account__name != null && pMessage.if_account__name.length() != 0) {
                 this._AccountName.setText(pMessage.if_account__name);
                 this._AccountName.setVisibility(View.VISIBLE);
@@ -523,8 +526,8 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             super(R.layout.io_customerly__li_bubble_account_rich, R.drawable.io_customerly__ic_attach_account_40dp, -0.9f);
         }
         @Override
-        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
-            super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender, pShouldAnimate);
+        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
+            super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender);//, pShouldAnimate);
             View.OnClickListener clickListener = v -> {
                 if(pMessage != null && pMessage.rich_mail_link != null) {
                     IU_Utils.intentUrl(IAct_Chat.this, pMessage.rich_mail_link);
@@ -552,7 +555,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this._IcAttachResID = pIcAttachResID;
             this._ItemFromXValueRelative = pItemFromXValueRelative;
         }
-        @Override protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender, boolean pShouldAnimate) {
+        @Override protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             if (pMessage != null) {//Always != null for this ViewHolder
                 if(pDateToDisplay != null) {
                     this._Date.setText(pDateToDisplay);
@@ -563,7 +566,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 this._Time.setText(pMessage.timeString);
 
                 if (pIsFirstMessageOfSender) {
-                    Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                    Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                             .fitCenter()
                             .transformCircle()
                             .load(pMessage.getImageUrl(this._IconSize))
@@ -607,7 +610,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                     this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.io_customerly__ic_error, 0);
                     this._Content.setVisibility(View.VISIBLE);
                     View.OnClickListener clickListener = v -> {
-                        if(Customerly._Instance._isConfigured()) {
+                        if(Customerly.get()._isConfigured()) {
                             pMessage.setSending();
                             int pos = _ChatList.indexOf(pMessage);
                             if (pos != -1) {
@@ -640,7 +643,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                             //Image attachment
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, IU_Utils.px(80)));
                             if (attachment.path != null && attachment.path.length() != 0) {
-                                Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                                         .centerCrop()
                                         .load(attachment.path)
                                         .into(iv)
@@ -698,13 +701,13 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 } else {
                     this._AttachmentLayout.setVisibility(View.GONE);
                 }
-                if(pShouldAnimate) {
-                    TranslateAnimation ta = new TranslateAnimation(Animation.RELATIVE_TO_SELF, this._ItemFromXValueRelative, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, 0, Animation.ABSOLUTE, 0);
-                    ta.setDuration(300);
-                    ta.setFillBefore(true);
-                    ta.setFillAfter(true);
-                    this.itemView.startAnimation(ta);
-                }
+//                if(pShouldAnimate) {
+//                    TranslateAnimation ta = new TranslateAnimation(Animation.RELATIVE_TO_SELF, this._ItemFromXValueRelative, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, 0, Animation.ABSOLUTE, 0);
+//                    ta.setDuration(300);
+//                    ta.setFillBefore(true);
+//                    ta.setFillAfter(true);
+//                    this.itemView.startAnimation(ta);
+//                }
             } else {//Impossible but ...
                 this._Icon.setVisibility(View.INVISIBLE);
                 this._Content.setText(null);
@@ -726,7 +729,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
 
     private class ChatAdapter extends RecyclerView.Adapter<A_ChatVH> {
         final int _5dp = IU_Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
-        long mostRecentAnimatedMessageID = -1, mostOldAnimatedMessageID = Integer.MAX_VALUE;
+//        long mostRecentAnimatedMessageID = -1, mostOldAnimatedMessageID = Integer.MAX_VALUE;
         @Override
         public int getItemViewType(int position) {
             if(_TypingAccountId != TYPING_NO_ONE) {
@@ -757,28 +760,28 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             position -= _TypingAccountId != TYPING_NO_ONE ? 1 : 0;//No typing -> same position. Yes typing -> position reduced by 1 (it becomes -1 if it is the typing item)
 
             IE_Message thisMessage = null, previousMessage;
-            boolean shouldAnimate = false, firstMessageOfSender;
+//            boolean shouldAnimate = false;
             if(position != -1) { //No typing item
                 thisMessage = _ChatList.get(position);
-                if(thisMessage.conversation_message_id > this.mostRecentAnimatedMessageID) {
-                    shouldAnimate = true;
-                    this.mostRecentAnimatedMessageID = thisMessage.conversation_message_id;
-                }
-                if(thisMessage.conversation_message_id < this.mostOldAnimatedMessageID) {
-                    shouldAnimate = true;
-                    this.mostOldAnimatedMessageID = thisMessage.conversation_message_id;
-                }
+//                if(thisMessage.conversation_message_id > this.mostRecentAnimatedMessageID) {
+//                    shouldAnimate = true;
+//                    this.mostRecentAnimatedMessageID = thisMessage.conversation_message_id;
+//                }
+//                if(thisMessage.conversation_message_id < this.mostOldAnimatedMessageID) {
+//                    shouldAnimate = true;
+//                    this.mostOldAnimatedMessageID = thisMessage.conversation_message_id;
+//                }
             }
             previousMessage = position == _ChatList.size() - 1 ? null : _ChatList.get(position + 1);//Get previous message if the current is not the first of chat
 
-            firstMessageOfSender = previousMessage == null
+            boolean firstMessageOfSender = previousMessage == null
                     || ( thisMessage == null
                     ? ! previousMessage.isUserMessage()
                     : ! thisMessage.hasSameSenderOf(previousMessage) );
 
             holder.apply(thisMessage,
                     thisMessage == null || (previousMessage != null && thisMessage.sameSentDayOf(previousMessage)) ? null : thisMessage.dateString
-                    , firstMessageOfSender, shouldAnimate);
+                    , firstMessageOfSender);//, shouldAnimate);
 
             holder.itemView.setPadding(0, firstMessageOfSender ? this._FirstMessageOfSenderTopPadding : 0, 0, position <= 0 /* -1 is typing item */ ? this._5dp : 0);
             //paddingTop = 15dp to every first message of the group

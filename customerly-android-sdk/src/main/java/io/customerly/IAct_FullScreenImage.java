@@ -60,7 +60,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 _ImageView.setAdjustViewBounds(true);
                 try {
-                    Customerly._Instance._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                    Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(_ImageView)
@@ -70,13 +70,13 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                     final ActionBar actionBar = this.getSupportActionBar();
                     if (actionBar != null) {
                         String title;
-                        if(Customerly._Instance.__PING__LAST_widget_color != 0) {
-                            actionBar.setBackgroundDrawable(new ColorDrawable(Customerly._Instance.__PING__LAST_widget_color));
+                        if(Customerly.get().__PING__LAST_widget_color != 0) {
+                            actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly._Instance.__PING__LAST_widget_color, 0.8f));
+                                this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
                             }
 
-                            if (IU_Utils.getContrastColor(Customerly._Instance.__PING__LAST_widget_color) == Color.BLACK) {
+                            if (IU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                                 actionBar.setHomeAsUpIndicator(R.drawable.io_customerly__ic_arrow_back_black_24dp);
                                 title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -111,7 +111,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
     @Override
     protected void onResume() {
         super.onResume();
-        IE_JwtToken jwt = Customerly._Instance._JwtToken;
+        IE_JwtToken jwt = Customerly.get()._JwtToken;
         if (jwt == null || jwt.isAnonymous()) {
             this.onLogoutUser();
         }
