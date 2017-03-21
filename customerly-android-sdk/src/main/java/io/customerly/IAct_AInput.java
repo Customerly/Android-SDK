@@ -47,6 +47,7 @@ import android.text.style.StyleSpan;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +64,7 @@ abstract class IAct_AInput extends AppCompatActivity {
     private static final int FILE_SELECT_CODE = 5;
 
     protected boolean _MustShowBack;
+    protected boolean _ActivityThemed = false;
     LinearLayout input_layout, input_attachments;
     EditText input_input;
     final ArrayList<IE_Attachment> _Attachments = new ArrayList<>(1);
@@ -169,6 +171,17 @@ abstract class IAct_AInput extends AppCompatActivity {
                     Toast.makeText(this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                 }
             });
+
+            String themeUrl = Customerly.get().__PING__LAST_widget_background_url;
+            if(themeUrl != null) {
+                ImageView themeIV = (ImageView)this.findViewById(R.id.io_customerly__background_theme);
+                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                        .centerCrop()
+                        .load(themeUrl)
+                        .into(themeIV));
+                themeIV.setVisibility(View.VISIBLE);
+                this._ActivityThemed = true;
+            }
 
             return true;
         } else {

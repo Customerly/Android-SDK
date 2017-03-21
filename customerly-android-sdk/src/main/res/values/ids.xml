@@ -16,10 +16,10 @@
 <resources>
     <item type="id" name="io_customerly__progress_view" />
     <item type="id" name="io_customerly__first_contact_swipe_refresh" />
-    <item type="id" name="io_customerly__layout_first_contact__welcome_card" />
+    <item type="id" name="io_customerly__layout_first_contact" />
     <item type="id" name="io_customerly__layout_first_contact__admin_container" />
-    <item type="id" name="io_customerly__layout_first_contact__welcome_card__last_activity" />
-    <item type="id" name="io_customerly__layout_first_contact__welcome_card__welcome" />
+    <item type="id" name="io_customerly__layout_first_contact__last_activity" />
+    <item type="id" name="io_customerly__layout_first_contact__welcome" />
     <item type="id" name="io_customerly__recycler_view_swipe_refresh" />
     <item type="id" name="io_customerly__recycler_view" />
     <item type="id" name="io_customerly__input_layout" />

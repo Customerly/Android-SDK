@@ -14,7 +14,6 @@
     limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -26,7 +25,15 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:focusable="true"
-        android:focusableInTouchMode="true" >
+        android:focusableInTouchMode="true"
+        android:background="@android:color/white" >
+
+        <ImageView android:id="@id/io_customerly__background_theme"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/io_customerly__background"
+            android:visibility="gone" />
 
         <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__first_contact_swipe_refresh"
             android:layout_width="match_parent"
@@ -36,67 +43,49 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:overScrollMode="never"
-                android:background="@android:color/white" >
+                android:overScrollMode="never" >
 
-                <LinearLayout
-                    android:orientation="vertical"
+                <LinearLayout android:id="@id/io_customerly__layout_first_contact"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:padding="30dp"
+                    android:visibility="gone" >
 
-                    <android.support.v7.widget.CardView android:id="@id/io_customerly__layout_first_contact__welcome_card"
-                        android:layout_width="match_parent"
+                    <LinearLayout android:id="@id/io_customerly__layout_first_contact__admin_container"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:padding="30dp"
-                        card_view:cardCornerRadius="4dp"
-                        card_view:cardUseCompatPadding="true"
-                        android:visibility="gone" >
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginBottom="10dp"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginRight="20dp"
-                            android:layout_marginEnd="20dp" >
+                    <TextView android:id="@id/io_customerly__layout_first_contact__welcome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
+                        android:textColor="@color/io_customerly__welcomecard_texts"
+                        android:background="@drawable/io_customerly__bkg_bubble_welcome"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif"
+                        tools:ignore="UnusedAttribute"
+                        android:visibility="gone" />
 
-                            <LinearLayout android:id="@id/io_customerly__layout_first_contact__admin_container"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_horizontal" />
-
-                            <TextView android:id="@id/io_customerly__layout_first_contact__welcome_card__last_activity"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="10dp"
-                                android:textColor="@color/io_customerly__welcomecard_texts"
-                                android:textSize="13sp"
-                                android:visibility="gone"
-                                android:fontFamily="sans-serif"
-                                tools:ignore="UnusedAttribute" />
-
-                            <TextView android:id="@id/io_customerly__layout_first_contact__welcome_card__welcome"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:layout_marginBottom="10dp"
-                                android:textColor="@color/io_customerly__welcomecard_texts"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif"
-                                tools:ignore="UnusedAttribute"
-                                android:visibility="gone" />
-
-                        </LinearLayout>
-
-                    </android.support.v7.widget.CardView>
+                    <TextView android:id="@id/io_customerly__layout_first_contact__last_activity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:textColor="@color/io_customerly__welcomecard_texts"
+                        android:textSize="13sp"
+                        android:visibility="gone"
+                        android:fontFamily="sans-serif"
+                        tools:ignore="UnusedAttribute" />
 
                 </LinearLayout>
 

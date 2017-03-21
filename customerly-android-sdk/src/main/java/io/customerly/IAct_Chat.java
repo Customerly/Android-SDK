@@ -170,16 +170,6 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             recyclerView.addOnScrollListener(this._IU_ProgressiveScrollListener = new IU_ProgressiveScrollListener(this._LinearLayoutManager, this._OnBottomReachedListener));
             this._ListRecyclerView = recyclerView;
 
-            String themeUrl = Customerly.get().__PING__LAST_widget_background_url;
-            if(themeUrl != null) {
-                ImageView themeIV = (ImageView)this.findViewById(R.id.io_customerly__background_theme);
-                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
-                        .centerCrop()
-                        .load(themeUrl)
-                        .into(themeIV));
-                themeIV.setVisibility(View.VISIBLE);
-            }
-
             this.input_input.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void afterTextChanged(Editable s) { }

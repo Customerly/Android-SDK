@@ -272,25 +272,25 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             }
 
             if(last_time_active_in_seconds != Long.MIN_VALUE) {
-                final TextView layout_first_contact__welcome_card__last_activity = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome_card__last_activity);
-                layout_first_contact__welcome_card__last_activity.setText(
+                final TextView io_customerly__layout_first_contact__last_activity = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__last_activity);
+                io_customerly__layout_first_contact__last_activity.setText(
                         IU_TimeAgoUtils.calculate(last_time_active_in_seconds,
                                 seconds -> this.getString(R.string.io_customerly__last_activity_now),
                                 minutes -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, (int)minutes, minutes),
                                 hours -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXh_ago, (int)hours, hours),
                                 days -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXd_ago, (int)days, days)));
-                layout_first_contact__welcome_card__last_activity.setVisibility(View.VISIBLE);
+                io_customerly__layout_first_contact__last_activity.setVisibility(View.VISIBLE);
             }
 
             final Customerly.HtmlMessage welcome = Customerly.get()._WELCOME__getMessage();
             if(welcome != null && welcome.length() != 0){
-                final TextView layout_first_contact__welcome_card__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome_card__welcome);
-                layout_first_contact__welcome_card__welcome.setText(welcome);
-                layout_first_contact__welcome_card__welcome.setVisibility(View.VISIBLE);
+                final TextView io_customerly__layout_first_contact__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome);
+                io_customerly__layout_first_contact__welcome.setText(welcome);
+                io_customerly__layout_first_contact__welcome.setVisibility(View.VISIBLE);
                 showWelcomeCard = true;
             }
             if(showWelcomeCard) {
-                this.findViewById(R.id.io_customerly__layout_first_contact__welcome_card).setVisibility(View.VISIBLE);
+                this.findViewById(R.id.io_customerly__layout_first_contact).setVisibility(View.VISIBLE);
             }
 
             this._FirstContact_SRL.setVisibility(View.VISIBLE);

@@ -32,6 +32,7 @@
     <color name="io_customerly__bubble_user_bkg">#FF01B0FF</color>
     <color name="io_customerly__bubble_account_bkg">#FFECEFF1</color>
     <color name="io_customerly__bubble_account_textcolor">#FF1A1A1A</color>
+    <color name="io_customerly__bubble_welcome_bkgcolor">#FFF8F8F5</color>
 
     <color name="io_customerly__li_conversation_divider_color">#FFE7E7E7</color>
     <color name="io_customerly__li_conversation_selected_left_vertical_line">@color/io_customerly__blue_malibu</color>
