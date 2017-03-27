@@ -102,7 +102,7 @@ public class Customerly {
         @NonNull private Runnable checkBackground = () -> {
             if (this.foreground && this.paused) {
                 this.foreground = false;
-                __SOCKET__disconnect();
+                __SOCKET__disconnect(_Socket);
             }
         };
         @Override public void onActivityResumed(Activity activity) {
@@ -112,6 +112,7 @@ public class Customerly {
             this.foreground = true;
             __Handler.removeCallbacks(this.checkBackground);
             if (wasBackground) {
+                __SOCKET__connect(null);
                 __PING__Start(null, null);
             }
         }
@@ -130,6 +131,7 @@ public class Customerly {
     };
 
     private boolean _SupportEnabled = true, _SurveyEnabled = true;
+    private boolean __PING__checkConnectedToSocket = false;
 
     private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
         private final boolean _HandleAlertMessage, _HandleSurvey;
@@ -324,10 +326,15 @@ public class Customerly {
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     @NonNull private final Runnable __SOCKET__ping = () -> {
         Socket socket = this._Socket;
-        if(socket != null && socket.connected()) {
-            Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-            socket.emit(activity != null && activity instanceof SDKActivity ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
-            this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+        if(this.__PING__checkConnectedToSocket) {
+            if (socket != null) {
+                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                socket.emit(activity != null && activity instanceof SDKActivity ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
+                this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+            }
+            if(socket == null || !socket.connected()) {
+                this.__SOCKET__connect(null);
+            }
         }
     };
     interface SDKActivity {
@@ -344,12 +351,15 @@ public class Customerly {
         }
 
         if(this._SupportEnabled) {
+            this.__PING__checkConnectedToSocket = true;//Metto a true perchè potremmo non entrare nei successivi if
             if (this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
                 IE_JwtToken token = this._JwtToken;
                 if (token != null && token._UserID != null) {
-                    if (this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
+                    Socket socket = this._Socket;
+                    if (socket == null || ! socket.connected() || this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
 
-                        this.__SOCKET__disconnect();
+                        this.__SOCKET__disconnect(socket);
+                        this.__PING__checkConnectedToSocket = true;//Rimetto a true perchè la disconnect l'ha messo a false
                         this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
 
                         String query;
@@ -358,7 +368,6 @@ public class Customerly {
                         } catch (JSONException error) {
                             return;
                         }
-                        Socket socket;
                         try {
                             IO.Options options = new IO.Options();
                             options.secure = true;
@@ -472,8 +481,8 @@ public class Customerly {
             }
         }
     }
-    private void __SOCKET__disconnect() {
-        Socket socket = this._Socket;
+    private void __SOCKET__disconnect(@Nullable Socket socket) {
+        this.__PING__checkConnectedToSocket = false;
         if (socket != null) {
             if (socket.connected()) {
                 socket.disconnect();
@@ -485,11 +494,17 @@ public class Customerly {
     }
     private void __SOCKET__SEND(@NonNull String event, @NonNull JSONObject payloadJson) {
         Socket socket = this._Socket;
-        if(socket != null && socket.connected()) {
-            try {
-                this._DEV_log(String.format("SOCKET TX: %1$s -> %2$s", event, payloadJson.toString(1)));
-            } catch (JSONException ignored) { }
-            socket.emit(event, payloadJson);
+        if(this.__PING__checkConnectedToSocket) {
+            if(socket != null) {
+                try {
+                    this._DEV_log(String.format("SOCKET TX: %1$s -> %2$s", event, payloadJson.toString(1)));
+                } catch (JSONException ignored) {
+                }
+                socket.emit(event, payloadJson);
+            }
+            if(socket == null || !socket.connected()) {
+                this.__SOCKET__connect(null);
+            }
         }
     }
 
@@ -1182,7 +1197,7 @@ public class Customerly {
                     //noinspection SpellCheckingInspection
                     prefs.edit().remove(PREF_CURRENT_EMAIL).remove(PREF_CURRENT_ID).remove(PREF_CURRENT_COMPANY_INFO).apply();
                 }
-                this.__SOCKET__disconnect();
+                this.__SOCKET__disconnect(this._Socket);
                 this.__PING__next_ping_allowed = 0L;
 
                 PW_AlertMessage.onUserLogout();
@@ -1235,7 +1250,7 @@ public class Customerly {
         if(this._SupportEnabled) {
             if(!enabled) {
                 this._SupportEnabled = false;
-                this.__SOCKET__disconnect();
+                this.__SOCKET__disconnect(this._Socket);
             }
         } else {
             if(enabled) {
