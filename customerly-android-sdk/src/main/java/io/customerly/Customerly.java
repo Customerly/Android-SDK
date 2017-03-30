@@ -83,7 +83,7 @@ public class Customerly {
 
     @Nullable IE_JwtToken _JwtToken;
 
-    private boolean __VerboseLogging = true;
+    private boolean __VerboseLogging = false;
 
     @Nullable private Socket _Socket;
 
