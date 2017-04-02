@@ -479,7 +479,7 @@ public class Customerly {
             }
         }
     }
-    private void __SOCKET__check() {
+    void __SOCKET__check() {
         if(this.__SOCKET__shouldBeConnected) {
             Socket socket = this._Socket;
             if(socket == null || !socket.connected()) {
@@ -660,6 +660,8 @@ public class Customerly {
         Customerly._Instance.__PING__LAST_active_admins = null;
 
         Customerly._Instance._AppID = IU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
+
+        IU_NetworkReceiver.registerLollipopNetworkReceiver(pApplicationContext);
 
         Customerly._Instance.initialized = true;
     }
