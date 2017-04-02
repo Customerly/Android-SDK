@@ -91,7 +91,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             this._ListRecyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
             this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
             this._ListRecyclerView.setHasFixedSize(true);
-            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(this.getResources(), R.color.io_customerly__li_conversation_divider_color, IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE.BOTTOM));
+            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(R.color.io_customerly__li_conversation_divider_color, this.getResources(), IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE__RIGHTBOTTOM));
             this._ListRecyclerView.setAdapter(new ConversationAdapter());
 
             this.input_layout.setVisibility(View.GONE);
