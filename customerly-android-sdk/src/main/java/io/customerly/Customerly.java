@@ -43,6 +43,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -663,6 +664,11 @@ public class Customerly {
 
         IU_NetworkReceiver.registerLollipopNetworkReceiver(pApplicationContext);
 
+        try {
+            Method crashlytics_setString = Class.forName("com.crashlytics.android.Crashlytics").getDeclaredMethod("setString", String.class, String.class);
+            crashlytics_setString.invoke(null, BuildConfig.APPLICATION_ID + " version:", BuildConfig.VERSION_NAME);
+        } catch (Exception ignored) { }
+
         Customerly._Instance.initialized = true;
     }
 
@@ -921,7 +927,6 @@ public class Customerly {
         protected void _executeTask() {
             SharedPreferences pref = _SharedPreferences;
             if(pref != null && Patterns.EMAIL_ADDRESS.matcher(this.email).matches()) {
-                pref.edit().remove(PREF_CURRENT_EMAIL).remove(PREF_CURRENT_ID).remove(PREF_CURRENT_COMPANY_INFO).apply();
                 new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                         .opt_converter(root -> {
                             SharedPreferences.Editor editor = pref.edit()
@@ -935,6 +940,8 @@ public class Customerly {
                                                     .put("name", this.company.getString("name"))
                                                     .toString());
                                 } catch (JSONException ignored) { }
+                            } else {
+                                editor.remove(PREF_CURRENT_COMPANY_INFO).apply();
                             }
                             editor.apply();
                             return __PING__response_converter__Message.convert(root);
