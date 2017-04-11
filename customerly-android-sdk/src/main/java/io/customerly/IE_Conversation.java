@@ -41,10 +41,10 @@ class IE_Conversation {
 
     final long conversation_id;
 
-    IE_Conversation(long pConversationID, @Nullable Customerly.HtmlMessage pLastMessage, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
+    IE_Conversation(long pConversationID, @Nullable String pLastMessageAbstract, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
-        this.last_message_abstract = pLastMessage;
+        this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pLastMessageAbstract);
 
         this.last_message_date = pLastMessageDate;
         this.last_message_writer = pLastMessageWriterID;
@@ -72,7 +72,7 @@ class IE_Conversation {
     }
 
     void onNewMessage(@NonNull IE_Message pNewMessage) {
-        this.last_message_abstract = pNewMessage.content;
+        this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pNewMessage.content_abstract);
         this.last_message_date = pNewMessage.sent_datetime_sec;
         this.last_message_writer = pNewMessage.getWriterID();
         this.last_message_writer_type = pNewMessage.getWriterType();

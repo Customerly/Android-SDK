@@ -136,7 +136,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                     }
                 }
                 //New message of a new conversation
-                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
+                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content_abstract, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
             }
             //Sort the conversation by last message date
             Collections.sort(conversations, (c1, c2) -> (int) (c2.last_message_date - c1.last_message_date));
