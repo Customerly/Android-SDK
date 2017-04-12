@@ -71,7 +71,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                                                             0,
                                                             new Intent(context, IAct_OpenDownloadedFileActivity.class)
                                                                     .setData(
-                                                                            IU_CustomerlyFileProvider.getUriForFile(context, "io.customerly.provider", file)
+                                                                            IU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.getPackageName()), file)
                                                                     ),
                                                             PendingIntent.FLAG_UPDATE_CURRENT
                                                     )).build());

@@ -311,6 +311,10 @@ The library needs the following three rules to work with proguard enabled
 
 By the way should not be necessary to explicitly add them in your proguard file because they should be automatically inherited.
 
+## Get updated
+
+If you want to be notified for every updates of SDK please sign up in our telegram channel: https://t.me/joinchat/AAAAAEJZXkvxaa2HAS9EmQ
+
 ## Contributing
 
 - If you **need help** or you'd like to **ask a general question**, open an issue or contact our support on [Customerly.io](https://www.customerly.io)

@@ -787,7 +787,7 @@ public class Customerly {
         /**
          * Don't forget to call this method to start the task
          */
-        public void start() {
+        public final void start() {
             if(_isConfigured()) {
                 try {
                     this._executeTask();
@@ -812,7 +812,7 @@ public class Customerly {
             super();
         }
         @Override
-        public void _executeTask() {
+        protected void _executeTask() {
             if (System.currentTimeMillis() > __PING__next_ping_allowed) {
                 _log("Customerly.update task started");
                 __PING__Start(() -> {
@@ -870,7 +870,7 @@ public class Customerly {
         }
         /**
          * Optionally you can specify the user attributes
-         * @param attributes The attributes of the user. Can contain only String, char, int, long, float or double values
+         * @param attributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
          * @return The Task itself for method chaining
          * @throws IllegalArgumentException if the attributes map check fails
          */
@@ -879,6 +879,7 @@ public class Customerly {
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
                         attr instanceof Integer ||
+                        attr instanceof Byte ||
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
@@ -886,7 +887,7 @@ public class Customerly {
                         attr instanceof Boolean) {
                     continue;
                 }
-                _log("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+                _log("Attributes HashMap can contain only String, char, byte, int, long, float or double values");
                 throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
             }
             this.attributes = new JSONObject(attributes);
@@ -904,6 +905,7 @@ public class Customerly {
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
                         attr instanceof Integer ||
+                        attr instanceof Byte ||
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
@@ -981,7 +983,7 @@ public class Customerly {
     public final class SetAttributesTask extends __Task {
         @NonNull private final JSONObject attributes;
         /**
-         * @param attributes The attributes of the user. Can contain only String, char, int, long, float or double values
+         * @param attributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
          * @throws IllegalArgumentException is thrown if the attributes check fails
          */
         public SetAttributesTask (@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
@@ -989,6 +991,7 @@ public class Customerly {
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
                         attr instanceof Integer ||
+                        attr instanceof Byte ||
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
@@ -996,13 +999,13 @@ public class Customerly {
                         attr instanceof Boolean) {
                     continue;
                 }
-                _log("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+                _log("Attributes HashMap can contain only String, char, byte, int, long, float or double values");
                 throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
             }
             this.attributes = new JSONObject(attributes);
         }
         @Override
-        public void _executeTask() {
+        protected void _executeTask() {
             IE_JwtToken token = _JwtToken;
             if(token != null && token.isUser()) {
                 IApi_Request.Builder<Void> builder = new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
@@ -1039,6 +1042,67 @@ public class Customerly {
         }
     }
 
+    /**
+     * Utility builder for Company Hashmap
+     */
+    public static class CompanyBuilder {
+        @NonNull private final HashMap<String,Object> company = new HashMap<>();
+        public CompanyBuilder(@NonNull String company_id, @NonNull String name) {
+            super();
+            this.company.put("company_id", company_id);
+            this.company.put("name", name);
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, @NonNull String value) {
+            this.company.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, int value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, byte value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, long value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, double value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, float value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, char value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, boolean value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                this.company.put(key, value);
+            }
+            return this;
+        }
+        @NonNull public HashMap<String,Object> build() {
+            return this.company;
+        }
+    }
+
     public final class SetCompanyTask extends __Task {
         @NonNull private final JSONObject company;
         /**
@@ -1050,6 +1114,7 @@ public class Customerly {
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
                         attr instanceof Integer ||
+                        attr instanceof Byte ||
                         attr instanceof Long ||
                         attr instanceof Double ||
                         attr instanceof Float ||
@@ -1057,8 +1122,8 @@ public class Customerly {
                         attr instanceof Boolean) {
                     continue;
                 }
-                _log("Company HashMap can contain only Strings, int, float, long, double or char values");
-                throw new IllegalArgumentException("Company HashMap can contain only Strings, int, float, long, double or char values");
+                _log("Company HashMap can contain only String, char, byte, int, long, float or double values");
+                throw new IllegalArgumentException("Company HashMap can contain only String, char, byte, int, long, float or double values");
             }
             if(! company.containsKey("company_id") && ! company.containsKey("name")) {
                 _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
@@ -1069,7 +1134,7 @@ public class Customerly {
             this.company = new JSONObject(company);
         }
         @Override
-        public void _executeTask() {
+        protected void _executeTask() {
             IE_JwtToken token = _JwtToken;
             if(token != null && token.isUser()) {
                 try {
