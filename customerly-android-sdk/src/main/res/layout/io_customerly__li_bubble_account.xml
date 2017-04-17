@@ -73,6 +73,9 @@
             android:textColor="@color/io_customerly__bubble_account_textcolor"
             android:textSize="15sp"
             android:fontFamily="sans-serif"
+            android:textColorLink="@color/io_customerly__blue_malibu"
+            android:textIsSelectable="true"
+            android:autoLink="all"
             tools:ignore="UnusedAttribute" />
 
         <LinearLayout android:id="@id/io_customerly__attachment_layout"

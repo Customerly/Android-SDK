@@ -161,11 +161,12 @@ class PW_AlertMessage extends PopupWindow {
         this._MessageID = message.conversation_message_id;
         this._MessageRawLink = message.rich_mail_link;
         int _50dp = IU_Utils.px(50);
+        ImageView icon = (ImageView)this.getContentView().findViewById(R.id.io_customerly__icon);
         Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                 .fitCenter()
                 .transformCircle()
                 .load(message.getImageUrl(_50dp))
-                .into((ImageView)this.getContentView().findViewById(R.id.io_customerly__icon))
+                .into(icon.getContext(), icon)
                 .override(_50dp, _50dp)
                 .placeholder(R.drawable.io_customerly__ic_default_admin));
 

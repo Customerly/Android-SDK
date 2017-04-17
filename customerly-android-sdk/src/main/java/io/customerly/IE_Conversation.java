@@ -34,17 +34,17 @@ class IE_Conversation {
     private static final int /*WRITER_TYPE__USER = 1,*/ WRITER_TYPE__ACCOUNT = 0;
 
     boolean unread;
-    private Customerly.HtmlMessage last_message_abstract;
+    private Spanned last_message_abstract;
     private long last_message_writer, last_message_writer_type;
     long last_message_date;
     @Nullable private String last_account__name;
 
     final long conversation_id;
 
-    IE_Conversation(long pConversationID, @Nullable String pLastMessageAbstract, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
+    IE_Conversation(long pConversationID, @Nullable Spanned pLastMessageAbstract, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
-        this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pLastMessageAbstract);
+        this.last_message_abstract = pLastMessageAbstract;
 
         this.last_message_date = pLastMessageDate;
         this.last_message_writer = pLastMessageWriterID;
@@ -59,7 +59,7 @@ class IE_Conversation {
         super();
 
         this.conversation_id = pConversationItem.getLong("conversation_id");
-        this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pConversationItem.getString("last_message_abstract"));
+        this.last_message_abstract = IU_Utils.fromHtml(pConversationItem.getString("last_message_abstract"), null, null);
 
         this.last_message_date = pConversationItem.getLong("last_message_date");
         this.last_message_writer = pConversationItem.optLong("last_message_writer");
@@ -72,7 +72,7 @@ class IE_Conversation {
     }
 
     void onNewMessage(@NonNull IE_Message pNewMessage) {
-        this.last_message_abstract = IU_Utils.decodeHtmlStringWithEmojiTag(pNewMessage.content_abstract);
+        this.last_message_abstract = pNewMessage.content_abstract;
         this.last_message_date = pNewMessage.sent_datetime_sec;
         this.last_message_writer = pNewMessage.getWriterID();
         this.last_message_writer_type = pNewMessage.getWriterType();

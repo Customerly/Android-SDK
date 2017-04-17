@@ -26,10 +26,15 @@ buildscript {
     }
 }
 
+repositories {
+    //When the repository will be hosted on jcenter this won't be necessary anymore
+    maven { url 'https://dl.bintray.com/giannign1/maven/' }
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = 'BETA-3.1.6'
+def CustomerlySDKVersion = 'BETA-3.1.7'
 
 ext {
     bintrayRepo = 'maven'
@@ -92,6 +97,12 @@ android {
 }
 
 dependencies {
+
+    compile 'io.customerly.commons:customerly-android-commons:1.0'
+//    compile project(':customerly-android-commons')
+
+
+
     compile ('io.socket:socket.io-client:0.8.3') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'

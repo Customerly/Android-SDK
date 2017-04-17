@@ -166,7 +166,7 @@ public class IDlgF_Survey extends DialogFragment {
             TextView thank_you = new TextView(this.getActivity());
             thank_you.setTextColor(Color.BLACK);
             thank_you.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-            thank_you.setText(IU_Utils.decodeHtmlStringWithEmojiTag(survey.thank_you_text));
+            thank_you.setText(IU_Utils.fromHtml(survey.thank_you_text, null, null));
             int _10dp = IU_Utils.px(10);
             thank_you.setPadding(_10dp, _10dp, _10dp, _10dp);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

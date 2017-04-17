@@ -77,11 +77,14 @@
         android:layout_alignWithParentIfMissing="true" >
 
         <TextView android:id="@id/io_customerly__content"
+            style="@style/io_customerly__TextViewAccentWhite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:textColorLink="#fff6f6f6"
+            android:textIsSelectable="true"
             android:textColor="@android:color/white"
             android:textSize="15sp"
+            android:autoLink="all"
             android:fontFamily="sans-serif"
             tools:ignore="UnusedAttribute"
             android:drawablePadding="5dp" />

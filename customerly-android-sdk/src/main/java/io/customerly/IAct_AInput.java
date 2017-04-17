@@ -178,7 +178,7 @@ abstract class IAct_AInput extends AppCompatActivity {
                 Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                         .centerCrop()
                         .load(themeUrl)
-                        .into(themeIV));
+                        .into(this, themeIV));
                 themeIV.setVisibility(View.VISIBLE);
                 this._ActivityThemed = true;
             }

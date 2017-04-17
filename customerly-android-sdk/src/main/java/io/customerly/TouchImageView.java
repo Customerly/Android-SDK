@@ -385,7 +385,7 @@ class TouchImageView extends android.support.v7.widget.AppCompatImageView {
      */
     public void setZoom(float scale, float focusX, float focusY, ScaleType scaleType) {
     	//
-    	// setZoom can be called before the image is on the screen, but at this point, 
+    	// setZoom can be called before the image is on the screen, but at this point,
     	// image and view sizes have not yet been calculated in onMeasure. Thus, we should
     	// delay calling setZoom until the view has been measured.
     	//

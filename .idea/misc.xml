@@ -4,7 +4,7 @@
     <entry_points version="2.0" />
   </component>
   <component name="JavadocGenerationManager">
-    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/customerly-android-sdk/javadoc/BETA-2.0" />
+    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/customerly-android-sdk/javadoc/BETA-3.1.6+" />
     <option name="OPTION_SCOPE" value="public" />
     <option name="OPTION_HIERARCHY" value="true" />
     <option name="OPTION_NAVIGATOR" value="true" />

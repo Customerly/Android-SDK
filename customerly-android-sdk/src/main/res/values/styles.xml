@@ -54,4 +54,8 @@
         <item name="colorControlHighlight">@color/io_customerly__grey_cc</item>
     </style>
 
+    <style name="io_customerly__TextViewAccentWhite">
+        <item name="android:textColorHighlight">#ffa2d3ff</item>
+    </style>
+
 </resources>

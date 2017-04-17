@@ -64,7 +64,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                     Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
-                            .into(_ImageView)
+                            .into(this, _ImageView)
                             .placeholder(R.drawable.io_customerly__pic_placeholder_fullscreen));
                     super.setContentView(_ImageView);
 

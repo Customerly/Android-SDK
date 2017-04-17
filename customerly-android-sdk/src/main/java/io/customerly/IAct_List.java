@@ -30,6 +30,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.util.TypedValue;
@@ -248,7 +249,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                                 .fitCenter()
                                 .transformCircle()
                                 .load(admin.getImageUrl(adminIconSizePX))
-                                .into(icon)
+                                .into(this, icon)
                                 .override(adminIconSizePX, adminIconSizePX)
                                 .placeholder(R.drawable.io_customerly__ic_default_admin));
 
@@ -282,7 +283,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                 io_customerly__layout_first_contact__last_activity.setVisibility(View.VISIBLE);
             }
 
-            final Customerly.HtmlMessage welcome = Customerly.get()._WELCOME__getMessage();
+            final Spanned welcome = Customerly.get()._WELCOME__getMessage();
             if(welcome != null && welcome.length() != 0){
                 final TextView io_customerly__layout_first_contact__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome);
                 io_customerly__layout_first_contact__welcome.setText(welcome);
@@ -480,7 +481,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                     .fitCenter()
                     .transformCircle()
                     .load(pConversation.getImageUrl(this._Icon_Size))
-                    .into(this._Icon)
+                    .into(IAct_List.this, this._Icon)
                     .override(this._Icon_Size, this._Icon_Size)
                     .placeholder(R.drawable.io_customerly__ic_default_admin));
             this._Nome.setText(pConversation.getConversationLastWriter(this._Nome.getContext()));

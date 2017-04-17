@@ -25,7 +25,9 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -39,13 +41,13 @@ import android.provider.OpenableColumns;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.Dimension;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Px;
-import android.text.Html;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.Contract;
 import org.json.JSONArray;
@@ -54,7 +56,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Locale;
+
+import io.customerly.commons.Commons_HtmlFormatter;
+import io.customerly.commons.Handle;
 
 /**
  * Created by Gianni on 31/05/16.
@@ -126,200 +130,21 @@ class IU_Utils {
                 : resources.getColorStateList(colorStateListResID);
     }
 
-    private final static String EMOJI_TAG_START = "<emoji>", EMOJI_TAG_END = "</emoji>";
-    @Contract("null -> null")
-    @Nullable static Customerly.HtmlMessage decodeHtmlStringWithEmojiTag(@Nullable String message) {
-        if(message == null)
-            return null;
-        StringBuilder sb = new StringBuilder();
-        int start = 0, startEmojiTag, endEmojiTag;
-        while(start < message.length()) {
-            startEmojiTag = message.indexOf(EMOJI_TAG_START, start);
-            if(startEmojiTag != -1) {
-                endEmojiTag = message.indexOf(EMOJI_TAG_END, start);
-                if(start < startEmojiTag) {
-                    sb.append(message.substring(start, startEmojiTag));
-                }
-                sb.append(Character.toChars(Integer.decode("0x" + message.substring(startEmojiTag + EMOJI_TAG_START.length(), endEmojiTag).trim())));
-                start = endEmojiTag + EMOJI_TAG_END.length();
-            } else {
-                sb.append(message.substring(start));
-                break;
-            }
-        }
-
-//        Html.TagHandler tagHandler = new Html.TagHandler() {
-//            boolean ol = false;
-//            int olCount;
-//            @Override
-//            public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
-//                 /*
-//                <ol> -> 1. 2. 3.
-//                <li>rf</li>
-//                <li>f</li>
-//                <li>f</li>
-//                </ol>
-//
-//                <ul> -> • • •
-//                <li>f</li>
-//                <li>f</li>
-//                <li>f</li>
-//                </ul>
-//            */
-//                switch (tag) {
-//                    case "ol":
-//                        if(opening) {
-//                            this.ol = true;
-//                            this.olCount = 1;
-//                        }
-//                        break;
-//                    case "ul":
-//                        if(opening) {
-//                            this.ol = false;
-//                        }
-//                        break;
-//                    case "li":
-//                        if(opening) {
-//                            if(this.ol) {
-//                                output.append(String.format(Locale.UK, this.olCount > 9 ? "\n%d. " : "\n  %d. ", this.olCount++));
-//                            } else {
-//                                output.append("   •  ");
-//                            }
-//                        } else {
-//                            output.append("\n");
-//                        }
-//                        break;
-//                    default:
-//                }
-//            }
-//        };
-
-        //Gestione tag <ol> <ul> <li> e relative chiusure
-        int i = 0;
-        boolean in_ol = false, in_ul = false;
-        int ol_count = 1;
-        final String TAG_OL_OPEN = "<ol>";
-        final String TAG_OL_CLOSE = "</ol>";
-        final String TAG_UL_OPEN = "<ul>";
-        final String TAG_UL_CLOSE = "</ul>";
-        final String TAG_LI_OPEN = "<li>";
-        final String TAG_LI_CLOSE = "</li>";
-        final String NEW_LINE = "<br>";
-        final String REPLACE_OL_LI_COUNT_MORE_THAN_9 = NEW_LINE + "%d. ";
-        final String REPLACE_OL_LI_COUNT_LESS_THAN_9 = NEW_LINE + "  %d. ";
-        final String REPLACE_UL_LI = NEW_LINE + "   •  ";
-
-        while(i < sb.length()) {
-            if(in_ol) {
-                int end_ol = sb.indexOf(TAG_OL_CLOSE, i);
-                int li = sb.indexOf(TAG_LI_OPEN, i);
-                if(li != -1 && (li < end_ol || end_ol == -1)) {
-                    int li_end = sb.indexOf(TAG_LI_CLOSE, i);
-                    sb.replace(li_end, li_end + TAG_LI_CLOSE.length(), NEW_LINE);
-                    String replace_string = String.format(Locale.UK, ol_count > 9 ? REPLACE_OL_LI_COUNT_MORE_THAN_9 : REPLACE_OL_LI_COUNT_LESS_THAN_9, ol_count++);
-                    sb.replace(li, li + TAG_LI_OPEN.length(), replace_string);
-                    i = li_end + NEW_LINE.length() - TAG_LI_OPEN.length() + replace_string.length();
-                } else if(end_ol != -1){
-                    sb.delete(end_ol, end_ol + TAG_OL_CLOSE.length());
-                    i = end_ol;
-                    in_ol = false;
-                } else {
-                    break;
-                }
-            } else if(in_ul) {
-                int end_ul = sb.indexOf(TAG_UL_CLOSE, i);
-                int li = sb.indexOf(TAG_LI_OPEN, i);
-                if(li != -1 && (li < end_ul || end_ul == -1)) {
-                    int li_end = sb.indexOf(TAG_LI_CLOSE, i);
-                    sb.replace(li_end, li_end + TAG_LI_CLOSE.length(), NEW_LINE);
-                    sb.replace(li, li + TAG_LI_OPEN.length(), REPLACE_UL_LI);
-                    i = li_end + NEW_LINE.length() - TAG_LI_OPEN.length() + REPLACE_UL_LI.length();
-                } else if(end_ul != -1){
-                    sb.delete(end_ul, end_ul + TAG_UL_CLOSE.length());
-                    i = end_ul;
-                    in_ul = false;
-                } else {
-                    break;
-                }
-            } else {
-                int start_ol = sb.indexOf(TAG_OL_OPEN, i);
-                int start_ul = sb.indexOf(TAG_UL_OPEN, i);
-                if(start_ol != -1 && (start_ol < start_ul || start_ul == -1)) {
-                    sb.delete(start_ol, start_ol + TAG_OL_OPEN.length());
-                    in_ol = true;
-                    ol_count = 1;
-                    //i = i;//ho cancellato i 4 caratteri
-                } else if(start_ul != -1){
-                    sb.delete(start_ul, start_ul + TAG_UL_OPEN.length());
-                    in_ul = true;
-                    //i = i;//ho cancellato i 4 caratteri
-                } else {
-                    break;
-                }
-            }
-
-        }
-
-        Spanned spannedMessage;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            spannedMessage = Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_LEGACY, _SpanImage_ImageGetter, null);
-        } else {
-            //noinspection deprecation
-            spannedMessage = Html.fromHtml(sb.toString(), _SpanImage_ImageGetter, null);
-        }
-
-        if(spannedMessage instanceof SpannableStringBuilder) {
-            SpannableStringBuilder ssb = (SpannableStringBuilder)spannedMessage;
-            int startSSB = 0;
-            while(startSSB < ssb.length()) {                            //Scorre carattere per carattere
-                if(ssb.charAt(startSSB) == '\n') {                      //Se trova un \n
-                    startSSB++;                                         //Si posiziona al carattere successivo
-                    int endCut = 0;                                     //Contatore di '\n' successivi al primo
-                    while(startSSB + endCut < ssb.length() && ssb.charAt(startSSB + endCut) == '\n') {               //Finchè trova ulteriori '\n' successivi al primo
-                        endCut++;                                       //Li conta
+    @NonNull static Spanned fromHtml(@Nullable String message, @Nullable TextView tv, @Nullable Handle.NoNull.Two<Activity, String> pImageClickableSpan) {
+        return Commons_HtmlFormatter.fromHtml(message, tv, pImageClickableSpan, (context, source, handleDrawable) ->
+                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                .load(source)
+                .into(context, new IU_RemoteImageHandler.Request.Target() {
+                    @Override
+                    public void image_placeholder_error(@NonNull Bitmap bmp) {
+                        if(tv != null) {
+                            tv.post(() -> handleDrawable.handle(new BitmapDrawable(context.getResources(), bmp)));
+                        }
                     }
-                    if(endCut != 0) {                                   //Se ne ha trovato almeno 1
-                        ssb.delete(startSSB, startSSB + endCut);        //Li elimina tutti lasciando quindi solo un '\n'
-                    }
-                }
-                startSSB++;                                             //Se il carattere non era '\n' o comunque anche se lo era, il successivo comunque non lo è altrimenti lo avrebbe eliminato con la delete, quindi vado a quello ancora successivo
-            }
-            if(ssb.length() != 0 && ssb.charAt(ssb.length() - 1) == '\n') { //Se l'ultimo carattere è un '\n'
-                ssb.delete(ssb.length() - 1, ssb.length());             //Lo cancella
-            }
-            /* Vecchio ciclo che semplicemente eliminava tutti gli '\n' alla fine del messaggio
-            int backN_count = 0;
-            while(ssb.length() - backN_count - 1 >= 0 && ssb.charAt(ssb.length() - backN_count - 1) == '\n') {
-                backN_count++;
-            }
-            ssb = ssb.delete(ssb.length() - backN_count, ssb.length());
-            spannedMessage = ssb; */
-            return new Customerly.HtmlMessage(ssb);
-        }
-        return null;
+                    @Override public void placeholder_error(@NonNull Drawable drawable) { }//Never called because no placeholder or error drawable provided in request
+                    @Override public void placeholder_error(@DrawableRes int resID) { }//Never called because no placeholder or error DrawableRes provided in request
+                })));
     }
-
-    private static final Html.ImageGetter _SpanImage_ImageGetter = source -> {
-        Drawable d = Customerly.get()._RemoteImageHandler.getHtmlImageSync(source);
-        if(d != null) {
-            d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
-        }
-        return d;
-
-//      private static final Html.ImageGetter _SpanImage_ImageGetter = source -> {
-//        Drawable d = null;
-//        try {
-//            InputStream src = new URL(source).openStream();
-//            d = Drawable.createFromStream(src, "src");
-//            if(d != null) {
-//                d.setBounds(0, 0, px(150), px((int) (150f / d.getIntrinsicWidth() * d.getIntrinsicHeight())));
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return d;
-    };
 
     static String getNameFromUri(@NonNull Context context, @NonNull Uri uri) {
         String result = null;

@@ -16,8 +16,12 @@ package io.customerly;
  * limitations under the License.
  */
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +31,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import io.customerly.commons.Handle;
 
 /**
  * Created by Gianni on 11/09/16.
@@ -40,8 +46,9 @@ class IE_Message {
     final long conversation_id, conversation_message_id, sent_datetime_sec;
     private final long user_id, account_id, seen_date;
 
-    @Nullable final Customerly.HtmlMessage content;
-    @Nullable final String content_abstract;
+    @Nullable final String content;
+    @Nullable private Spanned content_Spanned;
+    @Nullable final Spanned content_abstract;
     @Nullable final String if_account__name, rich_mail_link;
     @NonNull final String dateString, timeString;
     @Nullable final IE_Attachment[] _Attachments;
@@ -53,7 +60,7 @@ class IE_Message {
     private enum STATE {    COMPLETE, SENDING, FAILED   }
     @NonNull private STATE _STATE = STATE.COMPLETE;
 
-    IE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pContent, @NonNull String pContentAbstract, @Nullable final IE_Attachment[] pAttachments) {
+    IE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pContent, @Nullable final IE_Attachment[] pAttachments) {
         super();
         this._STATE = STATE.SENDING;
         this.user_id = pCustomerly_User_ID;
@@ -63,11 +70,19 @@ class IE_Message {
         this.sent_datetime_sec = this.seen_date = System.currentTimeMillis() / 1000;
         this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
-        this.content = IU_Utils.decodeHtmlStringWithEmojiTag(pContent);
-        this.content_abstract = pContentAbstract.length() != 0 ? pContentAbstract : pAttachments != null && pAttachments.length != 0 ? "[Attachment]" : "";
+        this.content = pContent;
+        this.content_Spanned= IU_Utils.fromHtml(pContent, null, null);
+        this.content_abstract = pContent.length() != 0 ? IU_Utils.fromHtml(pContent, null, null) : new SpannedString(pAttachments != null && pAttachments.length != 0 ? "[Attachment]" : "");
         this._Attachments = pAttachments;
         this.if_account__name = null;
         this.rich_mail_link = null;
+    }
+
+    @NonNull Spanned getContentSpanned(@NonNull TextView tv, @NonNull Handle.NoNull.Two<Activity, String> pImageClickableSpan) {
+        if(this.content_Spanned == null) {
+            this.content_Spanned = IU_Utils.fromHtml(this.content, tv, pImageClickableSpan);
+        }
+        return this.content_Spanned;
     }
 
     IE_Message(@NonNull JSONObject pMessageItem) {
@@ -81,8 +96,8 @@ class IE_Message {
         this.sent_datetime_sec = pMessageItem.optLong("sent_date", 0);
         this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
-        this.content = IU_Utils.decodeHtmlStringWithEmojiTag(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", ""));
-        this.content_abstract = IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "abstract", "");
+        this.content = IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", "");
+        this.content_abstract = IU_Utils.fromHtml(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "abstract", ""), null, null);
         this.rich_mail_link = pMessageItem.optInt("rich_mail", 0) == 0 ? null : IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_link");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");

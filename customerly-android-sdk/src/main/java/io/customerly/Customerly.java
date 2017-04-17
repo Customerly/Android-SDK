@@ -32,7 +32,7 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.WindowManager;
@@ -103,7 +103,7 @@ public class Customerly {
         @NonNull private Runnable checkBackground = () -> {
             if (this.foreground && this.paused) {
                 this.foreground = false;
-                __SOCKET__disconnect(_Socket);
+                __SOCKET__disconnect();
             }
         };
         @Override public void onActivityResumed(Activity activity) {
@@ -313,10 +313,10 @@ public class Customerly {
         }
     }
 
-    @Nullable HtmlMessage _WELCOME__getMessage() {
+    @Nullable Spanned _WELCOME__getMessage() {
         IE_JwtToken token = this._JwtToken;
         return this._isConfigured()
-                ? IU_Utils.decodeHtmlStringWithEmojiTag(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors)
+                ? IU_Utils.fromHtml(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors, null, null)
                 : null;
     }
 
@@ -355,9 +355,9 @@ public class Customerly {
                     Socket socket = this._Socket;
                     if (socket == null || ! socket.connected() || this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
 
-                        this.__SOCKET__disconnect(socket);
+                        this.__SOCKET__disconnect();
                         this.__SOCKET__shouldBeConnected = true;//Rimetto a true perchè la disconnect l'ha messo a false
-                        this.__SOCKET__CurrentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
+                        String currentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
 
                         String query;
                         try {
@@ -376,6 +376,7 @@ public class Customerly {
                             socket = IO.socket(String.format("%s:%s/", this.__SOCKET__Endpoint, this.__SOCKET__Port), options);
                             if(socket != null) {
                                 this._Socket = socket;
+                                this.__SOCKET__CurrentConfiguration = currentConfiguration;
                                 socket.on(SOCKET_EVENT__TYPING, payload -> {
                                     if (payload.length != 0) {
                                         try {
@@ -488,12 +489,11 @@ public class Customerly {
             }
         }
     }
-    private void __SOCKET__disconnect(@Nullable Socket socket) {
+    private void __SOCKET__disconnect() {
         this.__SOCKET__shouldBeConnected = false;
+        Socket socket = this._Socket;
         if (socket != null) {
-            if (socket.connected()) {
-                socket.disconnect();
-            }
+            socket.disconnect();
             this._Socket = null;
             this.__SOCKET__CurrentConfiguration = null;
         }
@@ -605,17 +605,6 @@ public class Customerly {
     /* ****************************************************************************************************************************************************************/
     /* ********************************************************************************************************************************************** Public Methods **/
     /* ****************************************************************************************************************************************************************/
-    /*
-     * A class representing a {@link SpannableStringBuilder} with a method {@link #toPlainTextString()} that convert the formatted text to a plain string
-     */
-    static class HtmlMessage extends SpannableStringBuilder {
-        HtmlMessage(SpannableStringBuilder ssb) {
-            super(ssb);
-        }
-        @NonNull public String toPlainTextString() {
-            return super.toString().replace("\uFFFC", "<IMAGE>");
-        }
-    }
 
     private void __init(@NonNull Context pApplicationContext) {
         Customerly._Instance._AppCacheDir = pApplicationContext.getCacheDir().getPath();
@@ -1273,7 +1262,7 @@ public class Customerly {
                     //noinspection SpellCheckingInspection
                     prefs.edit().remove(PREF_CURRENT_EMAIL).remove(PREF_CURRENT_ID).remove(PREF_CURRENT_COMPANY_INFO).apply();
                 }
-                this.__SOCKET__disconnect(this._Socket);
+                this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
 
                 PW_AlertMessage.onUserLogout();
@@ -1326,7 +1315,7 @@ public class Customerly {
         if(this._SupportEnabled) {
             if(!enabled) {
                 this._SupportEnabled = false;
-                this.__SOCKET__disconnect(this._Socket);
+                this.__SOCKET__disconnect();
             }
         } else {
             if(enabled) {

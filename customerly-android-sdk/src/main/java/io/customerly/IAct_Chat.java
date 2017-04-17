@@ -40,13 +40,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.ImageSpan;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -328,7 +324,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
         IE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && token._UserID != null) {
-            IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pMessage, pAttachments);
+            IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
             IU_NullSafe.post(this._ListRecyclerView, () -> {
                 message.setSending();
                 this._ChatList.add(0, message);
@@ -364,7 +360,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                     }))
                 .opt_trials(2)
                 .param("conversation_id", this._ConversationID)
-                .param("message", message.content == null ? "" : Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ? Html.toHtml(message.content, 0) : Html.toHtml(message.content))
+                .param("message", message.content == null ? "" : message.content)
                 .param("attachments", IE_Attachment.toSendJSONObject(this, message._Attachments))
                 .start();
     }
@@ -463,7 +459,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                         .fitCenter()
                         .transformCircle()
                         .load(IE_Account.getAccountImageUrl(typingAccountID, this._IconSize))
-                        .into(this._Icon)
+                        .into(IAct_Chat.this, this._Icon)
                         .override(this._IconSize, this._IconSize)
                         .placeholder(R.drawable.io_customerly__ic_default_admin));
                 this._Icon.setVisibility(View.VISIBLE);
@@ -535,17 +531,17 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         @NonNull private final LinearLayout _AttachmentLayout;
         @Nullable private final View _Sending;
         @DrawableRes private final int _IcAttachResID;
-        private final float _ItemFromXValueRelative;
+//        private final float _ItemFromXValueRelative;
 
         private final int MIN_ATTACHMENT_WIDTH = IU_Utils.px(150);
 
-        private A_ChatMessageVH(@LayoutRes int pLayoutRes, @DrawableRes int pIcAttachResID, @FloatRange(from=-1, to=1) float pItemFromXValueRelative) {
+        private A_ChatMessageVH(@LayoutRes int pLayoutRes, @DrawableRes int pIcAttachResID, @SuppressWarnings("UnusedParameters") @FloatRange(from=-1, to=1) float pItemFromXValueRelative /* used for animation */) {
             super(pLayoutRes);
             this._Sending = this.itemView.findViewById(R.id.io_customerly__content_sending__only_user_li);
             this._Content.setMovementMethod(LinkMovementMethod.getInstance());
             this._AttachmentLayout = (LinearLayout)this.itemView.findViewById(R.id.io_customerly__attachment_layout);
             this._IcAttachResID = pIcAttachResID;
-            this._ItemFromXValueRelative = pItemFromXValueRelative;
+//            this._ItemFromXValueRelative = pItemFromXValueRelative;
         }
         @Override protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             if (pMessage != null) {//Always != null for this ViewHolder
@@ -562,7 +558,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                             .fitCenter()
                             .transformCircle()
                             .load(pMessage.getImageUrl(this._IconSize))
-                            .into(this._Icon)
+                            .into(IAct_Chat.this, this._Icon)
                             .override(this._IconSize, this._IconSize)
                             .placeholder(R.drawable.io_customerly__ic_default_admin));
                     this._Icon.setVisibility(View.VISIBLE);
@@ -571,24 +567,9 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 }
 
                 if(pMessage.content != null && pMessage.content.length() != 0) {
-                    ClickableSpan[] click_spans = pMessage.content.getSpans(0, pMessage.content.length(),  ClickableSpan.class);
-                    for (ClickableSpan c_span : click_spans) {
-                        pMessage.content.removeSpan(c_span);
-                    }
-                    ImageSpan[] image_spans = pMessage.content.getSpans(0, pMessage.content.length(), ImageSpan.class);
-                    for(final ImageSpan is : image_spans) {
-                        if(is.getSource() != null) {
-                            pMessage.content.setSpan(new ClickableSpan() {
-                                @Override
-                                public void onClick(View widget) {
-                                    startActivity(new Intent(IAct_Chat.this, IAct_FullScreenImage.class)
-                                            .putExtra(IAct_FullScreenImage.EXTRA_IMAGE_SOURCE, is.getSource()));
-                                }
-                            }, pMessage.content.getSpanStart(is), pMessage.content.getSpanEnd(is), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
-                    }
-
-                    this._Content.setText(pMessage.content);
+                    this._Content.setText(pMessage.getContentSpanned(this._Content,
+                        (activity, imageUrl) -> startActivity(new Intent(IAct_Chat.this, IAct_FullScreenImage.class)
+                            .putExtra(IAct_FullScreenImage.EXTRA_IMAGE_SOURCE, imageUrl))));
                     this._Content.setVisibility(View.VISIBLE);
                 } else {
                     this.onEmptyContent();
@@ -638,7 +619,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                                 Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                                         .centerCrop()
                                         .load(attachment.path)
-                                        .into(iv)
+                                        .into(IAct_Chat.this, iv)
                                         .placeholder(R.drawable.io_customerly__pic_placeholder));
                                 ll.setOnClickListener(layout -> startActivity(new Intent(IAct_Chat.this, IAct_FullScreenImage.class)
                                         .putExtra(IAct_FullScreenImage.EXTRA_IMAGE_SOURCE, attachment.path)));
