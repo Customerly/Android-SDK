@@ -97,6 +97,9 @@ public class Customerly {
 
     @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
 
+    @Nullable private ArrayList<Class<? extends Activity>> _DisabledActivities = null;
+    @Nullable private Runnable _PendingRunnableForNotDisabledActivity = null;
+
     @Nullable private WeakReference<Activity> _CurrentActivity;
     @NonNull private final Application.ActivityLifecycleCallbacks __ActivityLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
         private boolean paused = false, foreground = false;
@@ -115,6 +118,11 @@ public class Customerly {
             if (wasBackground) {
                 __SOCKET__connect(null);
                 __PING__Start(null, null);
+            }
+            Runnable pendingRunnableForNotDisabledActivity = _PendingRunnableForNotDisabledActivity;
+            ArrayList<Class<? extends Activity>> disabledActivities = _DisabledActivities;
+            if(pendingRunnableForNotDisabledActivity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
+                pendingRunnableForNotDisabledActivity.run();
             }
         }
         @Override public void onActivityPaused(Activity activity) {
@@ -185,6 +193,7 @@ public class Customerly {
                         .apply();
             }
 
+            _PendingRunnableForNotDisabledActivity = null;
             if(this._HandleSurvey && _SurveyEnabled) {
                 _log("Attempting to display a Survey");
                 IE_Survey[] surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
@@ -193,7 +202,8 @@ public class Customerly {
                         if (survey != null && !survey.isRejectedOrConcluded) {
                             __Handler.postDelayed(() -> {
                                 Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                if(activity != null) {
+                                ArrayList<Class<? extends Activity>> disabledActivities = _DisabledActivities;
+                                if (activity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
                                     try {
                                         try {
                                             IDlgF_Survey.show(activity, survey);
@@ -212,6 +222,32 @@ public class Customerly {
                                         _log("A generic error occurred in Customerly.openSurvey");
                                         IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
                                     }
+                                } else {
+                                    _PendingRunnableForNotDisabledActivity = () -> __Handler.postDelayed(() -> {
+                                        Activity p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                        ArrayList<Class<? extends Activity>> p_disabledActivities = _DisabledActivities;
+                                        if (p_activity != null && (p_disabledActivities == null || ! p_disabledActivities.contains(p_activity.getClass()))) {
+                                            _PendingRunnableForNotDisabledActivity = null;
+                                            try {
+                                                try {
+                                                    IDlgF_Survey.show(p_activity, survey);
+                                                } catch (WindowManager.BadTokenException changedActivityWhileRunning) {
+                                                    p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                    if (p_activity != null) {
+                                                        try {
+                                                            IDlgF_Survey.show(p_activity, survey);
+                                                            _log("Survey successfully displayed");
+                                                        } catch (WindowManager.BadTokenException ignored) {
+                                                            //Second failure.
+                                                        }
+                                                    }
+                                                }
+                                            } catch (Exception generic) {
+                                                _log("A generic error occurred in Customerly.openSurvey");
+                                                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
+                                            }
+                                        }
+                                    }, SURVEY_DISPLAY_DELAY);
                                 }
                             }, SURVEY_DISPLAY_DELAY);
                             return null;
@@ -231,7 +267,8 @@ public class Customerly {
                             if (message != null) {
                                 __Handler.post(() -> {
                                     Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                    if (activity != null) {
+                                    ArrayList<Class<? extends Activity>> disabledActivities = _DisabledActivities;
+                                    if (activity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
                                         if (activity instanceof SDKActivity) {
                                             ArrayList<IE_Message> list = new ArrayList<>(1);
                                             list.add(new IE_Message(message));
@@ -259,6 +296,41 @@ public class Customerly {
                                                 }
                                             }
                                         }
+                                    } else {
+                                        _PendingRunnableForNotDisabledActivity = () -> __Handler.postDelayed(() -> {
+                                            Activity p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                            ArrayList<Class<? extends Activity>> p_disabledActivities = _DisabledActivities;
+                                            if (p_activity != null && (p_disabledActivities == null || ! p_disabledActivities.contains(p_activity.getClass()))) {
+                                                _PendingRunnableForNotDisabledActivity = null;
+                                                if (p_activity instanceof SDKActivity) {
+                                                    ArrayList<IE_Message> list = new ArrayList<>(1);
+                                                    list.add(new IE_Message(message));
+                                                    ((SDKActivity) p_activity).onNewSocketMessages(list);
+                                                } else {
+                                                    try {
+                                                        PW_AlertMessage.show(p_activity, new IE_Message(message));
+                                                        _log("Message alert displayed successfully");
+                                                    } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
+                                                        p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                        if (p_activity != null) {
+                                                            if (p_activity instanceof SDKActivity) {
+                                                                ArrayList<IE_Message> list = new ArrayList<>(1);
+                                                                list.add(new IE_Message(message));
+                                                                ((SDKActivity) p_activity).onNewSocketMessages(list);
+                                                            } else {
+                                                                try {
+                                                                    PW_AlertMessage.show(p_activity, new IE_Message(message));
+                                                                    _log("Message alert displayed successfully");
+                                                                } catch (WindowManager.BadTokenException ignored) {
+                                                                    _log("An error occours while attaching the alertmessage to the window. Activity: " + p_activity.toString());
+                                                                    //Second try failure.
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }, 500);//Delay needed or popup is not showed
                                     }
                                 });
                                 return null;
@@ -437,7 +509,8 @@ public class Customerly {
                                                             .opt_receiver((responseState, new_messages) -> {
                                                                 if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
                                                                     Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                                                                    if (activity != null) {
+                                                                    ArrayList<Class<? extends Activity>> disabledActivities = _DisabledActivities;
+                                                                    if (activity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
                                                                         if (activity instanceof SDKActivity) {
                                                                             ((SDKActivity) activity).onNewSocketMessages(new_messages);
                                                                         } else if (this._SupportEnabled) {
@@ -458,6 +531,33 @@ public class Customerly {
                                                                                 }
                                                                             }
                                                                         }
+                                                                    } else {
+                                                                        _PendingRunnableForNotDisabledActivity = () -> __Handler.postDelayed(() -> {
+                                                                            Activity p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                            ArrayList<Class<? extends Activity>> p_disabledActivities = _DisabledActivities;
+                                                                            if (p_activity != null && (p_disabledActivities == null || ! p_disabledActivities.contains(p_activity.getClass()))) {
+                                                                                if (p_activity instanceof SDKActivity) {
+                                                                                    ((SDKActivity) p_activity).onNewSocketMessages(new_messages);
+                                                                                } else if (this._SupportEnabled) {
+                                                                                    try {
+                                                                                        PW_AlertMessage.show(p_activity, new_messages.get(0));
+                                                                                    } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
+                                                                                        p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                                                                                        if (p_activity != null) {
+                                                                                            if (p_activity instanceof SDKActivity) {
+                                                                                                ((SDKActivity) p_activity).onNewSocketMessages(new_messages);
+                                                                                            } else {
+                                                                                                try {
+                                                                                                    PW_AlertMessage.show(p_activity, new_messages.get(0));
+                                                                                                } catch (WindowManager.BadTokenException ignored) {
+                                                                                                    //Second try failure.
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }, 500);//Delay needed or popup is not showed
                                                                     }
                                                                 }
                                                             })
@@ -697,6 +797,7 @@ public class Customerly {
      * Call this from your custom Application {@link Application#onCreate()}<br>
      *     <br>
      * You can choose to ignore the widget_color provided by the Customerly web console for the action bar styling in support activities and use an app-local widget_color instead.
+     * @param pApplication The application class reference
      * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
      * @param pWidgetColor The custom widget_color. If Color.TRANSPARENT, it will be ignored
      */
@@ -1182,32 +1283,33 @@ public class Customerly {
         }
     }
 
-    /*
-     * Call this method to force a check for pending Surveys or Message for the current user.<br>
+    /**
+     * Call this method to build a task that force a check for pending Surveys or Message for the current user.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * @return The builded task that has to be started with his method {@link UpdateTask#start()}
      */
     @CheckResult @NonNull public UpdateTask update() {
         return new UpdateTask();
     }
 
     /**
-     * Call this method to link your app user to the Customerly session.<br>
-     * This method returns a {@link RegisterUserTask} that has to be started with his method {@link RegisterUserTask#start()}
+     * Call this method to build a task that links your app user to the Customerly session.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param email The mail address of the user
-     *
+     * @return The builded task that has to be started with his method {@link RegisterUserTask#start()}
      */
     @CheckResult @NonNull public RegisterUserTask registerUser(@NonNull String email) {
         return new RegisterUserTask(email);
     }
 
     /**
-     * Call this method to add new custom attributes to the user.<br>
+     * Call this method to build a task that add new custom attributes to the user.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pAttributes Optional attributes for the user. Can contain only String, char, int, long, float or double values
+     * @return The builded task that has to be started with his method {@link SetAttributesTask#start()}
      * @throws IllegalArgumentException is thrown if the attributes check fails
      */
     @CheckResult @NonNull public SetAttributesTask setAttributes(@NonNull HashMap<String, Object> pAttributes) throws IllegalArgumentException {
@@ -1215,11 +1317,12 @@ public class Customerly {
     }
 
     /**
-     * Call this method to add company attributes to the user.<br>
+     * Call this method to build a task that add company attributes to the user.<br>
      * The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pCompany Optional company for the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name
+     * @return The builded task that has to be started with his method {@link SetCompanyTask#start()}
      * @throws IllegalArgumentException is thrown if company map check fails
      */
     @CheckResult @NonNull public SetCompanyTask setCompany(@NonNull HashMap<String, Object> pCompany) throws IllegalArgumentException {
@@ -1331,5 +1434,31 @@ public class Customerly {
      */
     public void setSurveysEnabled(boolean enabled) {
         this._SurveyEnabled = enabled;
+    }
+
+    /**
+     * Call this method to specify an Activity that will never display a message popup or survey.<br>
+     * Every Activity is ENABLED by default
+     * @param activityClass The Activity class
+     * @see #enableOn(Class)
+     */
+    public void disableOn(Class<? extends Activity> activityClass) {
+        ArrayList<Class<? extends Activity>> disabledActivities = this._DisabledActivities;
+        if(disabledActivities == null) {
+            this._DisabledActivities = disabledActivities = new ArrayList<>(1);
+        }
+        disabledActivities.add(activityClass);
+    }
+
+    /**
+     * Call this method to re-enable an Activity previously disabled with {@link #disableOn(Class)}.
+     * @param activityClass The Activity class
+     * @see #disableOn(Class)
+     */
+    public void enableOn(Class<? extends Activity> activityClass) {
+        ArrayList<Class<? extends Activity>> disabledActivities = this._DisabledActivities;
+        if(disabledActivities != null) {
+            disabledActivities.removeIf(c -> c == activityClass);
+        }
     }
 }

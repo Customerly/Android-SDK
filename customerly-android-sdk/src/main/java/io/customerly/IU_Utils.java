@@ -58,7 +58,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import io.customerly.commons.Commons_HtmlFormatter;
-import io.customerly.commons.Handle;
+import io.customerly.commons.LambdaUtil;
 
 /**
  * Created by Gianni on 31/05/16.
@@ -130,7 +130,7 @@ class IU_Utils {
                 : resources.getColorStateList(colorStateListResID);
     }
 
-    @NonNull static Spanned fromHtml(@Nullable String message, @Nullable TextView tv, @Nullable Handle.NoNull.Two<Activity, String> pImageClickableSpan) {
+    @NonNull static Spanned fromHtml(@Nullable String message, @Nullable TextView tv, @Nullable LambdaUtil.V__NN_NN<Activity, String> pImageClickableSpan) {
         return Commons_HtmlFormatter.fromHtml(message, tv, pImageClickableSpan, (context, source, handleDrawable) ->
                 Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                 .load(source)
@@ -138,7 +138,7 @@ class IU_Utils {
                     @Override
                     public void image_placeholder_error(@NonNull Bitmap bmp) {
                         if(tv != null) {
-                            tv.post(() -> handleDrawable.handle(new BitmapDrawable(context.getResources(), bmp)));
+                            tv.post(() -> handleDrawable.lambda(new BitmapDrawable(context.getResources(), bmp)));
                         }
                     }
                     @Override public void placeholder_error(@NonNull Drawable drawable) { }//Never called because no placeholder or error drawable provided in request

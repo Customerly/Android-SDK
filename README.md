@@ -243,11 +243,11 @@ The Company map MUST contain the following two key/values:
 Then you can add as many company attributes as you want, but remember: they can be only String, char, int, long, float, double and boolean.
 
 ```java
-// Eg. This is a company map that contains the company necessary fields (company_id and name) and a custom "foundation year" attribute
+// Eg. This is a company map that contains the company mandatory fields (company_id and name) and a custom "foundation year" attribute
 HashMap<String, Object> companyMap = new HashMap<String, Object>();
-companyMap.put("company_id", "123abc");
-companyMap.put("name", "Customerly");
-companyMap.put("foundation year", 2017);
+companyMap.put("company_id", "123abc");//Mandatory
+companyMap.put("name", "Customerly");//Mandatory
+companyMap.put("foundation year", 2017);//Optionally any other values
 ```
 
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
@@ -268,6 +268,13 @@ Customerly.get().setCompany(companyMap)
     .start();                               //Don't forget to call the start method. It starts the task!
 ```
 
+Un utility builder can be used to build a company hashmap correctly
+
+```java
+// This is the same hashmap created with the builder what helps with the mandatory fields (company_id and name)
+HashMap<String, Object> companyMap = new Customerly.CompanyBuilder("123abc", "Customerly").put("foundation year", 2017).build();
+```
+
 ### Events (Optional)
 
 Send to Customerly every event you want to segment users better
@@ -277,9 +284,26 @@ Send to Customerly every event you want to segment users better
 Customerly.get().trackEvent("added_to_cart");
 ```
 
+### Disable popups and surveys on specific Activities
+
+You can specify some Activities that will never display messages popup and/or surveys  
+This feature is commonly used for SplashScreen that should never display nothing more than their self  
+The best place for using it is in the Application onCreate after the Customerly configuration but you can call this from wherever you want  
+Every Activity is enabled as default
+
+```java
+Customerly.get().disableOn(SplashActivity.class);
+```
+
+Once you have disabled and Activity, you can re-enable it by calling this method
+
+```java
+Customerly.get().enableOn(SplashActivity.class);
+```
+
 ## JavaDoc
 
-Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/BETA-2.0+)
+Explore the SDK [JavaDoc](https://customerly.github.io/android/javadoc/BETA-3.1.8+)
 
 ## Permissions
 

@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import io.customerly.commons.Handle;
+import io.customerly.commons.LambdaUtil;
 
 /**
  * Created by Gianni on 11/09/16.
@@ -78,7 +78,7 @@ class IE_Message {
         this.rich_mail_link = null;
     }
 
-    @NonNull Spanned getContentSpanned(@NonNull TextView tv, @NonNull Handle.NoNull.Two<Activity, String> pImageClickableSpan) {
+    @NonNull Spanned getContentSpanned(@NonNull TextView tv, @NonNull LambdaUtil.V__NN_NN<Activity, String> pImageClickableSpan) {
         if(this.content_Spanned == null) {
             this.content_Spanned = IU_Utils.fromHtml(this.content, tv, pImageClickableSpan);
         }
