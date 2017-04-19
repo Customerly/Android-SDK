@@ -111,7 +111,10 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                                 IU_NullSafe.setVisibility(this._ListRecyclerView, View.VISIBLE);
                                 if(addeditem > 0) {
                                     this._ChatList = new_messages;
-                                    this.adjustBottomScroll();
+                                    boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
+                                    if (scrollToBottom) {
+                                        this._LinearLayoutManager.scrollToPosition(0);
+                                    }
                                     if (previoussize != 0) {
                                         this._Adapter.notifyItemChanged(previoussize - 1);
                                     }
@@ -193,8 +196,11 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                         if (pTyping) {
                             if(this._TypingAccountId == TYPING_NO_ONE) {
                                 this._TypingAccountId = account_id;
+                                boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
                                 this._Adapter.notifyItemInserted(0);
-                                this.adjustBottomScroll();
+                                if (scrollToBottom) {
+                                    this._LinearLayoutManager.scrollToPosition(0);
+                                }
                             } else {
                                 this._TypingAccountId = account_id;
                                 this._Adapter.notifyItemChanged(0);
@@ -258,9 +264,12 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
 
         IU_NullSafe.post(this._ListRecyclerView, () -> {
+            boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
             this._ChatList = new_messages;
-            this.adjustBottomScroll();
             this._Adapter.notifyDataSetChanged();
+            if (scrollToBottom) {
+                this._LinearLayoutManager.scrollToPosition(0);
+            }
         });
 
         if(new_messages.size() != 0) {
@@ -268,13 +277,6 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             if (last.isNotSeen()) {
                 this.sendSeen(last.conversation_message_id);
             }
-        }
-    }
-
-    private void adjustBottomScroll() {
-        if (this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0) {
-            //Bottom of reversed list
-            this._LinearLayoutManager.scrollToPosition(0);
         }
     }
 
@@ -327,9 +329,12 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
             IU_NullSafe.post(this._ListRecyclerView, () -> {
                 message.setSending();
+                boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
                 this._ChatList.add(0, message);
                 this._Adapter.notifyItemInserted(this._TypingAccountId == TYPING_NO_ONE ? 0 : 1);
-                this.adjustBottomScroll();
+                if (scrollToBottom) {
+                    this._LinearLayoutManager.scrollToPosition(0);
+                }
                 this.startSendMessageRequest(message);
             });
         }
