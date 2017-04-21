@@ -34,7 +34,7 @@ repositories {
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = 'BETA-3.1.8'
+def CustomerlySDKVersion = 'BETA-3.1.9'
 
 ext {
     bintrayRepo = 'maven'
@@ -98,7 +98,7 @@ android {
 
 dependencies {
 
-    compile 'io.customerly.commons:customerly-android-commons:1.1.1'
+    compile 'io.customerly.commons:customerly-android-commons:1.1.2'
 //    compile project(':customerly-android-commons')
 
     compile ('io.socket:socket.io-client:0.8.3') {
