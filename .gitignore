@@ -4,3 +4,4 @@
 /build
 customerly-android-sdk/build/
 gradle/
+.idea/
