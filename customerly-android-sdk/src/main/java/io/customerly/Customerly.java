@@ -33,6 +33,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Spanned;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.WindowManager;
@@ -42,6 +43,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -394,7 +396,7 @@ public class Customerly {
 
     interface __SOCKET__ITyping_listener {   void onTypingEvent(long pConversationID, long account_id, boolean pTyping);   }
     @Nullable __SOCKET__ITyping_listener __SOCKET__Typing_listener = null;
-    @Nullable private String __SOCKET__Endpoint = null, __SOCKET__Port = null;
+    @Nullable private String __SOCKET__Token = null, __SOCKET__Endpoint = null, __SOCKET__Port = null;
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     private boolean __SOCKET__shouldBeConnected = false;
     @NonNull private final Runnable __SOCKET__ping = () -> {
@@ -415,34 +417,46 @@ public class Customerly {
         /*  "webSocket": {
               "endpoint": "https://ws2.customerly.io",
               "port": "8080"  }  */
+            this.__SOCKET__Token = IU_Utils.jsonOptStringWithNullCheck(webSocket, "token");
             this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
             this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
         }
 
         if(this._SupportEnabled) {
             this.__SOCKET__shouldBeConnected = true;//Metto a true perchè potremmo non entrare nei successivi if
-            if (this._AppID != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
+            if (this._AppID != null && this.__SOCKET__Token != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
                 IE_JwtToken token = this._JwtToken;
                 if (token != null && token._UserID != null) {
                     Socket socket = this._Socket;
-                    if (socket == null || ! socket.connected() || this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
+                    if (socket == null || ! socket.connected() || this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%s-%d", this.__SOCKET__Token, this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
 
                         this.__SOCKET__disconnect();
                         this.__SOCKET__shouldBeConnected = true;//Rimetto a true perchè la disconnect l'ha messo a false
-                        String currentConfiguration = String.format(Locale.UK, "%s-%s-%d", this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
+                        String currentConfiguration = String.format(Locale.UK, "%s-%s-%s-%d", this.__SOCKET__Token, this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID);
 
                         String query;
                         try {
-                            query = "json=" + new JSONObject().put("nsp", "user").put("is_mobile", true).put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
+                            query = "token=" + Base64.encodeToString(
+                                new JSONObject(new String(Base64.decode(this.__SOCKET__Token, Base64.DEFAULT), "UTF-8"))
+                                        .put("is_mobile", true).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION)
+                                        .toString().getBytes("UTF-8"),
+                                        Base64.NO_WRAP)
+                                + "&json=" + new JSONObject().put("nsp", "user").put("is_mobile", true).put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
                         } catch (JSONException error) {
                             return;
+                        } catch (UnsupportedEncodingException e) {
+                            return;
                         }
+                        /*
+
+                         */
                         try {
                             IO.Options options = new IO.Options();
                             options.secure = true;
                             options.forceNew = true;
-                            options.reconnectionDelay = 15000;
-                            options.reconnectionDelayMax = 60000;
+                            options.reconnection = false;
+//                            options.reconnectionDelay = 15000;
+//                            options.reconnectionDelayMax = 60000;
                             options.query = query;
 
                             socket = IO.socket(String.format("%s:%s/", this.__SOCKET__Endpoint, this.__SOCKET__Port), options);
@@ -570,8 +584,15 @@ public class Customerly {
                                     }
                                 });
 
-                                socket.on(Socket.EVENT_DISCONNECT, p -> this.__SOCKET__check());
-
+                                final long connectTime = System.currentTimeMillis();
+                                socket.on(Socket.EVENT_DISCONNECT, p -> {
+                                    Log.e("SOCKET", "DISCONNECT");//TODO
+                                    if(System.currentTimeMillis() > connectTime + 15000L) {
+                                        //Trick to avoid reconnection loop caused by disconnection after connection
+                                        this.__SOCKET__check();
+                                    }
+                                });
+                                Log.e("SOCKET", "connect");//TODO
                                 socket.connect();
                                 this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
                             }
@@ -593,9 +614,10 @@ public class Customerly {
         this.__SOCKET__shouldBeConnected = false;
         Socket socket = this._Socket;
         if (socket != null) {
-            socket.disconnect();
             this._Socket = null;
             this.__SOCKET__CurrentConfiguration = null;
+	        socket.off();
+            socket.disconnect();
         }
         this.__Handler.removeCallbacks(this.__SOCKET__ping);
     }
@@ -1458,7 +1480,11 @@ public class Customerly {
     public void enableOn(Class<? extends Activity> activityClass) {
         ArrayList<Class<? extends Activity>> disabledActivities = this._DisabledActivities;
         if(disabledActivities != null) {
-            disabledActivities.removeIf(c -> c == activityClass);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                disabledActivities.removeIf(c -> c == activityClass);
+            } else {
+                disabledActivities.remove(activityClass);
+            }
         }
     }
 }
