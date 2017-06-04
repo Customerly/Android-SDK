@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -436,11 +437,12 @@ public class Customerly {
 
                         String query;
                         try {
-                            query = "token=" + Base64.encodeToString(
+                            query = "token=" +
+                                    URLEncoder.encode(Base64.encodeToString(
                                 new JSONObject(new String(Base64.decode(this.__SOCKET__Token, Base64.DEFAULT), "UTF-8"))
                                         .put("is_mobile", true).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION)
                                         .toString().getBytes("UTF-8"),
-                                        Base64.NO_WRAP)
+                                        Base64.NO_WRAP), "UTF-8")
                                 + "&json=" + new JSONObject().put("nsp", "user").put("is_mobile", true).put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
                         } catch (JSONException error) {
                             return;
@@ -586,13 +588,11 @@ public class Customerly {
 
                                 final long connectTime = System.currentTimeMillis();
                                 socket.on(Socket.EVENT_DISCONNECT, p -> {
-                                    Log.e("SOCKET", "DISCONNECT");//TODO
                                     if(System.currentTimeMillis() > connectTime + 15000L) {
                                         //Trick to avoid reconnection loop caused by disconnection after connection
                                         this.__SOCKET__check();
                                     }
                                 });
-                                Log.e("SOCKET", "connect");//TODO
                                 socket.connect();
                                 this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
                             }
