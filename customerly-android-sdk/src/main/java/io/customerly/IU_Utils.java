@@ -297,12 +297,17 @@ class IU_Utils {
         return obj.isNull(key) ? fallback : obj.optString(key, fallback);
     }
 
-    @Contract(value = "null,_ -> null; !null,_ -> _", pure = true)
+    @Contract(value = "null,!null -> null; !null,!null -> _", pure = true)
     @Nullable static String getStringSafe(@Nullable SharedPreferences pref, @NonNull String key) {
+        return IU_Utils.getStringSafe(pref, key, null);
+    }
+
+    @Contract(value = "null,!null,_ -> null; !null,!null,null -> _; !null,!null,!null -> !null", pure = true)
+    @Nullable static String getStringSafe(@Nullable SharedPreferences pref, @NonNull String key, @Nullable String defValue) {
         try {
-            return pref == null ? null : pref.getString(key, null);
+            return pref == null ? null : pref.getString(key, defValue);
         } catch (Exception not_string) {
-            return null;
+            return defValue;
         }
     }
 

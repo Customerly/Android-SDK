@@ -38,6 +38,8 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.WindowManager;
 
+import com.github.zafarkhaja.semver.Version;
+
 import org.intellij.lang.annotations.Subst;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,6 +63,7 @@ import io.socket.client.Socket;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
+    private static final String PREFS_PING_RESPONSE__MIN_VERSION = "PREFS_PING_RESPONSE__MIN_VERSION";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__BACKGROUND_THEME_URL = "PREFS_PING_RESPONSE__BACKGROUND_THEME_URL";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
@@ -91,6 +94,7 @@ public class Customerly {
 
     @Nullable private Socket _Socket;
 
+    @NonNull private String __PING__LAST_min_version = "0.0.0";
     private long __PING__next_ping_allowed = 0L;
     @ColorInt int __PING__LAST_widget_color;
     @Nullable String __PING__LAST_widget_background_url;
@@ -118,7 +122,7 @@ public class Customerly {
             boolean wasBackground = !this.foreground;
             this.foreground = true;
             __Handler.removeCallbacks(this.checkBackground);
-            if (wasBackground) {
+            if (wasBackground && _isConfigured()) {
                 __SOCKET__connect(null);
                 __PING__Start(null, null);
             }
@@ -154,6 +158,7 @@ public class Customerly {
         @Nullable
         @Override
         public final Void convert(@NonNull JSONObject root) throws JSONException {
+            __PING__LAST_min_version = root.optString("min-version-android", "0.0.0");
             __PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
             __SOCKET__connect(root.optJSONObject("websocket"));
             JSONObject app_config = root.optJSONObject("app_config");
@@ -188,6 +193,7 @@ public class Customerly {
             final SharedPreferences prefs = _SharedPreferences;
             if(prefs != null) {
                 prefs.edit()
+                        .putString(PREFS_PING_RESPONSE__MIN_VERSION, __PING__LAST_min_version)
                         .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, __PING__LAST_widget_color)
                         .putString(PREFS_PING_RESPONSE__BACKGROUND_THEME_URL, __PING__LAST_widget_background_url)
                         .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, __PING__LAST_powered_by)
@@ -360,7 +366,7 @@ public class Customerly {
             this.__PING__DeviceJSON.put("os", "Android")
                     .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
                     .put("os_version", Build.VERSION.SDK_INT)
-                    .put("sdk_version", BuildConfig.VERSION_CODE)
+                    .put("sdk_version", BuildConfig.VERSION_NAME)
                     .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
                     .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION);
         } catch (JSONException ignored) { }
@@ -372,7 +378,7 @@ public class Customerly {
             IEr_CustomerlyErrorHandler.sendNotConfiguredError();
             return false;
         } else {
-            return true;
+            return this.isSDKavailable();
         }
     }
 
@@ -401,12 +407,14 @@ public class Customerly {
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     private boolean __SOCKET__shouldBeConnected = false;
     @NonNull private final Runnable __SOCKET__ping = () -> {
-        this.__SOCKET__check();
-        Socket socket = this._Socket;
-        if (socket != null) {
-            Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-            socket.emit(activity != null && activity instanceof SDKActivity ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
-            this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+        if(this.isSDKavailable()) {
+            this.__SOCKET__check();
+            Socket socket = this._Socket;
+            if (socket != null) {
+                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
+                socket.emit(activity != null && activity instanceof SDKActivity ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
+                this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
+            }
         }
     };
     interface SDKActivity {
@@ -414,7 +422,7 @@ public class Customerly {
         void onLogoutUser();
     }
     private void __SOCKET__connect(@Nullable JSONObject webSocket) {
-        if (webSocket != null) {
+        if (webSocket != null && this.isSDKavailable()) {
         /*  "webSocket": {
               "endpoint": "https://ws2.customerly.io",
               "port": "8080"  }  */
@@ -632,7 +640,6 @@ public class Customerly {
             socket.emit(event, payloadJson);
         }
     }
-
     void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping, @Nullable String pText) {
         //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "y", typing_preview: "I am writ"}
         IE_JwtToken token = this._JwtToken;
@@ -739,6 +746,13 @@ public class Customerly {
             } catch (JSONException ignored) { }
         }
         try {
+            Customerly._Instance.__PING__DeviceJSON.put("app_package", pApplicationContext.getPackageName());
+        } catch (JSONException | NullPointerException err) {
+            try {
+                Customerly._Instance.__PING__DeviceJSON.put("app_package", "<Error retrieving the app app_package>");
+            } catch (JSONException ignored) { }
+        }
+        try {
             PackageInfo pinfo = pApplicationContext.getPackageManager().getPackageInfo(pApplicationContext.getPackageName(), 0);
             Customerly._Instance.__PING__DeviceJSON.put("app_version", pinfo.versionName).put("app_build", pinfo.versionCode);
         } catch (JSONException | PackageManager.NameNotFoundException err) {
@@ -764,6 +778,7 @@ public class Customerly {
         Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
 
         //PING
+        Customerly._Instance.__PING__LAST_min_version = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__MIN_VERSION, "0.0.0");
         Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
         Customerly._Instance.__PING__LAST_widget_background_url = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
         Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
@@ -1445,7 +1460,9 @@ public class Customerly {
         } else {
             if(enabled) {
                 this._SupportEnabled = true;
-                this.__SOCKET__connect(null);
+                if(this._isConfigured()) {
+                    this.__SOCKET__connect(null);
+                }
             }
         }
     }
@@ -1485,6 +1502,14 @@ public class Customerly {
             } else {
                 disabledActivities.remove(activityClass);
             }
+        }
+    }
+
+    public boolean isSDKavailable() {
+        try {
+            return Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.__PING__LAST_min_version));
+        } catch (Exception any) {
+            return false;
         }
     }
 }

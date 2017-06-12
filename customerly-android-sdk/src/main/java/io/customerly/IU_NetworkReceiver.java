@@ -18,7 +18,7 @@ public class IU_NetworkReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && IU_Utils.checkConnection(context)) {
-            IU_NetworkReceiver.onConnection();
+            Customerly.get().__SOCKET__check();
         }
     }
 
@@ -41,14 +41,10 @@ public class IU_NetworkReceiver extends BroadcastReceiver {
                                 connected = ConnectivityManager.setProcessDefaultNetwork(network);
                             }
                             if(connected) {
-                                IU_NetworkReceiver.onConnection();
+                                Customerly.get().__SOCKET__check();
                             }
                         }
                     });
         }
-    }
-
-    private static void onConnection() {
-        Customerly.get().__SOCKET__check();
     }
 }
