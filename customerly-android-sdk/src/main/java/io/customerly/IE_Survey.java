@@ -47,8 +47,9 @@ class IE_Survey implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.subtitle);
         dest.writeString(this.thank_you_text);
-        dest.writeParcelableArray(this.choices, 0);
-
+        try {
+            dest.writeTypedArray(this.choices, 0);
+        } catch (Exception ignored) { }
     }
     private IE_Survey(@NonNull Parcel in) {
         this.survey_id = in.readInt();
@@ -89,7 +90,11 @@ class IE_Survey implements Parcelable {
         this.title = in.readString();
         this.subtitle = in.readString();
         this.thank_you_text = in.readString();
-        this.choices = (Choice[])in.readParcelableArray(Choice.class.getClassLoader());
+        try {
+            this.choices = in.createTypedArray(Choice.CREATOR);
+        } catch (Exception ex) {
+            this.choices = null;
+        }
     }
     @Override public int describeContents() { return 0; }
     @NonNull public static final Parcelable.Creator<IE_Survey> CREATOR = new Parcelable.Creator<IE_Survey>() {

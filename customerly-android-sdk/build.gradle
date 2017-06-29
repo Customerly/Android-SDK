@@ -34,7 +34,7 @@ repositories {
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = '1.0.0-beta2'
+def CustomerlySDKVersion = '1.0.0-beta3-as2.3.2-v2'
 
 ext {
     bintrayRepo = 'maven'

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -118,7 +119,9 @@ public class IDlgF_Survey extends DialogFragment {
                                 .opt_converter(IE_Survey::from)
                                 .opt_receiver((responseState, surveyBack) -> {
                                     if (responseState != IApi_Request.RESPONSE_STATE__OK) {
-                                        Toast.makeText(this.getActivity().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                                        Context context = this.getActivity();
+                                        context = context != null ? context.getApplicationContext() : null;
+                                        Toast.makeText(context, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                                     }
                                     this._ProgressView.setVisibility(View.GONE);
                                     this.applySurvey(surveyBack);
@@ -154,7 +157,8 @@ public class IDlgF_Survey extends DialogFragment {
     }
 
     private void applySurvey(@Nullable IE_Survey survey) {
-        if (survey == null) {
+        Context context = this.getActivity();
+        if (survey == null || context == null) {
             this.dismissAllowingStateLoss();
             return;
         }
@@ -163,7 +167,7 @@ public class IDlgF_Survey extends DialogFragment {
             this._Back.setVisibility(View.INVISIBLE);
             this._SurveyCompleted = true;
             survey.isRejectedOrConcluded = true;
-            TextView thank_you = new TextView(this.getActivity());
+            TextView thank_you = new TextView(context);
             thank_you.setTextColor(Color.BLACK);
             thank_you.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
             thank_you.setText(IU_Utils.fromHtml(survey.thank_you_text, null, null));
@@ -184,7 +188,7 @@ public class IDlgF_Survey extends DialogFragment {
                 case IE_Survey.TYPE_BUTTON:
                     if (survey.choices != null) {
                         for (IE_Survey.Choice c : survey.choices) {
-                            Button b = new Button(this.getActivity());
+                            Button b = new Button(context);
                             {
                                 b.setTextColor(Color.WHITE);
                                 b.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
@@ -203,7 +207,7 @@ public class IDlgF_Survey extends DialogFragment {
                     break;
                 case IE_Survey.TYPE_RADIO:
                     if (survey.choices != null) {
-                        LayoutInflater inflater = LayoutInflater.from(this.getActivity());
+                        LayoutInflater inflater = LayoutInflater.from(context);
                         for (IE_Survey.Choice c : survey.choices) {
 
                             AppCompatRadioButton radio = (AppCompatRadioButton) inflater.inflate(R.layout.io_customerly__surveyitem_radio, this._SurveyContainer, false);
@@ -217,7 +221,7 @@ public class IDlgF_Survey extends DialogFragment {
                     break;
                 case IE_Survey.TYPE_LIST:
                     if (survey.choices != null) {
-                        AppCompatSpinner spinner = new AppCompatSpinner(this.getActivity());
+                        AppCompatSpinner spinner = new AppCompatSpinner(context);
                         {
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, IU_Utils.px(40));
                             lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
@@ -235,7 +239,7 @@ public class IDlgF_Survey extends DialogFragment {
                                 public void onNothingSelected(AdapterView<?> parent) {
                                 }
                             });
-                            spinner.setAdapter(new ArrayAdapter<IE_Survey.Choice>(this.getActivity(), android.R.layout.simple_spinner_dropdown_item, survey.choices) {
+                            spinner.setAdapter(new ArrayAdapter<IE_Survey.Choice>(context, android.R.layout.simple_spinner_dropdown_item, survey.choices) {
                                 @Override
                                 public long getItemId(int position) {
                                     if (position == 0) {
@@ -298,15 +302,15 @@ public class IDlgF_Survey extends DialogFragment {
                     }
                     break;
                 case IE_Survey.TYPE_SCALE:
-                    LinearLayout ll_root = new LinearLayout(this.getActivity());
+                    LinearLayout ll_root = new LinearLayout(context);
                 {
                     ll_root.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                     ll_root.setOrientation(LinearLayout.VERTICAL);
                     ll_root.setGravity(Gravity.CENTER_HORIZONTAL);
 
-                    Button confirm = new Button(this.getActivity());
+                    Button confirm = new Button(context);
 
-                    LinearLayout ll_seek = new LinearLayout(this.getActivity());
+                    LinearLayout ll_seek = new LinearLayout(context);
                     {
                         ll_seek.setOrientation(LinearLayout.HORIZONTAL);
                         ll_seek.setGravity(Gravity.CENTER_VERTICAL);
@@ -314,7 +318,7 @@ public class IDlgF_Survey extends DialogFragment {
                         lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
                         ll_seek.setLayoutParams(lp);
 
-                        TextView min = new TextView(this.getActivity());
+                        TextView min = new TextView(context);
                         {
                             min.setTextColor(Color.BLACK);
                             min.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
@@ -325,7 +329,7 @@ public class IDlgF_Survey extends DialogFragment {
                         }
                         ll_seek.addView(min);
 
-                        AppCompatSeekBar seekBar = (AppCompatSeekBar) LayoutInflater.from(this.getActivity()).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
+                        AppCompatSeekBar seekBar = (AppCompatSeekBar) LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, ll_seek, false);
                         {
                             seekBar.setMax(survey.limit_to - survey.limit_from);
                             seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -348,7 +352,7 @@ public class IDlgF_Survey extends DialogFragment {
                         }
                         ll_seek.addView(seekBar);
 
-                        TextView max = new TextView(this.getActivity());
+                        TextView max = new TextView(context);
                         {
                             max.setTextColor(Color.BLACK);
                             max.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
@@ -366,7 +370,7 @@ public class IDlgF_Survey extends DialogFragment {
                         confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
                         confirm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                         confirm.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-                        confirm.setText(this.getActivity().getString(R.string.io_customerly__confirm_x, survey.limit_from));
+                        confirm.setText(context.getString(R.string.io_customerly__confirm_x, survey.limit_from));
                         confirm.setTag(survey.limit_from);
                         confirm.setGravity(Gravity.CENTER);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
@@ -379,7 +383,7 @@ public class IDlgF_Survey extends DialogFragment {
                 this._SurveyContainer.addView(ll_root);
                 break;
                 case IE_Survey.TYPE_STAR:
-                    AppCompatRatingBar ratingBar = (AppCompatRatingBar) LayoutInflater.from(this.getActivity()).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
+                    AppCompatRatingBar ratingBar = (AppCompatRatingBar) LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
                 {
                     ratingBar.setOnRatingBarChangeListener((rBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
                 }
@@ -388,13 +392,13 @@ public class IDlgF_Survey extends DialogFragment {
                 case IE_Survey.TYPE_NUMBER:
                 case IE_Survey.TYPE_TEXT_BOX:
                 case IE_Survey.TYPE_TEXT_AREA:
-                    LinearLayout ll = new LinearLayout(this.getActivity());
+                    LinearLayout ll = new LinearLayout(context);
                 {
                     ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                     ll.setOrientation(LinearLayout.VERTICAL);
                     ll.setGravity(Gravity.CENTER_HORIZONTAL);
 
-                    AppCompatEditText editText = (AppCompatEditText) LayoutInflater.from(this.getActivity()).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
+                    AppCompatEditText editText = (AppCompatEditText) LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
                     {
                         switch (survey.type) {
                             case IE_Survey.TYPE_NUMBER:
@@ -422,7 +426,7 @@ public class IDlgF_Survey extends DialogFragment {
                     }
                     ll.addView(editText);
 
-                    Button confirm = new Button(this.getActivity());
+                    Button confirm = new Button(context);
                     {
                         confirm.setTextColor(Color.WHITE);
                         confirm.setBackgroundResource(R.drawable.io_customerly__button_blue_state);
@@ -450,7 +454,7 @@ public class IDlgF_Survey extends DialogFragment {
             }
             if (!survey.seen) {
                 new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_SEEN)
-                        .opt_checkConn(this.getActivity())
+                        .opt_checkConn(context)
                         .opt_tokenMandatory()
                         .opt_trials(2)
                         .param("survey_id", survey.survey_id)
@@ -473,7 +477,9 @@ public class IDlgF_Survey extends DialogFragment {
                 .opt_converter(pSurvey::updateFrom)
                 .opt_receiver((responseState, survey) -> {
                     if (responseState != IApi_Request.RESPONSE_STATE__OK) {
-                        Toast.makeText(this.getActivity().getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
+                        Context context = this.getActivity();
+                        context = context != null ? context.getApplicationContext() : null;
+                        Toast.makeText(context, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                     }
                     this._ProgressView.setVisibility(View.GONE);
                     this.applySurvey(survey);
