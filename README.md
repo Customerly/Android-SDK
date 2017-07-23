@@ -47,12 +47,6 @@ Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Down
 In your module `build.gradle` add:
 
 ```gradle
-repositories {//When the repository will be hosted on jcenter this won't be necessary anymore
-    maven {
-        url 'https://dl.bintray.com/giannign1/maven/'
-    }
-}
-
 dependencies {
     compile 'io.customerly:customerly-android-sdk:VERSION_NAME'
 }

@@ -17,7 +17,9 @@ import android.os.Build;
 public class IU_NetworkReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && IU_Utils.checkConnection(context)) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+                && intent != null && "android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())
+                && IU_Utils.checkConnection(context)) {
             Customerly.get().__SOCKET__check();
         }
     }

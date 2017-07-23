@@ -100,12 +100,17 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
 
                             Collections.sort(pNewMessages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC);
                             //noinspection Convert2streamapi
+                            int indexScrollLastUnread = 0;
                             for(IE_Message newMsg : pNewMessages) {
                                 if(! this._ChatList.contains(newMsg)) {           //Avoid duplicates;
                                     new_messages.add(newMsg);
+                                    if(indexScrollLastUnread == 0 && newMsg.isNotSeen()) {
+                                        indexScrollLastUnread++;
+                                    }
                                 }
                             }
                             int addeditem = new_messages.size() - previoussize;
+                            int finalIndexScrollLastUnread = indexScrollLastUnread;
                             IU_NullSafe.post(this._ListRecyclerView, () -> {
                                 IU_NullSafe.setVisibility(this._Progress_view, View.GONE);
                                 IU_NullSafe.setVisibility(this._ListRecyclerView, View.VISIBLE);
@@ -114,6 +119,8 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                                     boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
                                     if (scrollToBottom) {
                                         this._LinearLayoutManager.scrollToPosition(0);
+                                    } else if(previoussize == 0 && finalIndexScrollLastUnread != 0 && this._LinearLayoutManager != null) {
+                                        this._LinearLayoutManager.scrollToPosition(finalIndexScrollLastUnread);
                                     }
                                     if (previoussize != 0) {
                                         this._Adapter.notifyItemChanged(previoussize - 1);

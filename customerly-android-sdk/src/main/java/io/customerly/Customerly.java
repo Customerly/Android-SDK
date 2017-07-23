@@ -63,7 +63,6 @@ import io.socket.client.Socket;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
-    private static final String PREFS_PING_RESPONSE__MIN_VERSION = "PREFS_PING_RESPONSE__MIN_VERSION";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__BACKGROUND_THEME_URL = "PREFS_PING_RESPONSE__BACKGROUND_THEME_URL";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
@@ -71,8 +70,6 @@ public class Customerly {
     private static final String PREFS_PING_RESPONSE__WELCOME_VISITORS = "PREFS_PING_RESPONSE__WELCOME_VISITORS";
     private static final String PREF_CURRENT_EMAIL = "regusrml", PREF_CURRENT_ID = "regusrid", PREF_CURRENT_COMPANY_INFO = "cmpnynfo";
     private static final long SOCKET_PING_INTERVAL = 60000, SURVEY_DISPLAY_DELAY = 5000L;
-    private static final String SOCKET_EVENT__PING = "p";
-    private static final String SOCKET_EVENT__PING_ACTIVE = "a";
     private static final String SOCKET_EVENT__TYPING = "typing";
     private static final String SOCKET_EVENT__SEEN = "seen";
     private static final String SOCKET_EVENT__MESSAGE = "message";
@@ -101,6 +98,8 @@ public class Customerly {
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable IE_Admin[] __PING__LAST_active_admins;
+    private boolean __PING__LAST_isInsolvent;
+    private boolean _SupportEnabled = true, _SurveyEnabled = true;
 
     @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
 
@@ -146,8 +145,6 @@ public class Customerly {
         @Override public void onActivityStarted(Activity activity) { }
     };
 
-    private boolean _SupportEnabled = true, _SurveyEnabled = true;
-
     private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
         private final boolean _HandleAlertMessage, _HandleSurvey;
         private PingResponseConverter(boolean handleSurvey, boolean handleAlertMessage) {
@@ -161,6 +158,10 @@ public class Customerly {
             __PING__LAST_min_version = root.optString("min-version-android", "0.0.0");
             __PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
             __SOCKET__connect(root.optJSONObject("websocket"));
+            JSONObject app = root.optJSONObject("app");
+            if(app != null) {
+                __PING__LAST_isInsolvent = root.optInt("insolvent", 0) == 1;
+            }
             JSONObject app_config = root.optJSONObject("app_config");
             if(app_config != null) {
                 if(__WidgetColor__HardCoded == Color.TRANSPARENT) {
@@ -193,7 +194,6 @@ public class Customerly {
             final SharedPreferences prefs = _SharedPreferences;
             if(prefs != null) {
                 prefs.edit()
-                        .putString(PREFS_PING_RESPONSE__MIN_VERSION, __PING__LAST_min_version)
                         .putInt(PREFS_PING_RESPONSE__WIDGET_COLOR, __PING__LAST_widget_color)
                         .putString(PREFS_PING_RESPONSE__BACKGROUND_THEME_URL, __PING__LAST_widget_background_url)
                         .putBoolean(PREFS_PING_RESPONSE__POWERED_BY, __PING__LAST_powered_by)
@@ -406,17 +406,6 @@ public class Customerly {
     @Nullable private String __SOCKET__Token = null, __SOCKET__Endpoint = null, __SOCKET__Port = null;
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     private boolean __SOCKET__shouldBeConnected = false;
-    @NonNull private final Runnable __SOCKET__ping = () -> {
-        if(this.isSDKavailable()) {
-            this.__SOCKET__check();
-            Socket socket = this._Socket;
-            if (socket != null) {
-                Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
-                socket.emit(activity != null && activity instanceof SDKActivity ? SOCKET_EVENT__PING_ACTIVE : SOCKET_EVENT__PING);
-                this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
-            }
-        }
-    };
     interface SDKActivity {
         void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages);
         void onLogoutUser();
@@ -450,8 +439,7 @@ public class Customerly {
                                 new JSONObject(new String(Base64.decode(this.__SOCKET__Token, Base64.DEFAULT), "UTF-8"))
                                         .put("is_mobile", true).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION)
                                         .toString().getBytes("UTF-8"),
-                                        Base64.NO_WRAP), "UTF-8")
-                                + "&json=" + new JSONObject().put("nsp", "user").put("is_mobile", true).put("app", this._AppID).put("id", token._UserID).put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION).toString();
+                                        Base64.NO_WRAP), "UTF-8");
                         } catch (JSONException error) {
                             return;
                         } catch (UnsupportedEncodingException e) {
@@ -474,12 +462,17 @@ public class Customerly {
                                 this._Socket = socket;
                                 this.__SOCKET__CurrentConfiguration = currentConfiguration;
                                 socket.on(SOCKET_EVENT__TYPING, payload -> {
-                                    if (payload.length != 0) {
+                                    if (payload != null && payload.length != 0) {
                                         try {
                                             JSONObject payloadJson = (JSONObject) payload[0];
                                     /*  {   client : {account_id: 82, name: "Gianni"},
                                             conversation : {conversation_id: "173922", account_id: 82, user_id: 55722, is_note: false},
                                             is_typing : "n" } */
+
+
+                                            //{"conversation":{"conversation_id":"327298","account_id":82,"user_id":310083,"is_note":false},
+                                            // "is_typing":"y",
+                                            // "client":{"account_id":82,"name":"Gianni"}
                                             JSONObject client = payloadJson.optJSONObject("client");
                                             if (client != null) {
                                                 long account_id = client.optLong("account_id", -1L);
@@ -507,7 +500,7 @@ public class Customerly {
                                     }
                                 });
                                 socket.on(SOCKET_EVENT__MESSAGE, payload -> {
-                                    if (payload.length != 0) {
+                                    if (payload != null && payload.length != 0) {
                                         try {
                                             JSONObject payloadJson = (JSONObject) payload[0];
                                     /*
@@ -602,7 +595,6 @@ public class Customerly {
                                     }
                                 });
                                 socket.connect();
-                                this.__Handler.postDelayed(this.__SOCKET__ping, SOCKET_PING_INTERVAL);
                             }
                         } catch (Exception ignored) { }
                     }
@@ -627,7 +619,6 @@ public class Customerly {
 	        socket.off();
             socket.disconnect();
         }
-        this.__Handler.removeCallbacks(this.__SOCKET__ping);
     }
     private void __SOCKET__SEND(@NonNull String event, @NonNull JSONObject payloadJson) {
         this.__SOCKET__check();
@@ -778,7 +769,6 @@ public class Customerly {
         Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
 
         //PING
-        Customerly._Instance.__PING__LAST_min_version = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__MIN_VERSION, "0.0.0");
         Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
         Customerly._Instance.__PING__LAST_widget_background_url = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
         Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
@@ -1507,7 +1497,7 @@ public class Customerly {
 
     public boolean isSDKavailable() {
         try {
-            return Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.__PING__LAST_min_version));
+            return ! this.__PING__LAST_isInsolvent && Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.__PING__LAST_min_version));
         } catch (Exception any) {
             return false;
         }
