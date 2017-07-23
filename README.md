@@ -47,6 +47,12 @@ Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Down
 In your module `build.gradle` add:
 
 ```gradle
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
 dependencies {
     compile 'io.customerly:customerly-android-sdk:VERSION_NAME'
 }
