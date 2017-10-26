@@ -70,5 +70,6 @@
     <string name="io_customerly__support">Supporto</string>
     <string name="io_customerly__open_conversation">Apri conversazione</string>
     <string name="io_customerly__cant_access_external_memory">Impossibile accedere alla memoria esterna</string>
+    <string name="io_customerly__open_in_browser">Apri nel browser</string>
 
 </resources>

@@ -26,15 +26,10 @@ buildscript {
     }
 }
 
-repositories {
-    //When the repository will be hosted on jcenter this won't be necessary anymore
-    maven { url 'https://dl.bintray.com/giannign1/maven/' }
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = '1.0.0'
+def CustomerlySDKVersion = '1.0.3'
 
 ext {
     bintrayRepo = 'maven'
@@ -67,7 +62,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 1
+        versionCode 2
         versionName "$CustomerlySDKVersion"
         consumerProguardFiles 'proguard-rules.pro'
     }

@@ -98,8 +98,9 @@ public class Customerly {
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
     @Nullable IE_Admin[] __PING__LAST_active_admins;
-    private boolean __PING__LAST_isInsolvent;
     private boolean _SupportEnabled = true, _SurveyEnabled = true;
+
+    private boolean __isAppInsolvent = false;
 
     @NonNull JSONObject __PING__DeviceJSON = new JSONObject();
 
@@ -158,10 +159,6 @@ public class Customerly {
             __PING__LAST_min_version = root.optString("min-version-android", "0.0.0");
             __PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
             __SOCKET__connect(root.optJSONObject("websocket"));
-            JSONObject app = root.optJSONObject("app");
-            if(app != null) {
-                __PING__LAST_isInsolvent = root.optInt("insolvent", 0) == 1;
-            }
             JSONObject app_config = root.optJSONObject("app_config");
             if(app_config != null) {
                 if(__WidgetColor__HardCoded == Color.TRANSPARENT) {
@@ -673,6 +670,10 @@ public class Customerly {
                         .put("seen_date", pSeenDate));
             } catch (JSONException ignored) { }
         }
+    }
+
+    void _setIsAppInsolvent() {
+        this.__isAppInsolvent = true;
     }
 
     @SuppressLint("CommitTransaction")
@@ -1220,6 +1221,48 @@ public class Customerly {
         }
     }
 
+    /**
+     * Utility builder for Attributes Hashmap
+     */
+    public static class AttributesBuilder {
+        @NonNull private final HashMap<String,Object> attrs = new HashMap<>();
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, @NonNull String value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, int value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, byte value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, long value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, double value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, float value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, char value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, boolean value) {
+            this.attrs.put(key, value);
+            return this;
+        }
+        @NonNull public HashMap<String,Object> build() {
+            return this.attrs;
+        }
+    }
+
     public final class SetCompanyTask extends __Task {
         @NonNull private final JSONObject company;
         /**
@@ -1495,9 +1538,12 @@ public class Customerly {
         }
     }
 
+    /**
+     * @return Returns true if the SDK is available.
+     */
     public boolean isSDKavailable() {
         try {
-            return ! this.__PING__LAST_isInsolvent && Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.__PING__LAST_min_version));
+            return ! this.__isAppInsolvent && Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.__PING__LAST_min_version));
         } catch (Exception any) {
             return false;
         }

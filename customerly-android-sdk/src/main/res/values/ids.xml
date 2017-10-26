@@ -43,6 +43,7 @@
     <item type="id" name="io_customerly__attachment_layout" />
     <item type="id" name="io_customerly__content_sending__only_user_li" />
     <item type="id" name="io_customerly__menu__download" />
+    <item type="id" name="io_customerly__menu__open_in_browser" />
     <item type="id" name="io_customerly__back" />
     <item type="id" name="io_customerly__close" />
     <item type="id" name="io_customerly__title" />

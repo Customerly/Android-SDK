@@ -88,6 +88,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     static final byte RESPONSE_STATE__ERROR_NETWORK = -4;
     static final byte RESPONSE_STATE__ERROR_BAD_RESPONSE = -5;
     static final int RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED = 403;
+    static final int RESPONSE_STATE__SERVERERROR_APP_INSOLVENT = 17;
     static final int RESPONSE_STATE__NO_TOKEN_AVAILABLE = -6;
 
     @NonNull @Endpoint private final String _Endpoint;
@@ -418,6 +419,11 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                                 case RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED:
                                     //{"error": "..title..", "message":"User not authenticated", "code":403}
                                     this._ResponseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED;
+                                    return null;
+                                case RESPONSE_STATE__SERVERERROR_APP_INSOLVENT:
+                                    //{ "error": "App is temporary deactived", "message": "Subscription is expired, please contact Customerly.io", "code": 17 }
+                                    this._ResponseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT;
+                                    Customerly.get()._setIsAppInsolvent();
                                     return null;
                             }
                         }

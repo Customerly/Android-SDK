@@ -149,7 +149,7 @@ abstract class IAct_AInput extends AppCompatActivity {
                 redBoldSpannable.setSpan(new ForegroundColorSpan(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 powered_by.setText(new SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable));
-                powered_by.setOnClickListener(v -> IU_Utils.intentUrl(this, BuildConfig.CUSTOMERLY_WEB_SITE));
+                powered_by.setOnClickListener(v -> IAct_WebView.start(this, BuildConfig.CUSTOMERLY_WEB_SITE));
                 powered_by.setVisibility(View.VISIBLE);
             }else {
                 powered_by.setVisibility(View.GONE);

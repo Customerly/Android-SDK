@@ -530,7 +530,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender);//, pShouldAnimate);
             View.OnClickListener clickListener = v -> {
                 if(pMessage != null && pMessage.rich_mail_link != null) {
-                    IU_Utils.intentUrl(IAct_Chat.this, pMessage.rich_mail_link);
+                    IAct_WebView.start(IAct_Chat.this, pMessage.rich_mail_link);
                 }
             };
             this.itemView.setOnClickListener(clickListener);
