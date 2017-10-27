@@ -29,7 +29,7 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = '1.0.3'
+def CustomerlySDKVersion = '1.0.4'
 
 ext {
     bintrayRepo = 'maven'
@@ -57,7 +57,7 @@ ext {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    //buildToolsVersion "25.0.3"
     resourcePrefix "io_customerly__"
     defaultConfig {
         minSdkVersion 14

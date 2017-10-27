@@ -52,6 +52,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 
 import io.socket.client.IO;
@@ -967,10 +968,14 @@ public class Customerly {
          * @param user_id The ID of the user
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull public RegisterUserTask user_id(@NonNull String user_id) {
-            user_id = user_id.trim();
-            if(user_id.length() != 0) {
-                this.user_id = user_id;
+        @CheckResult @NonNull public RegisterUserTask user_id(@Nullable String user_id) {
+            if(user_id != null) {
+                user_id = user_id.trim();
+                if(user_id.length() != 0) {
+                    this.user_id = user_id;
+                }
+            } else {
+                this.user_id = null;
             }
             return this;
         }
@@ -979,68 +984,150 @@ public class Customerly {
          * @param name The name of the user
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull public RegisterUserTask name(@NonNull String name) {
-            name = name.trim();
-            if(name.length() != 0) {
-                this.name = name;
+        @CheckResult @NonNull public RegisterUserTask name(@Nullable String name) {
+            if(name != null) {
+                name = name.trim();
+                if (name.length() != 0) {
+                    this.name = name;
+                }
+            } else {
+                this.name = null;
             }
             return this;
         }
         /**
          * Optionally you can specify the user attributes
-         * @param attributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
+         * @param pAttributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
          * @return The Task itself for method chaining
          * @throws IllegalArgumentException if the attributes map check fails
          */
-        @CheckResult @NonNull public RegisterUserTask attributes(@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
-            Collection<Object> attrs = attributes.values();
-            for(Object attr : attrs) {
-                if(     attr instanceof String ||
-                        attr instanceof Integer ||
-                        attr instanceof Byte ||
-                        attr instanceof Long ||
-                        attr instanceof Double ||
-                        attr instanceof Float ||
-                        attr instanceof Character ||
-                        attr instanceof Boolean) {
-                    continue;
+        @CheckResult @NonNull public RegisterUserTask attributes(@Nullable HashMap<String,Object> pAttributes) throws IllegalArgumentException {
+            if(pAttributes != null) {
+                Collection<Object> attrs = pAttributes.values();
+                for (Object attr : attrs) {
+                    if (attr instanceof String ||
+                            attr instanceof Integer ||
+                            attr instanceof Byte ||
+                            attr instanceof Long ||
+                            attr instanceof Double ||
+                            attr instanceof Float ||
+                            attr instanceof Character ||
+                            attr instanceof Boolean) {
+                        continue;
+                    }
+                    _log("Attributes HashMap can contain only String, char, byte, int, long, float or double values");
+                    throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
                 }
-                _log("Attributes HashMap can contain only String, char, byte, int, long, float or double values");
-                throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+                this.attributes = new JSONObject(pAttributes);
+            } else {
+                this.attributes = null;
             }
-            this.attributes = new JSONObject(attributes);
+            return this;
+        }
+        /**
+         * Optionally you can specify the user attributes
+         * @param pAttributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
+         * @return The Task itself for method chaining
+         * @throws IllegalArgumentException if the attributes map check fails
+         */
+        @CheckResult @NonNull public RegisterUserTask attributes(@Nullable JSONObject pAttributes) throws IllegalArgumentException {
+            if(pAttributes != null) {
+                Iterator<String> keysIterator = pAttributes.keys();
+                String key;
+                while(keysIterator.hasNext()) {
+                    Object attr = pAttributes.opt(keysIterator.next());
+                    if(     attr != null && (
+                            attr instanceof String ||
+                            attr instanceof Integer ||
+                            attr instanceof Byte ||
+                            attr instanceof Long ||
+                            attr instanceof Double ||
+                            attr instanceof Float ||
+                            attr instanceof Character ||
+                            attr instanceof Boolean)) {
+                        continue;
+                    }
+                    _log("Attributes HashMap can contain only String, char, byte, int, long, float or double values");
+                    throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+                }
+            } else {
+                this.attributes = null;
+            }
             return this;
         }
 
         /**
          * Optionally you can specify the user company
-         * @param company The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values
+         * @param pCompany The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values
          * @return The Task itself for method chaining
          * @throws IllegalArgumentException if the company map check fails
          */
-        @CheckResult @NonNull public RegisterUserTask company(@NonNull HashMap<String,Object> company) throws IllegalArgumentException{
-            Collection<Object> attrs = company.values();
-            for(Object attr : attrs) {
-                if(     attr instanceof String ||
-                        attr instanceof Integer ||
-                        attr instanceof Byte ||
-                        attr instanceof Long ||
-                        attr instanceof Double ||
-                        attr instanceof Float ||
-                        attr instanceof Character ||
-                        attr instanceof Boolean) {
-                    continue;
+        @CheckResult @NonNull public RegisterUserTask company(@Nullable HashMap<String,Object> pCompany) throws IllegalArgumentException{
+            if(pCompany != null) {
+                Collection<Object> attrs = pCompany.values();
+                for(Object attr : attrs) {
+                    if(     attr instanceof String ||
+                            attr instanceof Integer ||
+                            attr instanceof Byte ||
+                            attr instanceof Long ||
+                            attr instanceof Double ||
+                            attr instanceof Float ||
+                            attr instanceof Character ||
+                            attr instanceof Boolean) {
+                        continue;
+                    }
+                    _log("Company HashMap can contain only String, char, byte, int, long, float or double values");
+                    throw new IllegalArgumentException("Company HashMap can contain only String, char, byte, int, long, float or double values");
                 }
-                _log("Company HashMap can contain only Strings, int, float, long, double or char values");
-                throw new IllegalArgumentException("Company HashMap can contain only Strings, int, float, long, double or char values");
+                if(! pCompany.containsKey("company_id") && ! pCompany.containsKey("name")) {
+                    _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
+                    throw new IllegalArgumentException(
+                            "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
+                    );
+                }
+                this.company = new JSONObject(pCompany);
+            } else {
+                this.company = null;
             }
-            if(! company.containsKey("company_id") && ! company.containsKey("name")) {
-                _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
-                throw new IllegalArgumentException(
-                        "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
-                );
+            return this;
+        }
+
+        /**
+         * Optionally you can specify the user company
+         * @param pCompany The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values
+         * @return The Task itself for method chaining
+         * @throws IllegalArgumentException if the company map check fails
+         */
+        @CheckResult @NonNull public RegisterUserTask company(@Nullable JSONObject pCompany) throws IllegalArgumentException {
+            if(pCompany != null) {
+                Iterator<String> keysIterator = pCompany.keys();
+                String key;
+                while(keysIterator.hasNext()) {
+                    Object attr = pCompany.opt(keysIterator.next());
+                    if(     attr != null && (
+                            attr instanceof String ||
+                                    attr instanceof Integer ||
+                                    attr instanceof Byte ||
+                                    attr instanceof Long ||
+                                    attr instanceof Double ||
+                                    attr instanceof Float ||
+                                    attr instanceof Character ||
+                                    attr instanceof Boolean)) {
+                        continue;
+                    }
+                    _log("Company HashMap can contain only String, char, byte, int, long, float or double values");
+                    throw new IllegalArgumentException("Company HashMap can contain only String, char, byte, int, long, float or double values");
+                }
+                if(! pCompany.has("company_id") && ! pCompany.has("name")) {
+                    _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
+                    throw new IllegalArgumentException(
+                            "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
+                    );
+                }
+                this.company = pCompany;
+            } else {
+                this.company = null;
             }
-            this.company = new JSONObject(company);
             return this;
         }
 
@@ -1104,7 +1191,7 @@ public class Customerly {
          * @param attributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
          * @throws IllegalArgumentException is thrown if the attributes check fails
          */
-        public SetAttributesTask (@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
+        private SetAttributesTask (@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
             Collection<Object> attrs = attributes.values();
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
@@ -1121,6 +1208,31 @@ public class Customerly {
                 throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
             }
             this.attributes = new JSONObject(attributes);
+        }
+        /**
+         * @param pAttributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
+         * @throws IllegalArgumentException is thrown if the attributes check fails
+         */
+        private SetAttributesTask (@NonNull JSONObject pAttributes) throws IllegalArgumentException {
+            Iterator<String> keysIterator = pAttributes.keys();
+            String key;
+            while(keysIterator.hasNext()) {
+                Object attr = pAttributes.opt(keysIterator.next());
+                if(     attr != null && (
+                        attr instanceof String ||
+                                attr instanceof Integer ||
+                                attr instanceof Byte ||
+                                attr instanceof Long ||
+                                attr instanceof Double ||
+                                attr instanceof Float ||
+                                attr instanceof Character ||
+                                attr instanceof Boolean)) {
+                    continue;
+                }
+                _log("Attributes HashMap can contain only String, char, byte, int, long, float or double values");
+                throw new IllegalArgumentException("Attributes HashMap can contain only Strings, int, float, long, double or char values");
+            }
+            this.attributes = pAttributes;
         }
         @Override
         protected void _executeTask() {
@@ -1161,104 +1273,92 @@ public class Customerly {
     }
 
     /**
-     * Utility builder for Company Hashmap
+     * Utility builder for Company Map
      */
     public static class CompanyBuilder {
-        @NonNull private final HashMap<String,Object> company = new HashMap<>();
+        @NonNull private final JSONObject company = new JSONObject();
         public CompanyBuilder(@NonNull String company_id, @NonNull String name) {
             super();
-            this.company.put("company_id", company_id);
-            this.company.put("name", name);
+            try {
+                this.company.put("company_id", company_id);
+                this.company.put("name", name);
+            } catch (JSONException ignored) { }
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, @NonNull String value) {
-            this.company.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, int value) {
-            if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
-            }
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, byte value) {
-            if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
-            }
-            return this;
+            return this.put(key, (Object)value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, long value) {
-            if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
-            }
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, double value) {
-            if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
-            }
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, float value) {
-            if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
-            }
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, char value) {
-            if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
-            }
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, boolean value) {
+            return this.put(key, (Object) value);
+        }
+        @NonNull @CheckResult private CompanyBuilder put(@NonNull String key, Object value) {
             if(!("company_id".equals(key) || "name".equals(key))) {
-                this.company.put(key, value);
+                try {
+                    this.company.put(key, value);
+                } catch (JSONException ignored) { }
             }
             return this;
         }
-        @NonNull public HashMap<String,Object> build() {
+        @NonNull public JSONObject build() {
             return this.company;
         }
     }
 
     /**
-     * Utility builder for Attributes Hashmap
+     * Utility builder for Attributes Map
      */
     public static class AttributesBuilder {
-        @NonNull private final HashMap<String,Object> attrs = new HashMap<>();
+        @NonNull private final JSONObject attrs = new JSONObject();
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, @NonNull String value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, int value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, byte value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object)value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, long value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, double value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, float value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, char value) {
-            this.attrs.put(key, value);
-            return this;
+            return this.put(key, (Object) value);
         }
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, boolean value) {
-            this.attrs.put(key, value);
+            return this.put(key, (Object) value);
+        }
+        @NonNull @CheckResult private AttributesBuilder put(@NonNull String key, Object value) {
+            if(!("company_id".equals(key) || "name".equals(key))) {
+                try {
+                    this.attrs.put(key, value);
+                } catch (JSONException ignored) { }
+            }
             return this;
         }
-        @NonNull public HashMap<String,Object> build() {
+        @NonNull public JSONObject build() {
             return this.attrs;
         }
     }
@@ -1266,11 +1366,11 @@ public class Customerly {
     public final class SetCompanyTask extends __Task {
         @NonNull private final JSONObject company;
         /**
-         * @param company The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values.
+         * @param pCompany The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values.
          * @throws IllegalArgumentException is thrown if company map check fails
          */
-        public SetCompanyTask(@NonNull HashMap<String,Object> company) throws IllegalArgumentException {
-            Collection<Object> attrs = company.values();
+        private SetCompanyTask(@NonNull HashMap<String,Object> pCompany) throws IllegalArgumentException {
+            Collection<Object> attrs = pCompany.values();
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
                         attr instanceof Integer ||
@@ -1285,13 +1385,44 @@ public class Customerly {
                 _log("Company HashMap can contain only String, char, byte, int, long, float or double values");
                 throw new IllegalArgumentException("Company HashMap can contain only String, char, byte, int, long, float or double values");
             }
-            if(! company.containsKey("company_id") && ! company.containsKey("name")) {
+            if(! pCompany.containsKey("company_id") && ! pCompany.containsKey("name")) {
                 _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
                 throw new IllegalArgumentException(
                         "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
                 );
             }
-            this.company = new JSONObject(company);
+            this.company = new JSONObject(pCompany);
+        }
+        /**
+         * @param pCompany The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values.
+         * @throws IllegalArgumentException is thrown if company map check fails
+         */
+        private SetCompanyTask(@NonNull JSONObject pCompany) throws IllegalArgumentException {
+            Iterator<String> keysIterator = pCompany.keys();
+            String key;
+            while(keysIterator.hasNext()) {
+                Object attr = pCompany.opt(keysIterator.next());
+                if( attr != null && (
+                    attr instanceof String ||
+                    attr instanceof Integer ||
+                    attr instanceof Byte ||
+                    attr instanceof Long ||
+                    attr instanceof Double ||
+                    attr instanceof Float ||
+                    attr instanceof Character ||
+                    attr instanceof Boolean)) {
+                    continue;
+                }
+                _log("Company HashMap can contain only String, char, byte, int, long, float or double values");
+                throw new IllegalArgumentException("Company HashMap can contain only String, char, byte, int, long, float or double values");
+            }
+            if(! pCompany.has("company_id") && ! pCompany.has("name")) {
+                _log("Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name");
+                throw new IllegalArgumentException(
+                        "Company HashMap must contain a String value with key \"company_id\" containing to the Company ID and a String value with key \"name\" containing the Company name"
+                );
+            }
+            this.company = pCompany;
         }
         @Override
         protected void _executeTask() {
@@ -1387,15 +1518,36 @@ public class Customerly {
     }
 
     /**
-     * Call this method to build a task that add company attributes to the user.<br>
-     * The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name<br>
+     * Call this method to build a task that add new custom attributes to the user.<br>
      * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * @param pAttributes Optional attributes for the user. Can contain only String, char, int, long, float or double values
+     * @return The builded task that has to be started with his method {@link SetAttributesTask#start()}
+     * @throws IllegalArgumentException is thrown if the attributes check fails
+     */
+    @CheckResult @NonNull public SetAttributesTask setAttributes(@NonNull JSONObject pAttributes) throws IllegalArgumentException {
+        return new SetAttributesTask(pAttributes);
+    }
+
+    /**
+     * Call this method to build a task that add company attributes to the user.<br><br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pCompany Optional company for the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name
      * @return The builded task that has to be started with his method {@link SetCompanyTask#start()}
      * @throws IllegalArgumentException is thrown if company map check fails
      */
     @CheckResult @NonNull public SetCompanyTask setCompany(@NonNull HashMap<String, Object> pCompany) throws IllegalArgumentException {
+        return new SetCompanyTask(pCompany);
+    }
+
+    /**
+     * Call this method to build a task that add company attributes to the user.<br><br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * @param pCompany Optional company for the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name
+     * @return The builded task that has to be started with his method {@link SetCompanyTask#start()}
+     * @throws IllegalArgumentException is thrown if company map check fails
+     */
+    @CheckResult @NonNull public SetCompanyTask setCompany(@NonNull JSONObject pCompany) throws IllegalArgumentException {
         return new SetCompanyTask(pCompany);
     }
 
@@ -1453,7 +1605,7 @@ public class Customerly {
     }
 
     /**
-     * Call this method to keep track of custom labelled events.<br>
+     * Call this method to keep track of custom labeled events.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      * @param pEventName The event custom label
