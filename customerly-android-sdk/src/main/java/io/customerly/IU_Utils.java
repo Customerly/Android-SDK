@@ -75,24 +75,28 @@ class IU_Utils {
             return false;
         ConnectivityManager manager = (ConnectivityManager) c
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Network[] nets = manager.getAllNetworks();
-            for (Network net : nets) {
-                info = manager.getNetworkInfo(net);
+        if(manager != null) {
+            NetworkInfo info;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Network[] nets = manager.getAllNetworks();
+                for (Network net : nets) {
+                    info = manager.getNetworkInfo(net);
+                    if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
+                        return true;
+                }
+                return false;
+            } else {
+                info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
                     return true;
+                info = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
+                    return true;
+                info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIMAX);
+                return info != null && info.getState() == NetworkInfo.State.CONNECTED;
             }
-            return false;
         } else {
-            info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
-                return true;
-            info = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            if (info != null && info.getState() == NetworkInfo.State.CONNECTED)
-                return true;
-            info = manager.getNetworkInfo(ConnectivityManager.TYPE_WIMAX);
-            return info != null && info.getState() == NetworkInfo.State.CONNECTED;
+            return false;
         }
     }
 
@@ -107,7 +111,7 @@ class IU_Utils {
         } catch (SecurityException ignored) { }
     }
 
-    @ColorInt static int alterColor(@ColorInt int color, @FloatRange(from = 0, to = 255)float factor) {
+    @ColorInt static int alterColor(@ColorInt int color, @SuppressWarnings("SameParameterValue") @FloatRange(from = 0, to = 255)float factor) {
         return Color.argb(Color.alpha(color),
                 (int) Math.min(255, Color.red(color) * factor),
                 (int) Math.min(255, Color.green(color) * factor),
@@ -302,8 +306,9 @@ class IU_Utils {
         return IU_Utils.getStringSafe(pref, key, null);
     }
 
+    @SuppressWarnings("WeakerAccess")
     @Contract(value = "null,!null,_ -> null; !null,!null,null -> _; !null,!null,!null -> !null", pure = true)
-    @Nullable static String getStringSafe(@Nullable SharedPreferences pref, @NonNull String key, @Nullable String defValue) {
+    @Nullable static String getStringSafe(@Nullable SharedPreferences pref, @NonNull String key, @SuppressWarnings("SameParameterValue") @Nullable String defValue) {
         try {
             return pref == null ? null : pref.getString(key, defValue);
         } catch (Exception not_string) {
@@ -312,7 +317,7 @@ class IU_Utils {
     }
 
     @Contract(value = "_,_,true -> !null; null,_,false -> null; !null,_,false -> _", pure = true)
-    @Nullable static JSONObject getStringJSONSafe(@Nullable SharedPreferences pref, @NonNull String key, boolean nonNull) {
+    @Nullable static JSONObject getStringJSONSafe(@Nullable SharedPreferences pref, @NonNull String key, @SuppressWarnings("SameParameterValue") boolean nonNull) {
         try {
             String stringa = pref == null ? null : pref.getString(key, null);
             return stringa == null
@@ -333,7 +338,7 @@ class IU_Utils {
     }
 
     @Contract(pure = true)
-    static boolean getBooleanSafe(@Nullable SharedPreferences pref, @NonNull String key, boolean default_value) {
+    static boolean getBooleanSafe(@Nullable SharedPreferences pref, @NonNull String key, @SuppressWarnings("SameParameterValue") boolean default_value) {
         try {
             return pref == null ? default_value : pref.getBoolean(key, default_value);
         } catch (Exception not_string) {

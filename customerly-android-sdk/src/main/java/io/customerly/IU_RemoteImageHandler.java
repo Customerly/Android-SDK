@@ -293,17 +293,21 @@ class IU_RemoteImageHandler {
                             if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
                                 try {
                                     Bitmap bmp = BitmapFactory.decodeFile(bitmapFile.toString());
-                                    //Add Bitmap to LruMemory
-                                    this._LruCache.put(disk_key, bmp);
-                                    if(disk_req.targetIV != null) {
-                                        disk_req.targetIV.post(() -> {
-                                            if (disk_req.scaleType != null && disk_req.targetIV != null) {
-                                                disk_req.targetIV.setScaleType(disk_req.scaleType);
-                                            }
-                                            disk_req.targetIV.setImageBitmap(bmp);
-                                        });
-                                    } else if(disk_req.target != null) {
-                                        disk_req.target.image_placeholder_error(bmp);
+                                    if(bmp != null) {
+                                        //Add Bitmap to LruMemory
+                                        this._LruCache.put(disk_key, bmp);
+                                        if (disk_req.targetIV != null) {
+                                            disk_req.targetIV.post(() -> {
+                                                if (disk_req.scaleType != null && disk_req.targetIV != null) {
+                                                    disk_req.targetIV.setScaleType(disk_req.scaleType);
+                                                }
+                                                disk_req.targetIV.setImageBitmap(bmp);
+                                            });
+                                        } else if (disk_req.target != null) {
+                                            disk_req.target.image_placeholder_error(bmp);
+                                        }
+                                    } else {
+                                        this.handleNetwork(disk_req);
                                     }
                                     return;
                                 } catch (OutOfMemoryError ignored) { }

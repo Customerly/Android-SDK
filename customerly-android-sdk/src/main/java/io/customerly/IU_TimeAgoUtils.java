@@ -38,7 +38,7 @@ class IU_TimeAgoUtils {
                                      DaysAgo<RETURN> onDaysAgo,
                                      WeeksAgo<RETURN> onWeeksAgo,
                                      MonthsAgo<RETURN> onMonthsAgo,
-                                     YearsAgo<RETURN> onYearsAgo) {
+                                     @SuppressWarnings("SameParameterValue") YearsAgo<RETURN> onYearsAgo) {
 
         timestamp_in_seconds = Math.max(0, (System.currentTimeMillis() / 1000) - timestamp_in_seconds);
         if(onSecondsAgo == null && onMinutesAgo == null && onHoursAgo == null && onDaysAgo == null && onWeeksAgo == null && onMonthsAgo == null && onYearsAgo == null) {

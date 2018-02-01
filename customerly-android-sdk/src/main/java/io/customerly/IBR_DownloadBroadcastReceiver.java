@@ -27,7 +27,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -47,7 +47,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
         Cursor c = null;
         try {
             final DownloadManager dm = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-            if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
+            if (dm != null && DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
                 long downloadID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
                 if(downloadID != -1 && IBR_DownloadBroadcastReceiver.checkAndRemove(downloadID)) {
                     String filename = null;
@@ -59,23 +59,24 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                     if(filename != null) {
                         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
                         if(file.exists()) {
-                            ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE))
-                                    .notify((int) downloadID, new NotificationCompat.Builder(context)
-                                            .setSmallIcon(R.drawable.ic_file_download)
-                                            .setContentTitle(context.getString(R.string.io_customerly__download_complete))
-                                            .setContentText(filename)
-                                            .setAutoCancel(true)
-                                            .setContentIntent(
-                                                    PendingIntent.getActivity(
-                                                            context,
-                                                            0,
-                                                            new Intent(context, IAct_OpenDownloadedFileActivity.class)
-                                                                    .setData(
-                                                                            IU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.getPackageName()), file)
-                                                                    ),
-                                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                                    )).build());
-
+                            NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+                            if(nm != null) {
+                                    nm.notify((int) downloadID, new NotificationCompat.Builder(context, Customerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD)
+                                        .setSmallIcon(R.drawable.ic_file_download)
+                                        .setContentTitle(context.getString(R.string.io_customerly__download_complete))
+                                        .setContentText(filename)
+                                        .setAutoCancel(true)
+                                        .setContentIntent(
+                                                PendingIntent.getActivity(
+                                                        context,
+                                                        0,
+                                                        new Intent(context, IAct_OpenDownloadedFileActivity.class)
+                                                                .setData(
+                                                                        IU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.getPackageName()), file)
+                                                                ),
+                                                        PendingIntent.FLAG_UPDATE_CURRENT
+                                                )).build());
+                            }
                             Toast toast = Toast.makeText(context, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.TOP, 25, 400);
                             toast.show();
@@ -93,13 +94,15 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
     public static void startDownload(@NonNull Context context, @NonNull String filename, @NonNull String full_path) {
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             final DownloadManager dm = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
-            IBR_DownloadBroadcastReceiver.addID(
-                    dm.enqueue(
-                    new DownloadManager.Request(Uri.parse(full_path))
-                            .setTitle(filename)
-                            .setDestinationUri(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename)))
-                            .setVisibleInDownloadsUi(true)
-                            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)));
+            if(dm != null) {
+                IBR_DownloadBroadcastReceiver.addID(
+                        dm.enqueue(
+                                new DownloadManager.Request(Uri.parse(full_path))
+                                        .setTitle(filename)
+                                        .setDestinationUri(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename)))
+                                        .setVisibleInDownloadsUi(true)
+                                        .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)));
+            }
         } else {
             Toast.makeText(context.getApplicationContext(), R.string.io_customerly__cant_access_external_memory, Toast.LENGTH_SHORT).show();
         }

@@ -19,6 +19,8 @@ package io.customerly;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -64,6 +66,7 @@ import io.socket.client.Socket;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class Customerly {
 
+    protected static final String NOTIFICATION_CHANNEL_ID_DOWNLOAD = "io.customerly.customerly_sdk.notification_channel_download";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
     private static final String PREFS_PING_RESPONSE__BACKGROUND_THEME_URL = "PREFS_PING_RESPONSE__BACKGROUND_THEME_URL";
     private static final String PREFS_PING_RESPONSE__POWERED_BY = "PREFS_PING_RESPONSE__POWERED_BY";
@@ -786,6 +789,24 @@ public class Customerly {
             Method crashlytics_setString = Class.forName("com.crashlytics.android.Crashlytics").getDeclaredMethod("setString", String.class, String.class);
             crashlytics_setString.invoke(null, BuildConfig.APPLICATION_ID + " version:", BuildConfig.VERSION_NAME);
         } catch (Exception ignored) { }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager mNotificationManager = (NotificationManager) pApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            if(mNotificationManager != null) {
+
+                NotificationChannel mChannel = new NotificationChannel(
+                        Customerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD, // The id of the channel
+                        "Attachment download", // The user-visible name of the channel.
+                        NotificationManager.IMPORTANCE_DEFAULT);
+// Configure the notification channel.
+                mChannel.setDescription("Notification of downloaded attachment success");
+                mChannel.enableLights(true);
+                mChannel.setLightColor(Color.BLUE);
+                mChannel.enableVibration(true);
+                mChannel.setVibrationPattern(new long[]{0, 300});
+                mNotificationManager.createNotificationChannel(mChannel);
+            }
+        }
 
         Customerly._Instance.initialized = true;
     }

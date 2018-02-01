@@ -87,7 +87,7 @@
     <string name="io_customerly__hint_insert_a_number">Insert a number</string>
     <string name="io_customerly__hint_insert_a_text">Insert a text</string>
     <string name="io_customerly__image">Image</string>
-    <string name="io_customerly__rich_message_text">This message was sent by email. Tap to read.</string>
+    <string name="io_customerly__rich_message_text">This message was sent by email.\nTap to read.</string>
     <string name="io_customerly__rich_message_text__condensed_for_alert">Message sent by email.\nTap to read.</string>
     <string name="io_customerly__support">Support</string>
     <string name="io_customerly__webview_act_label">Email content</string>

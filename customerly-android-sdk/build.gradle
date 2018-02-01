@@ -20,16 +20,16 @@ buildscript {
     }
 
     dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.6.1'
+        classpath 'me.tatarka:gradle-retrolambda:3.7.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda' //https://github.com/evant/gradle-retrolambda
 
-def CustomerlySDKVersion = '1.0.4'
+def CustomerlySDKVersion = '1.0.8'
 
 ext {
     bintrayRepo = 'maven'
@@ -56,12 +56,12 @@ ext {
 }
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     //buildToolsVersion "25.0.3"
     resourcePrefix "io_customerly__"
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 2
         versionName "$CustomerlySDKVersion"
         consumerProguardFiles 'proguard-rules.pro'
@@ -91,15 +91,15 @@ android {
     }
 }
 
-def sdk_support_google_version = '25.3.1'
+def sdk_support_google_version = '27.0.2'
 dependencies {
 
-    compile 'io.customerly.commons:customerly-android-commons:1.1.9'
-//    compile project(':customerly-android-commons')
+    api 'io.customerly.commons:customerly-android-commons:1.3.0'
+//    implementation project(':customerly-android-commons')
 
-    compile "com.android.support:cardview-v7:$sdk_support_google_version"
-    compile "com.android.support:recyclerview-v7:$sdk_support_google_version"
-    compile "com.android.support:design:$sdk_support_google_version"
+    api "com.android.support:cardview-v7:$sdk_support_google_version"
+    api "com.android.support:recyclerview-v7:$sdk_support_google_version"
+    api "com.android.support:design:$sdk_support_google_version"
 }
 
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'

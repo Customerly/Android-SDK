@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+    Copyright (C) 2017 Customerly
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+  <plurals name="io_customerly__last_activity_XXm_ago">
+    <item quantity="one">Última actividad hace %1$d minuto</item>
+    <item quantity="other">Última actividad hace %1$d minutos</item>
+  </plurals>
+  <plurals name="io_customerly__last_activity_XXh_ago">
+    <item quantity="one">Última actividad hace %1$d hora</item>
+    <item quantity="other">Última actividad hace %1$d horas</item>
+  </plurals>
+  <plurals name="io_customerly__last_activity_XXd_ago">
+    <item quantity="one">Última actividad hace %1$d día</item>
+    <item quantity="other">Última actividad hace %1$d días</item>
+  </plurals>
+  <string name="io_customerly__powered_by_">Desarrollado por&#160;</string>
+  <string name="io_customerly__write_your_question">Haz tu pregunta…</string>
+  <string name="io_customerly__attach_file">Adjuntar archivo</string>
+  <string name="io_customerly__insert_your_email">Pon tu correo electrónico</string>
+  <string name="io_customerly__start_the_conversation">Iniciar la conversación</string>
+  <string name="io_customerly__start_a_new_conversation">Iniciar una nueva conversación</string>
+  <string name="io_customerly__install_a_file_manager">Primero debes instalar un Administrador de archivos</string>
+  <string name="io_customerly__choose_a_file_to_attach">Elige un archivo para adjuntar</string>
+  <string name="io_customerly__cancel_attachment">¿Deseas eliminar el archivo adjunto %s?</string>
+  <string name="io_customerly__remove">Eliminar</string>
+  <string name="io_customerly__cancel">Cancelar</string>
+  <string name="io_customerly__you">Tú</string>
+  <string name="io_customerly__permission_request">Solicitud de permiso</string>
+  <string name="io_customerly__permission_request_explanation_write">El permiso para acceder a la memoria externa es necesario para almacenar los archivos adjuntos</string>
+  <string name="io_customerly__permission_request_explanation_read">El permiso para acceder a la memoria externa es necesario para cargar los archivos adjuntos</string>
+  <string name="io_customerly__permission_denied_write">Denegaste el permiso necesario para almacenar los archivos adjuntos. Puedes autorizarlo desde los ajustes de la aplicación</string>
+  <string name="io_customerly__permission_denied_read">Denegaste el permiso necesario para cargar los archivos adjuntos. Puedes autorizarlo desde los ajustes de la aplicación</string>
+  <string name="io_customerly__download_ongoing">Descarga en curso</string>
+  <string name="io_customerly__download_complete">Descarga completada</string>
+  <string name="io_customerly__new_conversation">Nueva conversación</string>
+  <string name="io_customerly__sending_message">Enviando mensaje</string>
+  <string name="io_customerly__connection_error">¡Se ha producido un error! Por favor, revisa tu conexión</string>
+  <string name="io_customerly__download_the_file_">¿Quieres comenzar la descarga?</string>
+  <string name="io_customerly__attachments_max_count_error">Has alcanzado la cantidad máxima de archivos permitidos</string>
+  <string name="io_customerly__attachments_already_attached_error">Ya has adjuntado este archivo</string>
+  <string name="io_customerly__attachments_max_size_error">Este archivo es demasiado grande para adjuntarlo</string>
+  <string name="io_customerly__last_activity_now">En línea</string>
+  <string name="io_customerly__icon">Icono</string>
+  <string name="io_customerly__survey">Encuesta</string>
+  <string name="io_customerly__choose_an_answer">Elige una respuesta</string>
+  <string name="io_customerly__confirm">Confirmar</string>
+  <string name="io_customerly__confirm_x">Confirmar %1$d</string>
+  <string name="io_customerly__hint_insert_a_number">Escribe un número</string>
+  <string name="io_customerly__hint_insert_a_text">Escribe un texto</string>
+  <string name="io_customerly__image">Imagen</string>
+  <string name="io_customerly__rich_message_text">Este mensaje ha sido enviado por correo electrónico.\nToca para leerlo.</string>
+  <string name="io_customerly__rich_message_text__condensed_for_alert">Mensaje enviado por correo electrónico.\nToca para leerlo.</string>
+  <string name="io_customerly__support">Asistencia</string>
+  <string name="io_customerly__webview_act_label">Contenido del correo electrónico</string>
+  <string name="io_customerly__open_conversation">Abrir una conversación</string>
+  <string name="io_customerly__cant_access_external_memory">No se puede acceder a la memoria externa</string>
+  <string name="io_customerly__open_in_browser">Abrir en el navegador</string>
+</resources>
