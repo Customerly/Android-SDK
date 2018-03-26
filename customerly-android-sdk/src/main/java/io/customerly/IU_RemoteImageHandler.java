@@ -17,14 +17,12 @@ package io.customerly;
  */
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -33,7 +31,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.support.annotation.WorkerThread;
 import android.support.v4.util.LruCache;
 import android.util.SparseArray;
 import android.widget.ImageView;
@@ -75,133 +72,133 @@ class IU_RemoteImageHandler {
         }.start();
     }
 
-    @WorkerThread
-    Drawable getHtmlImageSync(@NonNull String url) {
-        final String cache_key = String.format(Locale.UK, "%1$s-HTML-%2$d", CUSTOMERLY_SDK_NAME, url.hashCode());
-        try {
-            //Get Bitmap from LruMemory
-            final Bitmap bmp = this._LruCache.get(cache_key);
-            if (bmp != null && !bmp.isRecycled()) {
-                return new BitmapDrawable(Resources.getSystem(), bmp);
-            }
-        } catch (OutOfMemoryError ignored) { }
-
-        final String appCacheDir = Customerly.get()._AppCacheDir;
-        if(appCacheDir != null) {
-            try {
-                File bitmapFile = new File(new File(appCacheDir, CUSTOMERLY_SDK_NAME).toString(), cache_key);
-                if (bitmapFile.exists()) {
-                    if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
-                        try {
-                            Bitmap bmp = BitmapFactory.decodeFile(bitmapFile.toString());
-                            //Add Bitmap to LruMemory
-                            this._LruCache.put(cache_key, bmp);
-                            return new BitmapDrawable(Resources.getSystem(), bmp);
-                        } catch (OutOfMemoryError ignored) {
-                        }
-                    } else {
-                        //noinspection ResultOfMethodCallIgnored
-                        bitmapFile.delete();
-                    }
-                }
-            } catch (OutOfMemoryError ignored) {
-            }
-        }
-
-        try {
-            Bitmap bmp;
-            //Download bitmap da url
-            try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                connection.setReadTimeout(5000);
-                connection.setDoInput(true);
-                connection.connect();
-
-                int status = connection.getResponseCode();
-                while (status != HttpURLConnection.HTTP_OK &&
-                        (status == HttpURLConnection.HTTP_MOVED_TEMP
-                                || status == HttpURLConnection.HTTP_MOVED_PERM
-                                || status == HttpURLConnection.HTTP_SEE_OTHER)) {
-                    //Url Redirect
-                    connection = (HttpURLConnection) new URL(connection.getHeaderField("Location")).openConnection();
-                    connection.connect();
-                    status = connection.getResponseCode();
-                }
-
-                bmp = BitmapFactory.decodeStream(connection.getInputStream());
-            } catch (Exception e) {
-                bmp = null;
-            }
-
-            if (bmp != null) {
-                //Add image to LruMemory
-                this._LruCache.put(cache_key, bmp);
-
-                if(appCacheDir != null) {
-                    File fullCacheDir = new File(appCacheDir, BuildConfig.CUSTOMERLY_SDK_NAME);
-                    //Initialize cache dir if needed
-                    if (!fullCacheDir.exists()) {
-                        //noinspection ResultOfMethodCallIgnored
-                        fullCacheDir.mkdirs();
-                        try {
-                            //noinspection ResultOfMethodCallIgnored
-                            new File(fullCacheDir.toString(), ".nomedia").createNewFile();
-                        } catch (IOException ignored) {
-                        }
-                    }
-
-                    //Store on disk cache
-                    FileOutputStream out = null;
-                    try {
-                        File bitmapFile = new File(fullCacheDir.toString(), cache_key);
-                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out = new FileOutputStream(bitmapFile));
-                        if (this._DiskCacheSize == -1) {
-                            long size = 0;
-                            for (File file : fullCacheDir.listFiles()) {
-                                if (file.isFile()) {
-                                    size += file.length();
-                                } /*else {
-                                        size += getFolderSize(file); No subfolder or recursion would be needed
-                                    }*/
-                            }
-                            this._DiskCacheSize = size;
-                        } else {
-                            this._DiskCacheSize += bitmapFile.length();
-                        }
-                        if (this._DiskCacheSize > MAX_DISK_CACHE_SIZE) {
-                            long oldestFileLastModifiedDateTime = Long.MAX_VALUE;
-                            File oldestFile = null;
-                            for (File file : fullCacheDir.listFiles()) {
-                                if (file.isFile()) {
-                                    long lastModified = file.lastModified();
-                                    if (lastModified < oldestFileLastModifiedDateTime) {
-                                        oldestFileLastModifiedDateTime = lastModified;
-                                        oldestFile = file;
-                                    }
-                                }
-                            }
-                            if (oldestFile != null) {
-                                long size = oldestFile.length();
-                                if (oldestFile.delete()) {
-                                    this._DiskCacheSize -= size;
-                                }
-                            }
-                        }
-                    } catch (Exception ignored) {
-                    } finally {
-                        if (out != null) {
-                            try {
-                                out.close();
-                            } catch (IOException ignored) {
-                            }
-                        }
-                    }
-                }
-                return new BitmapDrawable(Resources.getSystem(), bmp);
-            }
-        } catch (Exception ignored) { }
-        return null;
-    }
+//    @WorkerThread
+//    Drawable getHtmlImageSync(@NonNull String url) {
+//        final String cache_key = String.format(Locale.UK, "%1$s-HTML-%2$d", CUSTOMERLY_SDK_NAME, url.hashCode());
+//        try {
+//            //Get Bitmap from LruMemory
+//            final Bitmap bmp = this._LruCache.get(cache_key);
+//            if (bmp != null && !bmp.isRecycled()) {
+//                return new BitmapDrawable(Resources.getSystem(), bmp);
+//            }
+//        } catch (OutOfMemoryError ignored) { }
+//
+//        final String appCacheDir = Customerly.get()._AppCacheDir;
+//        if(appCacheDir != null) {
+//            try {
+//                File bitmapFile = new File(new File(appCacheDir, CUSTOMERLY_SDK_NAME).toString(), cache_key);
+//                if (bitmapFile.exists()) {
+//                    if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
+//                        try {
+//                            Bitmap bmp = BitmapFactory.decodeFile(bitmapFile.toString());
+//                            //Add Bitmap to LruMemory
+//                            this._LruCache.put(cache_key, bmp);
+//                            return new BitmapDrawable(Resources.getSystem(), bmp);
+//                        } catch (OutOfMemoryError ignored) {
+//                        }
+//                    } else {
+//                        //noinspection ResultOfMethodCallIgnored
+//                        bitmapFile.delete();
+//                    }
+//                }
+//            } catch (OutOfMemoryError ignored) {
+//            }
+//        }
+//
+//        try {
+//            Bitmap bmp;
+//            //Download bitmap da url
+//            try {
+//                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+//                connection.setReadTimeout(5000);
+//                connection.setDoInput(true);
+//                connection.connect();
+//
+//                int status = connection.getResponseCode();
+//                while (status != HttpURLConnection.HTTP_OK &&
+//                        (status == HttpURLConnection.HTTP_MOVED_TEMP
+//                                || status == HttpURLConnection.HTTP_MOVED_PERM
+//                                || status == HttpURLConnection.HTTP_SEE_OTHER)) {
+//                    //Url Redirect
+//                    connection = (HttpURLConnection) new URL(connection.getHeaderField("Location")).openConnection();
+//                    connection.connect();
+//                    status = connection.getResponseCode();
+//                }
+//
+//                bmp = BitmapFactory.decodeStream(connection.getInputStream());
+//            } catch (Exception e) {
+//                bmp = null;
+//            }
+//
+//            if (bmp != null) {
+//                //Add image to LruMemory
+//                this._LruCache.put(cache_key, bmp);
+//
+//                if(appCacheDir != null) {
+//                    File fullCacheDir = new File(appCacheDir, BuildConfig.CUSTOMERLY_SDK_NAME);
+//                    //Initialize cache dir if needed
+//                    if (!fullCacheDir.exists()) {
+//                        //noinspection ResultOfMethodCallIgnored
+//                        fullCacheDir.mkdirs();
+//                        try {
+//                            //noinspection ResultOfMethodCallIgnored
+//                            new File(fullCacheDir.toString(), ".nomedia").createNewFile();
+//                        } catch (IOException ignored) {
+//                        }
+//                    }
+//
+//                    //Store on disk cache
+//                    FileOutputStream out = null;
+//                    try {
+//                        File bitmapFile = new File(fullCacheDir.toString(), cache_key);
+//                        bmp.compress(Bitmap.CompressFormat.PNG, 100, out = new FileOutputStream(bitmapFile));
+//                        if (this._DiskCacheSize == -1) {
+//                            long size = 0;
+//                            for (File file : fullCacheDir.listFiles()) {
+//                                if (file.isFile()) {
+//                                    size += file.length();
+//                                } /*else {
+//                                        size += getFolderSize(file); No subfolder or recursion would be needed
+//                                    }*/
+//                            }
+//                            this._DiskCacheSize = size;
+//                        } else {
+//                            this._DiskCacheSize += bitmapFile.length();
+//                        }
+//                        if (this._DiskCacheSize > MAX_DISK_CACHE_SIZE) {
+//                            long oldestFileLastModifiedDateTime = Long.MAX_VALUE;
+//                            File oldestFile = null;
+//                            for (File file : fullCacheDir.listFiles()) {
+//                                if (file.isFile()) {
+//                                    long lastModified = file.lastModified();
+//                                    if (lastModified < oldestFileLastModifiedDateTime) {
+//                                        oldestFileLastModifiedDateTime = lastModified;
+//                                        oldestFile = file;
+//                                    }
+//                                }
+//                            }
+//                            if (oldestFile != null) {
+//                                long size = oldestFile.length();
+//                                if (oldestFile.delete()) {
+//                                    this._DiskCacheSize -= size;
+//                                }
+//                            }
+//                        }
+//                    } catch (Exception ignored) {
+//                    } finally {
+//                        if (out != null) {
+//                            try {
+//                                out.close();
+//                            } catch (IOException ignored) {
+//                            }
+//                        }
+//                    }
+//                }
+//                return new BitmapDrawable(Resources.getSystem(), bmp);
+//            }
+//        } catch (Exception ignored) { }
+//        return null;
+//    }
 
     @UiThread
     void request(final @NonNull Request pRequest) {

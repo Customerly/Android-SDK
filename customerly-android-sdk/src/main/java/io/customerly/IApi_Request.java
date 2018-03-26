@@ -121,6 +121,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
         @Nullable private WeakReference<View> _ProgressView;
         @Nullable private Runnable _OnPreExecute;
         private boolean _TokenMandatory = false;
+        private boolean _ReportingErrorDisabled = false;
 
         @IntDef({View.GONE, View.INVISIBLE}) @Retention(RetentionPolicy.SOURCE) @interface HiddenVisibilityType {}
         @HiddenVisibilityType private int _ProgressView_HiddenVisibilityType;
@@ -163,6 +164,10 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
             this._OnPreExecute = onPreExecute;
             return this;
         }
+        @CheckResult Builder<RES> opt__ReportingErrorDisabled() {
+            this._ReportingErrorDisabled = true;
+            return this;
+        }
         @CheckResult Builder<RES> param(@Nullable String pKey, @Nullable Object pValue) {
             try { this._Params.putOpt(pKey, pValue); } catch (JSONException ignored) { }
             return this;
@@ -184,7 +189,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
             return this;
         }
         void start() {
-            if(Customerly.get()._isConfigured()) {
+            if(Customerly.get()._isConfigured(this._ReportingErrorDisabled)) {
                 if (this._Context == null || IU_Utils.checkConnection(this._Context)) {
                     ProgressDialog pd_tmp = null;
                     if(this._Context != null && this._ProgressDialog_Title != null && this._ProgressDialog_Message != null) {

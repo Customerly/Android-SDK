@@ -36,16 +36,7 @@ public class IU_NetworkReceiver extends BroadcastReceiver {
                         new ConnectivityManager.NetworkCallback() {
                             @Override
                             public void onAvailable(Network network) {
-                                boolean connected = false;
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    connected = cm.bindProcessToNetwork(network);
-                                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    //noinspection deprecation
-                                    connected = ConnectivityManager.setProcessDefaultNetwork(network);
-                                }
-                                if (connected) {
-                                    Customerly.get().__SOCKET__check();
-                                }
+                                Customerly.get().__SOCKET__check();
                             }
                         });
             }

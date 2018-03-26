@@ -145,15 +145,18 @@ class PW_AlertMessage extends PopupWindow {
                 top_offset_fix = decorViewGroup.getChildAt(0).getPaddingTop();
             }
         }
-        alert.showAtLocation(activity.getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, top_offset_fix);
-        PW_AlertMessage._CurrentVisible = alert;
-        alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
-        MediaPlayer mp = MediaPlayer.create(activity, R.raw.notif_2);
-        mp.setOnCompletionListener(mp1 -> {
-            mp1.reset();
-            mp1.release();
-        });
-        mp.start();
+        View activityDecorView = activity.getWindow().getDecorView();
+        if(activityDecorView != null) {
+            alert.showAtLocation(activityDecorView, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, top_offset_fix);
+            PW_AlertMessage._CurrentVisible = alert;
+            alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
+            MediaPlayer mp = MediaPlayer.create(activity, R.raw.notif_2);
+            mp.setOnCompletionListener(mp1 -> {
+                mp1.reset();
+                mp1.release();
+            });
+            mp.start();
+        }
     }
 
     private void bindMessage(@NonNull IE_Message message) {

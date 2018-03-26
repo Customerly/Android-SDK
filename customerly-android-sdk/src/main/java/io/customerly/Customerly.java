@@ -16,7 +16,6 @@ package io.customerly;
  * limitations under the License.
  */
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationChannel;
@@ -84,7 +83,7 @@ public class Customerly {
 
     private boolean initialized = false;
     private @Nullable SharedPreferences _SharedPreferences;
-    @Nullable String _AppID, _AppCacheDir;
+    @Nullable String _AppID;//useless: _AppCacheDir;
     @ColorInt private int
             __WidgetColor__Fallback = DEF_WIDGET_COLOR_MALIBU_INT,
             __WidgetColor__HardCoded = Color.TRANSPARENT;
@@ -374,9 +373,15 @@ public class Customerly {
     }
 
     boolean _isConfigured() {
+        return this._isConfigured(true);
+    }
+
+    boolean _isConfigured(boolean reportNotConfiguredErrorDisabled) {
         if(this._AppID == null) {
             this._log("You need to configure the SDK ");
-            IEr_CustomerlyErrorHandler.sendNotConfiguredError();
+            if(!reportNotConfiguredErrorDisabled) {
+                IEr_CustomerlyErrorHandler.sendNotConfiguredError();
+            }
             return false;
         } else {
             return this.isSDKavailable();
@@ -680,16 +685,12 @@ public class Customerly {
         this.__isAppInsolvent = true;
     }
 
-    @SuppressLint("CommitTransaction")
-    private boolean __ExecutingPing = false;
     private synchronized void __PING__Start(@Nullable io.customerly.Customerly.Callback pSuccessCallback, @Nullable Callback pFailureCallback) {
         if(this._isConfigured()) {
-            this.__ExecutingPing = true;
             //noinspection SpellCheckingInspection
             new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                     .opt_converter(this.__PING__response_converter__SurveyMessage)
                     .opt_receiver((responseState, _null) -> {
-                        this.__ExecutingPing = false;
                         if (responseState == IApi_Request.RESPONSE_STATE__OK) {
                             if(pSuccessCallback != null) {
                                 pSuccessCallback.callback();
@@ -732,7 +733,9 @@ public class Customerly {
     /* ****************************************************************************************************************************************************************/
 
     private void __init(@NonNull Context pApplicationContext) {
-        Customerly._Instance._AppCacheDir = pApplicationContext.getCacheDir().getPath();
+        //TODO test connectivity loss
+
+        //useless: Customerly._Instance._AppCacheDir = pApplicationContext.getCacheDir().getPath();
         //APP INFORMATION
         try {
             Customerly._Instance.__PING__DeviceJSON.put("app_name", pApplicationContext.getApplicationInfo().loadLabel(pApplicationContext.getPackageManager()).toString());
