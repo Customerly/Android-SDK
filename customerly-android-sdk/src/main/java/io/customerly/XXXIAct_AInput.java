@@ -58,7 +58,8 @@ import java.util.ArrayList;
  * Created by Gianni on 03/09/16.
  * Project: CustomerlySDK
  */
-abstract class IAct_AInput extends AppCompatActivity {
+public
+abstract class XXXIAct_AInput extends AppCompatActivity {
 
     static final String EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK";
     private static final int FILE_SELECT_CODE = 5;
@@ -67,7 +68,7 @@ abstract class IAct_AInput extends AppCompatActivity {
     protected boolean _ActivityThemed = false;
     LinearLayout input_layout, input_attachments;
     EditText input_input;
-    final ArrayList<IE_Attachment> _Attachments = new ArrayList<>(1);
+    final ArrayList<XXXIE_Attachment> _Attachments = new ArrayList<>(1);
     @NonNull private final IntentFilter _IntentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     @NonNull private final BroadcastReceiver _BroadcastReceiver = new BroadcastReceiver() {
         boolean attendingReconnection = false;
@@ -160,7 +161,7 @@ abstract class IAct_AInput extends AppCompatActivity {
             this.findViewById(R.id.io_customerly__input_button_send).setOnClickListener(btn -> {
                 if(IU_Utils.checkConnection(this)) {
                     String message = this.input_input.getText().toString().trim();
-                    IE_Attachment[] attachmentsArray = this._Attachments.toArray(new IE_Attachment[this._Attachments.size()]);
+                    XXXIE_Attachment[] attachmentsArray = this._Attachments.toArray(new XXXIE_Attachment[this._Attachments.size()]);
                     if(message.length() != 0 || attachmentsArray.length != 0) {
                         this.input_input.setText(null);
                         this._Attachments.clear();
@@ -239,7 +240,7 @@ abstract class IAct_AInput extends AppCompatActivity {
         }
     }
 
-    protected abstract void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail);
+    protected abstract void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull XXXIE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail);
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -260,7 +261,7 @@ abstract class IAct_AInput extends AppCompatActivity {
                     Uri fileUri = data.getData();
                     if(fileUri != null) {
                         try {
-                            for(IE_Attachment att : this._Attachments) {
+                            for(XXXIE_Attachment att : this._Attachments) {
                                 if(fileUri.equals(att.uri)) {
                                     Snackbar.make(this.input_input, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
                                             .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly.get().__PING__LAST_widget_color).show();
@@ -275,9 +276,9 @@ abstract class IAct_AInput extends AppCompatActivity {
                                 return;
                             }
 
-                            new IE_Attachment(this, fileUri).addAttachmentToInput(this);
+                            new XXXIE_Attachment(this, fileUri).addAttachmentToInput(this);
                         } catch (Exception exception) {
-                            IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__ATTACHMENT_ERROR, "Error while attaching file: " + exception.getMessage(), exception);
+                            XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__ATTACHMENT_ERROR, "Error while attaching file: " + exception.getMessage(), exception);
                         }
                     }
                     this.input_input.requestFocus();

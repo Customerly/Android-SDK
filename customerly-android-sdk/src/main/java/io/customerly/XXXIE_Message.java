@@ -38,7 +38,7 @@ import io.customerly.commons.LambdaUtil;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Message {
+class XXXIE_Message {
 
     private static final SimpleDateFormat _TIME_FORMATTER = new SimpleDateFormat("HH:mm", Locale.getDefault());
     private static final DateFormat _DATE_FORMATTER = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG);
@@ -51,16 +51,16 @@ class IE_Message {
     @Nullable final Spanned content_abstract;
     @Nullable final String if_account__name, rich_mail_link;
     @NonNull final String dateString, timeString;
-    @Nullable final IE_Attachment[] _Attachments;
+    @Nullable final XXXIE_Attachment[] _Attachments;
 
-    boolean sameSentDayOf(@NonNull IE_Message other) {
+    boolean sameSentDayOf(@NonNull XXXIE_Message other) {
         return (this.sent_datetime_sec / (/*1000**/60 * 60 * 24)) == (other.sent_datetime_sec / (/*1000**/60 * 60 * 24));
     }
 
     private enum STATE {    COMPLETE, SENDING, FAILED   }
     @NonNull private STATE _STATE = STATE.COMPLETE;
 
-    IE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pContent, @Nullable final IE_Attachment[] pAttachments) {
+    XXXIE_Message(long pCustomerly_User_ID, long pConversationID, @NonNull String pContent, @Nullable final XXXIE_Attachment[] pAttachments) {
         super();
         this._STATE = STATE.SENDING;
         this.user_id = pCustomerly_User_ID;
@@ -85,7 +85,7 @@ class IE_Message {
         return this.content_Spanned;
     }
 
-    IE_Message(@NonNull JSONObject pMessageItem) {
+    XXXIE_Message(@NonNull JSONObject pMessageItem) {
         super();
         this._STATE = STATE.COMPLETE;
         this.user_id = pMessageItem.optLong("user_id", 0);
@@ -102,13 +102,13 @@ class IE_Message {
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {
-            IE_Attachment[] attachments_tmp = new IE_Attachment[attachments.length()];
+            XXXIE_Attachment[] attachments_tmp = new XXXIE_Attachment[attachments.length()];
             int i = 0, j = 0;
             for(; i < attachments.length(); i++) {
                 JSONObject item = attachments.optJSONObject(i);
                 if(item != null) {
                     try {
-                        attachments_tmp[j] = new IE_Attachment(item);
+                        attachments_tmp[j] = new XXXIE_Attachment(item);
                         j++;
                     } catch (JSONException ignored) { }
                 }
@@ -116,7 +116,7 @@ class IE_Message {
             if(j == i) {
                 this._Attachments = attachments_tmp;
             } else {
-                this._Attachments = new IE_Attachment[j];
+                this._Attachments = new XXXIE_Attachment[j];
                 System.arraycopy(attachments_tmp, 0, this._Attachments, 0, j);
             }
         } else {
@@ -140,7 +140,7 @@ class IE_Message {
     }
 
     @NonNull String getImageUrl(int pPixelSize) {
-        return this.account_id != 0 ? IE_Account.getAccountImageUrl(this.account_id, pPixelSize) : IE_Account.getUserImageUrl(this.user_id, pPixelSize);
+        return this.account_id != 0 ? XXXIE_Account.getAccountImageUrl(this.account_id, pPixelSize) : XXXIE_Account.getUserImageUrl(this.user_id, pPixelSize);
     }
 
     boolean isUserMessage() {
@@ -151,7 +151,7 @@ class IE_Message {
         return (!this.isUserMessage()) && this.seen_date == 0;
     }
 
-    boolean hasSameSenderOf(@Nullable IE_Message pPreviousMessage) {
+    boolean hasSameSenderOf(@Nullable XXXIE_Message pPreviousMessage) {
         if(pPreviousMessage == null)
             return false;
         if(this.isUserMessage()) {
@@ -176,6 +176,6 @@ class IE_Message {
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj instanceof IE_Message && ((IE_Message)obj).conversation_message_id == this.conversation_message_id;
+        return obj != null && obj instanceof XXXIE_Message && ((XXXIE_Message)obj).conversation_message_id == this.conversation_message_id;
     }
 }

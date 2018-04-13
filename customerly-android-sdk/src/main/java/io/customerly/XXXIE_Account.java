@@ -24,7 +24,7 @@ import java.util.Locale;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Account {
+class XXXIE_Account {
     @NonNull static String getAccountImageUrl(long pAccountID, int pSizePX) {
         return String.format(Locale.UK, "%saccounts/%d/%d", BuildConfig.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL, pAccountID, pSizePX);
     }

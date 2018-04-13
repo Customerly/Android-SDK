@@ -96,7 +96,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                     }
                     return;
                 } catch (Exception glideException) {
-                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
+                    XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GLIDE_ERROR, "Error during Glide loading in FullScreenImage_Activity", glideException);
                 }
             }
         }
@@ -112,7 +112,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
     @Override
     protected void onResume() {
         super.onResume();
-        IE_JwtToken jwt = Customerly.get()._JwtToken;
+        XXXIE_JwtToken jwt = Customerly.get()._JwtToken;
         if (jwt == null || jwt.isAnonymous()) {
             this.onLogoutUser();
         }
@@ -197,7 +197,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
     }
 
     @Override
-    public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) { }
+    public void onNewSocketMessages(@NonNull ArrayList<XXXIE_Message> messages) { }
 
     //    private void saveImageToGallery() {
 //        if(this._ImageView != null) {

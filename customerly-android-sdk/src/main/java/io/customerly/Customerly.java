@@ -88,7 +88,8 @@ public class Customerly {
             __WidgetColor__Fallback = DEF_WIDGET_COLOR_MALIBU_INT,
             __WidgetColor__HardCoded = Color.TRANSPARENT;
 
-    @Nullable IE_JwtToken _JwtToken;
+    @Nullable
+    XXXIE_JwtToken _JwtToken;
 
     private boolean __VerboseLogging = false;
 
@@ -100,7 +101,7 @@ public class Customerly {
     @Nullable String __PING__LAST_widget_background_url;
     boolean __PING__LAST_powered_by;
     @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
-    @Nullable IE_Admin[] __PING__LAST_active_admins;
+    @Nullable XXXIE_Admin[] __PING__LAST_active_admins;
     private boolean _SupportEnabled = true, _SurveyEnabled = true;
 
     private boolean __isAppInsolvent = false;
@@ -173,7 +174,7 @@ public class Customerly {
                         try {
                             __PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
                         } catch (IllegalArgumentException notCorrectColor) {
-                            IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
+                            XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
                             __PING__LAST_widget_color = __WidgetColor__Fallback;
                         }
                     }
@@ -189,7 +190,7 @@ public class Customerly {
                 __PING__LAST_welcome_message_users = null;
                 __PING__LAST_welcome_message_visitors = null;
             }
-            __PING__LAST_active_admins = IE_Admin.from(root.optJSONArray("active_admins"));
+            __PING__LAST_active_admins = XXXIE_Admin.from(root.optJSONArray("active_admins"));
 
             final SharedPreferences prefs = _SharedPreferences;
             if(prefs != null) {
@@ -205,9 +206,9 @@ public class Customerly {
             _PendingRunnableForNotDisabledActivity = null;
             if(this._HandleSurvey && _SurveyEnabled) {
                 _log("Attempting to display a Survey");
-                IE_Survey[] surveys = IE_Survey.from(root.optJSONArray("last_surveys"));
+                XXXIE_Survey[] surveys = XXXIE_Survey.from(root.optJSONArray("last_surveys"));
                 if(surveys != null) {
-                    for (final IE_Survey survey : surveys) {
+                    for (final XXXIE_Survey survey : surveys) {
                         if (survey != null && !survey.isRejectedOrConcluded) {
                             __Handler.postDelayed(() -> {
                                 Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
@@ -229,7 +230,7 @@ public class Customerly {
                                         }
                                     } catch (Exception generic) {
                                         _log("A generic error occurred in Customerly.openSurvey");
-                                        IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
+                                        XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
                                     }
                                 } else {
                                     _PendingRunnableForNotDisabledActivity = () -> __Handler.postDelayed(() -> {
@@ -253,7 +254,7 @@ public class Customerly {
                                                 }
                                             } catch (Exception generic) {
                                                 _log("A generic error occurred in Customerly.openSurvey");
-                                                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
+                                                XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSurvey", generic);
                                             }
                                         }
                                     }, SURVEY_DISPLAY_DELAY);
@@ -279,23 +280,23 @@ public class Customerly {
                                     ArrayList<Class<? extends Activity>> disabledActivities = _DisabledActivities;
                                     if (activity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
                                         if (activity instanceof SDKActivity) {
-                                            ArrayList<IE_Message> list = new ArrayList<>(1);
-                                            list.add(new IE_Message(message));
+                                            ArrayList<XXXIE_Message> list = new ArrayList<>(1);
+                                            list.add(new XXXIE_Message(message));
                                             ((SDKActivity) activity).onNewSocketMessages(list);
                                         } else {
                                             try {
-                                                PW_AlertMessage.show(activity, new IE_Message(message));
+                                                PW_AlertMessage.show(activity, new XXXIE_Message(message));
                                                 _log("Message alert displayed successfully");
                                             } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                 activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                 if (activity != null) {
                                                     if (activity instanceof SDKActivity) {
-                                                        ArrayList<IE_Message> list = new ArrayList<>(1);
-                                                        list.add(new IE_Message(message));
+                                                        ArrayList<XXXIE_Message> list = new ArrayList<>(1);
+                                                        list.add(new XXXIE_Message(message));
                                                         ((SDKActivity) activity).onNewSocketMessages(list);
                                                     } else {
                                                         try {
-                                                            PW_AlertMessage.show(activity, new IE_Message(message));
+                                                            PW_AlertMessage.show(activity, new XXXIE_Message(message));
                                                             _log("Message alert displayed successfully");
                                                         } catch (WindowManager.BadTokenException ignored) {
                                                             _log("An error occours while attaching the alertmessage to the window. Activity: " + activity.toString());
@@ -312,23 +313,23 @@ public class Customerly {
                                             if (p_activity != null && (p_disabledActivities == null || ! p_disabledActivities.contains(p_activity.getClass()))) {
                                                 _PendingRunnableForNotDisabledActivity = null;
                                                 if (p_activity instanceof SDKActivity) {
-                                                    ArrayList<IE_Message> list = new ArrayList<>(1);
-                                                    list.add(new IE_Message(message));
+                                                    ArrayList<XXXIE_Message> list = new ArrayList<>(1);
+                                                    list.add(new XXXIE_Message(message));
                                                     ((SDKActivity) p_activity).onNewSocketMessages(list);
                                                 } else {
                                                     try {
-                                                        PW_AlertMessage.show(p_activity, new IE_Message(message));
+                                                        PW_AlertMessage.show(p_activity, new XXXIE_Message(message));
                                                         _log("Message alert displayed successfully");
                                                     } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                         p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                         if (p_activity != null) {
                                                             if (p_activity instanceof SDKActivity) {
-                                                                ArrayList<IE_Message> list = new ArrayList<>(1);
-                                                                list.add(new IE_Message(message));
+                                                                ArrayList<XXXIE_Message> list = new ArrayList<>(1);
+                                                                list.add(new XXXIE_Message(message));
                                                                 ((SDKActivity) p_activity).onNewSocketMessages(list);
                                                             } else {
                                                                 try {
-                                                                    PW_AlertMessage.show(p_activity, new IE_Message(message));
+                                                                    PW_AlertMessage.show(p_activity, new XXXIE_Message(message));
                                                                     _log("Message alert displayed successfully");
                                                                 } catch (WindowManager.BadTokenException ignored) {
                                                                     _log("An error occours while attaching the alertmessage to the window. Activity: " + p_activity.toString());
@@ -380,7 +381,7 @@ public class Customerly {
         if(this._AppID == null) {
             this._log("You need to configure the SDK ");
             if(!reportNotConfiguredErrorDisabled) {
-                IEr_CustomerlyErrorHandler.sendNotConfiguredError();
+                XXXIEr_CustomerlyErrorHandler.sendNotConfiguredError();
             }
             return false;
         } else {
@@ -401,7 +402,7 @@ public class Customerly {
     }
 
     @Nullable Spanned _WELCOME__getMessage() {
-        IE_JwtToken token = this._JwtToken;
+        XXXIE_JwtToken token = this._JwtToken;
         return this._isConfigured()
                 ? IU_Utils.fromHtml(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors, null, null)
                 : null;
@@ -413,7 +414,7 @@ public class Customerly {
     @Nullable private String __SOCKET__CurrentConfiguration = null;
     private boolean __SOCKET__shouldBeConnected = false;
     interface SDKActivity {
-        void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages);
+        void onNewSocketMessages(@NonNull ArrayList<XXXIE_Message> messages);
         void onLogoutUser();
     }
     private void __SOCKET__connect(@Nullable JSONObject webSocket) {
@@ -429,7 +430,7 @@ public class Customerly {
         if(this._SupportEnabled) {
             this.__SOCKET__shouldBeConnected = true;//Metto a true perchè potremmo non entrare nei successivi if
             if (this._AppID != null && this.__SOCKET__Token != null && this.__SOCKET__Endpoint != null && this.__SOCKET__Port != null) {
-                IE_JwtToken token = this._JwtToken;
+                XXXIE_JwtToken token = this._JwtToken;
                 if (token != null && token._UserID != null) {
                     Socket socket = this._Socket;
                     if (socket == null || ! socket.connected() || this.__SOCKET__CurrentConfiguration == null || !this.__SOCKET__CurrentConfiguration.equals(String.format(Locale.UK, "%s-%s-%s-%d", this.__SOCKET__Token, this.__SOCKET__Endpoint, this.__SOCKET__Port, token._UserID))) {
@@ -490,7 +491,7 @@ public class Customerly {
                                                     boolean is_typing = "y".equals(payloadJson.optString("is_typing"));
                                                     payloadJson = payloadJson.getJSONObject("conversation");
                                                     if (payloadJson != null) {
-                                                        IE_JwtToken token2 = this._JwtToken;
+                                                        XXXIE_JwtToken token2 = this._JwtToken;
                                                         if (token2 != null && token2._UserID != null && token2._UserID == payloadJson.getLong("user_id") && !payloadJson.optBoolean("is_note", false)) {
                                                             long conversation_id = payloadJson.optLong("conversation_id", 0);
                                                             __SOCKET__ITyping_listener listener = this.__SOCKET__Typing_listener;
@@ -522,12 +523,12 @@ public class Customerly {
                                                 long timestamp = payloadJson.optLong("timestamp", 0L);
                                                 long socket_user_id = payloadJson.optLong("user_id", 0L);
 
-                                                IE_JwtToken token2 = this._JwtToken;
+                                                XXXIE_JwtToken token2 = this._JwtToken;
                                                 if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
                                                         && socket_user_id != 0 && timestamp != 0
                                                         && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
-                                                    new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
-                                                            .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
+                                                    new IApi_Request.Builder<ArrayList<XXXIE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
+                                                            .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
                                                             .opt_tokenMandatory()
                                                             .opt_receiver((responseState, new_messages) -> {
                                                                 if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
@@ -639,7 +640,7 @@ public class Customerly {
     }
     void __SOCKET_SEND_Typing(long pConversationID, boolean pTyping, @Nullable String pText) {
         //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "y", typing_preview: "I am writ"}
-        IE_JwtToken token = this._JwtToken;
+        XXXIE_JwtToken token = this._JwtToken;
         if(token != null && token._UserID != null) {
             try {
                 this.__SOCKET__SEND(SOCKET_EVENT__TYPING, new JSONObject()
@@ -654,7 +655,7 @@ public class Customerly {
     }
     void __SOCKET_SEND_Message(long pTimestamp) {
         if(pTimestamp != -1L) {
-            IE_JwtToken token = this._JwtToken;
+            XXXIE_JwtToken token = this._JwtToken;
             if (token != null && token._UserID != null) {
                 try {
                     this._log("Message send event sent via socket");
@@ -668,7 +669,7 @@ public class Customerly {
         }
     }
     void __SOCKET_SEND_Seen(long pConversationMessageID, long pSeenDate) {
-        IE_JwtToken token = this._JwtToken;
+        XXXIE_JwtToken token = this._JwtToken;
         if(token != null && token._UserID != null) {
             try {
                 this._log("Message seen event sent via socket");
@@ -718,9 +719,9 @@ public class Customerly {
             try {
                 SharedPreferences prefs = this._SharedPreferences;
                 if(prefs != null) {
-                    this._JwtToken = new IE_JwtToken(token, prefs);
+                    this._JwtToken = new XXXIE_JwtToken(token, prefs);
                 } else {
-                    this._JwtToken = new IE_JwtToken(token);
+                    this._JwtToken = new XXXIE_JwtToken(token);
                 }
             } catch (IllegalArgumentException wrongTokenFormat) {
                 this._JwtToken = null;
@@ -774,7 +775,7 @@ public class Customerly {
                         : DEF_WIDGET_COLOR_MALIBU_INT;
 
         //JWT TOKEN
-        Customerly._Instance._JwtToken = IE_JwtToken.from(prefs);
+        Customerly._Instance._JwtToken = XXXIE_JwtToken.from(prefs);
 
         //PING
         Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
@@ -936,7 +937,7 @@ public class Customerly {
                     this._executeTask();
                 } catch (Exception generic) {
                     _log("A generic error occurred in " + this.getClass().getSimpleName());
-                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in " + this.getClass().getSimpleName(), generic);
+                    XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in " + this.getClass().getSimpleName(), generic);
                     if(this.failureCallback != null) {
                         this.failureCallback.callback();
                     }
@@ -1260,7 +1261,7 @@ public class Customerly {
         }
         @Override
         protected void _executeTask() {
-            IE_JwtToken token = _JwtToken;
+            XXXIE_JwtToken token = _JwtToken;
             if(token != null && token.isUser()) {
                 IApi_Request.Builder<Void> builder = new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
                         .opt_converter(__PING__response_converter__NaN)
@@ -1450,7 +1451,7 @@ public class Customerly {
         }
         @Override
         protected void _executeTask() {
-            IE_JwtToken token = _JwtToken;
+            XXXIE_JwtToken token = _JwtToken;
             if(token != null && token.isUser()) {
                 try {
                     SharedPreferences pref = _SharedPreferences;
@@ -1494,7 +1495,7 @@ public class Customerly {
                     builder.start();
                 } catch (Exception generic) {
                     _log("A generic error occurred in Customerly.setCompany");
-                    IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.setCompany", generic);
+                    XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.setCompany", generic);
                     if(this.failureCallback != null) {
                         this.failureCallback.callback();
                     }
@@ -1590,7 +1591,7 @@ public class Customerly {
                 this._log("Customerly.openSupport completed successfully");
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.openSupport");
-                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSupport", generic);
+                XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.openSupport", generic);
             }
         }
     }
@@ -1607,7 +1608,7 @@ public class Customerly {
 
                 this._JwtToken = null;
                 if (prefs != null) {
-                    IE_JwtToken.remove(prefs);
+                    XXXIE_JwtToken.remove(prefs);
                     //noinspection SpellCheckingInspection
                     prefs.edit().remove(PREF_CURRENT_EMAIL).remove(PREF_CURRENT_ID).remove(PREF_CURRENT_COMPANY_INFO).apply();
                 }
@@ -1637,10 +1638,10 @@ public class Customerly {
     public void trackEvent(@NonNull final String pEventName) {
         if(this._isConfigured() && pEventName.length() != 0) {
             try {
-                IE_JwtToken token = this._JwtToken;
+                XXXIE_JwtToken token = this._JwtToken;
                 if(token != null && (token.isUser() || token.isLead())) {
                     _log("Customerly.trackEvent task started for event " + pEventName);
-                    new IApi_Request.Builder<IE_Message>(IApi_Request.ENDPOINT_EVENT_TRACKING)
+                    new IApi_Request.Builder<XXXIE_Message>(IApi_Request.ENDPOINT_EVENT_TRACKING)
                             .opt_trials(2)
                             .param("name", pEventName)
                             .opt_receiver(((pResponseState, pResponse) -> this._log("Customerly.trackEvent completed successfully for event " + pEventName)))
@@ -1650,7 +1651,7 @@ public class Customerly {
                 }
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.trackEvent");
-                IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
+                XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__GENERIC, "Generic error in Customerly.trackEvent", generic);
             }
         }
     }

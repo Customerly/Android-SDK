@@ -34,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Survey implements Parcelable {
+class XXXIE_Survey implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
@@ -51,7 +51,7 @@ class IE_Survey implements Parcelable {
             dest.writeTypedArray(this.choices, 0);
         } catch (Exception ignored) { }
     }
-    private IE_Survey(@NonNull Parcel in) {
+    private XXXIE_Survey(@NonNull Parcel in) {
         this.survey_id = in.readInt();
         this.limit_from = in.readInt();
         this.limit_to = in.readInt();
@@ -97,9 +97,9 @@ class IE_Survey implements Parcelable {
         }
     }
     @Override public int describeContents() { return 0; }
-    @NonNull public static final Parcelable.Creator<IE_Survey> CREATOR = new Parcelable.Creator<IE_Survey>() {
-        @Contract(pure = true) @NonNull public IE_Survey createFromParcel(@NonNull Parcel in) { return new IE_Survey(in); }
-        @Contract(pure = true) @NonNull public IE_Survey[] newArray(int size) { return new IE_Survey[size]; }
+    @NonNull public static final Parcelable.Creator<XXXIE_Survey> CREATOR = new Parcelable.Creator<XXXIE_Survey>() {
+        @Contract(pure = true) @NonNull public XXXIE_Survey createFromParcel(@NonNull Parcel in) { return new XXXIE_Survey(in); }
+        @Contract(pure = true) @NonNull public XXXIE_Survey[] newArray(int size) { return new XXXIE_Survey[size]; }
     };
 
     @IntDef({ TYPE_END_SURVEY, TYPE_BUTTON, TYPE_RADIO, TYPE_LIST, TYPE_SCALE, TYPE_STAR, TYPE_NUMBER, TYPE_TEXT_BOX, TYPE_TEXT_AREA})
@@ -119,19 +119,19 @@ class IE_Survey implements Parcelable {
 
     @Contract("null -> null")
     @Nullable
-    static IE_Survey[] from(@Nullable JSONArray array) {
+    static XXXIE_Survey[] from(@Nullable JSONArray array) {
         if (array == null)
             return null;
-        IE_Survey[] surveys = new IE_Survey[array.length()];
+        XXXIE_Survey[] surveys = new XXXIE_Survey[array.length()];
         for(int i = 0; i < array.length(); i++) {
-            surveys[i] = IE_Survey.from(array.optJSONObject(i));
+            surveys[i] = XXXIE_Survey.from(array.optJSONObject(i));
         }
         return surveys;
     }
 
     @Contract("null -> null")
     @Nullable
-    static IE_Survey from(@Nullable JSONObject root) {
+    static XXXIE_Survey from(@Nullable JSONObject root) {
         if (root == null)
             return null;
         try {
@@ -151,12 +151,12 @@ class IE_Survey implements Parcelable {
                 }
                 int type = question.getInt("type");
                 //noinspection SpellCheckingInspection
-                return new IE_Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), question.optInt("step", 0), root.optLong("seen_at", -1),
+                return new XXXIE_Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), question.optInt("step", 0), root.optLong("seen_at", -1),
                         type < 0 ? TYPE_END_SURVEY : type > LAST_TYPE ? LAST_TYPE : type, question.getString("title"), question.getString("subtitle"),
                         question.optInt("limit_from", -1), question.optInt("limit_to", -1), choices);
             } else {//End of Survey
                 //noinspection SpellCheckingInspection
-                return new IE_Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), Integer.MAX_VALUE, root.optLong("seen_at", -1),
+                return new XXXIE_Survey(survey.getInt("survey_id"), survey.getString("thankyou_text"), Integer.MAX_VALUE, root.optLong("seen_at", -1),
                         TYPE_END_SURVEY, "", "", -1, -1, null);
             }
         } catch (JSONException json) {
@@ -164,7 +164,7 @@ class IE_Survey implements Parcelable {
         }
     }
 
-    IE_Survey updateFrom(@Nullable JSONObject data) {
+    XXXIE_Survey updateFrom(@Nullable JSONObject data) {
         if(data != null) {
             try {
                 JSONObject question = data.optJSONObject("question");
@@ -213,7 +213,7 @@ class IE_Survey implements Parcelable {
     @NonNull String title, subtitle;
     boolean seen, isRejectedOrConcluded = false;
     @Nullable Choice[] choices;
-    private IE_Survey(int survey_id, @NonNull String thank_you_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
+    private XXXIE_Survey(int survey_id, @NonNull String thank_you_text, int step, long seen_at, @SURVEY_TYPE int type, @NonNull String title, @NonNull String subtitle, int limit_from, int limit_to, @Nullable Choice[] choices) {
         this.survey_id = survey_id;
         this.thank_you_text = thank_you_text;
         this.step = step;

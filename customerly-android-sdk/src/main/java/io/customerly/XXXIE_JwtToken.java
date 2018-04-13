@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_JwtToken {
+class XXXIE_JwtToken {
     @NonNull private static final String TOKEN_VALIDATOR_MATCHER = "([^.]+)\\.([^.]+)\\.([^.]+)";
     @NonNull private static final Pattern TOKEN_PAYLOAD_MATCHER = Pattern.compile("\\.(.*?)\\.");
     @NonNull private static final String PREFS_TOKEN_KEY = "PREFS_TOKEN_KEY";
@@ -53,7 +53,7 @@ class IE_JwtToken {
     @NonNull private final String _EncodedToken;
     @Nullable final Long _UserID;
     @USER_TYPE private final int _UserType;
-    IE_JwtToken(@org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken) throws IllegalArgumentException {
+    XXXIE_JwtToken(@org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken) throws IllegalArgumentException {
         super();
         this._EncodedToken = pEncodedToken;
 
@@ -80,7 +80,7 @@ class IE_JwtToken {
         }
     }
 
-    IE_JwtToken(@Subst("authB64.payloadB64.checksumB64") @org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken, @NonNull SharedPreferences prefs) {
+    XXXIE_JwtToken(@Subst("authB64.payloadB64.checksumB64") @org.intellij.lang.annotations.Pattern(TOKEN_VALIDATOR_MATCHER) @Size(min = 5) @NonNull String pEncodedToken, @NonNull SharedPreferences prefs) {
         this(pEncodedToken);
         prefs.edit().putString(PREFS_TOKEN_KEY, pEncodedToken).apply();
     }
@@ -107,13 +107,13 @@ class IE_JwtToken {
     }
 
     @Nullable
-    public static IE_JwtToken from(@NonNull SharedPreferences prefs) {
+    public static XXXIE_JwtToken from(@NonNull SharedPreferences prefs) {
         @Subst("authB64.payloadB64.checksumB64") String tokenFromPrefs = IU_Utils.getStringSafe(prefs, PREFS_TOKEN_KEY);
         if(tokenFromPrefs != null) {
             try {
-                return new IE_JwtToken(tokenFromPrefs);
+                return new XXXIE_JwtToken(tokenFromPrefs);
             } catch (IllegalArgumentException wrongTokenFormat) {
-                IE_JwtToken.remove(prefs);
+                XXXIE_JwtToken.remove(prefs);
             }
         }
         return null;

@@ -63,7 +63,7 @@ import java.util.Collections;
  * Project: Customerly Android SDK
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivity {
+public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKActivity {
 
     static final String EXTRA_CONVERSATION_ID= "EXTRA_CONVERSATION_ID";
     private static final int MESSAGES_PER_PAGE = 20, TYPING_NO_ONE = 0;
@@ -74,7 +74,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     @NonNull private final ChatAdapter _Adapter = new ChatAdapter();
     private long _TypingAccountId = TYPING_NO_ONE, _ConversationID = 0;
     @Nullable private LinearLayoutManager _LinearLayoutManager;
-    @NonNull private ArrayList<IE_Message> _ChatList = new ArrayList<>(0);
+    @NonNull private ArrayList<XXXIE_Message> _ChatList = new ArrayList<>(0);
     @NonNull private final IU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
         if(Customerly.get()._isConfigured()) {
             long oldestMessageId = Long.MAX_VALUE;
@@ -87,21 +87,21 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 } catch (Exception ignored) { /* concurrence */ }
             }
 
-            new IApi_Request.Builder<ArrayList<IE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
+            new IApi_Request.Builder<ArrayList<XXXIE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
                     .opt_checkConn(this)
                     .opt_onPreExecute(() -> IU_NullSafe.setVisibility(this._Progress_view, View.VISIBLE))
-                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", IE_Message::new))
+                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
                     .opt_tokenMandatory()
                     .opt_receiver((responseState, pNewMessages) -> {
                         if (responseState == IApi_Request.RESPONSE_STATE__OK && pNewMessages != null) {
 
-                            final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
+                            final ArrayList<XXXIE_Message> new_messages = new ArrayList<>(this._ChatList);
                             int previoussize = new_messages.size();
 
                             Collections.sort(pNewMessages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC);
                             //noinspection Convert2streamapi
                             int indexScrollLastUnread = 0;
-                            for(IE_Message newMsg : pNewMessages) {
+                            for(XXXIE_Message newMsg : pNewMessages) {
                                 if(! this._ChatList.contains(newMsg)) {           //Avoid duplicates;
                                     new_messages.add(newMsg);
                                     if(indexScrollLastUnread == 0 && newMsg.isNotSeen()) {
@@ -130,7 +130,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                             });
 
                             if(new_messages.size() != 0) {
-                                IE_Message last = new_messages.get(0);
+                                XXXIE_Message last = new_messages.get(0);
                                 if (last.isNotSeen()) {
                                     this.sendSeen(last.conversation_message_id);
                                 }
@@ -227,7 +227,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     }
 
     static void startForResult(@NonNull Activity activity, boolean mustShowBack, long conversationID, int requestCode) {
-        Intent intent = new Intent(activity, IAct_Chat.class).putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, mustShowBack);
+        Intent intent = new Intent(activity, IAct_Chat.class).putExtra(XXXIAct_AInput.EXTRA_MUST_SHOW_BACK, mustShowBack);
         if(conversationID > 0) {
             intent.putExtra(IAct_Chat.EXTRA_CONVERSATION_ID, conversationID);
         }
@@ -235,7 +235,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             if(activity instanceof IAct_Chat) {
                 //If i am starting a IAct_Chat Activity from a IAct_Chat activity i'll show the back button only if it is visible in the current IAct_Chat activity.
                 //Then i finish the current activity to avoid long stack of IAct_Chat activities
-                activity.startActivity(intent.putExtra(IAct_AInput.EXTRA_MUST_SHOW_BACK, ((IAct_Chat)activity)._MustShowBack));
+                activity.startActivity(intent.putExtra(XXXIAct_AInput.EXTRA_MUST_SHOW_BACK, ((IAct_Chat)activity)._MustShowBack));
                 activity.finish();
             } else {
                 activity.startActivity(intent);
@@ -246,11 +246,11 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     }
 
     @Override
-    public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) {
-        final ArrayList<IE_Message> new_messages = new ArrayList<>(this._ChatList);
-        IE_Message otherConversationMessage = null;
+    public void onNewSocketMessages(@NonNull ArrayList<XXXIE_Message> messages) {
+        final ArrayList<XXXIE_Message> new_messages = new ArrayList<>(this._ChatList);
+        XXXIE_Message otherConversationMessage = null;
         //noinspection Convert2streamapi
-        for(IE_Message newMsg : messages) {
+        for(XXXIE_Message newMsg : messages) {
             if(newMsg.conversation_id == this._ConversationID) {       //Filter by conversation_id
                 if(! new_messages.contains(newMsg)) {           //Avoid duplicates;
                     new_messages.add(newMsg);
@@ -280,7 +280,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         });
 
         if(new_messages.size() != 0) {
-            IE_Message last = new_messages.get(0);
+            XXXIE_Message last = new_messages.get(0);
             if (last.isNotSeen()) {
                 this.sendSeen(last.conversation_message_id);
             }
@@ -290,7 +290,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     @Override
     protected void onResume() {
         super.onResume();
-        IE_JwtToken jwt = Customerly.get()._JwtToken;
+        XXXIE_JwtToken jwt = Customerly.get()._JwtToken;
         if(jwt == null || jwt.isAnonymous()) {
             this.onLogoutUser();
         } else {
@@ -330,10 +330,10 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
     }
 
     @Override
-    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        IE_JwtToken token = Customerly.get()._JwtToken;
+    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull XXXIE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
+        XXXIE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && token._UserID != null) {
-            IE_Message message = new IE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
+            XXXIE_Message message = new XXXIE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
             IU_NullSafe.post(this._ListRecyclerView, () -> {
                 message.setSending();
                 boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
@@ -349,13 +349,13 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
 
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.N)
-    private void startSendMessageRequest(@NonNull IE_Message message) {
-        new IApi_Request.Builder<IE_Message>(IApi_Request.ENDPOINT_MESSAGE_SEND)
+    private void startSendMessageRequest(@NonNull XXXIE_Message message) {
+        new IApi_Request.Builder<XXXIE_Message>(IApi_Request.ENDPOINT_MESSAGE_SEND)
                 .opt_checkConn(this)
                 .opt_tokenMandatory()
                 .opt_converter(data -> {
                     Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
-                    return new IE_Message(data.optJSONObject("message"));
+                    return new XXXIE_Message(data.optJSONObject("message"));
                 })
                 .opt_receiver((responseState, messageSent) ->
                     IU_NullSafe.post(this._ListRecyclerView, () -> {
@@ -373,7 +373,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 .opt_trials(2)
                 .param("conversation_id", this._ConversationID)
                 .param("message", message.content == null ? "" : message.content)
-                .param("attachments", IE_Attachment.toSendJSONObject(this, message._Attachments))
+                .param("attachments", XXXIE_Attachment.toSendJSONObject(this, message._Attachments))
                 .start();
     }
 
@@ -454,7 +454,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this.itemView.clearAnimation();
         }
 
-        protected abstract void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender);//, boolean pShouldAnimate);
+        protected abstract void apply(@Nullable XXXIE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender);//, boolean pShouldAnimate);
     }
 
     private class ChatTypingVH extends A_ChatVH {
@@ -464,13 +464,13 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this.startAnimation();
         }
 
-        protected void apply(@Nullable IE_Message __null, @Nullable String _NoDatesForTyping, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
+        protected void apply(@Nullable XXXIE_Message __null, @Nullable String _NoDatesForTyping, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             long typingAccountID = _TypingAccountId;
             if (pIsFirstMessageOfSender && typingAccountID != TYPING_NO_ONE) {
                 Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
-                        .load(IE_Account.getAccountImageUrl(typingAccountID, this._IconSize))
+                        .load(XXXIE_Account.getAccountImageUrl(typingAccountID, this._IconSize))
                         .into(IAct_Chat.this, this._Icon)
                         .override(this._IconSize, this._IconSize)
                         .placeholder(R.drawable.io_customerly__ic_default_admin));
@@ -510,7 +510,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         }
 
         @Override
-        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
+        protected void apply(@Nullable XXXIE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender);//, pShouldAnimate);
             if(pIsFirstMessageOfSender && pMessage != null && pMessage.if_account__name != null && pMessage.if_account__name.length() != 0) {
                 this._AccountName.setText(pMessage.if_account__name);
@@ -526,7 +526,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             super(R.layout.io_customerly__li_bubble_account_rich, R.drawable.io_customerly__ic_attach_account_40dp, -0.9f);
         }
         @Override
-        protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
+        protected void apply(@Nullable XXXIE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender);//, pShouldAnimate);
             View.OnClickListener clickListener = v -> {
                 if(pMessage != null && pMessage.rich_mail_link != null) {
@@ -555,7 +555,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
             this._IcAttachResID = pIcAttachResID;
 //            this._ItemFromXValueRelative = pItemFromXValueRelative;
         }
-        @Override protected void apply(@Nullable IE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
+        @Override protected void apply(@Nullable XXXIE_Message pMessage, @Nullable String pDateToDisplay, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             if (pMessage != null) {//Always != null for this ViewHolder
                 if(pDateToDisplay != null) {
                     this._Date.setText(pDateToDisplay);
@@ -613,9 +613,9 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                 }
 
                 this._AttachmentLayout.removeAllViews();
-                IE_Attachment[] attachments = pMessage._Attachments;
+                XXXIE_Attachment[] attachments = pMessage._Attachments;
                 if (attachments != null) {
-                    for (IE_Attachment attachment : attachments) {
+                    for (XXXIE_Attachment attachment : attachments) {
 
                         LinearLayout ll = new LinearLayout(IAct_Chat.this);
                         ll.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -724,7 +724,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
                     position--;
                 }
             }
-            IE_Message message = _ChatList.get(position);
+            XXXIE_Message message = _ChatList.get(position);
             if(message.isUserMessage()) {
                 return R.layout.io_customerly__li_bubble_user;
             } else if(message.rich_mail_link == null) {
@@ -744,7 +744,7 @@ public final class IAct_Chat extends IAct_AInput implements Customerly.SDKActivi
         public void onBindViewHolder(A_ChatVH holder, @SuppressLint("RecyclerView") int position) {
             position -= _TypingAccountId != TYPING_NO_ONE ? 1 : 0;//No typing -> same position. Yes typing -> position reduced by 1 (it becomes -1 if it is the typing item)
 
-            IE_Message thisMessage = null, previousMessage;
+            XXXIE_Message thisMessage = null, previousMessage;
 //            boolean shouldAnimate = false;
             if(position != -1) { //No typing item
                 thisMessage = _ChatList.get(position);

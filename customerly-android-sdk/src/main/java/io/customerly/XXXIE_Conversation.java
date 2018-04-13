@@ -29,7 +29,7 @@ import org.json.JSONObject;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Conversation {
+class XXXIE_Conversation {
 
     private static final int /*WRITER_TYPE__USER = 1,*/ WRITER_TYPE__ACCOUNT = 0;
 
@@ -41,7 +41,7 @@ class IE_Conversation {
 
     final long conversation_id;
 
-    IE_Conversation(long pConversationID, @Nullable Spanned pLastMessageAbstract, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
+    XXXIE_Conversation(long pConversationID, @Nullable Spanned pLastMessageAbstract, long pLastMessageDate, long pLastMessageWriterID, int pLastMessageWriterType, @Nullable String pLastAccountName) {
         super();
         this.conversation_id = pConversationID;
         this.last_message_abstract = pLastMessageAbstract;
@@ -55,7 +55,7 @@ class IE_Conversation {
         this.last_account__name = pLastAccountName;
     }
 
-    IE_Conversation(@NonNull JSONObject pConversationItem) throws JSONException {
+    XXXIE_Conversation(@NonNull JSONObject pConversationItem) throws JSONException {
         super();
 
         this.conversation_id = pConversationItem.getLong("conversation_id");
@@ -71,7 +71,7 @@ class IE_Conversation {
         this.last_account__name = pConversationItem == null ? null : IU_Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
     }
 
-    void onNewMessage(@NonNull IE_Message pNewMessage) {
+    void onNewMessage(@NonNull XXXIE_Message pNewMessage) {
         this.last_message_abstract = pNewMessage.content_abstract;
         this.last_message_date = pNewMessage.sent_datetime_sec;
         this.last_message_writer = pNewMessage.getWriterID();
@@ -82,8 +82,8 @@ class IE_Conversation {
 
     @NonNull String getImageUrl(int pPixelSize) {
         return this.last_message_writer_type == WRITER_TYPE__ACCOUNT
-            ? IE_Account.getAccountImageUrl(this.last_message_writer, pPixelSize)
-            : IE_Account.getUserImageUrl(this.last_message_writer, pPixelSize);
+            ? XXXIE_Account.getAccountImageUrl(this.last_message_writer, pPixelSize)
+            : XXXIE_Account.getUserImageUrl(this.last_message_writer, pPixelSize);
     }
 
     @NonNull String getConversationLastWriter(@NonNull Context pContext) {
@@ -95,7 +95,7 @@ class IE_Conversation {
     }
 
     @NonNull String getFormattedLastMessageTime(@NonNull Resources resources) {
-        return IU_TimeAgoUtils.calculate(this.last_message_date,
+        return XXXIU_TimeAgoUtils.calculate(this.last_message_date,
                 seconds -> resources.getString(R.string.io_customerly__XX_sec_ago, seconds),
                 minutes -> resources.getString(R.string.io_customerly__XX_min_ago, minutes),
                 hours -> resources.getQuantityString(R.plurals.io_customerly__XX_hours_ago, (int)hours, hours),

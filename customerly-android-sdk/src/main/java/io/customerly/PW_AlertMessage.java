@@ -120,7 +120,7 @@ class PW_AlertMessage extends PopupWindow {
     }
 
     @UiThread
-    static void show(@NonNull Activity activity, @NonNull IE_Message message) throws WindowManager.BadTokenException {
+    static void show(@NonNull Activity activity, @NonNull XXXIE_Message message) throws WindowManager.BadTokenException {
         PW_AlertMessage alert = PW_AlertMessage._CurrentVisible;
         if (alert != null) {
             if(alert._MessageID == message.conversation_message_id) { //Already displaying that message
@@ -159,7 +159,7 @@ class PW_AlertMessage extends PopupWindow {
         }
     }
 
-    private void bindMessage(@NonNull IE_Message message) {
+    private void bindMessage(@NonNull XXXIE_Message message) {
         this._ConversationID = message.conversation_id;
         this._MessageID = message.conversation_message_id;
         this._MessageRawLink = message.rich_mail_link;

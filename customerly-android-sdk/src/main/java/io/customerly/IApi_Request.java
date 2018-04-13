@@ -248,11 +248,11 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
         }
         JSONObject request_root = new JSONObject();
 
-        IE_JwtToken token = Customerly.get()._JwtToken;
+        XXXIE_JwtToken token = Customerly.get()._JwtToken;
         boolean tokenSent = false;
         if(token != null) {
             try {
-                request_root.put(IE_JwtToken.PAYLOAD_KEY, token.toString());
+                request_root.put(XXXIE_JwtToken.PAYLOAD_KEY, token.toString());
                 tokenSent = true;
             } catch (JSONException ignored) { }
         }
@@ -278,7 +278,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                     token = Customerly.get()._JwtToken;
                     if (token != null) {
                         try {
-                            request_root.put(IE_JwtToken.PAYLOAD_KEY, token.toString());
+                            request_root.put(XXXIE_JwtToken.PAYLOAD_KEY, token.toString());
                         } catch (JSONException ignored) { }
                         if(ENDPOINT_REPORT_CRASH.equals(this._Endpoint)) {
                             try {

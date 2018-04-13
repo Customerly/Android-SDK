@@ -13,3 +13,7 @@
 -dontwarn java.lang.invoke.*
 -dontwarn okio.**
 -dontwarn io.customerly.**
+
+-keepclasseswithmembers class android.animation.ValueAnimator {
+    public static void setDurationScale(float);
+}

@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Gianni on 09/09/16.
  * Project: Customerly Android SDK
  */
-class IEr_CustomerlyErrorHandler {
+class XXXIEr_CustomerlyErrorHandler {
 
     @IntDef({ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, ERROR_CODE__IO_ERROR, ERROR_CODE__HTTP_REQUEST_ERROR,
             ERROR_CODE__HTTP_RESPONSE_ERROR, ERROR_CODE__GLIDE_ERROR, ERROR_CODE__ATTACHMENT_ERROR,
@@ -44,7 +44,7 @@ class IEr_CustomerlyErrorHandler {
     @ErrorCode static final int ERROR_CODE__GENERIC = 7;
 
     static void sendNotConfiguredError() {
-        IEr_CustomerlyErrorHandler.sendError(IEr_CustomerlyErrorHandler.ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, BuildConfig.CUSTOMERLY_SDK_NAME + "is not configured", null);
+        XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, BuildConfig.CUSTOMERLY_SDK_NAME + "is not configured", null);
     }
     static void sendError(@ErrorCode int pErrorCode, @NonNull String pDescription, @Nullable Throwable pThrowable) {
         StringBuilder sb = new StringBuilder();

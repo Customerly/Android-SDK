@@ -47,7 +47,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static io.customerly.IE_Survey.TYPE_END_SURVEY;
+import static io.customerly.XXXIE_Survey.TYPE_END_SURVEY;
 
 /**
  * Created by Gianni on 29/11/16.
@@ -60,11 +60,11 @@ public class IDlgF_Survey extends DialogFragment {
     private TextView _Title, _Subtitle;
     private View _ProgressView, _Back;
     @Nullable
-    private IE_Survey _CurrentSurvey;
+    private XXXIE_Survey _CurrentSurvey;
     private boolean _SurveyCompleted = false;
 
     @SuppressLint("CommitTransaction")
-    static void show(@NonNull Activity activity, @NonNull IE_Survey survey) {
+    static void show(@NonNull Activity activity, @NonNull XXXIE_Survey survey) {
         Fragment prev = activity.getFragmentManager().findFragmentByTag("io.customerly.IDlgF_Survey");
         if (prev == null || !(prev instanceof IDlgF_Survey) || ((IDlgF_Survey)prev).getDialog() == null || !((IDlgF_Survey)prev).getDialog().isShowing()) {
             IDlgF_Survey dlg = new IDlgF_Survey();
@@ -93,7 +93,7 @@ public class IDlgF_Survey extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Bundle args = this.getArguments();
         if(args != null) {
-            IE_Survey survey = args.getParcelable("IE_Survey");
+            XXXIE_Survey survey = args.getParcelable("IE_Survey");
             if(survey != null && !survey.isRejectedOrConcluded) {
                 View view = inflater.inflate(R.layout.io_customerly__dialog_fragment_survey, container, false);
                 this._Title = (TextView) view.findViewById(R.id.io_customerly__title);
@@ -102,10 +102,10 @@ public class IDlgF_Survey extends DialogFragment {
                 this._ProgressView = view.findViewById(R.id.io_customerly__progress_view);
                 this._Back = view.findViewById(R.id.io_customerly__back);
                 this._Back.setOnClickListener(v -> {
-                    IE_Survey currentSurvey = this._CurrentSurvey;
+                    XXXIE_Survey currentSurvey = this._CurrentSurvey;
                     if (currentSurvey != null && this._Back.getVisibility() == View.VISIBLE && this._ProgressView.getVisibility() == View.GONE) {
                         this._SurveyContainer.removeAllViews();
-                        new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_BACK)
+                        new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_BACK)
                                 .opt_checkConn(this.getActivity())
                                 .opt_tokenMandatory()
                                 .opt_trials(2)
@@ -116,7 +116,7 @@ public class IDlgF_Survey extends DialogFragment {
                                     this._SurveyContainer.removeAllViews();
                                     this._ProgressView.setVisibility(View.VISIBLE);
                                 })
-                                .opt_converter(IE_Survey::from)
+                                .opt_converter(XXXIE_Survey::from)
                                 .opt_receiver((responseState, surveyBack) -> {
                                     if (responseState != IApi_Request.RESPONSE_STATE__OK) {
                                         Context context = this.getActivity();
@@ -132,10 +132,10 @@ public class IDlgF_Survey extends DialogFragment {
                 });
                 view.findViewById(R.id.io_customerly__close).setOnClickListener(v -> {
                     if (this._ProgressView.getVisibility() == View.GONE) {
-                        IE_Survey currentSurvey = this._CurrentSurvey;
+                        XXXIE_Survey currentSurvey = this._CurrentSurvey;
                         if (!this._SurveyCompleted && currentSurvey != null) {
                             currentSurvey.isRejectedOrConcluded = true;
-                            new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_REJECT)
+                            new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_REJECT)
                                     .opt_checkConn(this.getActivity())
                                     .opt_tokenMandatory()
                                     .opt_trials(2)
@@ -156,14 +156,14 @@ public class IDlgF_Survey extends DialogFragment {
         return null;
     }
 
-    private void applySurvey(@Nullable IE_Survey survey) {
+    private void applySurvey(@Nullable XXXIE_Survey survey) {
         Context context = this.getActivity();
         if (survey == null || context == null) {
             this.dismissAllowingStateLoss();
             return;
         }
         this._CurrentSurvey = survey;
-        if (survey.type == IE_Survey.TYPE_END_SURVEY) {
+        if (survey.type == XXXIE_Survey.TYPE_END_SURVEY) {
             this._Back.setVisibility(View.INVISIBLE);
             this._SurveyCompleted = true;
             survey.isRejectedOrConcluded = true;
@@ -185,9 +185,9 @@ public class IDlgF_Survey extends DialogFragment {
             this._Subtitle.setText(survey.subtitle);
             this._Subtitle.setVisibility(View.VISIBLE);
             switch (survey.type) {
-                case IE_Survey.TYPE_BUTTON:
+                case XXXIE_Survey.TYPE_BUTTON:
                     if (survey.choices != null) {
-                        for (IE_Survey.Choice c : survey.choices) {
+                        for (XXXIE_Survey.Choice c : survey.choices) {
                             Button b = new Button(context);
                             {
                                 b.setTextColor(Color.WHITE);
@@ -205,10 +205,10 @@ public class IDlgF_Survey extends DialogFragment {
                         }
                     }
                     break;
-                case IE_Survey.TYPE_RADIO:
+                case XXXIE_Survey.TYPE_RADIO:
                     if (survey.choices != null) {
                         LayoutInflater inflater = LayoutInflater.from(context);
-                        for (IE_Survey.Choice c : survey.choices) {
+                        for (XXXIE_Survey.Choice c : survey.choices) {
 
                             AppCompatRadioButton radio = (AppCompatRadioButton) inflater.inflate(R.layout.io_customerly__surveyitem_radio, this._SurveyContainer, false);
                             {
@@ -219,7 +219,7 @@ public class IDlgF_Survey extends DialogFragment {
                         }
                     }
                     break;
-                case IE_Survey.TYPE_LIST:
+                case XXXIE_Survey.TYPE_LIST:
                     if (survey.choices != null) {
                         AppCompatSpinner spinner = new AppCompatSpinner(context);
                         {
@@ -239,13 +239,13 @@ public class IDlgF_Survey extends DialogFragment {
                                 public void onNothingSelected(AdapterView<?> parent) {
                                 }
                             });
-                            spinner.setAdapter(new ArrayAdapter<IE_Survey.Choice>(context, android.R.layout.simple_spinner_dropdown_item, survey.choices) {
+                            spinner.setAdapter(new ArrayAdapter<XXXIE_Survey.Choice>(context, android.R.layout.simple_spinner_dropdown_item, survey.choices) {
                                 @Override
                                 public long getItemId(int position) {
                                     if (position == 0) {
                                         return 0;
                                     } else {
-                                        IE_Survey.Choice c = super.getItem(position - 1);
+                                        XXXIE_Survey.Choice c = super.getItem(position - 1);
                                         return c == null ? 0 : c.survey_choice_id;
                                     }
                                 }
@@ -301,7 +301,7 @@ public class IDlgF_Survey extends DialogFragment {
                         this._SurveyContainer.addView(spinner);
                     }
                     break;
-                case IE_Survey.TYPE_SCALE:
+                case XXXIE_Survey.TYPE_SCALE:
                     LinearLayout ll_root = new LinearLayout(context);
                 {
                     ll_root.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -382,16 +382,16 @@ public class IDlgF_Survey extends DialogFragment {
                 }
                 this._SurveyContainer.addView(ll_root);
                 break;
-                case IE_Survey.TYPE_STAR:
+                case XXXIE_Survey.TYPE_STAR:
                     AppCompatRatingBar ratingBar = (AppCompatRatingBar) LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_ratingbar, this._SurveyContainer, false);
                 {
                     ratingBar.setOnRatingBarChangeListener((rBar, rating, fromUser) -> this.nextSurvey(survey, -1, String.valueOf(rating)));
                 }
                 this._SurveyContainer.addView(ratingBar);
                 break;
-                case IE_Survey.TYPE_NUMBER:
-                case IE_Survey.TYPE_TEXT_BOX:
-                case IE_Survey.TYPE_TEXT_AREA:
+                case XXXIE_Survey.TYPE_NUMBER:
+                case XXXIE_Survey.TYPE_TEXT_BOX:
+                case XXXIE_Survey.TYPE_TEXT_AREA:
                     LinearLayout ll = new LinearLayout(context);
                 {
                     ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -401,25 +401,25 @@ public class IDlgF_Survey extends DialogFragment {
                     AppCompatEditText editText = (AppCompatEditText) LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_edittext, ll, false);
                     {
                         switch (survey.type) {
-                            case IE_Survey.TYPE_NUMBER:
+                            case XXXIE_Survey.TYPE_NUMBER:
                                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                                 editText.setHint(R.string.io_customerly__hint_insert_a_number);
                                 break;
-                            case IE_Survey.TYPE_TEXT_BOX:
+                            case XXXIE_Survey.TYPE_TEXT_BOX:
                                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                                 editText.setHint(R.string.io_customerly__hint_insert_a_text);
                                 break;
-                            case IE_Survey.TYPE_TEXT_AREA:
+                            case XXXIE_Survey.TYPE_TEXT_AREA:
                                 editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);
                                 editText.setHint(R.string.io_customerly__hint_insert_a_text);
                                 editText.setMinLines(2);
                                 break;
-                            case IE_Survey.TYPE_BUTTON:
-                            case IE_Survey.TYPE_END_SURVEY:
-                            case IE_Survey.TYPE_LIST:
-                            case IE_Survey.TYPE_RADIO:
-                            case IE_Survey.TYPE_SCALE:
-                            case IE_Survey.TYPE_STAR:
+                            case XXXIE_Survey.TYPE_BUTTON:
+                            case XXXIE_Survey.TYPE_END_SURVEY:
+                            case XXXIE_Survey.TYPE_LIST:
+                            case XXXIE_Survey.TYPE_RADIO:
+                            case XXXIE_Survey.TYPE_SCALE:
+                            case XXXIE_Survey.TYPE_STAR:
                                 //Not reachable
                                 break;
                         }
@@ -453,7 +453,7 @@ public class IDlgF_Survey extends DialogFragment {
                     break;
             }
             if (!survey.seen) {
-                new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_SEEN)
+                new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_SEEN)
                         .opt_checkConn(context)
                         .opt_tokenMandatory()
                         .opt_trials(2)
@@ -463,8 +463,8 @@ public class IDlgF_Survey extends DialogFragment {
         }
     }
 
-    private void nextSurvey(IE_Survey pSurvey, int choice_id, @Nullable String answer) {
-        IApi_Request.Builder builder = new IApi_Request.Builder<IE_Survey>(IApi_Request.ENDPOINT_SURVEY_SUBMIT)
+    private void nextSurvey(XXXIE_Survey pSurvey, int choice_id, @Nullable String answer) {
+        IApi_Request.Builder builder = new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_SUBMIT)
                 .opt_checkConn(this.getActivity())
                 .opt_tokenMandatory()
                 .opt_onPreExecute(() -> {

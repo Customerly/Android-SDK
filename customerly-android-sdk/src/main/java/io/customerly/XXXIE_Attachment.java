@@ -40,7 +40,7 @@ import java.io.InputStream;
  * Created by Gianni on 13/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Attachment {
+class XXXIE_Attachment {
 
     @Nullable final Uri uri;
     @NonNull final String name;
@@ -48,7 +48,7 @@ class IE_Attachment {
     @Nullable
     String path;
 
-    IE_Attachment(@NonNull JSONObject attachment) throws JSONException {
+    XXXIE_Attachment(@NonNull JSONObject attachment) throws JSONException {
         super();
 //        this.attachment_size = attachment.getLong("size");
         this.path = attachment.getString("path");
@@ -57,7 +57,7 @@ class IE_Attachment {
         this.uri = null;
     }
 
-    IE_Attachment(@NonNull Context pContext, @NonNull Uri pUri) {
+    XXXIE_Attachment(@NonNull Context pContext, @NonNull Uri pUri) {
         super();
         this.uri = pUri;
         this.name = IU_Utils.getNameFromUri(pContext, pUri);
@@ -65,7 +65,7 @@ class IE_Attachment {
         this.path = null;
     }
 
-    void addAttachmentToInput(@NonNull IAct_AInput pA_Customerly_Activity) {
+    void addAttachmentToInput(@NonNull XXXIAct_AInput pA_Customerly_Activity) {
         pA_Customerly_Activity._Attachments.add(this);
         TextView tv = new TextView(pA_Customerly_Activity);
         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -95,10 +95,10 @@ class IE_Attachment {
         pA_Customerly_Activity.input_attachments.addView(tv);
     }
 
-    static @NonNull JSONArray toSendJSONObject(@NonNull Context pContext, @Nullable IE_Attachment[] pAttachments) {
+    static @NonNull JSONArray toSendJSONObject(@NonNull Context pContext, @Nullable XXXIE_Attachment[] pAttachments) {
         JSONArray array = new JSONArray();
         if(pAttachments != null) {
-            for (IE_Attachment attachment : pAttachments) {
+            for (XXXIE_Attachment attachment : pAttachments) {
                 String base64 = attachment.loadBase64FromMemory(pContext);
                 if(base64 != null) {
                     try {

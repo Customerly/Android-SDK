@@ -28,43 +28,43 @@ import org.json.JSONObject;
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-class IE_Admin {
+class XXXIE_Admin {
     private final long account_id;
     final long last_active;
     @NonNull final String name;
 
-    @NonNull static IE_Admin[] from(@Nullable JSONArray jsonArray) {
+    @NonNull static XXXIE_Admin[] from(@Nullable JSONArray jsonArray) {
         if(jsonArray == null || jsonArray.length() == 0)
-            return new IE_Admin[0];
+            return new XXXIE_Admin[0];
         int adminsCount = Math.min(3, jsonArray.length());//Limit to 3 Admins
-        IE_Admin[] adminArray = new IE_Admin[adminsCount];
+        XXXIE_Admin[] adminArray = new XXXIE_Admin[adminsCount];
         int a = 0;
         for(int j = 0; j < adminsCount; j++) {
-            adminArray[a] = IE_Admin.from(jsonArray.optJSONObject(j));
+            adminArray[a] = XXXIE_Admin.from(jsonArray.optJSONObject(j));
             if(adminArray[a] != null)
                 a++;
         }
         if(a == adminsCount) {
             return adminArray;
         } else { //Added less Admin than array length
-            IE_Admin[] newArray = new IE_Admin[a];
+            XXXIE_Admin[] newArray = new XXXIE_Admin[a];
             System.arraycopy(adminArray, 0, newArray, 0, a);
             return newArray;
         }
     }
 
     @Contract("null -> null")
-    private static IE_Admin from(@Nullable JSONObject json) {
+    private static XXXIE_Admin from(@Nullable JSONObject json) {
         if(json == null)
             return null;
         try {
-            return new IE_Admin(json.getLong("account_id"), json.getString("name"), json.getLong("last_active"));
+            return new XXXIE_Admin(json.getLong("account_id"), json.getString("name"), json.getLong("last_active"));
         } catch (JSONException e) {
             return null;
         }
     }
 
-    private IE_Admin(long pAccountId, @NonNull String pName, long pLastActive) {
+    private XXXIE_Admin(long pAccountId, @NonNull String pName, long pLastActive) {
         super();
         this.account_id = pAccountId;
         this.name = pName;
@@ -72,6 +72,6 @@ class IE_Admin {
     }
 
     @NonNull String getImageUrl(int pSizePX) {
-        return IE_Account.getAccountImageUrl(this.account_id, pSizePX);
+        return XXXIE_Account.getAccountImageUrl(this.account_id, pSizePX);
     }
 }

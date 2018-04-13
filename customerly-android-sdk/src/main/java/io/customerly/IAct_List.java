@@ -56,20 +56,20 @@ import java.util.Locale;
  * Project: Customerly Android SDK
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public final class IAct_List extends IAct_AInput implements Customerly.SDKActivity {
+public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKActivity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 
     private View input_email_layout, new_conversation_layout;
     private SwipeRefreshLayout _FirstContact_SRL, _RecyclerView_SRL;
     private RecyclerView _ListRecyclerView;
-    @NonNull private List<IE_Conversation> _Conversations = new ArrayList<>();
+    @NonNull private List<XXXIE_Conversation> _Conversations = new ArrayList<>();
     @NonNull private final SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
-        IE_JwtToken token = Customerly.get()._JwtToken;
+        XXXIE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && (token.isUser() || token.isLead())) {
-            new IApi_Request.Builder<ArrayList<IE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
+            new IApi_Request.Builder<ArrayList<XXXIE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
                     .opt_checkConn(this)
-                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "conversations", IE_Conversation::new))
+                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "conversations", XXXIE_Conversation::new))
                     .opt_tokenMandatory()
                     .opt_receiver((responseState, list) -> this.displayInterface(list))
                     .opt_trials(2)
@@ -109,10 +109,10 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
     }
 
     @Override
-    public void onNewSocketMessages(@NonNull ArrayList<IE_Message> messages) {
-        ArrayList<IE_Message> filtered = new ArrayList<>(messages.size());
-        next_new_message: for(IE_Message new_message : messages) {
-            for(IE_Message new_message_filtered : filtered) {
+    public void onNewSocketMessages(@NonNull ArrayList<XXXIE_Message> messages) {
+        ArrayList<XXXIE_Message> filtered = new ArrayList<>(messages.size());
+        next_new_message: for(XXXIE_Message new_message : messages) {
+            for(XXXIE_Message new_message_filtered : filtered) {
                 if(new_message_filtered.conversation_id == new_message.conversation_id) {
                     if(new_message_filtered.conversation_message_id >= new_message.conversation_message_id) {
                         continue next_new_message;//Already found a most recent message for that conversation
@@ -127,17 +127,17 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
         }
 
         if(! filtered.isEmpty()) {
-            ArrayList<IE_Conversation> conversations = new ArrayList<>(this._Conversations);
+            ArrayList<XXXIE_Conversation> conversations = new ArrayList<>(this._Conversations);
             next_new_filtered:
-            for (IE_Message new_filtered : filtered) {
-                for (IE_Conversation conversation : conversations) {
+            for (XXXIE_Message new_filtered : filtered) {
+                for (XXXIE_Conversation conversation : conversations) {
                     if (conversation.conversation_id == new_filtered.conversation_id) { //New message of an existing conversation
                         conversation.onNewMessage(new_filtered);
                         continue next_new_filtered;
                     }
                 }
                 //New message of a new conversation
-                conversations.add(new IE_Conversation(new_filtered.conversation_id, new_filtered.content_abstract, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
+                conversations.add(new XXXIE_Conversation(new_filtered.conversation_id, new_filtered.content_abstract, new_filtered.sent_datetime_sec, new_filtered.getWriterID(), new_filtered.getWriterType(), new_filtered.if_account__name));
             }
             //Sort the conversation by last message date
             Collections.sort(conversations, (c1, c2) -> (int) (c2.last_message_date - c1.last_message_date));
@@ -157,7 +157,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
     @Override
     protected void onResume() {
         super.onResume();
-        IE_JwtToken jwt = Customerly.get()._JwtToken;
+        XXXIE_JwtToken jwt = Customerly.get()._JwtToken;
         if (jwt == null) {
             this.onLogoutUser();
         }
@@ -195,7 +195,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
         }
     }
 
-    private void displayInterface(@Nullable ArrayList<IE_Conversation> pConversations) {
+    private void displayInterface(@Nullable ArrayList<XXXIE_Conversation> pConversations) {
         if(pConversations != null && pConversations.size() != 0) {
             this._FirstContact_SRL.setVisibility(View.GONE);
             this._ListRecyclerView.post(() -> {
@@ -224,9 +224,9 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             long last_time_active_in_seconds = Long.MIN_VALUE;
             layout_first_contact__admin_container.removeAllViews();
 
-            IE_Admin[] admins = Customerly.get().__PING__LAST_active_admins;
+            XXXIE_Admin[] admins = Customerly.get().__PING__LAST_active_admins;
             if(admins != null) {
-                for (IE_Admin admin : admins) {
+                for (XXXIE_Admin admin : admins) {
                     if (admin != null) {
                         showWelcomeCard = true;
                         if (admin.last_active > last_time_active_in_seconds) {
@@ -275,7 +275,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             if(last_time_active_in_seconds != Long.MIN_VALUE) {
                 final TextView io_customerly__layout_first_contact__last_activity = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__last_activity);
                 io_customerly__layout_first_contact__last_activity.setText(
-                        IU_TimeAgoUtils.calculate(last_time_active_in_seconds,
+                        XXXIU_TimeAgoUtils.calculate(last_time_active_in_seconds,
                                 seconds -> this.getString(R.string.io_customerly__last_activity_now),
                                 minutes -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, (int)minutes, minutes),
                                 hours -> this.getResources().getQuantityString(R.plurals.io_customerly__last_activity_XXh_ago, (int)hours, hours),
@@ -299,8 +299,8 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
     }
 
     @Override
-    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull IE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        IE_JwtToken token = Customerly.get()._JwtToken;
+    protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull XXXIE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
+        XXXIE_JwtToken token = Customerly.get()._JwtToken;
         if((token == null || token.isAnonymous())) {
             if(ghostToVisitorEmail == null) {
                 this.input_layout.setVisibility(View.GONE);
@@ -353,7 +353,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                                     } catch (IllegalStateException ignored) { }
                                 }
                                 this.input_input.setText(pMessage);
-                                for(IE_Attachment a : pAttachments) {
+                                for(XXXIE_Attachment a : pAttachments) {
                                     a.addAttachmentToInput(this);
                                 }
                                 Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
@@ -381,7 +381,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                                                 this.openConversationById(message_send_conversationID, true);
                                             } else {
                                                 this.input_input.setText(pMessage);
-                                                for(IE_Attachment a : pAttachments) {
+                                                for(XXXIE_Attachment a : pAttachments) {
                                                     a.addAttachmentToInput(this);
                                                 }
                                                 Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
@@ -389,7 +389,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                                         })
                                         .opt_trials(2)
                                         .param("message", pMessage)
-                                        .param("attachments", IE_Attachment.toSendJSONObject(this, pAttachments))
+                                        .param("attachments", XXXIE_Attachment.toSendJSONObject(this, pAttachments))
                                         .start();
                             }
                         })
@@ -421,7 +421,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                             this.openConversationById(conversationID, ghostToVisitorEmail != null);
                         } else {
                             this.input_input.setText(pMessage);
-                            for(IE_Attachment a : pAttachments) {
+                            for(XXXIE_Attachment a : pAttachments) {
                                 a.addAttachmentToInput(this);
                             }
                             Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
@@ -429,7 +429,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
                     })
                     .opt_trials(2)
                     .param("message", pMessage)
-                    .param("attachments", IE_Attachment.toSendJSONObject(this, pAttachments))
+                    .param("attachments", XXXIE_Attachment.toSendJSONObject(this, pAttachments))
                     .start();
         }
     }
@@ -475,7 +475,7 @@ public final class IAct_List extends IAct_AInput implements Customerly.SDKActivi
             this._Time = (TextView)this.itemView.findViewById(R.id.io_customerly__time);
             this.itemView.setOnClickListener(item_view -> openConversationById(this._ConversationID, false));
         }
-        private void apply(@NonNull IE_Conversation pConversation) {
+        private void apply(@NonNull XXXIE_Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
             Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                     .fitCenter()
