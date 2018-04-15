@@ -60,7 +60,7 @@ class XXXIE_Attachment {
     XXXIE_Attachment(@NonNull Context pContext, @NonNull Uri pUri) {
         super();
         this.uri = pUri;
-        this.name = IU_Utils.getNameFromUri(pContext, pUri);
+        this.name = XXXIU_Utils.getNameFromUri(pContext, pUri);
         this.base64 = null;
         this.path = null;
     }
@@ -70,10 +70,10 @@ class XXXIE_Attachment {
         TextView tv = new TextView(pA_Customerly_Activity);
         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customerly__ld_chat_attachment, 0, 0, 0);
-        int _5dp = IU_Utils.px(5);
+        int _5dp = XXXIU_Utils.px(5);
         tv.setCompoundDrawablePadding(_5dp);
         tv.setPadding(_5dp, 0, 0, 0);
-        tv.setTextColor(IU_Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_malibu_grey));
+        tv.setTextColor(XXXIU_Utils.getColorStateListFromResource(pA_Customerly_Activity.getResources(), R.color.io_customerly__textcolor_malibu_grey));
         tv.setLines(1);
         tv.setSingleLine();
         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);

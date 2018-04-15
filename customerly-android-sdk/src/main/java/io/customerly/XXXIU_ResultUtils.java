@@ -26,7 +26,7 @@ import java.util.List;
  * Project: Customerly Android SDK
  */
 @SuppressWarnings("unused")
-class IU_ResultUtils {
+class XXXIU_ResultUtils {
     interface OnNoResult {
         void onResult();
     }

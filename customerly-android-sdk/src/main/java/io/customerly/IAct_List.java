@@ -69,7 +69,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
         if(token != null && (token.isUser() || token.isLead())) {
             new IApi_Request.Builder<ArrayList<XXXIE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
                     .opt_checkConn(this)
-                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "conversations", XXXIE_Conversation::new))
+                    .opt_converter(data -> XXXIU_Utils.fromJSONdataToList(data, "conversations", XXXIE_Conversation::new))
                     .opt_tokenMandatory()
                     .opt_receiver((responseState, list) -> this.displayInterface(list))
                     .opt_trials(2)
@@ -92,7 +92,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
             this._ListRecyclerView.setLayoutManager(new LinearLayoutManager(this.getApplicationContext()));
             this._ListRecyclerView.setItemAnimator(new DefaultItemAnimator());
             this._ListRecyclerView.setHasFixedSize(true);
-            this._ListRecyclerView.addItemDecoration(new IU_RecyclerView_DividerDecoration._Vertical(R.color.io_customerly__li_conversation_divider_color, this.getResources(), IU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE__RIGHTBOTTOM));
+            this._ListRecyclerView.addItemDecoration(new XXXIU_RecyclerView_DividerDecoration._Vertical(R.color.io_customerly__li_conversation_divider_color, this.getResources(), XXXIU_RecyclerView_DividerDecoration._Vertical.DIVIDER_WHERE__RIGHTBOTTOM));
             this._ListRecyclerView.setAdapter(new ConversationAdapter());
 
             this.input_layout.setVisibility(View.GONE);
@@ -220,7 +220,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
 
             LinearLayout layout_first_contact__admin_container = (LinearLayout) this.findViewById(R.id.io_customerly__layout_first_contact__admin_container);
 
-            final int adminIconSizePX = IU_Utils.px(45/* dp */);
+            final int adminIconSizePX = XXXIU_Utils.px(45/* dp */);
             long last_time_active_in_seconds = Long.MIN_VALUE;
             layout_first_contact__admin_container.removeAllViews();
 
@@ -237,12 +237,12 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
                         ll.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                         ll.setGravity(Gravity.CENTER_HORIZONTAL);
                         ll.setOrientation(LinearLayout.VERTICAL);
-                        int _10dp = IU_Utils.px(10);
+                        int _10dp = XXXIU_Utils.px(10);
                         ll.setPadding(_10dp, 0, _10dp, 0);
 
                         final ImageView icon = new ImageView(this);
                         final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(adminIconSizePX, adminIconSizePX);
-                        lp.bottomMargin = lp.topMargin = IU_Utils.px(10);
+                        lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(10);
                         icon.setLayoutParams(lp);
 
                         Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
@@ -257,7 +257,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
 
                         final TextView name = new TextView(this);
                         name.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        name.setTextColor(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__welcomecard_texts));
+                        name.setTextColor(XXXIU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__welcomecard_texts));
                         name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
                         name.setText(admin.name);
                         name.setSingleLine(false);
@@ -449,7 +449,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
 
     private void openConversationById(long id, boolean andFinishCurrent) {
         if(id != 0) {
-            if(IU_Utils.checkConnection(IAct_List.this)) {
+            if(XXXIU_Utils.checkConnection(IAct_List.this)) {
                 IAct_Chat.startForResult(IAct_List.this, ! andFinishCurrent, id, RESULT_CODE_REFRESH_LIST);
                 if(andFinishCurrent) {
                     this.finish();
@@ -464,7 +464,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
         private long _ConversationID;
         @NonNull private final ImageView _Icon;
         @NonNull private final TextView _Nome, _LastMessage, _Time;
-        private final int _Icon_Size = IU_Utils.px(50);
+        private final int _Icon_Size = XXXIU_Utils.px(50);
         private ConversationVH() {
             super(getLayoutInflater().inflate(R.layout.io_customerly__li_conversation, _ListRecyclerView, false));
             this._Icon = (ImageView)this.itemView.findViewById(R.id.io_customerly__icon);

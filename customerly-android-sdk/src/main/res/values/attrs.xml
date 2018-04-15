@@ -14,7 +14,7 @@
     limitations under the License.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <declare-styleable name="IU_MaxHeightScrollView" tools:ignore="ResourceName">
+    <declare-styleable name="MaxHeightScrollView" tools:ignore="ResourceName">
         <attr name="maxHeight" format="dimension" />
     </declare-styleable>
 </resources>

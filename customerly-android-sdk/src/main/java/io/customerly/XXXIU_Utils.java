@@ -65,7 +65,7 @@ import io.customerly.commons.LambdaUtil;
  * Project: Customerly Android SDK
  */
 @SuppressWarnings("SpellCheckingInspection")
-class IU_Utils {
+class XXXIU_Utils {
 
     @Contract("null -> false")
     @SuppressWarnings("deprecation")
@@ -293,7 +293,7 @@ class IU_Utils {
 
     @Contract(pure = true)
     @Nullable static String jsonOptStringWithNullCheck(@NonNull JSONObject obj, @NonNull String key) {
-        return IU_Utils.jsonOptStringWithNullCheck(obj, key, null);
+        return XXXIU_Utils.jsonOptStringWithNullCheck(obj, key, null);
     }
 
     @Contract(value = "_, _, !null -> !null", pure = true)
@@ -303,7 +303,7 @@ class IU_Utils {
 
     @Contract(value = "null,!null -> null; !null,!null -> _", pure = true)
     @Nullable static String getStringSafe(@Nullable SharedPreferences pref, @NonNull String key) {
-        return IU_Utils.getStringSafe(pref, key, null);
+        return XXXIU_Utils.getStringSafe(pref, key, null);
     }
 
     @SuppressWarnings("WeakerAccess")

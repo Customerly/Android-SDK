@@ -68,9 +68,9 @@ public final class IAct_WebView extends AppCompatActivity {
                     if(Customerly.get().__PING__LAST_widget_color != 0) {
                         actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
+                            this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
                         }
-                        if (IU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
+                        if (XXXIU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                             actionBar.setHomeAsUpIndicator(this.getIntent() != null ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
                             title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
                         } else {
@@ -144,7 +144,7 @@ public final class IAct_WebView extends AppCompatActivity {
             default:
                 if(item.getItemId() == R.id.io_customerly__menu__open_in_browser) {
                     if(this._CurrentUrl != null) {
-                        IU_Utils.intentUrl(this, this._CurrentUrl);
+                        XXXIU_Utils.intentUrl(this, this._CurrentUrl);
                     }
                     return true;
                 } else {

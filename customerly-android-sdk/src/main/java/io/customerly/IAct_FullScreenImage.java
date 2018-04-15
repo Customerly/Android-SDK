@@ -74,10 +74,10 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                         if(Customerly.get().__PING__LAST_widget_color != 0) {
                             actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
+                                this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
                             }
 
-                            if (IU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
+                            if (XXXIU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                                 actionBar.setHomeAsUpIndicator(R.drawable.io_customerly__ic_arrow_back_black_24dp);
                                 title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -157,7 +157,7 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
                     filename = this.getString(R.string.io_customerly__image);
                 }
             }
-            IBR_DownloadBroadcastReceiver.startDownload(this, filename, this._SourceUrl);
+            XXXIBR_DownloadBroadcastReceiver.startDownload(this, filename, this._SourceUrl);
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 new AlertDialog.Builder(this)

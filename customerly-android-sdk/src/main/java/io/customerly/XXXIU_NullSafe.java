@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Gianni on 23/01/17.
  * Project: CustomerlyAndroidSDK
  */
-abstract class IU_NullSafe {
+abstract class XXXIU_NullSafe {
     @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
     @Retention(RetentionPolicy.SOURCE)
     @interface Visibility {}

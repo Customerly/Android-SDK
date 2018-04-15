@@ -31,7 +31,7 @@ import android.view.View;
  * Project: Customerly Android SDK
  */
 @SuppressWarnings("unused,WeakerAccess")
-abstract class IU_RecyclerView_DividerDecoration extends RecyclerView.ItemDecoration {
+abstract class XXXIU_RecyclerView_DividerDecoration extends RecyclerView.ItemDecoration {
 
     public static final int DIVIDER_WHERE__LEFTTOP = 0;
     public static final int DIVIDER_WHERE__CENTER = 1;
@@ -43,23 +43,23 @@ abstract class IU_RecyclerView_DividerDecoration extends RecyclerView.ItemDecora
     protected final Paint _Paint;
     protected float _1_dp = 0;
 
-    private IU_RecyclerView_DividerDecoration(@NonNull Resources resources) {
+    private XXXIU_RecyclerView_DividerDecoration(@NonNull Resources resources) {
         this(R.color.io_customerly__grey_cc, resources);
     }
 
-    private IU_RecyclerView_DividerDecoration(@ColorRes int colorRes, @NonNull Resources resources) {
-        this(IU_Utils.getColorFromResource(resources, colorRes));
-        this._1_dp = Math.max(1, IU_Utils.px(1));
+    private XXXIU_RecyclerView_DividerDecoration(@ColorRes int colorRes, @NonNull Resources resources) {
+        this(XXXIU_Utils.getColorFromResource(resources, colorRes));
+        this._1_dp = Math.max(1, XXXIU_Utils.px(1));
     }
 
-    private IU_RecyclerView_DividerDecoration(@ColorInt int colorInt) {
+    private XXXIU_RecyclerView_DividerDecoration(@ColorInt int colorInt) {
         super();
         this._Paint = new Paint();
         this._Paint.setColor(colorInt);
         this._Paint.setStyle(Paint.Style.FILL);
     }
 
-    public static class _Vertical extends IU_RecyclerView_DividerDecoration {
+    public static class _Vertical extends XXXIU_RecyclerView_DividerDecoration {
 
         private final @DIVIDER_WHERE int _DividerWhere;
 
@@ -96,7 +96,7 @@ abstract class IU_RecyclerView_DividerDecoration extends RecyclerView.ItemDecora
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             if(this._1_dp == 0)
-                this._1_dp = Math.max(1, IU_Utils.px(1));
+                this._1_dp = Math.max(1, XXXIU_Utils.px(1));
 
             int top, left = parent.getPaddingLeft(), right = parent.getWidth() - parent.getPaddingRight();
             int childCount = parent.getChildCount() - (this._DividerWhere == DIVIDER_WHERE__CENTER ? 1 : 0);
@@ -122,7 +122,7 @@ abstract class IU_RecyclerView_DividerDecoration extends RecyclerView.ItemDecora
         }
     }
 
-    public static class _Horizontal extends IU_RecyclerView_DividerDecoration {
+    public static class _Horizontal extends XXXIU_RecyclerView_DividerDecoration {
 
         private final @DIVIDER_WHERE int _DividerWhere;
 
@@ -159,7 +159,7 @@ abstract class IU_RecyclerView_DividerDecoration extends RecyclerView.ItemDecora
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
             if(this._1_dp == 0)
-                this._1_dp = Math.max(1, IU_Utils.px(1));
+                this._1_dp = Math.max(1, XXXIU_Utils.px(1));
 
             int top = parent.getPaddingTop(), left, bottom = parent.getHeight() - parent.getPaddingBottom();
             int childCount = parent.getChildCount() - (this._DividerWhere == DIVIDER_WHERE__CENTER ? 1 : 0);

@@ -190,7 +190,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
         }
         void start() {
             if(Customerly.get()._isConfigured(this._ReportingErrorDisabled)) {
-                if (this._Context == null || IU_Utils.checkConnection(this._Context)) {
+                if (this._Context == null || XXXIU_Utils.checkConnection(this._Context)) {
                     ProgressDialog pd_tmp = null;
                     if(this._Context != null && this._ProgressDialog_Title != null && this._ProgressDialog_Message != null) {
                         try {
@@ -417,7 +417,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         int error_code = response_root.optInt("code", -1);
                         Customerly.get()._log(String.format(Locale.UK, "Error: %s Message: %s ErrorCode: %s",
                                 response_root.has("error"),
-                                IU_Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
+                                XXXIU_Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
                                 error_code));
                         if(error_code != -1) {
                             switch(error_code) {

@@ -41,7 +41,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Project: CustomerlyAndroidSDK-demo
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
+public class XXXIBR_DownloadBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Cursor c = null;
@@ -49,7 +49,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
             final DownloadManager dm = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
             if (dm != null && DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
                 long downloadID = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if(downloadID != -1 && IBR_DownloadBroadcastReceiver.checkAndRemove(downloadID)) {
+                if(downloadID != -1 && XXXIBR_DownloadBroadcastReceiver.checkAndRemove(downloadID)) {
                     String filename = null;
                     c = dm.query(new DownloadManager.Query().setFilterById(downloadID));
                     if (c.moveToFirst() && DownloadManager.STATUS_SUCCESSFUL == c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
@@ -72,7 +72,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                                                         0,
                                                         new Intent(context, IAct_OpenDownloadedFileActivity.class)
                                                                 .setData(
-                                                                        IU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.getPackageName()), file)
+                                                                        XXXIU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.getPackageName()), file)
                                                                 ),
                                                         PendingIntent.FLAG_UPDATE_CURRENT
                                                 )).build());
@@ -95,7 +95,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             final DownloadManager dm = (DownloadManager) context.getSystemService(DOWNLOAD_SERVICE);
             if(dm != null) {
-                IBR_DownloadBroadcastReceiver.addID(
+                XXXIBR_DownloadBroadcastReceiver.addID(
                         dm.enqueue(
                                 new DownloadManager.Request(Uri.parse(full_path))
                                         .setTitle(filename)
@@ -114,6 +114,7 @@ public class IBR_DownloadBroadcastReceiver extends BroadcastReceiver {
             for(int i = 0; i < _PendingDownloadsID.length; i++) {
                 if(_PendingDownloadsID[i] == 0) {
                     _PendingDownloadsID[i] = id;
+                    //TODO manca un return
                 }
             }
             long[] newArray = new long[_PendingDownloadsID.length + 1];

@@ -108,7 +108,7 @@ class XXXIE_JwtToken {
 
     @Nullable
     public static XXXIE_JwtToken from(@NonNull SharedPreferences prefs) {
-        @Subst("authB64.payloadB64.checksumB64") String tokenFromPrefs = IU_Utils.getStringSafe(prefs, PREFS_TOKEN_KEY);
+        @Subst("authB64.payloadB64.checksumB64") String tokenFromPrefs = XXXIU_Utils.getStringSafe(prefs, PREFS_TOKEN_KEY);
         if(tokenFromPrefs != null) {
             try {
                 return new XXXIE_JwtToken(tokenFromPrefs);

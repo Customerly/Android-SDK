@@ -27,29 +27,29 @@ import android.widget.ScrollView;
  * Created by Gianni on 31/05/16.
  * Project: Customerly Android SDK
  */
-class IU_MaxHeightScrollView extends ScrollView {
+class XXXIU_MaxHeightScrollView extends ScrollView {
 
     private static final int DEFAULT_HEIGHT = 200;
 
     private int maxHeight;
 
-    public IU_MaxHeightScrollView(Context context) {
+    public XXXIU_MaxHeightScrollView(Context context) {
         super(context);
     }
 
-    public IU_MaxHeightScrollView(Context context, AttributeSet attrs) {
+    public XXXIU_MaxHeightScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.init(context, attrs);
     }
 
-    public IU_MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public XXXIU_MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.init(context, attrs);
     }
 
     @SuppressWarnings("unused")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public IU_MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public XXXIU_MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         this.init(context, attrs);
     }

@@ -74,7 +74,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
         boolean attendingReconnection = false;
         @Override
         public void onReceive(Context context, Intent intent) {
-            boolean connected = IU_Utils.checkConnection(context);
+            boolean connected = XXXIU_Utils.checkConnection(context);
             if(connected) {
                 if(this.attendingReconnection) {
                     this.attendingReconnection = false;
@@ -124,10 +124,10 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
                 if(Customerly.get().__PING__LAST_widget_color != 0) {
                     actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        this.getWindow().setStatusBarColor(IU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
+                        this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
                     }
 
-                    if (IU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
+                    if (XXXIU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                         actionBar.setHomeAsUpIndicator(this.getIntent() != null && this._MustShowBack ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
                         title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -147,7 +147,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
 
             if (Customerly.get().__PING__LAST_powered_by) {
                 SpannableString redBoldSpannable = new SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME);
-                redBoldSpannable.setSpan(new ForegroundColorSpan(IU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                redBoldSpannable.setSpan(new ForegroundColorSpan(XXXIU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 powered_by.setText(new SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable));
                 powered_by.setOnClickListener(v -> IAct_WebView.start(this, BuildConfig.CUSTOMERLY_WEB_SITE));
@@ -159,7 +159,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
             input_button_attach.setOnClickListener(this._AttachButtonListener);
 
             this.findViewById(R.id.io_customerly__input_button_send).setOnClickListener(btn -> {
-                if(IU_Utils.checkConnection(this)) {
+                if(XXXIU_Utils.checkConnection(this)) {
                     String message = this.input_input.getText().toString().trim();
                     XXXIE_Attachment[] attachmentsArray = this._Attachments.toArray(new XXXIE_Attachment[this._Attachments.size()]);
                     if(message.length() != 0 || attachmentsArray.length != 0) {
@@ -269,7 +269,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
                                     return;
                                 }
                             }
-                            if(IU_Utils.getFileSizeFromUri(this, fileUri) > 5000000) {
+                            if(XXXIU_Utils.getFileSizeFromUri(this, fileUri) > 5000000) {
                                 Snackbar.make(this.input_input, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
                                         .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly.get().__PING__LAST_widget_color).show();
                                 this.input_input.requestFocus();

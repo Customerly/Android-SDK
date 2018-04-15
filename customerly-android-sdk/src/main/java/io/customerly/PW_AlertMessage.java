@@ -43,8 +43,8 @@ import android.widget.TextView;
 class PW_AlertMessage extends PopupWindow {
 
     private static final int
-            DRAG_MIN_DISTANCE = IU_Utils.px(40),
-            SWIPE_MIN_DISTANCE = IU_Utils.px(100),
+            DRAG_MIN_DISTANCE = XXXIU_Utils.px(40),
+            SWIPE_MIN_DISTANCE = XXXIU_Utils.px(100),
             AUTO_FADE_OUT_DELAY = 4000,
             FADE_OUT_DURATION = 2000,
             ENTER_TRANSLATE_DURATION = 500,
@@ -163,7 +163,7 @@ class PW_AlertMessage extends PopupWindow {
         this._ConversationID = message.conversation_id;
         this._MessageID = message.conversation_message_id;
         this._MessageRawLink = message.rich_mail_link;
-        int _50dp = IU_Utils.px(50);
+        int _50dp = XXXIU_Utils.px(50);
         ImageView icon = (ImageView)this.getContentView().findViewById(R.id.io_customerly__icon);
         Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                 .fitCenter()

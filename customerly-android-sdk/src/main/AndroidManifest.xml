@@ -13,6 +13,7 @@
     limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="io.customerly">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -50,7 +51,7 @@
             android:theme="@android:style/Theme.NoDisplay"
             android:noHistory="true" />
         <provider
-            android:name=".IU_CustomerlyFileProvider"
+            android:name=".utils.download.ClyFileProvider"
             android:authorities="io.customerly.provider.${applicationId}"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -58,9 +59,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/io_customerly__provider_paths" />
         </provider>
-        <receiver android:name=".IBR_DownloadBroadcastReceiver" >
+        <receiver android:name=".utils.download.ClyDownloadBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".utils.network.ClyNetworkReceiver" >
+            <intent-filter>
+                <!-- Only api <21 -->
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                    tools:ignore="BatteryLife" />
             </intent-filter>
         </receiver>
     </application>

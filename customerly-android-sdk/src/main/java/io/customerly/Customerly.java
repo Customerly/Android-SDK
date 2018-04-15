@@ -166,7 +166,7 @@ public class Customerly {
             JSONObject app_config = root.optJSONObject("app_config");
             if(app_config != null) {
                 if(__WidgetColor__HardCoded == Color.TRANSPARENT) {
-                    String pingWidgetColor = IU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
+                    String pingWidgetColor = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
                     if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
                         if (pingWidgetColor.charAt(0) != '#') {
                             pingWidgetColor = '#' + pingWidgetColor;
@@ -179,10 +179,10 @@ public class Customerly {
                         }
                     }
                 }
-                __PING__LAST_widget_background_url = IU_Utils.jsonOptStringWithNullCheck(app_config, "widget_background_url");
+                __PING__LAST_widget_background_url = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "widget_background_url");
                 __PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
-                __PING__LAST_welcome_message_users = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
-                __PING__LAST_welcome_message_visitors = IU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
+                __PING__LAST_welcome_message_users = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
+                __PING__LAST_welcome_message_visitors = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
             } else {
                 __PING__LAST_widget_color = __WidgetColor__Fallback;
                 __PING__LAST_widget_background_url = null;
@@ -404,7 +404,7 @@ public class Customerly {
     @Nullable Spanned _WELCOME__getMessage() {
         XXXIE_JwtToken token = this._JwtToken;
         return this._isConfigured()
-                ? IU_Utils.fromHtml(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors, null, null)
+                ? XXXIU_Utils.fromHtml(token != null && token.isUser() ? this.__PING__LAST_welcome_message_users : this.__PING__LAST_welcome_message_visitors, null, null)
                 : null;
     }
 
@@ -422,9 +422,9 @@ public class Customerly {
         /*  "webSocket": {
               "endpoint": "https://ws2.customerly.io",
               "port": "8080"  }  */
-            this.__SOCKET__Token = IU_Utils.jsonOptStringWithNullCheck(webSocket, "token");
-            this.__SOCKET__Endpoint = IU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
-            this.__SOCKET__Port = IU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
+            this.__SOCKET__Token = XXXIU_Utils.jsonOptStringWithNullCheck(webSocket, "token");
+            this.__SOCKET__Endpoint = XXXIU_Utils.jsonOptStringWithNullCheck(webSocket, "endpoint");
+            this.__SOCKET__Port = XXXIU_Utils.jsonOptStringWithNullCheck(webSocket, "port");
         }
 
         if(this._SupportEnabled) {
@@ -528,7 +528,7 @@ public class Customerly {
                                                         && socket_user_id != 0 && timestamp != 0
                                                         && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
                                                     new IApi_Request.Builder<ArrayList<XXXIE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
-                                                            .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
+                                                            .opt_converter(data -> XXXIU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
                                                             .opt_tokenMandatory()
                                                             .opt_receiver((responseState, new_messages) -> {
                                                                 if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
@@ -702,9 +702,9 @@ public class Customerly {
                             }
                         }
                     })
-                    .param("email", IU_Utils.getStringSafe(this._SharedPreferences, PREF_CURRENT_EMAIL))
-                    .param("user_id", IU_Utils.getStringSafe(this._SharedPreferences, PREF_CURRENT_ID))
-                    .param("company", IU_Utils.getStringJSONSafe(this._SharedPreferences, PREF_CURRENT_COMPANY_INFO, false))
+                    .param("email", XXXIU_Utils.getStringSafe(this._SharedPreferences, PREF_CURRENT_EMAIL))
+                    .param("user_id", XXXIU_Utils.getStringSafe(this._SharedPreferences, PREF_CURRENT_ID))
+                    .param("company", XXXIU_Utils.getStringJSONSafe(this._SharedPreferences, PREF_CURRENT_COMPANY_INFO, false))
                     .start();
         } else {
             if(pFailureCallback != null) {
@@ -767,7 +767,7 @@ public class Customerly {
 
         //WIDGET COLOR
         //noinspection SpellCheckingInspection
-        Customerly._Instance.__WidgetColor__HardCoded = IU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
+        Customerly._Instance.__WidgetColor__HardCoded = XXXIU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
 
         Customerly._Instance.__WidgetColor__Fallback =
                 Customerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
@@ -778,16 +778,16 @@ public class Customerly {
         Customerly._Instance._JwtToken = XXXIE_JwtToken.from(prefs);
 
         //PING
-        Customerly._Instance.__PING__LAST_widget_color = IU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
-        Customerly._Instance.__PING__LAST_widget_background_url = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
-        Customerly._Instance.__PING__LAST_powered_by = IU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
-        Customerly._Instance.__PING__LAST_welcome_message_users = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
-        Customerly._Instance.__PING__LAST_welcome_message_visitors = IU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
+        Customerly._Instance.__PING__LAST_widget_color = XXXIU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
+        Customerly._Instance.__PING__LAST_widget_background_url = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
+        Customerly._Instance.__PING__LAST_powered_by = XXXIU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
+        Customerly._Instance.__PING__LAST_welcome_message_users = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
+        Customerly._Instance.__PING__LAST_welcome_message_visitors = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
         Customerly._Instance.__PING__LAST_active_admins = null;
 
-        Customerly._Instance._AppID = IU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
+        Customerly._Instance._AppID = XXXIU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
 
-        IU_NetworkReceiver.registerLollipopNetworkReceiver(pApplicationContext);
+        XXXNetworkReceiver.registerLollipopNetworkReceiver(pApplicationContext);
 
         try {
             Method crashlytics_setString = Class.forName("com.crashlytics.android.Crashlytics").getDeclaredMethod("setString", String.class, String.class);
@@ -1282,9 +1282,9 @@ public class Customerly {
 
                 SharedPreferences pref = _SharedPreferences;
                 if(pref != null) {
-                    builder = builder.param("email", IU_Utils.getStringSafe(pref, PREF_CURRENT_EMAIL))
-                            .param("user_id", IU_Utils.getStringSafe(pref, PREF_CURRENT_ID))
-                            .param("company", IU_Utils.getStringJSONSafe(pref, PREF_CURRENT_COMPANY_INFO, false));
+                    builder = builder.param("email", XXXIU_Utils.getStringSafe(pref, PREF_CURRENT_EMAIL))
+                            .param("user_id", XXXIU_Utils.getStringSafe(pref, PREF_CURRENT_ID))
+                            .param("company", XXXIU_Utils.getStringJSONSafe(pref, PREF_CURRENT_COMPANY_INFO, false));
                 }
                 _log("Customerly.setCompany task started");
                 builder.start();
@@ -1487,8 +1487,8 @@ public class Customerly {
                             .param("company", this.company);
 
                     if(pref != null) {
-                        builder = builder.param("email", IU_Utils.getStringSafe(pref, PREF_CURRENT_EMAIL))
-                                .param("user_id", IU_Utils.getStringSafe(pref, PREF_CURRENT_ID));
+                        builder = builder.param("email", XXXIU_Utils.getStringSafe(pref, PREF_CURRENT_EMAIL))
+                                .param("user_id", XXXIU_Utils.getStringSafe(pref, PREF_CURRENT_ID));
                     }
 
                     _log("Customerly.setCompany task started");

@@ -170,11 +170,11 @@ public class IDlgF_Survey extends DialogFragment {
             TextView thank_you = new TextView(context);
             thank_you.setTextColor(Color.BLACK);
             thank_you.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
-            thank_you.setText(IU_Utils.fromHtml(survey.thank_you_text, null, null));
-            int _10dp = IU_Utils.px(10);
+            thank_you.setText(XXXIU_Utils.fromHtml(survey.thank_you_text, null, null));
+            int _10dp = XXXIU_Utils.px(10);
             thank_you.setPadding(_10dp, _10dp, _10dp, _10dp);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
+            lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(5);
             thank_you.setLayoutParams(lp);
             this._SurveyContainer.addView(thank_you);
         } else {
@@ -196,8 +196,8 @@ public class IDlgF_Survey extends DialogFragment {
                                 b.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                                 b.setText(c.value);
                                 b.setGravity(Gravity.CENTER);
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, IU_Utils.px(40));
-                                lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, XXXIU_Utils.px(40));
+                                lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(5);
                                 b.setLayoutParams(lp);
                                 b.setOnClickListener(v -> this.nextSurvey(survey, c.survey_choice_id, null));
                             }
@@ -223,8 +223,8 @@ public class IDlgF_Survey extends DialogFragment {
                     if (survey.choices != null) {
                         AppCompatSpinner spinner = new AppCompatSpinner(context);
                         {
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, IU_Utils.px(40));
-                            lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, XXXIU_Utils.px(40));
+                            lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(15);
                             spinner.setLayoutParams(lp);
                             spinner.setBackgroundResource(R.drawable.io_customerly__spinner_bkg);
                             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -315,7 +315,7 @@ public class IDlgF_Survey extends DialogFragment {
                         ll_seek.setOrientation(LinearLayout.HORIZONTAL);
                         ll_seek.setGravity(Gravity.CENTER_VERTICAL);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                        lp.bottomMargin = lp.topMargin = IU_Utils.px(15);
+                        lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(15);
                         ll_seek.setLayoutParams(lp);
 
                         TextView min = new TextView(context);
@@ -373,8 +373,8 @@ public class IDlgF_Survey extends DialogFragment {
                         confirm.setText(context.getString(R.string.io_customerly__confirm_x, survey.limit_from));
                         confirm.setTag(survey.limit_from);
                         confirm.setGravity(Gravity.CENTER);
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
-                        lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(XXXIU_Utils.px(160), XXXIU_Utils.px(40));
+                        lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(5);
                         confirm.setLayoutParams(lp);
                         confirm.setOnClickListener(v -> this.nextSurvey(survey, -1, String.valueOf(confirm.getTag())));
                     }
@@ -435,8 +435,8 @@ public class IDlgF_Survey extends DialogFragment {
                         confirm.setText(R.string.io_customerly__confirm);
                         confirm.setTag(survey.limit_from);
                         confirm.setGravity(Gravity.CENTER);
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(IU_Utils.px(160), IU_Utils.px(40));
-                        lp.bottomMargin = lp.topMargin = IU_Utils.px(5);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(XXXIU_Utils.px(160), XXXIU_Utils.px(40));
+                        lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(5);
                         confirm.setLayoutParams(lp);
                         confirm.setOnClickListener(v -> {
                             if (editText.getText().length() != 0) {

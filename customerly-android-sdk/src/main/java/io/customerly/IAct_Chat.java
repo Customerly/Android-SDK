@@ -69,13 +69,13 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
     private static final int MESSAGES_PER_PAGE = 20, TYPING_NO_ONE = 0;
 
     @Nullable private RecyclerView _ListRecyclerView;
-    @Nullable private IU_ProgressiveScrollListener _IU_ProgressiveScrollListener;
+    @Nullable private XXXIU_ProgressiveScrollListener _IU_ProgressiveScrollListener;
     @Nullable private ProgressBar _Progress_view;
     @NonNull private final ChatAdapter _Adapter = new ChatAdapter();
     private long _TypingAccountId = TYPING_NO_ONE, _ConversationID = 0;
     @Nullable private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<XXXIE_Message> _ChatList = new ArrayList<>(0);
-    @NonNull private final IU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
+    @NonNull private final XXXIU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
         if(Customerly.get()._isConfigured()) {
             long oldestMessageId = Long.MAX_VALUE;
             for(int i = 0; i < this._ChatList.size(); i++) {
@@ -89,8 +89,8 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
 
             new IApi_Request.Builder<ArrayList<XXXIE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
                     .opt_checkConn(this)
-                    .opt_onPreExecute(() -> IU_NullSafe.setVisibility(this._Progress_view, View.VISIBLE))
-                    .opt_converter(data -> IU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
+                    .opt_onPreExecute(() -> XXXIU_NullSafe.setVisibility(this._Progress_view, View.VISIBLE))
+                    .opt_converter(data -> XXXIU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
                     .opt_tokenMandatory()
                     .opt_receiver((responseState, pNewMessages) -> {
                         if (responseState == IApi_Request.RESPONSE_STATE__OK && pNewMessages != null) {
@@ -111,9 +111,9 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                             }
                             int addeditem = new_messages.size() - previoussize;
                             int finalIndexScrollLastUnread = indexScrollLastUnread;
-                            IU_NullSafe.post(this._ListRecyclerView, () -> {
-                                IU_NullSafe.setVisibility(this._Progress_view, View.GONE);
-                                IU_NullSafe.setVisibility(this._ListRecyclerView, View.VISIBLE);
+                            XXXIU_NullSafe.post(this._ListRecyclerView, () -> {
+                                XXXIU_NullSafe.setVisibility(this._Progress_view, View.GONE);
+                                XXXIU_NullSafe.setVisibility(this._ListRecyclerView, View.VISIBLE);
                                 if(addeditem > 0) {
                                     this._ChatList = new_messages;
                                     boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
@@ -140,7 +140,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                                 scrollListener.onFinishedUpdating();
                             }
                         } else {
-                            IU_NullSafe.setVisibility(this._Progress_view, View.GONE);
+                            XXXIU_NullSafe.setVisibility(this._Progress_view, View.GONE);
                             Toast.makeText(getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                         }
                     })
@@ -173,7 +173,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setHasFixedSize(true);
             recyclerView.setAdapter(this._Adapter);
-            recyclerView.addOnScrollListener(this._IU_ProgressiveScrollListener = new IU_ProgressiveScrollListener(this._LinearLayoutManager, this._OnBottomReachedListener));
+            recyclerView.addOnScrollListener(this._IU_ProgressiveScrollListener = new XXXIU_ProgressiveScrollListener(this._LinearLayoutManager, this._OnBottomReachedListener));
             this._ListRecyclerView = recyclerView;
 
             this.input_input.addTextChangedListener(new TextWatcher() {
@@ -270,7 +270,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
 
         Collections.sort(new_messages, (m1, m2) -> (int) (m2.conversation_message_id - m1.conversation_message_id));//Sorting by conversation_message_id DESC
 
-        IU_NullSafe.post(this._ListRecyclerView, () -> {
+        XXXIU_NullSafe.post(this._ListRecyclerView, () -> {
             boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
             this._ChatList = new_messages;
             this._Adapter.notifyDataSetChanged();
@@ -309,7 +309,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
     }
 
     private void sendSeen(final long messageID_seen) {
-        final IU_ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
+        final XXXIU_ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
             utc /= 1000;
             Customerly.get().__SOCKET_SEND_Seen(messageID_seen, utc);
             new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_MESSAGE_SEEN)
@@ -319,7 +319,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                     .param("seen_date", utc)
                     .start();
         };
-        IU_NTP_Utils.getSafeNow_fromUiThread(this, onSuccess, () -> onSuccess.onResult(System.currentTimeMillis()));
+        XXXIU_NTP_Utils.getSafeNow_fromUiThread(this, onSuccess, () -> onSuccess.onResult(System.currentTimeMillis()));
     }
 
     @Override
@@ -334,7 +334,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
         XXXIE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && token._UserID != null) {
             XXXIE_Message message = new XXXIE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
-            IU_NullSafe.post(this._ListRecyclerView, () -> {
+            XXXIU_NullSafe.post(this._ListRecyclerView, () -> {
                 message.setSending();
                 boolean scrollToBottom = this._LinearLayoutManager != null && this._LinearLayoutManager.findFirstCompletelyVisibleItemPosition() == 0;
                 this._ChatList.add(0, message);
@@ -358,7 +358,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                     return new XXXIE_Message(data.optJSONObject("message"));
                 })
                 .opt_receiver((responseState, messageSent) ->
-                    IU_NullSafe.post(this._ListRecyclerView, () -> {
+                    XXXIU_NullSafe.post(this._ListRecyclerView, () -> {
                         int pos = this._ChatList.indexOf(message);
                         if (pos != -1) {
                             if(responseState == IApi_Request.RESPONSE_STATE__OK) {
@@ -392,7 +392,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
     private String _PermissionRequest__pendingFileName, _PermissionRequest__pendingPath;
     private void startAttachmentDownload(@NonNull String filename, @NonNull String full_path) {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            IBR_DownloadBroadcastReceiver.startDownload(this, filename, full_path);
+            XXXIBR_DownloadBroadcastReceiver.startDownload(this, filename, full_path);
         } else {
             this._PermissionRequest__pendingFileName = filename;
             this._PermissionRequest__pendingPath = full_path;
@@ -545,7 +545,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
         @DrawableRes private final int _IcAttachResID;
 //        private final float _ItemFromXValueRelative;
 
-        private final int MIN_ATTACHMENT_WIDTH = IU_Utils.px(150);
+        private final int MIN_ATTACHMENT_WIDTH = XXXIU_Utils.px(150);
 
         private A_ChatMessageVH(@LayoutRes int pLayoutRes, @DrawableRes int pIcAttachResID, @SuppressWarnings("UnusedParameters") @FloatRange(from=-1, to=1) float pItemFromXValueRelative /* used for animation */) {
             super(pLayoutRes);
@@ -626,7 +626,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                         ImageView iv = new ImageView(IAct_Chat.this);
                         if(attachment.isImage()) {
                             //Image attachment
-                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, IU_Utils.px(80)));
+                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XXXIU_Utils.px(80)));
                             if (attachment.path != null && attachment.path.length() != 0) {
                                 Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
                                         .centerCrop()
@@ -653,9 +653,9 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                             }
                         } else { //No image attachment
                             ll.setBackgroundResource(pMessage.isUserMessage() ? R.drawable.io_customerly__attachmentfile_border_user : R.drawable.io_customerly__attachmentfile_border_account);
-                            ll.setPadding(IU_Utils.px(10), 0, IU_Utils.px(10), IU_Utils.px(10));
-                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, IU_Utils.px(40)));
-                            iv.setPadding(0, IU_Utils.px(15), 0, 0);
+                            ll.setPadding(XXXIU_Utils.px(10), 0, XXXIU_Utils.px(10), XXXIU_Utils.px(10));
+                            iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XXXIU_Utils.px(40)));
+                            iv.setPadding(0, XXXIU_Utils.px(15), 0, 0);
                             iv.setImageResource(this._IcAttachResID);
 
                             if (attachment.path != null && attachment.path.length() != 0) {
@@ -671,16 +671,16 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                         ll.addView(iv);
                         TextView tv = new TextView(IAct_Chat.this);
                         tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                        tv.setTextColor(IU_Utils.getColorStateListFromResource(getResources(), pMessage.isUserMessage() ? R.color.io_customerly__textcolor_white_grey : R.color.io_customerly__textcolor_malibu_grey));
+                        tv.setTextColor(XXXIU_Utils.getColorStateListFromResource(getResources(), pMessage.isUserMessage() ? R.color.io_customerly__textcolor_white_grey : R.color.io_customerly__textcolor_malibu_grey));
                         tv.setLines(1);
                         tv.setSingleLine();
                         tv.setEllipsize(TextUtils.TruncateAt.MIDDLE);
                         tv.setText(attachment.name);
-                        tv.setPadding(0, IU_Utils.px(10), 0, 0);
+                        tv.setPadding(0, XXXIU_Utils.px(10), 0, 0);
                         tv.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL);
                         ll.addView(tv);
                         this._AttachmentLayout.addView(ll);
-                        ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = IU_Utils.px(10);
+                        ((LinearLayout.LayoutParams)ll.getLayoutParams()).topMargin = XXXIU_Utils.px(10);
                     }
                     this._AttachmentLayout.setVisibility(View.VISIBLE);
                 } else {
@@ -713,7 +713,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
     }
 
     private class ChatAdapter extends RecyclerView.Adapter<A_ChatVH> {
-        final int _5dp = IU_Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
+        final int _5dp = XXXIU_Utils.px(5), _FirstMessageOfSenderTopPadding = this._5dp * 3;
 //        long mostRecentAnimatedMessageID = -1, mostOldAnimatedMessageID = Integer.MAX_VALUE;
         @Override
         public int getItemViewType(int position) {

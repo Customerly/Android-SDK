@@ -71,8 +71,8 @@ class XXXIE_Message {
         this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.content = pContent;
-        this.content_Spanned= IU_Utils.fromHtml(pContent, null, null);
-        this.content_abstract = pContent.length() != 0 ? IU_Utils.fromHtml(pContent, null, null) : new SpannedString(pAttachments != null && pAttachments.length != 0 ? "[Attachment]" : "");
+        this.content_Spanned= XXXIU_Utils.fromHtml(pContent, null, null);
+        this.content_abstract = pContent.length() != 0 ? XXXIU_Utils.fromHtml(pContent, null, null) : new SpannedString(pAttachments != null && pAttachments.length != 0 ? "[Attachment]" : "");
         this._Attachments = pAttachments;
         this.if_account__name = null;
         this.rich_mail_link = null;
@@ -80,7 +80,7 @@ class XXXIE_Message {
 
     @NonNull Spanned getContentSpanned(@NonNull TextView tv, @NonNull LambdaUtil.V__NN_NN<Activity, String> pImageClickableSpan) {
         if(this.content_Spanned == null) {
-            this.content_Spanned = IU_Utils.fromHtml(this.content, tv, pImageClickableSpan);
+            this.content_Spanned = XXXIU_Utils.fromHtml(this.content, tv, pImageClickableSpan);
         }
         return this.content_Spanned;
     }
@@ -96,9 +96,9 @@ class XXXIE_Message {
         this.sent_datetime_sec = pMessageItem.optLong("sent_date", 0);
         this.dateString = _DATE_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
         this.timeString = _TIME_FORMATTER.format(new Date(this.sent_datetime_sec * 1000));
-        this.content = IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", "");
-        this.content_abstract = IU_Utils.fromHtml(IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "abstract", ""), null, null);
-        this.rich_mail_link = pMessageItem.optInt("rich_mail", 0) == 0 ? null : IU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_link");
+        this.content = XXXIU_Utils.jsonOptStringWithNullCheck(pMessageItem, "content", "");
+        this.content_abstract = XXXIU_Utils.fromHtml(XXXIU_Utils.jsonOptStringWithNullCheck(pMessageItem, "abstract", ""), null, null);
+        this.rich_mail_link = pMessageItem.optInt("rich_mail", 0) == 0 ? null : XXXIU_Utils.jsonOptStringWithNullCheck(pMessageItem, "rich_mail_link");
 
         JSONArray attachments = pMessageItem.optJSONArray("attachments");
         if(attachments != null && attachments.length() != 0) {
@@ -125,7 +125,7 @@ class XXXIE_Message {
 
         JSONObject account = pMessageItem.optJSONObject("account");
         if(account != null) {
-            this.if_account__name = IU_Utils.jsonOptStringWithNullCheck(account, "name");
+            this.if_account__name = XXXIU_Utils.jsonOptStringWithNullCheck(account, "name");
         } else {
             this.if_account__name = null;
         }

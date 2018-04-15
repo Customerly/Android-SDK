@@ -25,12 +25,12 @@ import android.support.v7.widget.RecyclerView;
  * Project: Customerly Android SDK
  */
 @SuppressWarnings("unused")
-class IU_ProgressiveScrollListener extends RecyclerView.OnScrollListener {
+class XXXIU_ProgressiveScrollListener extends RecyclerView.OnScrollListener {
     private final @NonNull LinearLayoutManager _LinearLayoutManager;
     private boolean _Loading = false;
     private final @NonNull OnBottomReachedListener _OnBottomReached;
 
-    IU_ProgressiveScrollListener(@NonNull LinearLayoutManager linearLayoutManager, @NonNull OnBottomReachedListener onBottomReached) {
+    XXXIU_ProgressiveScrollListener(@NonNull LinearLayoutManager linearLayoutManager, @NonNull OnBottomReachedListener onBottomReached) {
         super();
         this._LinearLayoutManager = linearLayoutManager;
         this._OnBottomReached = onBottomReached;
@@ -56,6 +56,6 @@ class IU_ProgressiveScrollListener extends RecyclerView.OnScrollListener {
     }
 
     interface OnBottomReachedListener {
-        void onReached(IU_ProgressiveScrollListener listener);
+        void onReached(XXXIU_ProgressiveScrollListener listener);
     }
 }

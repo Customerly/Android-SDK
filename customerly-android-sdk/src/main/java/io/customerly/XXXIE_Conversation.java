@@ -59,7 +59,7 @@ class XXXIE_Conversation {
         super();
 
         this.conversation_id = pConversationItem.getLong("conversation_id");
-        this.last_message_abstract = IU_Utils.fromHtml(pConversationItem.getString("last_message_abstract"), null, null);
+        this.last_message_abstract = XXXIU_Utils.fromHtml(pConversationItem.getString("last_message_abstract"), null, null);
 
         this.last_message_date = pConversationItem.getLong("last_message_date");
         this.last_message_writer = pConversationItem.optLong("last_message_writer");
@@ -68,7 +68,7 @@ class XXXIE_Conversation {
         this.unread = pConversationItem.optInt("unread", 0) == 1;
 
         pConversationItem = pConversationItem.optJSONObject("last_account");
-        this.last_account__name = pConversationItem == null ? null : IU_Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
+        this.last_account__name = pConversationItem == null ? null : XXXIU_Utils.jsonOptStringWithNullCheck(pConversationItem, "name");
     }
 
     void onNewMessage(@NonNull XXXIE_Message pNewMessage) {

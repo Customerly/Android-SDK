@@ -1,4 +1,5 @@
-package io.customerly;
+package io.customerly.utils.download
+
 /*
 Copyright (C) 2017 Customerly
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import android.support.annotation.RestrictTo;
-import android.support.v4.content.FileProvider;
+import android.support.v4.content.FileProvider
 
 /**
  * Created by Gianni on 21/02/17.
  * Project: CustomerlyAndroidSDK
  */
-@RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public class IU_CustomerlyFileProvider extends FileProvider {
-}
+class ClyFileProvider : FileProvider()
