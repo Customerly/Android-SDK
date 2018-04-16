@@ -43,7 +43,7 @@ import android.widget.ProgressBar;
  * Project: Customerly Android SDK
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class IAct_WebView extends AppCompatActivity {
+public final class XXXIAct_WebView extends AppCompatActivity {
 
     private static final String EXTRA_TARGET_URL= "EXTRA_TARGET_URL";
     private WebView _WebView;
@@ -51,7 +51,7 @@ public final class IAct_WebView extends AppCompatActivity {
     private String _CurrentUrl = null;
 
     static void start(@NonNull Activity activity, @NonNull String targetUrl) {
-        activity.startActivity(new Intent(activity, IAct_WebView.class).putExtra(IAct_WebView.EXTRA_TARGET_URL, targetUrl));
+        activity.startActivity(new Intent(activity, XXXIAct_WebView.class).putExtra(XXXIAct_WebView.EXTRA_TARGET_URL, targetUrl));
     }
 
     @SuppressLint("SetJavaScriptEnabled")

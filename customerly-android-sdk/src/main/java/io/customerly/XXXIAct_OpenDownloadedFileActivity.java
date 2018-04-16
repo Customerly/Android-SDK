@@ -23,7 +23,7 @@ import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public class IAct_OpenDownloadedFileActivity extends Activity {
+public class XXXIAct_OpenDownloadedFileActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

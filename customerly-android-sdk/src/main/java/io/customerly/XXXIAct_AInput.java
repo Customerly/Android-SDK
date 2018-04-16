@@ -150,7 +150,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
                 redBoldSpannable.setSpan(new ForegroundColorSpan(XXXIU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 powered_by.setText(new SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable));
-                powered_by.setOnClickListener(v -> IAct_WebView.start(this, BuildConfig.CUSTOMERLY_WEB_SITE));
+                powered_by.setOnClickListener(v -> XXXIAct_WebView.start(this, BuildConfig.CUSTOMERLY_WEB_SITE));
                 powered_by.setVisibility(View.VISIBLE);
             }else {
                 powered_by.setVisibility(View.GONE);
@@ -176,7 +176,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
             String themeUrl = Customerly.get().__PING__LAST_widget_background_url;
             if(themeUrl != null) {
                 ImageView themeIV = (ImageView)this.findViewById(R.id.io_customerly__background_theme);
-                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                         .centerCrop()
                         .load(themeUrl)
                         .into(this, themeIV));

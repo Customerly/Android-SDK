@@ -35,19 +35,19 @@
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".IAct_FullScreenImage"
+            android:name=".XXXIAct_FullScreenImage"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:label="@string/io_customerly__image"
             android:theme="@style/io_customerly__Activity"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".IAct_WebView"
+            android:name=".activity.ClyWebViewActivity"
             android:label="@string/io_customerly__webview_act_label"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".IAct_OpenDownloadedFileActivity"
+            android:name=".activity.ClyOpenDownloadedFileActivity"
             android:theme="@android:style/Theme.NoDisplay"
             android:noHistory="true" />
         <provider

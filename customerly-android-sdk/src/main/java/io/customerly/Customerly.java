@@ -78,7 +78,7 @@ public class Customerly {
     private static final String SOCKET_EVENT__MESSAGE = "message";
     @ColorInt private static final int DEF_WIDGET_COLOR_MALIBU_INT = 0xff65a9e7;//Blue Malibu
 
-    @NonNull final IU_RemoteImageHandler _RemoteImageHandler = new IU_RemoteImageHandler();
+    @NonNull final XXXIU_RemoteImageHandler _RemoteImageHandler = new XXXIU_RemoteImageHandler();
     @NonNull private final Handler __Handler = new Handler();
 
     private boolean initialized = false;

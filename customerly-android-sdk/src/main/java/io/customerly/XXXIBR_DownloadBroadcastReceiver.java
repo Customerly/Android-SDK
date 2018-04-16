@@ -70,7 +70,7 @@ public class XXXIBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                                                 PendingIntent.getActivity(
                                                         context,
                                                         0,
-                                                        new Intent(context, IAct_OpenDownloadedFileActivity.class)
+                                                        new Intent(context, XXXIAct_OpenDownloadedFileActivity.class)
                                                                 .setData(
                                                                         XXXIU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.getPackageName()), file)
                                                                 ),

@@ -90,7 +90,7 @@ class PW_AlertMessage extends PopupWindow {
                         } else if(PW_AlertMessage.this._ConversationID != 0 && event.getEventTime() - event.getDownTime() < ABORT_CLICK_AFTER_MS) {
                             IAct_Chat.start(activity, false, PW_AlertMessage.this._ConversationID);
                             if(PW_AlertMessage.this._MessageRawLink != null) {
-                                IAct_WebView.start(activity, PW_AlertMessage.this._MessageRawLink);
+                                XXXIAct_WebView.start(activity, PW_AlertMessage.this._MessageRawLink);
                             }
                             PW_AlertMessage.this.dismissAllowingStateLoss();
                         } else {
@@ -165,7 +165,7 @@ class PW_AlertMessage extends PopupWindow {
         this._MessageRawLink = message.rich_mail_link;
         int _50dp = XXXIU_Utils.px(50);
         ImageView icon = (ImageView)this.getContentView().findViewById(R.id.io_customerly__icon);
-        Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+        Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                 .fitCenter()
                 .transformCircle()
                 .load(message.getImageUrl(_50dp))

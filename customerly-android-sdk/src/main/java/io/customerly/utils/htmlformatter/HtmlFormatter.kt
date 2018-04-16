@@ -20,14 +20,19 @@ package io.customerly.utils.htmlformatter
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.text.*
 import android.text.style.ClickableSpan
 import android.text.style.ImageSpan
 import android.text.style.URLSpan
 import android.view.View
 import android.widget.TextView
+import io.customerly.utils.download.imagehandler.ClyImageHandler
+import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.dp2px
 import java.util.*
 import java.util.regex.Pattern
@@ -37,7 +42,23 @@ import java.util.regex.Pattern
  * Project: Customerly
  */
 
-internal fun fromHtml(message: String?, tv: TextView? = null, pImageClickableSpan: ((Activity, String)->Unit)? = null, pImageDownloader: (Context, String, (Drawable)->Unit)->Unit): Spanned {
+internal fun fromHtml(
+        message: String?,
+        tv: TextView? = null,
+        pImageClickableSpan: ((Activity, String)->Unit)? = null,
+        pImageDownloader: (Context, String, (Drawable)->Unit)->Unit = { context: Context, source: String, handleDrawable: (Drawable) -> Unit ->
+            ClyImageHandler.request(
+                    request = ClyImageRequest(context = context, url = source)
+                            .into { bmp ->
+                                if(Looper.getMainLooper().thread != Thread.currentThread()) {
+                                    Handler(Looper.getMainLooper()).post {
+                                        handleDrawable(BitmapDrawable(context.resources, bmp))
+                                    }
+                                } else {
+                                    handleDrawable(BitmapDrawable(context.resources, bmp))
+                                }
+                            })
+        }): Spanned {
     if (message == null || message.isEmpty()) {
         return SpannedString("")
     } else {
@@ -155,12 +176,7 @@ internal fun fromHtml(message: String?, tv: TextView? = null, pImageClickableSpa
             }
         }
 
-        val spannedMessage: Spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_LEGACY, spanImageImageGetter, emojiHandler)
-        } else {
-            @Suppress("DEPRECATION")
-            Html.fromHtml(sb.toString(), spanImageImageGetter, emojiHandler)
-        }
+        val spannedMessage: Spanned = spannedFromHtml(source = sb.toString(), imageGetter = spanImageImageGetter, tagHandler = emojiHandler)
 
         val ssb = spannedMessage as? SpannableStringBuilder ?: SpannableStringBuilder(spannedMessage)
 
@@ -209,23 +225,13 @@ internal fun fromHtml(message: String?, tv: TextView? = null, pImageClickableSpa
     }
 }
 
-internal fun fromHtml(message: String?, tv: TextView? = null, pImageClickableSpan: ((Activity, String)->Unit)? = null): Spanned {
-    return SpannedString("fromHtml not implemented")
-    /* TODO
-    rimuovere overloading e mettere questo imageDownloader come default param
-    fromHtml(message = message, tv = tv, pImageClickableSpan = pImageClickableSpan, pImageDownloader = { context: Context, source: String, handleDrawable: (Drawable) -> Unit ->
-        Customerly.get()._RemoteImageHandler.request(IU_RemoteImageHandler.Request()
-                .load(source)
-                .into(context, IU_RemoteImageHandler.Request.Target() {
-                    @Override
-                    public void image_placeholder_error(@NonNull Bitmap bmp) {
-                        if(tv != null) {
-                            tv.post(() -> handleDrawable.lambda(new BitmapDrawable(context.getResources(), bmp)));
-                        }
-                    }
-                    @Override public void placeholder_error(@NonNull Drawable drawable) { }//Never called because no placeholder or error drawable provided in request
-                    @Override public void placeholder_error(@DrawableRes int resID) { }//Never called because no placeholder or error DrawableRes provided in request
-                })));
-    })
-    */
+const val HTML_FLAG_MODE_LEGACY = /*Html.FROM_HTML_MODE_LEGACY*/0
+
+fun spannedFromHtml(source : String, flags : Int = HTML_FLAG_MODE_LEGACY, imageGetter : Html.ImageGetter? = null, tagHandler: Html.TagHandler? = null) : Spanned {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(source, flags, imageGetter, tagHandler)
+    } else {
+        @Suppress("DEPRECATION")
+        Html.fromHtml(source, imageGetter, tagHandler)
+    }
 }

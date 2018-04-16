@@ -45,7 +45,7 @@ import java.util.ArrayList;
  * Project: Customerly Android SDK
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public final class IAct_FullScreenImage extends AppCompatActivity implements Customerly.SDKActivity {
+public final class XXXIAct_FullScreenImage extends AppCompatActivity implements Customerly.SDKActivity {
     static final String EXTRA_IMAGE_SOURCE = "EXTRA_IMAGE_SOURCE";
 
     private String _SourceUrl;
@@ -56,12 +56,12 @@ public final class IAct_FullScreenImage extends AppCompatActivity implements Cus
         if(this.getIntent() != null) {
             this._SourceUrl = this.getIntent().getStringExtra(EXTRA_IMAGE_SOURCE);
             if(this._SourceUrl != null) {
-                ImageView _ImageView = new TouchImageView(this);
+                ImageView _ImageView = new XXXTouchImageView(this);
                 _ImageView.setBackgroundColor(Color.WHITE);
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 _ImageView.setAdjustViewBounds(true);
                 try {
-                    Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                    Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(this, _ImageView)

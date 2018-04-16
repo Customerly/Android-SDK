@@ -467,7 +467,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
         protected void apply(@Nullable XXXIE_Message __null, @Nullable String _NoDatesForTyping, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             long typingAccountID = _TypingAccountId;
             if (pIsFirstMessageOfSender && typingAccountID != TYPING_NO_ONE) {
-                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
                         .load(XXXIE_Account.getAccountImageUrl(typingAccountID, this._IconSize))
@@ -530,7 +530,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
             super.apply(pMessage, pDateToDisplay, pIsFirstMessageOfSender);//, pShouldAnimate);
             View.OnClickListener clickListener = v -> {
                 if(pMessage != null && pMessage.rich_mail_link != null) {
-                    IAct_WebView.start(IAct_Chat.this, pMessage.rich_mail_link);
+                    XXXIAct_WebView.start(IAct_Chat.this, pMessage.rich_mail_link);
                 }
             };
             this.itemView.setOnClickListener(clickListener);
@@ -566,7 +566,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                 this._Time.setText(pMessage.timeString);
 
                 if (pIsFirstMessageOfSender) {
-                    Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                    Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                             .fitCenter()
                             .transformCircle()
                             .load(pMessage.getImageUrl(this._IconSize))
@@ -580,8 +580,8 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
 
                 if(pMessage.content != null && pMessage.content.length() != 0) {
                     this._Content.setText(pMessage.getContentSpanned(this._Content,
-                        (activity, imageUrl) -> startActivity(new Intent(IAct_Chat.this, IAct_FullScreenImage.class)
-                            .putExtra(IAct_FullScreenImage.EXTRA_IMAGE_SOURCE, imageUrl))));
+                        (activity, imageUrl) -> startActivity(new Intent(IAct_Chat.this, XXXIAct_FullScreenImage.class)
+                            .putExtra(XXXIAct_FullScreenImage.EXTRA_IMAGE_SOURCE, imageUrl))));
                     this._Content.setVisibility(View.VISIBLE);
                 } else {
                     this.onEmptyContent();
@@ -628,13 +628,13 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                             //Image attachment
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XXXIU_Utils.px(80)));
                             if (attachment.path != null && attachment.path.length() != 0) {
-                                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                                         .centerCrop()
                                         .load(attachment.path)
                                         .into(IAct_Chat.this, iv)
                                         .placeholder(R.drawable.io_customerly__pic_placeholder));
-                                ll.setOnClickListener(layout -> startActivity(new Intent(IAct_Chat.this, IAct_FullScreenImage.class)
-                                        .putExtra(IAct_FullScreenImage.EXTRA_IMAGE_SOURCE, attachment.path)));
+                                ll.setOnClickListener(layout -> startActivity(new Intent(IAct_Chat.this, XXXIAct_FullScreenImage.class)
+                                        .putExtra(XXXIAct_FullScreenImage.EXTRA_IMAGE_SOURCE, attachment.path)));
                             } else {
                                 try {
                                     String base64 = attachment.loadBase64FromMemory(IAct_Chat.this);

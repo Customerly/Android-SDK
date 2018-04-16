@@ -245,7 +245,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
                         lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(10);
                         icon.setLayoutParams(lp);
 
-                        Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                        Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                                 .fitCenter()
                                 .transformCircle()
                                 .load(admin.getImageUrl(adminIconSizePX))
@@ -477,7 +477,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
         }
         private void apply(@NonNull XXXIE_Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
-            Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+            Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                     .fitCenter()
                     .transformCircle()
                     .load(pConversation.getImageUrl(this._Icon_Size))

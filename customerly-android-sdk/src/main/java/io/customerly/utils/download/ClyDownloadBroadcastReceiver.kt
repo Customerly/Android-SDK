@@ -32,7 +32,7 @@ import android.widget.Toast
 import java.io.File
 
 import io.customerly.Customerly
-import io.customerly.IAct_OpenDownloadedFileActivity
+import io.customerly.XXXIAct_OpenDownloadedFileActivity
 import io.customerly.XXXIU_CustomerlyFileProvider
 import io.customerly.R
 
@@ -124,7 +124,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                                                     PendingIntent.getActivity(
                                                             context,
                                                             0,
-                                                            Intent(context, IAct_OpenDownloadedFileActivity::class.java)
+                                                            Intent(context, XXXIAct_OpenDownloadedFileActivity::class.java)
                                                                     .setData(
                                                                             XXXIU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.packageName), file)
                                                                     ),

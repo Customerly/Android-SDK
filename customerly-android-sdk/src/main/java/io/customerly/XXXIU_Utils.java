@@ -136,9 +136,9 @@ class XXXIU_Utils {
 
     @NonNull static Spanned fromHtml(@Nullable String message, @Nullable TextView tv, @Nullable LambdaUtil.V__NN_NN<Activity, String> pImageClickableSpan) {
         return Commons_HtmlFormatter.fromHtml(message, tv, pImageClickableSpan, (context, source, handleDrawable) ->
-                Customerly.get()._RemoteImageHandler.request(new IU_RemoteImageHandler.Request()
+                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                 .load(source)
-                .into(context, new IU_RemoteImageHandler.Request.Target() {
+                .into(context, new XXXIU_RemoteImageHandler.Request.Target() {
                     @Override
                     public void image_placeholder_error(@NonNull Bitmap bmp) {
                         if(tv != null) {

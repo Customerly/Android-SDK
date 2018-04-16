@@ -30,12 +30,10 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
-import android.support.annotation.ColorRes
 import android.support.annotation.LayoutRes
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableString
@@ -54,16 +52,18 @@ import java.util.ArrayList
 
 import io.customerly.BuildConfig
 import io.customerly.Customerly
-import io.customerly.IAct_WebView
 import io.customerly.R
 import io.customerly.entity.ClyAttachment
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
 import io.customerly.entity.clySendError
 import io.customerly.utils.alterColor
+import io.customerly.utils.download.imagehandler.ClyImageHandler
+import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.getContrastBW
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.checkConnection
 import io.customerly.utils.ggkext.getFileSize
+import io.customerly.utils.htmlformatter.spannedFromHtml
 
 /**
  * Created by Gianni on 03/09/16.
@@ -75,7 +75,7 @@ private const val PERMISSION_REQUEST__READ_EXTERNAL_STORAGE = 1234
 
 internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 
-internal abstract class ClyIInputActivity : AppCompatActivity() {
+internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
 
     protected var _MustShowBack: Boolean = false
     protected var _ActivityThemed = false
@@ -190,12 +190,7 @@ internal abstract class ClyIInputActivity : AppCompatActivity() {
                         } to String.format("<font color='$titleRGB'>%1\$s</font>", actionBar.title)
                     }.let { (home, title) ->
                         actionBar.setHomeAsUpIndicator(home)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            actionBar.setTitle(Html.fromHtml(title, 0))
-                        } else {
-                            @Suppress("DEPRECATION")
-                            actionBar.setTitle(Html.fromHtml(title))
-                        }
+                        actionBar.setTitle(spannedFromHtml(source = title))
                     }
                 }
                 actionBar.setDisplayHomeAsUpEnabled(true)
@@ -206,7 +201,7 @@ internal abstract class ClyIInputActivity : AppCompatActivity() {
                 redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                 redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                 powered_by.text = SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable)
-                powered_by.setOnClickListener { btn -> btn.activity?.let { IAct_WebView.start(it, BuildConfig.CUSTOMERLY_WEB_SITE) } }
+                powered_by.setOnClickListener { btn -> btn.activity?.let { it.startClyWebViewActivity(targetUrl = BuildConfig.CUSTOMERLY_WEB_SITE) } }
                 powered_by.visibility = View.VISIBLE
             } else {
                 powered_by.visibility = View.GONE
@@ -235,10 +230,10 @@ internal abstract class ClyIInputActivity : AppCompatActivity() {
             val themeUrl = Customerly.get().__PING__LAST_widget_background_url
             if (themeUrl != null) {
                 val themeIV = this.findViewById<View>(R.id.io_customerly__background_theme) as ImageView
-                Customerly.get()._RemoteImageHandler.request(IU_RemoteImageHandler.Request()
-                        .centerCrop()
-                        .load(themeUrl)
-                        .into(this, themeIV))
+                ClyImageHandler.request(
+                        ClyImageRequest(context = this, url = themeUrl)
+                                .centerCrop()
+                                .into(imageView = themeIV))
                 themeIV.visibility = View.VISIBLE
                 this._ActivityThemed = true
             }
