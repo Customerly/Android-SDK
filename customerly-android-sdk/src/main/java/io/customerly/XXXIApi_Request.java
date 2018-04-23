@@ -54,7 +54,7 @@ import javax.net.ssl.SSLContext;
  * Created by Gianni on 29/11/16.
  * Project: Customerly Android SDK
  */
-class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
+class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
     @StringDef({ENDPOINT_PING, ENDPOINT_CONVERSATION_RETRIEVE, ENDPOINT_MESSAGE_SEEN, ENDPOINT_MESSAGE_NEWS,
             ENDPOINT_MESSAGE_RETRIEVE, ENDPOINT_MESSAGE_SEND, ENDPOINT_EVENT_TRACKING, ENDPOINT_REPORT_CRASH,
@@ -100,7 +100,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
     @ResponseState private int _ResponseState = RESPONSE_STATE__PENDING;
 
     @RequiresPermission(Manifest.permission.INTERNET)
-    private IApi_Request(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials, boolean pTokenMandatory) {
+    private XXXIApi_Request(@Endpoint @NonNull String pEndpoint, @NonNull ResponseConverter<RES> pResponseConverter, @NonNull ResponseReceiver<RES> pResponseReceiver, @IntRange(from=1, to=5) int pTrials, boolean pTokenMandatory) {
         super();
         this._Endpoint = pEndpoint;
         this._ResponseConverter = pResponseConverter;
@@ -208,7 +208,7 @@ class IApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         }
                     }
                     final ProgressDialog pd = pd_tmp;
-                    new IApi_Request<>(this._Endpoint,
+                    new XXXIApi_Request<>(this._Endpoint,
                             this._ResponseConverter != null ? this._ResponseConverter : data -> null,
                             (statusCode, result) -> {
                                 if(pd != null) {

@@ -27,7 +27,7 @@ import io.customerly.WriterType
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-internal class ClyWriter(@WriterType val type : Int, internal val id : Long, internal val name : String?) {
+internal class ClyWriter(@WriterType val type : Int, internal val id : Long, private val name : String?) {
 
     internal val isUser : Boolean = type == WRITER_TYPE__USER
     internal val isAccount : Boolean = type == WRITER_TYPE__ACCOUNT

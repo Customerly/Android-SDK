@@ -144,13 +144,13 @@ public class Customerly {
         @Override public void onActivityStopped(Activity activity) { }
         @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
         @Override public void onActivityDestroyed(Activity activity) {
-            PW_AlertMessage.onActivityDestroyed(activity);//Need to dismiss the alert or leak window exception comes out
+            XXXPW_AlertMessage.onActivityDestroyed(activity);//Need to dismiss the alert or leak window exception comes out
         }
         @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
         @Override public void onActivityStarted(Activity activity) { }
     };
 
-    private class PingResponseConverter implements IApi_Request.ResponseConverter<Void> {
+    private class PingResponseConverter implements XXXIApi_Request.ResponseConverter<Void> {
         private final boolean _HandleAlertMessage, _HandleSurvey;
         private PingResponseConverter(boolean handleSurvey, boolean handleAlertMessage) {
             super();
@@ -285,7 +285,7 @@ public class Customerly {
                                             ((SDKActivity) activity).onNewSocketMessages(list);
                                         } else {
                                             try {
-                                                PW_AlertMessage.show(activity, new XXXIE_Message(message));
+                                                XXXPW_AlertMessage.show(activity, new XXXIE_Message(message));
                                                 _log("Message alert displayed successfully");
                                             } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                 activity = _CurrentActivity == null ? null : _CurrentActivity.get();
@@ -296,7 +296,7 @@ public class Customerly {
                                                         ((SDKActivity) activity).onNewSocketMessages(list);
                                                     } else {
                                                         try {
-                                                            PW_AlertMessage.show(activity, new XXXIE_Message(message));
+                                                            XXXPW_AlertMessage.show(activity, new XXXIE_Message(message));
                                                             _log("Message alert displayed successfully");
                                                         } catch (WindowManager.BadTokenException ignored) {
                                                             _log("An error occours while attaching the alertmessage to the window. Activity: " + activity.toString());
@@ -318,7 +318,7 @@ public class Customerly {
                                                     ((SDKActivity) p_activity).onNewSocketMessages(list);
                                                 } else {
                                                     try {
-                                                        PW_AlertMessage.show(p_activity, new XXXIE_Message(message));
+                                                        XXXPW_AlertMessage.show(p_activity, new XXXIE_Message(message));
                                                         _log("Message alert displayed successfully");
                                                     } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                         p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
@@ -329,7 +329,7 @@ public class Customerly {
                                                                 ((SDKActivity) p_activity).onNewSocketMessages(list);
                                                             } else {
                                                                 try {
-                                                                    PW_AlertMessage.show(p_activity, new XXXIE_Message(message));
+                                                                    XXXPW_AlertMessage.show(p_activity, new XXXIE_Message(message));
                                                                     _log("Message alert displayed successfully");
                                                                 } catch (WindowManager.BadTokenException ignored) {
                                                                     _log("An error occours while attaching the alertmessage to the window. Activity: " + p_activity.toString());
@@ -527,11 +527,11 @@ public class Customerly {
                                                 if (token2 != null && token2._UserID != null && token2._UserID == socket_user_id
                                                         && socket_user_id != 0 && timestamp != 0
                                                         && !payloadJson.getJSONObject("conversation").optBoolean("is_note", false)) {
-                                                    new IApi_Request.Builder<ArrayList<XXXIE_Message>>(IApi_Request.ENDPOINT_MESSAGE_NEWS)
+                                                    new XXXIApi_Request.Builder<ArrayList<XXXIE_Message>>(XXXIApi_Request.ENDPOINT_MESSAGE_NEWS)
                                                             .opt_converter(data -> XXXIU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
                                                             .opt_tokenMandatory()
                                                             .opt_receiver((responseState, new_messages) -> {
-                                                                if (responseState == IApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
+                                                                if (responseState == XXXIApi_Request.RESPONSE_STATE__OK && new_messages != null && new_messages.size() != 0) {
                                                                     Activity activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                                     ArrayList<Class<? extends Activity>> disabledActivities = _DisabledActivities;
                                                                     if (activity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
@@ -539,7 +539,7 @@ public class Customerly {
                                                                             ((SDKActivity) activity).onNewSocketMessages(new_messages);
                                                                         } else if (this._SupportEnabled) {
                                                                             try {
-                                                                                PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                                XXXPW_AlertMessage.show(activity, new_messages.get(0));
                                                                             } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                                                 activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                                                 if (activity != null) {
@@ -547,7 +547,7 @@ public class Customerly {
                                                                                         ((SDKActivity) activity).onNewSocketMessages(new_messages);
                                                                                     } else {
                                                                                         try {
-                                                                                            PW_AlertMessage.show(activity, new_messages.get(0));
+                                                                                            XXXPW_AlertMessage.show(activity, new_messages.get(0));
                                                                                         } catch (WindowManager.BadTokenException ignored) {
                                                                                             //Second try failure.
                                                                                         }
@@ -564,7 +564,7 @@ public class Customerly {
                                                                                     ((SDKActivity) p_activity).onNewSocketMessages(new_messages);
                                                                                 } else if (this._SupportEnabled) {
                                                                                     try {
-                                                                                        PW_AlertMessage.show(p_activity, new_messages.get(0));
+                                                                                        XXXPW_AlertMessage.show(p_activity, new_messages.get(0));
                                                                                     } catch (WindowManager.BadTokenException changedActivityWhileExecuting) {
                                                                                         p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                                                         if (p_activity != null) {
@@ -572,7 +572,7 @@ public class Customerly {
                                                                                                 ((SDKActivity) p_activity).onNewSocketMessages(new_messages);
                                                                                             } else {
                                                                                                 try {
-                                                                                                    PW_AlertMessage.show(p_activity, new_messages.get(0));
+                                                                                                    XXXPW_AlertMessage.show(p_activity, new_messages.get(0));
                                                                                                 } catch (WindowManager.BadTokenException ignored) {
                                                                                                     //Second try failure.
                                                                                                 }
@@ -689,10 +689,10 @@ public class Customerly {
     private synchronized void __PING__Start(@Nullable io.customerly.Customerly.Callback pSuccessCallback, @Nullable Callback pFailureCallback) {
         if(this._isConfigured()) {
             //noinspection SpellCheckingInspection
-            new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+            new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_PING)
                     .opt_converter(this.__PING__response_converter__SurveyMessage)
                     .opt_receiver((responseState, _null) -> {
-                        if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                        if (responseState == XXXIApi_Request.RESPONSE_STATE__OK) {
                             if(pSuccessCallback != null) {
                                 pSuccessCallback.callback();
                             }
@@ -1159,7 +1159,7 @@ public class Customerly {
         protected void _executeTask() {
             SharedPreferences pref = _SharedPreferences;
             if(pref != null && Patterns.EMAIL_ADDRESS.matcher(this.email).matches()) {
-                new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_PING)
                         .opt_converter(root -> {
                             SharedPreferences.Editor editor = pref.edit()
                                     .putString(PREF_CURRENT_EMAIL, this.email)
@@ -1179,7 +1179,7 @@ public class Customerly {
                             return __PING__response_converter__Message.convert(root);
                         })
                         .opt_receiver((responseState, _void) -> {
-                            if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                            if (responseState == XXXIApi_Request.RESPONSE_STATE__OK) {
                                 if(this.successCallback != null) {
                                     _log("Customerly.registerUser task completed successfully");
                                     this.successCallback.callback();
@@ -1263,10 +1263,10 @@ public class Customerly {
         protected void _executeTask() {
             XXXIE_JwtToken token = _JwtToken;
             if(token != null && token.isUser()) {
-                IApi_Request.Builder<Void> builder = new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                XXXIApi_Request.Builder<Void> builder = new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_PING)
                         .opt_converter(__PING__response_converter__NaN)
                         .opt_receiver((responseState, _void) -> {
-                            if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                            if (responseState == XXXIApi_Request.RESPONSE_STATE__OK) {
                                 if (this.successCallback != null) {
                                     _log("Customerly.setAttributes task completed successfully");
                                     this.successCallback.callback();
@@ -1458,10 +1458,10 @@ public class Customerly {
                     if(pref != null) {
                         pref.edit().remove(PREF_CURRENT_COMPANY_INFO).apply();
                     }
-                    IApi_Request.Builder<Void> builder = new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_PING)
+                    XXXIApi_Request.Builder<Void> builder = new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_PING)
                             .opt_converter(__PING__response_converter__NaN)
                             .opt_receiver((responseState, _void) -> {
-                                if (responseState == IApi_Request.RESPONSE_STATE__OK) {
+                                if (responseState == XXXIApi_Request.RESPONSE_STATE__OK) {
                                     if (this.successCallback != null) {
                                         _log("Customerly.setCompany task completed successfully");
                                         this.successCallback.callback();
@@ -1615,7 +1615,7 @@ public class Customerly {
                 this.__SOCKET__disconnect();
                 this.__PING__next_ping_allowed = 0L;
 
-                PW_AlertMessage.onUserLogout();
+                XXXPW_AlertMessage.onUserLogout();
                 Activity current = this._CurrentActivity == null ? null : this._CurrentActivity.get();
                 if(current != null) {
                     if (current instanceof SDKActivity) {
@@ -1641,7 +1641,7 @@ public class Customerly {
                 XXXIE_JwtToken token = this._JwtToken;
                 if(token != null && (token.isUser() || token.isLead())) {
                     _log("Customerly.trackEvent task started for event " + pEventName);
-                    new IApi_Request.Builder<XXXIE_Message>(IApi_Request.ENDPOINT_EVENT_TRACKING)
+                    new XXXIApi_Request.Builder<XXXIE_Message>(XXXIApi_Request.ENDPOINT_EVENT_TRACKING)
                             .opt_trials(2)
                             .param("name", pEventName)
                             .opt_receiver(((pResponseState, pResponse) -> this._log("Customerly.trackEvent completed successfully for event " + pEventName)))

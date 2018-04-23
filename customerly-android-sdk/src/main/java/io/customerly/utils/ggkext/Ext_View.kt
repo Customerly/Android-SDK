@@ -28,11 +28,15 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.widget.SwitchCompat
 import android.view.View
+import android.widget.PopupWindow
 import java.lang.ref.WeakReference
 
 /**
  * Created by Gianni on 02/11/17.
  */
+internal val PopupWindow.activity : Activity?
+    get() = this.contentView.activity
+
 internal val View.activity : Activity?
     get() = this.context.tryBaseContextActivity
 

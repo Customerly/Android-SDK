@@ -105,7 +105,7 @@ public class IDlgF_Survey extends DialogFragment {
                     XXXIE_Survey currentSurvey = this._CurrentSurvey;
                     if (currentSurvey != null && this._Back.getVisibility() == View.VISIBLE && this._ProgressView.getVisibility() == View.GONE) {
                         this._SurveyContainer.removeAllViews();
-                        new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_BACK)
+                        new XXXIApi_Request.Builder<XXXIE_Survey>(XXXIApi_Request.ENDPOINT_SURVEY_BACK)
                                 .opt_checkConn(this.getActivity())
                                 .opt_tokenMandatory()
                                 .opt_trials(2)
@@ -118,7 +118,7 @@ public class IDlgF_Survey extends DialogFragment {
                                 })
                                 .opt_converter(XXXIE_Survey::from)
                                 .opt_receiver((responseState, surveyBack) -> {
-                                    if (responseState != IApi_Request.RESPONSE_STATE__OK) {
+                                    if (responseState != XXXIApi_Request.RESPONSE_STATE__OK) {
                                         Context context = this.getActivity();
                                         context = context != null ? context.getApplicationContext() : null;
                                         Toast.makeText(context, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
@@ -135,7 +135,7 @@ public class IDlgF_Survey extends DialogFragment {
                         XXXIE_Survey currentSurvey = this._CurrentSurvey;
                         if (!this._SurveyCompleted && currentSurvey != null) {
                             currentSurvey.isRejectedOrConcluded = true;
-                            new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_REJECT)
+                            new XXXIApi_Request.Builder<XXXIE_Survey>(XXXIApi_Request.ENDPOINT_SURVEY_REJECT)
                                     .opt_checkConn(this.getActivity())
                                     .opt_tokenMandatory()
                                     .opt_trials(2)
@@ -453,7 +453,7 @@ public class IDlgF_Survey extends DialogFragment {
                     break;
             }
             if (!survey.seen) {
-                new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_SEEN)
+                new XXXIApi_Request.Builder<XXXIE_Survey>(XXXIApi_Request.ENDPOINT_SURVEY_SEEN)
                         .opt_checkConn(context)
                         .opt_tokenMandatory()
                         .opt_trials(2)
@@ -464,7 +464,7 @@ public class IDlgF_Survey extends DialogFragment {
     }
 
     private void nextSurvey(XXXIE_Survey pSurvey, int choice_id, @Nullable String answer) {
-        IApi_Request.Builder builder = new IApi_Request.Builder<XXXIE_Survey>(IApi_Request.ENDPOINT_SURVEY_SUBMIT)
+        XXXIApi_Request.Builder builder = new XXXIApi_Request.Builder<XXXIE_Survey>(XXXIApi_Request.ENDPOINT_SURVEY_SUBMIT)
                 .opt_checkConn(this.getActivity())
                 .opt_tokenMandatory()
                 .opt_onPreExecute(() -> {
@@ -476,7 +476,7 @@ public class IDlgF_Survey extends DialogFragment {
                 })
                 .opt_converter(pSurvey::updateFrom)
                 .opt_receiver((responseState, survey) -> {
-                    if (responseState != IApi_Request.RESPONSE_STATE__OK) {
+                    if (responseState != XXXIApi_Request.RESPONSE_STATE__OK) {
                         Context context = this.getActivity();
                         context = context != null ? context.getApplicationContext() : null;
                         Toast.makeText(context, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();

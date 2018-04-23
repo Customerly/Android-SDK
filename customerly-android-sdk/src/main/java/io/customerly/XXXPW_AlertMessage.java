@@ -40,7 +40,7 @@ import android.widget.TextView;
  * Created by Gianni on 28/01/17.
  * Project: CustomerlyAndroidSDK
  */
-class PW_AlertMessage extends PopupWindow {
+class XXXPW_AlertMessage extends PopupWindow {
 
     private static final int
             DRAG_MIN_DISTANCE = XXXIU_Utils.px(40),
@@ -50,7 +50,7 @@ class PW_AlertMessage extends PopupWindow {
             ENTER_TRANSLATE_DURATION = 500,
             ABORT_CLICK_AFTER_MS = 700;
 
-    @Nullable private static PW_AlertMessage _CurrentVisible = null;
+    @Nullable private static XXXPW_AlertMessage _CurrentVisible = null;
 
     private long _ConversationID = 0, _MessageID = 0;
 
@@ -59,7 +59,7 @@ class PW_AlertMessage extends PopupWindow {
     @Nullable private String _MessageRawLink;
 
     @SuppressLint("InflateParams")
-    private PW_AlertMessage(@NonNull Activity activity) {
+    private XXXPW_AlertMessage(@NonNull Activity activity) {
         super(activity.getLayoutInflater().inflate(R.layout.io_customerly__alert_message, null), WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT, false);
         this.getContentView().setOnTouchListener(new View.OnTouchListener() {
             private float _ViewXStart;
@@ -72,7 +72,7 @@ class PW_AlertMessage extends PopupWindow {
                     case MotionEvent.ACTION_DOWN:
                         this._ViewXStart = view.getX();
                         this._DownRawXStart = event.getRawX();
-                        PW_AlertMessage.this.abortFadeOut();
+                        XXXPW_AlertMessage.this.abortFadeOut();
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         if (this._Dragging || Math.abs((int) (event.getRawX() - this._DownRawXStart)) > DRAG_MIN_DISTANCE) {
@@ -86,19 +86,19 @@ class PW_AlertMessage extends PopupWindow {
                     case MotionEvent.ACTION_UP:
                         this._Dragging = false;
                         if (Math.abs(event.getRawX() - this._DownRawXStart) > SWIPE_MIN_DISTANCE) {
-                            PW_AlertMessage.this.dismissAllowingStateLoss();
-                        } else if(PW_AlertMessage.this._ConversationID != 0 && event.getEventTime() - event.getDownTime() < ABORT_CLICK_AFTER_MS) {
-                            IAct_Chat.start(activity, false, PW_AlertMessage.this._ConversationID);
-                            if(PW_AlertMessage.this._MessageRawLink != null) {
-                                XXXIAct_WebView.start(activity, PW_AlertMessage.this._MessageRawLink);
+                            XXXPW_AlertMessage.this.dismissAllowingStateLoss();
+                        } else if(XXXPW_AlertMessage.this._ConversationID != 0 && event.getEventTime() - event.getDownTime() < ABORT_CLICK_AFTER_MS) {
+                            IAct_Chat.start(activity, false, XXXPW_AlertMessage.this._ConversationID);
+                            if(XXXPW_AlertMessage.this._MessageRawLink != null) {
+                                XXXIAct_WebView.start(activity, XXXPW_AlertMessage.this._MessageRawLink);
                             }
-                            PW_AlertMessage.this.dismissAllowingStateLoss();
+                            XXXPW_AlertMessage.this.dismissAllowingStateLoss();
                         } else {
                             view.animate()
                                     .x(this._ViewXStart)
                                     .setDuration(0)
                                     .start();
-                            PW_AlertMessage.this.getContentView().postDelayed(PW_AlertMessage.this._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
+                            XXXPW_AlertMessage.this.getContentView().postDelayed(XXXPW_AlertMessage.this._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
                         }
                         return true;
                 }
@@ -121,7 +121,7 @@ class PW_AlertMessage extends PopupWindow {
 
     @UiThread
     static void show(@NonNull Activity activity, @NonNull XXXIE_Message message) throws WindowManager.BadTokenException {
-        PW_AlertMessage alert = PW_AlertMessage._CurrentVisible;
+        XXXPW_AlertMessage alert = XXXPW_AlertMessage._CurrentVisible;
         if (alert != null) {
             if(alert._MessageID == message.conversation_message_id) { //Already displaying that message
                 alert.bindMessage(message);
@@ -135,7 +135,7 @@ class PW_AlertMessage extends PopupWindow {
                 alert.dismissAllowingStateLoss();
             }
         }
-        alert = new PW_AlertMessage(activity);
+        alert = new XXXPW_AlertMessage(activity);
         alert.bindMessage(message);
         int top_offset_fix = 0;
         View decorView = activity.getWindow().getDecorView();
@@ -148,7 +148,7 @@ class PW_AlertMessage extends PopupWindow {
         View activityDecorView = activity.getWindow().getDecorView();
         if(activityDecorView != null) {
             alert.showAtLocation(activityDecorView, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, top_offset_fix);
-            PW_AlertMessage._CurrentVisible = alert;
+            XXXPW_AlertMessage._CurrentVisible = alert;
             alert.getContentView().postDelayed(alert._FadeOutAfterTOT, AUTO_FADE_OUT_DELAY);
             MediaPlayer mp = MediaPlayer.create(activity, R.raw.notif_2);
             mp.setOnCompletionListener(mp1 -> {
@@ -188,14 +188,14 @@ class PW_AlertMessage extends PopupWindow {
 
     private void fadeOut() {
         this._FadingOut = true;
-        PW_AlertMessage.this.getContentView().removeCallbacks(PW_AlertMessage.this._FadeOutAfterTOT);
+        XXXPW_AlertMessage.this.getContentView().removeCallbacks(XXXPW_AlertMessage.this._FadeOutAfterTOT);
         this.getContentView().clearAnimation();
         this.getContentView().animate().alpha(0).setDuration(FADE_OUT_DURATION).setListener(new Animator.AnimatorListener() {
             @Override public void onAnimationStart(Animator animation) { }
             @Override public void onAnimationCancel(Animator animation) { }
             @Override public void onAnimationRepeat(Animator animation) { }
             @Override public void onAnimationEnd(Animator animation) {
-                if(PW_AlertMessage.this._FadingOut) {
+                if(XXXPW_AlertMessage.this._FadingOut) {
                     dismissAllowingStateLoss();
                 }
             }
@@ -203,11 +203,11 @@ class PW_AlertMessage extends PopupWindow {
     }
 
     private void abortFadeOut() {
-        PW_AlertMessage.this.getContentView().removeCallbacks(PW_AlertMessage.this._FadeOutAfterTOT);
-        if(PW_AlertMessage.this._FadingOut) {
-            PW_AlertMessage.this._FadingOut = false;
-            PW_AlertMessage.this.getContentView().animate().cancel();
-            PW_AlertMessage.this.getContentView().animate().alpha(1).setDuration(0).start();
+        XXXPW_AlertMessage.this.getContentView().removeCallbacks(XXXPW_AlertMessage.this._FadeOutAfterTOT);
+        if(XXXPW_AlertMessage.this._FadingOut) {
+            XXXPW_AlertMessage.this._FadingOut = false;
+            XXXPW_AlertMessage.this.getContentView().animate().cancel();
+            XXXPW_AlertMessage.this.getContentView().animate().alpha(1).setDuration(0).start();
         }
     }
 
@@ -220,20 +220,20 @@ class PW_AlertMessage extends PopupWindow {
     @Override
     public void dismiss() {
         super.dismiss();
-        if(PW_AlertMessage._CurrentVisible == this) {
-            PW_AlertMessage._CurrentVisible = null;
+        if(XXXPW_AlertMessage._CurrentVisible == this) {
+            XXXPW_AlertMessage._CurrentVisible = null;
         }
     }
 
     static void onActivityDestroyed(@NonNull Activity activity) {
-        PW_AlertMessage alert = PW_AlertMessage._CurrentVisible;
+        XXXPW_AlertMessage alert = XXXPW_AlertMessage._CurrentVisible;
         if(alert != null && activity == alert.getActivity()) {
             alert.dismissAllowingStateLoss();
         }
     }
 
     static void onUserLogout() {
-        PW_AlertMessage alert = PW_AlertMessage._CurrentVisible;
+        XXXPW_AlertMessage alert = XXXPW_AlertMessage._CurrentVisible;
         if(alert != null) {
             alert.dismissAllowingStateLoss();
         }

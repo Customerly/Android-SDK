@@ -87,13 +87,13 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                 } catch (Exception ignored) { /* concurrence */ }
             }
 
-            new IApi_Request.Builder<ArrayList<XXXIE_Message>>(IApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
+            new XXXIApi_Request.Builder<ArrayList<XXXIE_Message>>(XXXIApi_Request.ENDPOINT_MESSAGE_RETRIEVE)
                     .opt_checkConn(this)
                     .opt_onPreExecute(() -> XXXIU_NullSafe.setVisibility(this._Progress_view, View.VISIBLE))
                     .opt_converter(data -> XXXIU_Utils.fromJSONdataToList(data, "messages", XXXIE_Message::new))
                     .opt_tokenMandatory()
                     .opt_receiver((responseState, pNewMessages) -> {
-                        if (responseState == IApi_Request.RESPONSE_STATE__OK && pNewMessages != null) {
+                        if (responseState == XXXIApi_Request.RESPONSE_STATE__OK && pNewMessages != null) {
 
                             final ArrayList<XXXIE_Message> new_messages = new ArrayList<>(this._ChatList);
                             int previoussize = new_messages.size();
@@ -264,7 +264,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
 
         if(otherConversationMessage != null) {
             try {
-                PW_AlertMessage.show(this, otherConversationMessage);
+                XXXPW_AlertMessage.show(this, otherConversationMessage);
             } catch (WindowManager.BadTokenException ignored) { }
         }
 
@@ -312,7 +312,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
         final XXXIU_ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
             utc /= 1000;
             Customerly.get().__SOCKET_SEND_Seen(messageID_seen, utc);
-            new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_MESSAGE_SEEN)
+            new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_MESSAGE_SEEN)
                     .opt_checkConn(this)
                     .opt_tokenMandatory()
                     .param("conversation_message_id", messageID_seen)
@@ -350,7 +350,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.N)
     private void startSendMessageRequest(@NonNull XXXIE_Message message) {
-        new IApi_Request.Builder<XXXIE_Message>(IApi_Request.ENDPOINT_MESSAGE_SEND)
+        new XXXIApi_Request.Builder<XXXIE_Message>(XXXIApi_Request.ENDPOINT_MESSAGE_SEND)
                 .opt_checkConn(this)
                 .opt_tokenMandatory()
                 .opt_converter(data -> {
@@ -361,7 +361,7 @@ public final class IAct_Chat extends XXXIAct_AInput implements Customerly.SDKAct
                     XXXIU_NullSafe.post(this._ListRecyclerView, () -> {
                         int pos = this._ChatList.indexOf(message);
                         if (pos != -1) {
-                            if(responseState == IApi_Request.RESPONSE_STATE__OK) {
+                            if(responseState == XXXIApi_Request.RESPONSE_STATE__OK) {
                                 this._ChatList.set(pos, messageSent);
                             } else {
                                 message.setFailed();

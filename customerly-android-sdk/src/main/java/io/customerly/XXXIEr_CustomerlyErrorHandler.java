@@ -55,7 +55,7 @@ class XXXIEr_CustomerlyErrorHandler {
         sb.setLength(sb.length() - 1);
 
         //noinspection SpellCheckingInspection
-        new IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_REPORT_CRASH)
+        new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_REPORT_CRASH)
                 .param("error_code", pErrorCode)
                 .param("error_message", pDescription)
                 .param("fullstacktrace", sb.toString())

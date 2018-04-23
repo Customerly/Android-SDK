@@ -1,6 +1,4 @@
-package io.customerly.utils.ggkext
-
-import java.io.Closeable
+package io.customerly.utils
 
 /*
  * Copyright (C) 2017 Customerly
@@ -19,26 +17,29 @@ import java.io.Closeable
  */
 
 /**
- * Created by Gianni on 16/04/18.
+ * Created by Gianni on 17/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-inline fun <T : Closeable?, R> T.useSkipExeption(block: (T) -> R): R {
-    var exception: Throwable? = null
-    try {
-        return block(this)
-    } catch (e: Throwable) {
-        exception = e
-        throw e
-    } finally {
-        when {
-            this == null -> {}
-            exception == null -> close()
-            else ->
-                try {
-                    close()
-                } catch (closeException: Throwable) {
-                    // cause.addSuppressed(closeException) // ignored here
-                }
+class ClySemaphore(private var value : Boolean = false) {
+    private val LOCK = arrayOfNulls<Any>(0)
+
+    fun on() = synchronized(LOCK) {
+        if(! this.look()) {
+            this.value = true
+            false
+        } else {
+            true
         }
     }
+
+    fun off() = synchronized(LOCK) {
+        if(this.look()) {
+            this.value = false
+            true
+        } else {
+            false
+        }
+    }
+
+    fun look() : Boolean = this.value
 }

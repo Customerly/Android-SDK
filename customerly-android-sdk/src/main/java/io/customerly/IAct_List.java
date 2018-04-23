@@ -67,7 +67,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
     @NonNull private final SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
         XXXIE_JwtToken token = Customerly.get()._JwtToken;
         if(token != null && (token.isUser() || token.isLead())) {
-            new IApi_Request.Builder<ArrayList<XXXIE_Conversation>>(IApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
+            new XXXIApi_Request.Builder<ArrayList<XXXIE_Conversation>>(XXXIApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
                     .opt_checkConn(this)
                     .opt_converter(data -> XXXIU_Utils.fromJSONdataToList(data, "conversations", XXXIE_Conversation::new))
                     .opt_tokenMandatory()
@@ -341,7 +341,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
                 });
             } else {
                 final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
-                new IApi_Request.Builder<Object[]>(IApi_Request.ENDPOINT_PING)
+                new XXXIApi_Request.Builder<Object[]>(XXXIApi_Request.ENDPOINT_PING)
                         .opt_checkConn(this)
                         .param("lead_email", ghostToVisitorEmail)
                         .opt_converter(root -> new Object[0])
@@ -358,7 +358,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
                                 }
                                 Toast.makeText(IAct_List.this.getApplicationContext(), R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show();
                             } else {
-                                new IApi_Request.Builder<Long>(IApi_Request.ENDPOINT_MESSAGE_SEND)
+                                new XXXIApi_Request.Builder<Long>(XXXIApi_Request.ENDPOINT_MESSAGE_SEND)
                                         .opt_tokenMandatory()
                                         .opt_converter(data -> {
                                             JSONObject conversation = data.optJSONObject("conversation");
@@ -377,7 +377,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
                                                     progressDialog.dismiss();
                                                 } catch (IllegalStateException ignored) { }
                                             }
-                                            if(message_send_responseState == IApi_Request.RESPONSE_STATE__OK && message_send_conversationID != null) {
+                                            if(message_send_responseState == XXXIApi_Request.RESPONSE_STATE__OK && message_send_conversationID != null) {
                                                 this.openConversationById(message_send_conversationID, true);
                                             } else {
                                                 this.input_input.setText(pMessage);
@@ -397,7 +397,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
             }
         } else {
             final ProgressDialog progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false);
-            new IApi_Request.Builder<Long>(IApi_Request.ENDPOINT_MESSAGE_SEND)
+            new XXXIApi_Request.Builder<Long>(XXXIApi_Request.ENDPOINT_MESSAGE_SEND)
                     .opt_checkConn(this)
                     .opt_tokenMandatory()
                     .opt_converter(data -> {
@@ -417,7 +417,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
                                 progressDialog.dismiss();
                             } catch (IllegalStateException ignored) { }
                         }
-                        if(responseState == IApi_Request.RESPONSE_STATE__OK && conversationID != null) {
+                        if(responseState == XXXIApi_Request.RESPONSE_STATE__OK && conversationID != null) {
                             this.openConversationById(conversationID, ghostToVisitorEmail != null);
                         } else {
                             this.input_input.setText(pMessage);
