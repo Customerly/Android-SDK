@@ -21,7 +21,7 @@ import android.content.res.Resources
 import android.support.annotation.Px
 import android.text.Spanned
 import io.customerly.R
-import io.customerly.WriterType
+import io.customerly.utils.WriterType
 import io.customerly.utils.ggkext.formatByTimeAgo
 import io.customerly.utils.ggkext.getTyped
 import io.customerly.utils.ggkext.optTyped

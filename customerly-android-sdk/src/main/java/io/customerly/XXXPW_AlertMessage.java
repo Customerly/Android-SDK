@@ -88,7 +88,7 @@ class XXXPW_AlertMessage extends PopupWindow {
                         if (Math.abs(event.getRawX() - this._DownRawXStart) > SWIPE_MIN_DISTANCE) {
                             XXXPW_AlertMessage.this.dismissAllowingStateLoss();
                         } else if(XXXPW_AlertMessage.this._ConversationID != 0 && event.getEventTime() - event.getDownTime() < ABORT_CLICK_AFTER_MS) {
-                            IAct_Chat.start(activity, false, XXXPW_AlertMessage.this._ConversationID);
+                            XXXIAct_Chat.start(activity, false, XXXPW_AlertMessage.this._ConversationID);
                             if(XXXPW_AlertMessage.this._MessageRawLink != null) {
                                 XXXIAct_WebView.start(activity, XXXPW_AlertMessage.this._MessageRawLink);
                             }

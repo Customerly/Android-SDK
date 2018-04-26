@@ -20,13 +20,11 @@ import android.content.Context
 import android.os.SystemClock
 import io.customerly.utils.ggkext.asUnsigned
 import io.customerly.utils.ggkext.checkConnection
-import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-
-
-private const val TAG = "SntpClient"
 
 private const val REFERENCE_TIME_OFFSET = 16
 private const val ORIGINATE_TIME_OFFSET = 24
@@ -196,8 +194,11 @@ internal object SntpClient {
         if(context?.checkConnection() == false) {
             onTime(null)
         } else {
-            async {
-                onTime(getNtpTime())
+            context.doAsync {
+                val ntpTime = getNtpTime()
+                uiThread {
+                    onTime(ntpTime)
+                }
             }
         }
     }

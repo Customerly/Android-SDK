@@ -19,10 +19,10 @@ package io.customerly.entity
 import android.content.SharedPreferences
 import android.support.annotation.Size
 import android.util.Base64
-import io.customerly.USER_TYPE__ANONYMOUS
-import io.customerly.USER_TYPE__LEAD
-import io.customerly.USER_TYPE__USER
-import io.customerly.UserType
+import io.customerly.utils.USER_TYPE__ANONYMOUS
+import io.customerly.utils.USER_TYPE__LEAD
+import io.customerly.utils.USER_TYPE__USER
+import io.customerly.utils.UserType
 import io.customerly.utils.ggkext.nullOnException
 import io.customerly.utils.ggkext.optTyped
 import io.customerly.utils.ggkext.safeString

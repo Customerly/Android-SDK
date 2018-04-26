@@ -450,7 +450,7 @@ public final class IAct_List extends XXXIAct_AInput implements Customerly.SDKAct
     private void openConversationById(long id, boolean andFinishCurrent) {
         if(id != 0) {
             if(XXXIU_Utils.checkConnection(IAct_List.this)) {
-                IAct_Chat.startForResult(IAct_List.this, ! andFinishCurrent, id, RESULT_CODE_REFRESH_LIST);
+                XXXIAct_Chat.startForResult(IAct_List.this, ! andFinishCurrent, id, RESULT_CODE_REFRESH_LIST);
                 if(andFinishCurrent) {
                     this.finish();
                 }

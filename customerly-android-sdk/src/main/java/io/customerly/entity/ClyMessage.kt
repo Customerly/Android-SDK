@@ -22,14 +22,15 @@ import android.support.annotation.Px
 import android.text.Spanned
 import android.text.SpannedString
 import android.widget.TextView
-import io.customerly.WRITER_TYPE__ACCOUNT
-import io.customerly.WRITER_TYPE__USER
+import io.customerly.utils.WRITER_TYPE__ACCOUNT
+import io.customerly.utils.WRITER_TYPE__USER
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.fromHtml
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Created by Gianni on 11/09/16.
@@ -71,6 +72,10 @@ internal fun JSONObject.parseMessage() : ClyMessage {
             cState = CSTATE_COMPLETED)
 }
 
+internal fun JSONObject.parseMessagesList() : ArrayList<ClyMessage> {
+    return this.optArrayList<JSONObject,ClyMessage>(name = "messages", map = { it.parseMessage() }) ?: ArrayList(initialCapacity = 0)
+}
+
 internal class ClyMessage(
         writerUserid : Long = 0,
         writerAccountId : Long = 0,
@@ -94,7 +99,11 @@ internal class ClyMessage(
     private var contentSpanned : Spanned? = null
 
     internal val writer : ClyWriter = ClyWriter(
-            type = if(writerUserid != 0L) { WRITER_TYPE__USER } else { WRITER_TYPE__ACCOUNT },
+            type = if(writerUserid != 0L) {
+                WRITER_TYPE__USER
+            } else {
+                WRITER_TYPE__ACCOUNT
+            },
             id = if(writerUserid != 0L) { writerUserid } else { writerAccountId },
             name = writerAccountName)
 

@@ -29,7 +29,7 @@
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".IAct_Chat"
+            android:name=".XXXIAct_Chat"
             android:label="@string/io_customerly__activity_title_chat"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"

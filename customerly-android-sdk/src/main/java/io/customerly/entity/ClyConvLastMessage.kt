@@ -19,7 +19,7 @@ package io.customerly.entity
 import android.content.Context
 import android.support.annotation.Px
 import android.text.Spanned
-import io.customerly.WriterType
+import io.customerly.utils.WriterType
 import io.customerly.utils.ggkext.STimestamp
 
 /**

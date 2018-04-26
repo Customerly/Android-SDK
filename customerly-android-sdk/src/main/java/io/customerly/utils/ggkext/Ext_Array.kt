@@ -131,6 +131,10 @@ internal inline fun <E, reified T> List<E>.toTypedMappedArray(map : (E)->T) : Ar
     return Array(this.size) { map(this[it])}
 }
 
+internal fun <E> List<E>.toArrayList() : ArrayList<E> {
+    return (this as? ArrayList<E>) ?: ArrayList(c = this)
+}
+
 internal infix fun <K,V> K.entry(that: V): Map.Entry<K, V> = MyMapEntry(this, that)
 
 private data class MyMapEntry<out K, out V>(override val key: K, override val value: V) : Map.Entry<K,V>

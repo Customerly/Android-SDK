@@ -48,6 +48,26 @@ internal fun JSONObject.parseAttachment() : ClyAttachment {
     return ClyAttachment(uri = null, name = this.getTyped("name"), path = this.getTyped("path"))
 }
 
+internal fun Array<ClyAttachment>?.toJSON(context: Context): JSONArray {
+    val array = JSONArray()
+    if (this != null) {
+        for (attachment in this) {
+            val base64 = attachment.loadBase64FromMemory(context)
+            if (base64 != null) {
+                try {
+                    val jo = JSONObject()
+                    jo.put("filename", attachment.name)
+                    jo.put("base64", base64)
+                    array.put(jo)
+                } catch (ignored: JSONException) {
+                }
+
+            }
+        }
+    }
+    return array
+}
+
 internal class ClyAttachment internal constructor(
         internal val uri : Uri?,
         internal val name : String,
@@ -57,8 +77,12 @@ internal class ClyAttachment internal constructor(
 
     internal constructor(context: Context, uri: Uri): this(uri = uri, name = uri.getFileName(context = context))
 
-    internal fun isImage()
-        = this.name.endsWith(".jpg") || this.name.endsWith(".png") || this.name.endsWith(".jpeg") || this.name.endsWith(".gif") || this.name.endsWith(".bmp")
+    internal fun isImage() =
+               this.name.endsWith(suffix = ".jpg", ignoreCase = true)
+            || this.name.endsWith(suffix = ".png", ignoreCase = true)
+            || this.name.endsWith(suffix = ".jpeg", ignoreCase = true)
+            || this.name.endsWith(suffix = ".gif", ignoreCase = true)
+            || this.name.endsWith(suffix = ".bmp", ignoreCase = true)
 
     @Throws(IllegalStateException::class)
     internal fun loadBase64FromMemory(context : Context): String? {
@@ -90,7 +114,7 @@ internal class ClyAttachment internal constructor(
     }
 
     internal fun addAttachmentToInput(inputActivity: ClyIInputActivity) {
-        inputActivity._Attachments.add(this)
+        inputActivity.attachments.add(this)
         val tv = TextView(inputActivity)
         tv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customerly__ld_chat_attachment, 0, 0, 0)
@@ -110,31 +134,11 @@ internal class ClyAttachment internal constructor(
                     .setNegativeButton(R.string.io_customerly__cancel, null)
                     .setPositiveButton(R.string.io_customerly__remove) { _, _ ->
                         (tv.parent as? ViewGroup)?.removeView(tv)
-                        inputActivity._Attachments.remove(this)
+                        inputActivity.attachments.remove(this)
                     }
                     .setCancelable(true)
                     .show()
         }
-        inputActivity.input_attachments?.addView(tv)
-    }
-
-    internal fun Array<ClyAttachment>?.toJSON(context: Context): JSONArray {
-        val array = JSONArray()
-        if (this != null) {
-            for (attachment in this) {
-                val base64 = attachment.loadBase64FromMemory(context)
-                if (base64 != null) {
-                    try {
-                        val jo = JSONObject()
-                        jo.put("filename", attachment.name)
-                        jo.put("base64", base64)
-                        array.put(jo)
-                    } catch (ignored: JSONException) {
-                    }
-
-                }
-            }
-        }
-        return array
+        inputActivity.inputAttachments?.addView(tv)
     }
 }

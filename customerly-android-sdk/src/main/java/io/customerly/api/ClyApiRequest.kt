@@ -1,12 +1,13 @@
 package io.customerly.api
 
 import android.Manifest
-import android.app.ProgressDialog
 import android.content.Context
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.support.annotation.IntRange
 import android.support.annotation.RequiresPermission
 import android.util.Log
-import android.view.View
 import io.customerly.BuildConfig
 import io.customerly.Customerly
 import io.customerly.checkClyConfigured
@@ -14,7 +15,9 @@ import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.JWT_KEY
 import io.customerly.utils.ggkext.*
-import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.AnkoAsyncContext
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -36,36 +39,46 @@ import javax.net.ssl.SSLContext
 internal class ClyApiRequest<RESPONSE: Any>
     @RequiresPermission(Manifest.permission.INTERNET)
     internal constructor(
-        @ClyEndpoint private val endpoint: String,
         context: Context? = null,
-        @IntRange(from=1, to=5) private val trials: Int = 1,
+        @ClyEndpoint private val endpoint: String,
         private val requireToken: Boolean = false,
-        private val reportingErrorEnabled: Boolean = true,
-        private val converter: (JSONObject)->RESPONSE,
+        @IntRange(from=1, to=5) private val trials: Int = 1,
         private val onPreExecute: ((Context?)->Unit)? = null,
-        private val callback: ((Int, RESPONSE?)->RESPONSE)? = null
+        private val converter: (JSONObject)->RESPONSE,
+        private val callback: ((ClyApiResponse<RESPONSE>)->Unit)? = null,
+        private val reportingErrorEnabled: Boolean = true
     ){
     private val params: JSONObject = JSONObject()
 
     private var wContext: WeakReference<Context>? = context?.weak()
     internal val context : Context? get() = this.wContext?.get()
 
-    fun p(key: String, value: Boolean) = this.params.skipException { it.put(key, value) }
-    fun p(key: String, value: Double) = this.params.skipException { it.put(key, value) }
-    fun p(key: String, value: Int) = this.params.skipException { it.put(key, value) }
-    fun p(key: String, value: Long) = this.params.skipException { it.put(key, value) }
-    fun p(key: String, value: Any) = this.params.skipException { it.putOpt(key, value) }
+    fun p(key: String, value: Boolean) = this.apply { this.params.skipException { it.put(key, value) } }
+    fun p(key: String, value: Double) = this.apply { this.params.skipException { it.put(key, value) } }
+    fun p(key: String, value: Int) = this.apply { this.params.skipException { it.put(key, value) } }
+    fun p(key: String, value: Long) = this.apply { this.params.skipException { it.put(key, value) } }
+    fun p(key: String, value: Any) = this.apply { this.params.skipException { it.putOpt(key, value) } }
 
     fun start() {
         checkClyConfigured(reportingErrorEnabled = this.reportingErrorEnabled) {
             val context = this.context
             if(context?.checkConnection() == false) {
                 Customerly.get()._log("Check your connection")
-                this.callback?.invoke(RESPONSE_STATE__ERROR_NO_CONNECTION, null)
+                ClyApiResponse.Failure<RESPONSE>(errorCode = RESPONSE_STATE__ERROR_NO_CONNECTION).also { errorResponse ->
+                    if(if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                Looper.getMainLooper().isCurrentThread
+                            } else {
+                                Looper.getMainLooper() == Looper.myLooper()
+                            }) {
+                        this.callback?.invoke(errorResponse)
+                    } else {
+                        Handler(Looper.getMainLooper()).post { this.callback?.invoke(errorResponse) }
+                    }
+                }
             } else {
                 this.onPreExecute?.invoke(this.context)
                 val request = this
-                async {
+                val async : AnkoAsyncContext<*>.()->Unit = {
                     @ClyResponseState var responseState: Int = RESPONSE_STATE__PREPARING
                     var responseResult : RESPONSE? = null
                     val appId = Customerly.get()._AppID
@@ -114,15 +127,27 @@ internal class ClyApiRequest<RESPONSE: Any>
                     } else {
                         responseState = RESPONSE_STATE__NO_APPID_AVAILABLE
                     }
-                    
-                    //TODO run on mainthread
-                    request.callback?.invoke(responseState, responseResult)
+
+                    uiThread {
+                        val localResult : RESPONSE? = responseResult
+                        request.callback?.invoke(
+                                if(responseState == RESPONSE_STATE__OK && localResult != null) {
+                                    ClyApiResponse.Success(result = localResult)
+                                } else {
+                                    ClyApiResponse.Failure(errorCode = responseState)
+                                })
+                    }
+                }
+                if(context != null) {
+                    context.doAsync { async() }
+                } else {
+                    request.doAsync { async() }
                 }
             }
         }
     }
 
-    private fun executeRequest(endpoint: String = this.endpoint, jwtToken: ClyJwtToken? = null, params: JSONObject? = null) : ClyApiResponse {
+    private fun executeRequest(endpoint: String = this.endpoint, jwtToken: ClyJwtToken? = null, params: JSONObject? = null) : ClyApiInternalResponse {
         val requestBody = JSONObject()
                 .also {
                     if (jwtToken != null) try {
@@ -209,7 +234,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                         if (ENDPOINT_PING == endpoint) {
                             Customerly.get()._TOKEN__update(response)
                         }
-                        ClyApiResponse(responseState = RESPONSE_STATE__OK, responseResult = response)
+                        ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResult = response)
                     } else {
                         /* example: {   "error": "exception_title",
                                 "message": "Exception_message",
@@ -219,25 +244,25 @@ internal class ClyApiRequest<RESPONSE: Any>
                         when (errorCode) {
                             RESPONSE_STATE__SERVERERROR_APP_INSOLVENT -> {
                                 Customerly.get()._setIsAppInsolvent()
-                                ClyApiResponse(responseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT)
+                                ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT)
                             }
                             RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED -> {
-                                ClyApiResponse(responseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED)
+                                ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED)
                             }
                             /* -1, */ else -> {
-                            ClyApiResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
+                            ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
                             }
                         }
                     }
                 }
             } catch (json : JSONException) {
                 Customerly.get()._log("The server received the request but an error has come")
-                ClyApiResponse(responseState = RESPONSE_STATE__ERROR_BAD_RESPONSE)
+                ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_BAD_RESPONSE)
             } catch (json : JSONException) {
                 Customerly.get()._log("An error occurs during the connection to server")
-                ClyApiResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
+                ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
             }
-        }.withIndex().firstOrNull { iv : IndexedValue<ClyApiResponse> -> iv.value.responseResult != null || iv.index == this.trials -1 }?.value ?: ClyApiResponse(responseState = ERROR_CODE__GENERIC)
+        }.withIndex().firstOrNull { iv : IndexedValue<ClyApiInternalResponse> -> iv.value.responseResult != null || iv.index == this.trials -1 }?.value ?: ClyApiInternalResponse(responseState = ERROR_CODE__GENERIC)
     }
 
     private fun fillParamsWithAppidAndDeviceInfo(params: JSONObject? = null, appId: String): JSONObject {
@@ -247,7 +272,13 @@ internal class ClyApiRequest<RESPONSE: Any>
     }
 }
 
-private data class ClyApiResponse(@ClyResponseState val responseState: Int, val responseResult: JSONObject? = null)
+private data class ClyApiInternalResponse(@ClyResponseState val responseState: Int, val responseResult: JSONObject? = null)
 
-
+@Suppress("unused")
+internal sealed class ClyApiResponse<RESPONSE: Any> {
+    internal data class Success<RESPONSE: Any>(
+            internal val result: RESPONSE) : ClyApiResponse<RESPONSE>()
+    internal data class Failure<RESPONSE: Any>(
+            @ClyResponseState internal val errorCode: Int) : ClyApiResponse<RESPONSE>()
+}
 

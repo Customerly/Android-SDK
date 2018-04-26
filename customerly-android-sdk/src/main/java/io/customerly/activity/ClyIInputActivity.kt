@@ -31,10 +31,10 @@ import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
 import android.support.annotation.LayoutRes
+import android.support.annotation.UiThread
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.text.Html
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -77,14 +77,14 @@ internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 
 internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
 
-    protected var _MustShowBack: Boolean = false
-    protected var _ActivityThemed = false
+    protected var mustShowBack: Boolean = false
+    protected var activityThemed = false
 
-    internal var input_layout: LinearLayout? = null
-    internal var input_attachments: LinearLayout? = null
-    internal var input_input: EditText? = null
+    internal var inputLayout: LinearLayout? = null
+    internal var inputAttachments: LinearLayout? = null
+    internal var inputInput: EditText? = null
 
-    internal val _Attachments = ArrayList<ClyAttachment>(1)
+    internal val attachments = ArrayList<ClyAttachment>(1)
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         internal var attendingReconnection = false
@@ -101,7 +101,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     }
 
     private val attachButtonListener : (View?)->Unit = { btn ->
-        if (this._Attachments.size >= 10) {
+        if (this.attachments.size >= 10) {
             if(btn != null) {
                 Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
                         .setAction(android.R.string.ok) { v -> }.setActionTextColor(Customerly.get().__PING__LAST_widget_color).show()
@@ -155,12 +155,12 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             //View binding
             val actionBar = this.supportActionBar
             val powered_by = this.findViewById<View>(R.id.io_customerly__powered_by) as TextView
-            this.input_input = this.findViewById<View>(R.id.io_customerly__input_edit_text) as EditText
+            this.inputInput = this.findViewById<View>(R.id.io_customerly__input_edit_text) as EditText
             val input_button_attach = this.findViewById<View>(R.id.io_customerly__input_button_attach)
-            this.input_layout = this.findViewById<View>(R.id.io_customerly__input_layout) as LinearLayout
-            this.input_attachments = this.findViewById<View>(R.id.io_customerly__input_attachments) as LinearLayout
+            this.inputLayout = this.findViewById<View>(R.id.io_customerly__input_layout) as LinearLayout
+            this.inputAttachments = this.findViewById<View>(R.id.io_customerly__input_attachments) as LinearLayout
 
-            this._MustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
+            this.mustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
             if (actionBar != null) {
 
                 if (Customerly.get().__PING__LAST_widget_color != 0) {
@@ -183,7 +183,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                                     "#ffffff")
                         }
                     }.let { (homeBack, homeClear, titleRGB) ->
-                        if (this.intent != null && this._MustShowBack) {
+                        if (this.intent != null && this.mustShowBack) {
                             homeBack
                         } else {
                             homeClear
@@ -212,14 +212,13 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             this.findViewById<View>(R.id.io_customerly__input_button_send).setOnClickListener { btn ->
                 if (btn.context.checkConnection()) {
                     (btn.activity as? ClyIInputActivity)?.let { inputActivity ->
-                        val message = inputActivity.input_input?.text?.toString()?.trim { it <= ' ' }
-                                ?: ""
-                        val attachmentsArray = inputActivity._Attachments.toTypedArray()
-                        if (message.isNotEmpty() || attachmentsArray.isNotEmpty()) {
-                            inputActivity.input_input?.setText(null)
-                            inputActivity._Attachments.clear()
-                            inputActivity.input_attachments?.removeAllViews()
-                            inputActivity.onSendMessage(message, attachmentsArray, null)
+                        val content = inputActivity.inputInput?.text?.toString()?.trim { it <= ' ' } ?: ""
+                        val attachmentsArray = inputActivity.attachments.toTypedArray()
+                        if (content.isNotEmpty() || attachmentsArray.isNotEmpty()) {
+                            inputActivity.inputInput?.setText(null)
+                            inputActivity.attachments.clear()
+                            inputActivity.inputAttachments?.removeAllViews()
+                            inputActivity.onSendMessage(content = content, attachments = attachmentsArray)
                         }
                     }
                 } else {
@@ -235,7 +234,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                                 .centerCrop()
                                 .into(imageView = themeIV))
                 themeIV.visibility = View.VISIBLE
-                this._ActivityThemed = true
+                this.activityThemed = true
             }
 
             return true
@@ -262,7 +261,8 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
     }
 
-    protected abstract fun onSendMessage(pMessage: String, pAttachments: Array<ClyAttachment>, ghostToVisitorEmail: String?)
+    @UiThread
+    protected abstract fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String? = null)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -280,9 +280,9 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                 val fileUri = data.data
                 if (fileUri != null) {
                     try {
-                        for (att in this._Attachments) {
+                        for (att in this.attachments) {
                             if (fileUri == att.uri) {
-                                this.input_input?.let {
+                                this.inputInput?.let {
                                     Snackbar.make(it, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
                                             .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.get().__PING__LAST_widget_color).show()
                                     it.requestFocus()
@@ -291,7 +291,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                             }
                         }
                         if (fileUri.getFileSize(context = this) > 5000000) {
-                            this.input_input?.let {
+                            this.inputInput?.let {
                                 Snackbar.make(it, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
                                         .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.get().__PING__LAST_widget_color).show()
                                 it.requestFocus()
@@ -305,18 +305,18 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                     }
 
                 }
-                this.input_input?.requestFocus()
+                this.inputInput?.requestFocus()
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     internal fun restoreAttachments() {
-        if (this.input_attachments != null) {
-            this.input_attachments!!.removeAllViews()
+        if (this.inputAttachments != null) {
+            this.inputAttachments!!.removeAllViews()
         }
-        if (this._Attachments.size != 0) {
-            this._Attachments.clear()
+        if (this.attachments.size != 0) {
+            this.attachments.clear()
         }
     }
 }

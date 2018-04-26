@@ -24,7 +24,7 @@ import android.support.v7.widget.RecyclerView
  * Project: Customerly Android SDK
  */
 internal class RvProgressiveScrollListener(
-        private val linearLayoutManager: LinearLayoutManager,
+        private val llm: LinearLayoutManager,
         private val onBottomReached: (RvProgressiveScrollListener)->Unit) : RecyclerView.OnScrollListener() {
 
     private var loading = false
@@ -32,7 +32,7 @@ internal class RvProgressiveScrollListener(
     override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
 
-        if (this.linearLayoutManager.itemCount <= this.linearLayoutManager.findLastVisibleItemPosition() + 1) {
+        if (this.llm.itemCount <= this.llm.findLastVisibleItemPosition() + 1) {
             synchronized(this.loading) {
                 if (this.loading) {
                     return

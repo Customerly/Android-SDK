@@ -19,9 +19,9 @@ package io.customerly.entity
 import android.content.Context
 import android.support.annotation.Px
 import io.customerly.R
-import io.customerly.WRITER_TYPE__ACCOUNT
-import io.customerly.WRITER_TYPE__USER
-import io.customerly.WriterType
+import io.customerly.utils.WRITER_TYPE__ACCOUNT
+import io.customerly.utils.WRITER_TYPE__USER
+import io.customerly.utils.WriterType
 
 /**
  * Created by Gianni on 11/09/16.

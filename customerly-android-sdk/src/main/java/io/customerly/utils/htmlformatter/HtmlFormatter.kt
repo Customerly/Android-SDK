@@ -33,6 +33,7 @@ import android.view.View
 import android.widget.TextView
 import io.customerly.utils.download.imagehandler.ClyImageHandler
 import io.customerly.utils.download.imagehandler.ClyImageRequest
+import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import java.util.*
 import java.util.regex.Pattern
@@ -201,9 +202,7 @@ internal fun fromHtml(
                             val now = System.currentTimeMillis()
                             if (now - this.lastClickedAt > 100) {//Trick because the onClick is fired twice
                                 this.lastClickedAt = now
-                                if (widget.context is Activity) {
-                                    pImageClickableSpan.invoke(widget.context as Activity, imageSpan.source)
-                                }
+                                widget.activity?.also { pImageClickableSpan.invoke(it, imageSpan.source) }
                             }
                         }
                     }, ssb.getSpanStart(imageSpan), ssb.getSpanEnd(imageSpan), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

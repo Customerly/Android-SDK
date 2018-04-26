@@ -21,17 +21,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.media.MediaPlayer
 import android.support.annotation.UiThread
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.PopupWindow
-
 import io.customerly.R
+import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.ClyMessage
 import io.customerly.utils.ClySemaphore
@@ -66,12 +62,12 @@ internal fun dismissAlertMessageOnUserLogout() {
 
 @UiThread
 @Throws(WindowManager.BadTokenException::class)
-internal fun show(activity: Activity, message: ClyMessage) {
-    if(false == currentClyAlertMessage?.onNewMessage(activity = activity, newMessage = message)) {
+internal fun Activity.showClyAlertMessage(message: ClyMessage) {
+    if(false == currentClyAlertMessage?.onNewMessage(activity = this, newMessage = message)) {
         currentClyAlertMessage = null
 
-        activity.window.decorView?.let { activityDecorView ->
-            val clyAlertMessage = ClyAlertMessage(activity = activity, message = message)
+        this.window.decorView?.let { activityDecorView ->
+            val clyAlertMessage = ClyAlertMessage(activity = this, message = message)
             val topOffsetFix = (activityDecorView as? ViewGroup)
                     ?.takeIf { it.childCount == 1 }
                     ?.getChildAt(0)
@@ -81,7 +77,7 @@ internal fun show(activity: Activity, message: ClyMessage) {
             clyAlertMessage.showAtLocation(activityDecorView, Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, topOffsetFix)
             currentClyAlertMessage = clyAlertMessage
             clyAlertMessage.postFadeOut()
-            MediaPlayer.create(activity, R.raw.notif_2).also {
+            MediaPlayer.create(this, R.raw.notif_2).also {
                 it.setOnCompletionListener { mp ->
                     mp.reset()
                     mp.release()
