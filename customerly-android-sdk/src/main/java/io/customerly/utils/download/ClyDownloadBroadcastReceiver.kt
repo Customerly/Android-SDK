@@ -32,8 +32,8 @@ import android.widget.Toast
 import java.io.File
 
 import io.customerly.Customerly
-import io.customerly.XXXIAct_OpenDownloadedFileActivity
-import io.customerly.XXXIU_CustomerlyFileProvider
+import io.customerly.XXXXXcancellare.XXXIAct_OpenDownloadedFileActivity
+import io.customerly.XXXXXcancellare.XXXIU_CustomerlyFileProvider
 import io.customerly.R
 
 import android.content.Context.DOWNLOAD_SERVICE

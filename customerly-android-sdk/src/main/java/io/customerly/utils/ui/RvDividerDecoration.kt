@@ -54,94 +54,94 @@ private val dp1 = Math.max(1, 1.dp2px).toFloat()
 
 @ColorRes private val DEFAULT_COLOR_RES = R.color.io_customerly__grey_cc
 
-internal abstract class RvDividerDecoration protected constructor(@ColorInt colorInt: Int) : RecyclerView.ItemDecoration() {
+internal sealed class RvDividerDecoration(@ColorInt colorInt: Int) : RecyclerView.ItemDecoration() {
     protected val paint : Paint = Paint().apply {
         color = colorInt
         style = Paint.Style.FILL
     }
-}
 
-internal class RvDividerHorizontalDecoration(
+    internal class Horizontal(
             @ColorInt colorInt: Int,
             @RvDividerHorizontal val where : Int = RVDIVIDER_H_CENTER
     ) : RvDividerDecoration(colorInt = colorInt) {
 
-    constructor(
-            context: Context,
-            @ColorRes colorRes: Int = DEFAULT_COLOR_RES,
-            @RvDividerHorizontal where : Int = RVDIVIDER_H_CENTER
-    ): this(colorInt = ContextCompat.getColor(context, colorRes), where = where)
+        internal constructor(
+                context: Context,
+                @ColorRes colorRes: Int = DEFAULT_COLOR_RES,
+                @RvDividerHorizontal where : Int = RVDIVIDER_H_CENTER
+        ): this(colorInt = ContextCompat.getColor(context, colorRes), where = where)
 
-    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
-        val left = parent.paddingLeft
-        val right = parent.width - parent.paddingRight
-        (0 until if (this.where == RVDIVIDER_H_CENTER) {
-            parent.childCount - 1
-        } else {
-            parent.childCount
-        })
-        .asSequence()
-        .map { parent.getChildAt(it) }
-        .forEach { child ->
-            when (this.where) {
-                RVDIVIDER_H_RIGHT, RVDIVIDER_H_CENTER -> {
-                    val top = child.bottom + (child.layoutParams as RecyclerView.LayoutParams).bottomMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
-                }
-                RVDIVIDER_H_BOTH -> {
-                    var top = child.bottom + (child.layoutParams as RecyclerView.LayoutParams).bottomMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
-                    top = child.top - (child.layoutParams as RecyclerView.LayoutParams).topMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
-                }
-                /*RVDIVIDER_H_LEFT,*/else -> {
-                    val top = child.top - (child.layoutParams as RecyclerView.LayoutParams).topMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
-                }
-            }
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
+            val left = parent.paddingLeft
+            val right = parent.width - parent.paddingRight
+            (0 until if (this.where == RVDIVIDER_H_CENTER) {
+                parent.childCount - 1
+            } else {
+                parent.childCount
+            })
+                    .asSequence()
+                    .map { parent.getChildAt(it) }
+                    .forEach { child ->
+                        when (this.where) {
+                            RVDIVIDER_H_RIGHT, RVDIVIDER_H_CENTER -> {
+                                val top = child.bottom + (child.layoutParams as RecyclerView.LayoutParams).bottomMargin
+                                c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
+                            }
+                            RVDIVIDER_H_BOTH -> {
+                                var top = child.bottom + (child.layoutParams as RecyclerView.LayoutParams).bottomMargin
+                                c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
+                                top = child.top - (child.layoutParams as RecyclerView.LayoutParams).topMargin
+                                c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
+                            }
+                        /*RVDIVIDER_H_LEFT,*/else -> {
+                            val top = child.top - (child.layoutParams as RecyclerView.LayoutParams).topMargin
+                            c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), top + dp1, this.paint)
+                        }
+                        }
+                    }
         }
     }
-}
 
-internal class RvDividerVerticalDecoration(
+    internal class Vertical(
             @ColorInt colorInt: Int,
             @RvDividerVertical val where : Int = RVDIVIDER_V_CENTER
     ) : RvDividerDecoration(colorInt = colorInt) {
 
-    constructor(
-            context: Context,
-            @ColorRes colorRes: Int = DEFAULT_COLOR_RES,
-            @RvDividerVertical where : Int = RVDIVIDER_V_CENTER
-    ): this(colorInt = ContextCompat.getColor(context, colorRes), where = where)
+        internal constructor(
+                context: Context,
+                @ColorRes colorRes: Int = DEFAULT_COLOR_RES,
+                @RvDividerVertical where : Int = RVDIVIDER_V_CENTER
+        ): this(colorInt = ContextCompat.getColor(context, colorRes), where = where)
 
-    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
-        val top = parent.paddingTop
-        val bottom = parent.height - parent.paddingBottom
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
+            val top = parent.paddingTop
+            val bottom = parent.height - parent.paddingBottom
 
-        (0 until if (this.where == RVDIVIDER_V_CENTER) {
-            parent.childCount - 1
-        } else {
-            parent.childCount
-        })
-        .asSequence()
-        .map { parent.getChildAt(it) }
-        .forEach { child ->
-            when (this.where) {
-                RVDIVIDER_V_BOTTOM, RVDIVIDER_V_CENTER -> {
-                    val left = child.right + (child.layoutParams as RecyclerView.LayoutParams).rightMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
-                }
-                RVDIVIDER_V_BOTH -> {
-                    var left = child.right + (child.layoutParams as RecyclerView.LayoutParams).rightMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
-                    left = child.left - (child.layoutParams as RecyclerView.LayoutParams).leftMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
-                }
-                /*RVDIVIDER_V_TOP,*/else -> {
-                    val left = child.left - (child.layoutParams as RecyclerView.LayoutParams).leftMargin
-                    c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
-                }
-            }
+            (0 until if (this.where == RVDIVIDER_V_CENTER) {
+                parent.childCount - 1
+            } else {
+                parent.childCount
+            })
+                    .asSequence()
+                    .map { parent.getChildAt(it) }
+                    .forEach { child ->
+                        when (this.where) {
+                            RVDIVIDER_V_BOTTOM, RVDIVIDER_V_CENTER -> {
+                                val left = child.right + (child.layoutParams as RecyclerView.LayoutParams).rightMargin
+                                c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
+                            }
+                            RVDIVIDER_V_BOTH -> {
+                                var left = child.right + (child.layoutParams as RecyclerView.LayoutParams).rightMargin
+                                c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
+                                left = child.left - (child.layoutParams as RecyclerView.LayoutParams).leftMargin
+                                c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
+                            }
+                        /*RVDIVIDER_V_TOP,*/else -> {
+                            val left = child.left - (child.layoutParams as RecyclerView.LayoutParams).leftMargin
+                            c.drawRect(left.toFloat(), top.toFloat(), left + dp1, bottom.toFloat(), this.paint)
+                        }
+                        }
+                    }
         }
     }
 }

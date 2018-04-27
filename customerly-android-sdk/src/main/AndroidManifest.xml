@@ -23,19 +23,19 @@
 
     <application>
         <activity
-            android:name=".IAct_List"
+            android:name=".XXXXXcancellare.XXXIAct_List"
             android:label="@string/io_customerly__support"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".XXXIAct_Chat"
+            android:name=".XXXXXcancellare.XXXIAct_Chat"
             android:label="@string/io_customerly__activity_title_chat"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".XXXIAct_FullScreenImage"
+            android:name=".XXXXXcancellare.XXXIAct_FullScreenImage"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:label="@string/io_customerly__image"
             android:theme="@style/io_customerly__Activity"

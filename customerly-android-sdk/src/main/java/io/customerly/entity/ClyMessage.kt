@@ -141,6 +141,10 @@ internal class ClyMessage(
         return spanned
     }
 
+    fun toConversation(): ClyConversation {
+        return ClyConversation(id = this.conversationId, lastMessage = this.toConvLastMessage())
+    }
+
     fun toConvLastMessage() : ClyConvLastMessage{
         return ClyConvLastMessage(message = this.contentAbstract, date = this.sentDatetime, writer = this.writer)
     }

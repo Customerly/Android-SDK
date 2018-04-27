@@ -77,7 +77,7 @@ internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 
 internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
 
-    protected var mustShowBack: Boolean = false
+    internal var mustShowBack: Boolean = false
     protected var activityThemed = false
 
     internal var inputLayout: LinearLayout? = null
@@ -229,10 +229,10 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             val themeUrl = Customerly.get().__PING__LAST_widget_background_url
             if (themeUrl != null) {
                 val themeIV = this.findViewById<View>(R.id.io_customerly__background_theme) as ImageView
-                ClyImageHandler.request(
-                        ClyImageRequest(context = this, url = themeUrl)
-                                .centerCrop()
-                                .into(imageView = themeIV))
+                ClyImageRequest(context = this, url = themeUrl)
+                        .centerCrop()
+                        .into(imageView = themeIV)
+                        .start()
                 themeIV.visibility = View.VISIBLE
                 this.activityThemed = true
             }

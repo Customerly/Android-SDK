@@ -48,17 +48,17 @@ internal fun fromHtml(
         tv: TextView? = null,
         pImageClickableSpan: ((Activity, String)->Unit)? = null,
         pImageDownloader: (Context, String, (Drawable)->Unit)->Unit = { context: Context, source: String, handleDrawable: (Drawable) -> Unit ->
-            ClyImageHandler.request(
-                    request = ClyImageRequest(context = context, url = source)
-                            .into { bmp ->
-                                if(Looper.getMainLooper().thread != Thread.currentThread()) {
-                                    Handler(Looper.getMainLooper()).post {
-                                        handleDrawable(BitmapDrawable(context.resources, bmp))
-                                    }
-                                } else {
-                                    handleDrawable(BitmapDrawable(context.resources, bmp))
-                                }
-                            })
+            ClyImageRequest(context = context, url = source)
+                    .into { bmp ->
+                        if(Looper.getMainLooper().thread != Thread.currentThread()) {
+                            Handler(Looper.getMainLooper()).post {
+                                handleDrawable(BitmapDrawable(context.resources, bmp))
+                            }
+                        } else {
+                            handleDrawable(BitmapDrawable(context.resources, bmp))
+                        }
+                    }
+                .start()
         }): Spanned {
     if (message == null || message.isEmpty()) {
         return SpannedString("")

@@ -44,7 +44,7 @@ private const val CLASS_NAME = "ClyImageHandler"
 private const val HANDLER_NAME_NETWORK = "$CLASS_NAME-Network"
 private const val HANDLER_NAME_DISK = "$CLASS_NAME-Disk"
 
-object ClyImageHandler {
+internal object ClyImageHandler {
     private val LOCK = arrayOfNulls<Any>(0)
     private val lruCache = LruCache<String, Bitmap>(MAX_LRU_CACHE_SIZE)
     private val pendingDiskRequests = SparseArray<ClyImageRequest>()

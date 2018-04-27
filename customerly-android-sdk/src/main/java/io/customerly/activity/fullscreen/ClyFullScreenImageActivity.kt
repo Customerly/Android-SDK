@@ -83,11 +83,11 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                 it.adjustViewBounds = true
             }
             try {
-                ClyImageHandler.request(
-                        ClyImageRequest(context = this, url = targetUrl)
-                                .fitCenter()
-                                .into(imageView = imageView)
-                                .placeholder(placeholder = R.drawable.io_customerly__pic_placeholder_fullscreen))
+                ClyImageRequest(context = this, url = targetUrl)
+                        .fitCenter()
+                        .into(imageView = imageView)
+                        .placeholder(placeholder = R.drawable.io_customerly__pic_placeholder_fullscreen)
+                        .start()
 
                 super.setContentView(imageView)
 

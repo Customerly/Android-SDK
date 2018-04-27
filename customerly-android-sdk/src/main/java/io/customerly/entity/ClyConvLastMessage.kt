@@ -19,8 +19,10 @@ package io.customerly.entity
 import android.content.Context
 import android.support.annotation.Px
 import android.text.Spanned
+import io.customerly.R
 import io.customerly.utils.WriterType
 import io.customerly.utils.ggkext.STimestamp
+import io.customerly.utils.ggkext.formatByTimeAgo
 
 /**
  * Created by Gianni on 11/04/18.
@@ -37,5 +39,15 @@ internal class ClyConvLastMessage(
 
     internal fun getImageUrl(@Px sizePx: Int) : String = this.writer.getImageUrl(sizePx = sizePx)
 
-    internal fun getLastWriterName(context : Context) : String = this.writer.getName(context = context)
+    internal fun getWriterName(context : Context) : String = this.writer.getName(context = context)
+
+    internal fun getTimeFormatted(context: Context) : String {
+        return this.date.formatByTimeAgo(
+                seconds = { context.resources.getString(R.string.io_customerly__XX_sec_ago, it) },
+                minutes = { context.resources.getString(R.string.io_customerly__XX_min_ago, it) },
+                hours = { context.resources.getQuantityString(R.plurals.io_customerly__XX_hours_ago, it.toInt(), it) },
+                days = { context.resources.getQuantityString(R.plurals.io_customerly__XX_days_ago, it.toInt(), it) },
+                weeks = { context.resources.getQuantityString(R.plurals.io_customerly__XX_weeks_ago, it.toInt(), it) },
+                months = { context.resources.getQuantityString(R.plurals.io_customerly__XX_months_ago, it.toInt(), it) } )
+    }
 }

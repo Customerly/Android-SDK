@@ -18,6 +18,7 @@ package io.customerly.utils.download.imagehandler
 
 import android.content.Context
 import android.graphics.*
+import android.support.annotation.CheckResult
 import android.support.annotation.DrawableRes
 import android.support.annotation.IntRange
 import android.widget.ImageView
@@ -176,5 +177,9 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
                         iv.setImageResource(error)
                     }
         }
+    }
+
+    internal fun start() {
+        ClyImageHandler.request(request = this)
     }
 }

@@ -31,7 +31,6 @@ import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.ClyMessage
 import io.customerly.utils.ClySemaphore
-import io.customerly.utils.download.imagehandler.ClyImageHandler
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
@@ -180,12 +179,12 @@ internal class ClyAlertMessage
         this.message = message
         val icon = this.contentView.findViewById<View>(R.id.io_customerly__icon) as ImageView
 
-        ClyImageHandler.request(
-                ClyImageRequest(context = icon.context, url = message.getImageUrl(sizePx = 50.dp2px))
-                        .fitCenter()
-                        .transformCircle()
-                        .resize(width = 50.dp2px)
-                        .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin))
+        ClyImageRequest(context = icon.context, url = message.getImageUrl(sizePx = 50.dp2px))
+                .fitCenter()
+                .transformCircle()
+                .resize(width = 50.dp2px)
+                .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
+                .start()
 
         this.contentView.io_customerly__name.text = message.writer.getName(context = this.contentView.context)
 

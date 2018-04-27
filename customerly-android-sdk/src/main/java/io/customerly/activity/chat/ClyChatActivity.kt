@@ -17,52 +17,31 @@ package io.customerly.activity.chat
  */
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.os.Bundle
-import android.support.annotation.DrawableRes
-import android.support.annotation.FloatRange
-import android.support.annotation.LayoutRes
 import android.support.annotation.UiThread
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
-import android.text.TextUtils
 import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
-import android.util.Base64
-import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import io.customerly.*
 import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
 import io.customerly.activity.ClyIInputActivity
-import io.customerly.activity.chat.viewholder.ChatViewHolder
 
 import java.util.ArrayList
 import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.*
 import io.customerly.entity.*
 import io.customerly.utils.download.startFileDownload
-import io.customerly.utils.ggkext.activity
-import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
 import io.customerly.utils.network.SntpClient
 import io.customerly.utils.ui.RvProgressiveScrollListener
@@ -103,7 +82,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
     private var conversationId = 0L
     internal var typingAccountId = TYPING_NO_ONE
     internal var chatList = ArrayList<ClyMessage>(0)
-    private val adapter = ChatAdapter(chatActivity = this)
+    private val adapter = ClyChatAdapter(chatActivity = this)
     private val wThis : WeakReference<ClyChatActivity> = this.weak()
     private val onBottomReachedListener = { scrollListener : RvProgressiveScrollListener ->
         checkClyConfigured {
@@ -183,7 +162,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.setResult(IAct_List.RESULT_CODE_REFRESH_LIST)
         this.conversationId = this.intent.getLongExtra(EXTRA_CONVERSATION_ID, 0)
         if (this.conversationId == 0L) {
             this.finish()
@@ -199,7 +177,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 }
                 this.itemAnimator = DefaultItemAnimator()
                 this.setHasFixedSize(true)
-                this.adapter = ChatAdapter()
+                this.adapter = ClyChatAdapter()
             }.weak()
 
             this.inputInput?.addTextChangedListener(object : TextWatcher {

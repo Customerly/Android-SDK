@@ -56,6 +56,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 
+import io.customerly.XXXXXcancellare.XXXIAct_List;
+import io.customerly.XXXXXcancellare.XXXIApi_Request;
+import io.customerly.XXXXXcancellare.XXXIE_Admin;
+import io.customerly.XXXXXcancellare.XXXIE_JwtToken;
+import io.customerly.XXXXXcancellare.XXXIE_Message;
+import io.customerly.XXXXXcancellare.XXXIE_Survey;
+import io.customerly.XXXXXcancellare.XXXIEr_CustomerlyErrorHandler;
+import io.customerly.XXXXXcancellare.XXXIU_RemoteImageHandler;
+import io.customerly.XXXXXcancellare.XXXIU_Utils;
+import io.customerly.XXXXXcancellare.XXXNetworkReceiver;
+import io.customerly.XXXXXcancellare.XXXPW_AlertMessage;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
@@ -1587,7 +1598,7 @@ public class Customerly {
         if(this._isConfigured()) {
             this.setSupportEnabled(true);
             try {
-                activity.startActivity(new Intent(activity, IAct_List.class));
+                activity.startActivity(new Intent(activity, XXXIAct_List.class));
                 this._log("Customerly.openSupport completed successfully");
             } catch (Exception generic) {
                 this._log("A generic error occurred in Customerly.openSupport");

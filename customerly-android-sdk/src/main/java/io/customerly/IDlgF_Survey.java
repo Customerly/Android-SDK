@@ -47,7 +47,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import static io.customerly.XXXIE_Survey.TYPE_END_SURVEY;
+import io.customerly.XXXXXcancellare.XXXIApi_Request;
+import io.customerly.XXXXXcancellare.XXXIE_Survey;
+import io.customerly.XXXXXcancellare.XXXIU_Utils;
+
+import static io.customerly.XXXXXcancellare.XXXIE_Survey.TYPE_END_SURVEY;
 
 /**
  * Created by Gianni on 29/11/16.
