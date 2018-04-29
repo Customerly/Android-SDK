@@ -58,12 +58,16 @@ internal fun SharedPreferences?.jwtRemove() {
     this?.edit()?.remove(PREFS_JWT_KEY)?.apply()
 }
 
+internal fun JSONObject.parseJwtToken(preferences: SharedPreferences? = null): ClyJwtToken? {
+    return this.optTyped<String>(name = "token")?.nullOnException { ClyJwtToken(encodedJwt = it, preferences = preferences) }
+}
+
 internal class ClyJwtToken @Throws(IllegalArgumentException::class)
     constructor(
         @org.intellij.lang.annotations.Pattern(JWT_VALIDATOR_MATCHER)
         @param:Size(min = 5)
         private val encodedJwt: String,
-        prefs: SharedPreferences? = null) {
+        preferences: SharedPreferences? = null) {
 
     internal val userID: Long?
 
@@ -92,7 +96,7 @@ internal class ClyJwtToken @Throws(IllegalArgumentException::class)
             this.userType = USER_TYPE__ANONYMOUS
         }
 
-        prefs.jwtStore(encodedJwt = this.encodedJwt)
+        preferences.jwtStore(encodedJwt = this.encodedJwt)
     }
 
     override fun toString(): String = this.encodedJwt

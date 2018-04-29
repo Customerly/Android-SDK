@@ -55,7 +55,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import io.customerly.BuildConfig;
-import io.customerly.Customerly;
 import io.customerly.R;
 
 /**
@@ -111,7 +110,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
      * @return true if the SDK is configured or false otherwise anc finish is called
      */
     final boolean onCreateLayout(@LayoutRes int pLayoutRes) {
-        if(Customerly.get()._isConfigured()) {
+        if(XXXCustomerly.get()._isConfigured()) {
             super.setContentView(pLayoutRes);
             //View binding
             final ActionBar actionBar = this.getSupportActionBar();
@@ -125,13 +124,13 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
             if (actionBar != null) {
 
                 String title;
-                if(Customerly.get().__PING__LAST_widget_color != 0) {
-                    actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
+                if(XXXCustomerly.get().__PING__LAST_widget_color != 0) {
+                    actionBar.setBackgroundDrawable(new ColorDrawable(XXXCustomerly.get().__PING__LAST_widget_color));
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
+                        this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(XXXCustomerly.get().__PING__LAST_widget_color, 0.8f));
                     }
 
-                    if (XXXIU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
+                    if (XXXIU_Utils.getContrastColor(XXXCustomerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                         actionBar.setHomeAsUpIndicator(this.getIntent() != null && this._MustShowBack ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
                         title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -149,7 +148,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
                 actionBar.setDisplayHomeAsUpEnabled(true);
             }
 
-            if (Customerly.get().__PING__LAST_powered_by) {
+            if (XXXCustomerly.get().__PING__LAST_powered_by) {
                 SpannableString redBoldSpannable = new SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME);
                 redBoldSpannable.setSpan(new ForegroundColorSpan(XXXIU_Utils.getColorFromResource(this.getResources(), R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
                 redBoldSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -177,10 +176,10 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
                 }
             });
 
-            String themeUrl = Customerly.get().__PING__LAST_widget_background_url;
+            String themeUrl = XXXCustomerly.get().__PING__LAST_widget_background_url;
             if(themeUrl != null) {
                 ImageView themeIV = (ImageView)this.findViewById(R.id.io_customerly__background_theme);
-                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                         .centerCrop()
                         .load(themeUrl)
                         .into(this, themeIV));
@@ -198,7 +197,7 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
     @NonNull private final View.OnClickListener _AttachButtonListener = btn -> {
         if (this._Attachments.size() >= 10) {
             Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, v -> {}).setActionTextColor(Customerly.get().__PING__LAST_widget_color).show();
+                    .setAction(android.R.string.ok, v -> {}).setActionTextColor(XXXCustomerly.get().__PING__LAST_widget_color).show();
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
             || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -268,14 +267,14 @@ abstract class XXXIAct_AInput extends AppCompatActivity {
                             for(XXXIE_Attachment att : this._Attachments) {
                                 if(fileUri.equals(att.uri)) {
                                     Snackbar.make(this.input_input, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
-                                            .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly.get().__PING__LAST_widget_color).show();
+                                            .setAction(android.R.string.ok, v -> { }).setActionTextColor(XXXCustomerly.get().__PING__LAST_widget_color).show();
                                     this.input_input.requestFocus();
                                     return;
                                 }
                             }
                             if(XXXIU_Utils.getFileSizeFromUri(this, fileUri) > 5000000) {
                                 Snackbar.make(this.input_input, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
-                                        .setAction(android.R.string.ok, v -> { }).setActionTextColor(Customerly.get().__PING__LAST_widget_color).show();
+                                        .setAction(android.R.string.ok, v -> { }).setActionTextColor(XXXCustomerly.get().__PING__LAST_widget_color).show();
                                 this.input_input.requestFocus();
                                 return;
                             }

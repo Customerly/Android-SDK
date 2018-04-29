@@ -25,7 +25,8 @@ import android.support.annotation.IntRange
 import android.support.annotation.RequiresPermission
 import android.util.Log
 import io.customerly.BuildConfig
-import io.customerly.Customerly
+import io.customerly.Cly
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.checkClyConfigured
 import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
@@ -60,7 +61,7 @@ internal class ClyApiRequest<RESPONSE: Any>
         private val requireToken: Boolean = false,
         @IntRange(from=1, to=5) private val trials: Int = 1,
         private val onPreExecute: ((Context?)->Unit)? = null,
-        private val converter: (JSONObject)->RESPONSE,
+        private val converter: (JSONObject)->RESPONSE?,
         private val callback: ((ClyApiResponse<RESPONSE>)->Unit)? = null,
         private val reportingErrorEnabled: Boolean = true
     ){
@@ -79,7 +80,7 @@ internal class ClyApiRequest<RESPONSE: Any>
         checkClyConfigured(reportingErrorEnabled = this.reportingErrorEnabled) {
             val context = this.context
             if(context?.checkConnection() == false) {
-                Customerly.get()._log("Check your connection")
+                XXXCustomerly.get()._log("Check your connection")
                 ClyApiResponse.Failure<RESPONSE>(errorCode = RESPONSE_STATE__ERROR_NO_CONNECTION).also { errorResponse ->
                     if(if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 Looper.getMainLooper().isCurrentThread
@@ -97,15 +98,14 @@ internal class ClyApiRequest<RESPONSE: Any>
                 val async : AnkoAsyncContext<*>.()->Unit = {
                     @ClyResponseState var responseState: Int = RESPONSE_STATE__PREPARING
                     var responseResult : RESPONSE? = null
-                    val appId = Customerly.get()._AppID
+                    val appId = XXXCustomerly.get()._AppID
                     if(appId != null) {
-                        var jwtToken: ClyJwtToken? = Customerly.get()._JwtToken
                         var params:JSONObject? = null
 
                         if(ENDPOINT_PING == request.endpoint) {
                             params = request.fillParamsWithAppidAndDeviceInfo(params = request.params, appId = appId)
                         } else {
-                            when(jwtToken) {
+                            when(Cly.jwtToken) {
                                 null -> {
                                     when(request.requireToken) {
                                         true -> {
@@ -113,8 +113,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                                             //first perform first a ping to obtain it
                                             //or kill the request
                                             request.executeRequest(endpoint = ENDPOINT_PING, params = request.fillParamsWithAppidAndDeviceInfo(appId = appId))
-                                            jwtToken = Customerly.get()._JwtToken
-                                            when(jwtToken) {
+                                            when(Cly.jwtToken) {
                                                 null -> responseState = RESPONSE_STATE__PREPARING
                                                 else -> if(ENDPOINT_REPORT_CRASH == request.endpoint) {
                                                     params = request.fillParamsWithAppidAndDeviceInfo(appId = appId)
@@ -135,7 +134,7 @@ internal class ClyApiRequest<RESPONSE: Any>
 
                         if(responseState == RESPONSE_STATE__PREPARING) {
                             //No errors
-                            request.executeRequest(jwtToken = jwtToken, params = params).let { (state, result) ->
+                            request.executeRequest(jwtToken = Cly.jwtToken, params = params).let { (state, result) ->
                                 responseState = state
                                 responseResult = result?.let { request.converter(it) }
                             }
@@ -147,10 +146,13 @@ internal class ClyApiRequest<RESPONSE: Any>
                     uiThread {
                         val localResult : RESPONSE? = responseResult
                         request.callback?.invoke(
-                                if(responseState == RESPONSE_STATE__OK && localResult != null) {
-                                    ClyApiResponse.Success(result = localResult)
-                                } else {
-                                    ClyApiResponse.Failure(errorCode = responseState)
+                                when(responseState) {
+                                    RESPONSE_STATE__OK -> if(localResult != null) {
+                                        ClyApiResponse.Success(result = localResult)
+                                    } else {
+                                        ClyApiResponse.Failure(errorCode = RESPONSE_STATE__ERROR_BAD_RESPONSE)
+                                    }
+                                    else -> ClyApiResponse.Failure(errorCode = responseState)
                                 })
                     }
                 }
@@ -248,7 +250,7 @@ internal class ClyApiRequest<RESPONSE: Any>
 
                     if (!response.has("error")) {
                         if (ENDPOINT_PING == endpoint) {
-                            Customerly.get()._TOKEN__update(response)
+                            Cly.jwtTokenUpdate(pingResponse = response)
                         }
                         ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResult = response)
                     } else {
@@ -256,10 +258,10 @@ internal class ClyApiRequest<RESPONSE: Any>
                                 "message": "Exception_message",
                                 "code": "ExceptionCode"     }   */
                         val errorCode = response.optInt("code", -1)
-                        Customerly.get()._log("ErrorCode: $errorCode Message: ${response.optTyped(name = "message", fallback = "The server received the request but an error occurred")}")
+                        XXXCustomerly.get()._log("ErrorCode: $errorCode Message: ${response.optTyped(name = "message", fallback = "The server received the request but an error occurred")}")
                         when (errorCode) {
                             RESPONSE_STATE__SERVERERROR_APP_INSOLVENT -> {
-                                Customerly.get()._setIsAppInsolvent()
+                                XXXCustomerly.get()._setIsAppInsolvent()
                                 ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT)
                             }
                             RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED -> {
@@ -272,10 +274,10 @@ internal class ClyApiRequest<RESPONSE: Any>
                     }
                 }
             } catch (json : JSONException) {
-                Customerly.get()._log("The server received the request but an error has come")
+                XXXCustomerly.get()._log("The server received the request but an error has come")
                 ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_BAD_RESPONSE)
             } catch (json : JSONException) {
-                Customerly.get()._log("An error occurs during the connection to server")
+                XXXCustomerly.get()._log("An error occurs during the connection to server")
                 ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
             }
         }.withIndex().firstOrNull { iv : IndexedValue<ClyApiInternalResponse> -> iv.value.responseResult != null || iv.index == this.trials -1 }?.value ?: ClyApiInternalResponse(responseState = ERROR_CODE__GENERIC)
@@ -284,7 +286,7 @@ internal class ClyApiRequest<RESPONSE: Any>
     private fun fillParamsWithAppidAndDeviceInfo(params: JSONObject? = null, appId: String): JSONObject {
         return (params ?: JSONObject())
                     .skipException { it.put("app_id", appId)}
-                    .skipException { it.put("device", Customerly.get().__PING__DeviceJSON) }
+                    .skipException { it.put("device", XXXCustomerly.get().__PING__DeviceJSON) }
     }
 }
 

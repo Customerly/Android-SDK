@@ -118,9 +118,8 @@ internal class ClyAttachment internal constructor(
         val tv = TextView(inputActivity)
         tv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customerly__ld_chat_attachment, 0, 0, 0)
-        val dp5 = 5.dp2px
-        tv.compoundDrawablePadding = dp5
-        tv.setPadding(dp5, 0, 0, 0)
+        tv.compoundDrawablePadding = 5.dp2px
+        tv.setPadding(5.dp2px, 0, 0, 0)
         tv.setTextColor(ContextCompat.getColorStateList(inputActivity, R.color.io_customerly__textcolor_malibu_grey))
         tv.setLines(1)
         tv.setSingleLine()

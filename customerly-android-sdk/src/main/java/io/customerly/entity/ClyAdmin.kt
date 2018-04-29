@@ -17,16 +17,27 @@ package io.customerly.entity
  */
 
 import android.support.annotation.Px
-import com.squareup.moshi.Json
+import io.customerly.utils.ggkext.optTyped
+import org.json.JSONException
+import org.json.JSONObject
 
 /**
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
+
+@Throws(JSONException::class)
+internal fun JSONObject.parseAdmin() : ClyAdmin {
+    return ClyAdmin(
+            account_id = this.optTyped(name = "account_id", fallback = 0L),
+            name = this.optTyped(name = "name", fallback = ""),
+            last_active = this.optTyped(name = "last_active", fallback = 0L))
+}
+
 internal data class ClyAdmin (
-            @Json(name = "account_id") private val account_id: Long,
-            @Json(name = "name") val name: String,
-            @Json(name = "last_active") val last_active: Long) {
+            private val account_id: Long,
+            val name: String,
+            val last_active: Long) {
 
     internal fun getImageUrl(@Px sizePx: Int) : String = urlImageAccount(accountId = this.account_id, sizePX = sizePx)
 }

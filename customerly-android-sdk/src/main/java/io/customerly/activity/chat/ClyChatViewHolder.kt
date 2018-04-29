@@ -35,6 +35,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import io.customerly.*
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.activity.fullscreen.startClyFullScreenImageActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.ClyMessage
@@ -292,7 +293,7 @@ internal sealed class ClyChatViewHolder (
                     sendingProgressBarResId = R.id.io_customerly__content_sending__only_user_li,
                     iconAttachment = R.drawable.io_customerly__ic_attach_user) {
             init {
-                (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(Customerly.get().__PING__LAST_widget_color)
+                (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(XXXCustomerly.get().__PING__LAST_widget_color)
             }
         }
 

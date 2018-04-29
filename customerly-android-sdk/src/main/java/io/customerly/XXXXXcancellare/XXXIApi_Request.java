@@ -51,7 +51,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
 import io.customerly.BuildConfig;
-import io.customerly.Customerly;
 
 /**
  * Created by Gianni on 29/11/16.
@@ -192,7 +191,7 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
             return this;
         }
         void start() {
-            if(Customerly.get()._isConfigured(this._ReportingErrorDisabled)) {
+            if(XXXCustomerly.get()._isConfigured(this._ReportingErrorDisabled)) {
                 if (this._Context == null || XXXIU_Utils.checkConnection(this._Context)) {
                     ProgressDialog pd_tmp = null;
                     if(this._Context != null && this._ProgressDialog_Title != null && this._ProgressDialog_Message != null) {
@@ -229,7 +228,7 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                             this._Trials, this._TokenMandatory)
                             .execute(this._Params);
                 } else if (this._ResponseReceiver != null) {
-                    Customerly.get()._log("Check your connection");
+                    XXXCustomerly.get()._log("Check your connection");
                     this._ResponseReceiver.onResponse(RESPONSE_STATE__ERROR_NO_CONNECTION, null);
                 }
             }
@@ -239,19 +238,19 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
 
     @NonNull private JSONObject json_appid_E_device(@NonNull String app_id, @Nullable JSONObject params) throws JSONException {
         return (params != null ? params : new JSONObject())
-                .put("app_id", app_id).put("device", Customerly.get().__PING__DeviceJSON);
+                .put("app_id", app_id).put("device", XXXCustomerly.get().__PING__DeviceJSON);
     }
 
     @Nullable
     @Override
     protected final RES doInBackground(@Size(value=1) @NonNull JSONObject[] pParams) {
-        String app_id = Customerly.get()._AppID;
+        String app_id = XXXCustomerly.get()._AppID;
         if(app_id == null) {
             return null;
         }
         JSONObject request_root = new JSONObject();
 
-        XXXIE_JwtToken token = Customerly.get()._JwtToken;
+        XXXIE_JwtToken token = XXXCustomerly.get()._JwtToken;
         boolean tokenSent = false;
         if(token != null) {
             try {
@@ -278,7 +277,7 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                         this._ResponseState = RESPONSE_STATE__NO_TOKEN_AVAILABLE;
                         return null;
                     }
-                    token = Customerly.get()._JwtToken;
+                    token = XXXCustomerly.get()._JwtToken;
                     if (token != null) {
                         try {
                             request_root.put(XXXIE_JwtToken.PAYLOAD_KEY, token.toString());
@@ -410,7 +409,7 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                     if(! response_root.has("error")) {
                         this._ResponseState = RESPONSE_STATE__OK;
                         if (ENDPOINT_PING.equals(pEndpoint)) {
-                            Customerly.get()._TOKEN__update(response_root);
+                            XXXCustomerly.get()._TOKEN__update(response_root);
                         }
                         return response_root;
                     } else {
@@ -418,7 +417,7 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                                 "message": "Exception_message",
                                 "code": "ExceptionCode"     }   */
                         int error_code = response_root.optInt("code", -1);
-                        Customerly.get()._log(String.format(Locale.UK, "Error: %s Message: %s ErrorCode: %s",
+                        XXXCustomerly.get()._log(String.format(Locale.UK, "Error: %s Message: %s ErrorCode: %s",
                                 response_root.has("error"),
                                 XXXIU_Utils.jsonOptStringWithNullCheck(response_root, "message", "The server received the request but an error has come"),
                                 error_code));
@@ -431,19 +430,19 @@ class XXXIApi_Request<RES> extends AsyncTask<JSONObject, Void, RES> {
                                 case RESPONSE_STATE__SERVERERROR_APP_INSOLVENT:
                                     //{ "error": "App is temporary deactived", "message": "Subscription is expired, please contact Customerly.io", "code": 17 }
                                     this._ResponseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT;
-                                    Customerly.get()._setIsAppInsolvent();
+                                    XXXCustomerly.get()._setIsAppInsolvent();
                                     return null;
                             }
                         }
                         this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
                     }
                 } catch (JSONException error) {
-                    Customerly.get()._log("The server received the request but an error has come");
+                    XXXCustomerly.get()._log("The server received the request but an error has come");
                     this._ResponseState = RESPONSE_STATE__ERROR_BAD_RESPONSE;
                     return null;
                 }
             } catch (IOException error) {
-                Customerly.get()._log("An error occurs during the connection to server");
+                XXXCustomerly.get()._log("An error occurs during the connection to server");
                 this._ResponseState = RESPONSE_STATE__ERROR_NETWORK;
             } finally {
                 if (os != null) {

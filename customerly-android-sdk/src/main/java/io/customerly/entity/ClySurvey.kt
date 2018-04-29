@@ -112,8 +112,10 @@ internal class ClySurvey internal constructor(
         var subtitle: String,
         var limitFrom: Int = 0,
         var limitTo: Int = 0,
-        var choices: Array<ClySurveyChoice>?
+        var choices: Array<ClySurveyChoice>?,
+        var isRejectedOrConcluded: Boolean = false
 ) : Parcelable {
+
     internal constructor(
             id: Int,
             thankYouYext: String,
@@ -140,5 +142,19 @@ internal class ClySurvey internal constructor(
             this
         }
         return this
+    }
+
+    internal val requireAnswerByChoice: Boolean get() = when(this.type) {
+        TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST -> true
+        TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER,
+        TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA         -> false
+        else /* TSURVEY_END_SURVEY */               -> false
+    }
+
+    internal val requireAnswerByString: Boolean get() = when(this.type) {
+        TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER,
+        TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA         -> true
+        TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST -> false
+        else /* TSURVEY_END_SURVEY */               -> false
     }
 }

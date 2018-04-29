@@ -51,13 +51,12 @@ import android.widget.Toast
 import java.util.ArrayList
 
 import io.customerly.BuildConfig
-import io.customerly.Customerly
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.R
 import io.customerly.entity.ClyAttachment
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
 import io.customerly.entity.clySendError
 import io.customerly.utils.alterColor
-import io.customerly.utils.download.imagehandler.ClyImageHandler
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.getContrastBW
 import io.customerly.utils.ggkext.activity
@@ -104,7 +103,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         if (this.attachments.size >= 10) {
             if(btn != null) {
                 Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok) { v -> }.setActionTextColor(Customerly.get().__PING__LAST_widget_color).show()
+                        .setAction(android.R.string.ok) { v -> }.setActionTextColor(XXXCustomerly.get().__PING__LAST_widget_color).show()
             }
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
@@ -150,7 +149,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
      * @return true if the SDK is configured or false otherwise anc finish is called
      */
     internal fun onCreateLayout(@LayoutRes pLayoutRes: Int): Boolean {
-        if (Customerly.get()._isConfigured()) {
+        if (XXXCustomerly.get()._isConfigured()) {
             super.setContentView(pLayoutRes)
             //View binding
             val actionBar = this.supportActionBar
@@ -163,13 +162,13 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             this.mustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
             if (actionBar != null) {
 
-                if (Customerly.get().__PING__LAST_widget_color != 0) {
-                    actionBar.setBackgroundDrawable(ColorDrawable(Customerly.get().__PING__LAST_widget_color))
+                if (XXXCustomerly.get().__PING__LAST_widget_color != 0) {
+                    actionBar.setBackgroundDrawable(ColorDrawable(XXXCustomerly.get().__PING__LAST_widget_color))
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        this.window.statusBarColor = Customerly.get().__PING__LAST_widget_color.alterColor(0.8f)
+                        this.window.statusBarColor = XXXCustomerly.get().__PING__LAST_widget_color.alterColor(0.8f)
                     }
 
-                    when(Customerly.get().__PING__LAST_widget_color.getContrastBW()) {
+                    when(XXXCustomerly.get().__PING__LAST_widget_color.getContrastBW()) {
                         Color.BLACK -> {
                             Triple(
                                     R.drawable.io_customerly__ic_arrow_back_black_24dp,
@@ -196,7 +195,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                 actionBar.setDisplayHomeAsUpEnabled(true)
             }
 
-            if (Customerly.get().__PING__LAST_powered_by) {
+            if (XXXCustomerly.get().__PING__LAST_powered_by) {
                 val redBoldSpannable = SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME)
                 redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                 redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
@@ -226,7 +225,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                 }
             }
 
-            val themeUrl = Customerly.get().__PING__LAST_widget_background_url
+            val themeUrl = XXXCustomerly.get().__PING__LAST_widget_background_url
             if (themeUrl != null) {
                 val themeIV = this.findViewById<View>(R.id.io_customerly__background_theme) as ImageView
                 ClyImageRequest(context = this, url = themeUrl)
@@ -284,7 +283,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                             if (fileUri == att.uri) {
                                 this.inputInput?.let {
                                     Snackbar.make(it, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
-                                            .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.get().__PING__LAST_widget_color).show()
+                                            .setAction(android.R.string.ok) { _ -> }.setActionTextColor(XXXCustomerly.get().__PING__LAST_widget_color).show()
                                     it.requestFocus()
                                 }
                                 return
@@ -293,7 +292,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                         if (fileUri.getFileSize(context = this) > 5000000) {
                             this.inputInput?.let {
                                 Snackbar.make(it, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
-                                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.get().__PING__LAST_widget_color).show()
+                                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(XXXCustomerly.get().__PING__LAST_widget_color).show()
                                 it.requestFocus()
                             }
                             return

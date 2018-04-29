@@ -51,7 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import io.customerly.Customerly;
 import io.customerly.R;
 
 /**
@@ -59,7 +58,7 @@ import io.customerly.R;
  * Project: Customerly Android SDK
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDKActivity {
+public final class XXXIAct_List extends XXXIAct_AInput implements XXXCustomerly.SDKActivity {
 
     static final int RESULT_CODE_REFRESH_LIST = 100;
 
@@ -68,7 +67,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
     private RecyclerView _ListRecyclerView;
     @NonNull private List<XXXIE_Conversation> _Conversations = new ArrayList<>();
     @NonNull private final SwipeRefreshLayout.OnRefreshListener _OnRefreshListener = () -> {
-        XXXIE_JwtToken token = Customerly.get()._JwtToken;
+        XXXIE_JwtToken token = XXXCustomerly.get()._JwtToken;
         if(token != null && (token.isUser() || token.isLead())) {
             new XXXIApi_Request.Builder<ArrayList<XXXIE_Conversation>>(XXXIApi_Request.ENDPOINT_CONVERSATION_RETRIEVE)
                     .opt_checkConn(this)
@@ -160,7 +159,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
     @Override
     protected void onResume() {
         super.onResume();
-        XXXIE_JwtToken jwt = Customerly.get()._JwtToken;
+        XXXIE_JwtToken jwt = XXXCustomerly.get()._JwtToken;
         if (jwt == null) {
             this.onLogoutUser();
         }
@@ -227,7 +226,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
             long last_time_active_in_seconds = Long.MIN_VALUE;
             layout_first_contact__admin_container.removeAllViews();
 
-            XXXIE_Admin[] admins = Customerly.get().__PING__LAST_active_admins;
+            XXXIE_Admin[] admins = XXXCustomerly.get().__PING__LAST_active_admins;
             if(admins != null) {
                 for (XXXIE_Admin admin : admins) {
                     if (admin != null) {
@@ -248,7 +247,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
                         lp.bottomMargin = lp.topMargin = XXXIU_Utils.px(10);
                         icon.setLayoutParams(lp);
 
-                        Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                        XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                                 .fitCenter()
                                 .transformCircle()
                                 .load(admin.getImageUrl(adminIconSizePX))
@@ -286,7 +285,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
                 io_customerly__layout_first_contact__last_activity.setVisibility(View.VISIBLE);
             }
 
-            final Spanned welcome = Customerly.get()._WELCOME__getMessage();
+            final Spanned welcome = XXXCustomerly.get()._WELCOME__getMessage();
             if(welcome != null && welcome.length() != 0){
                 final TextView io_customerly__layout_first_contact__welcome = (TextView) this.findViewById(R.id.io_customerly__layout_first_contact__welcome);
                 io_customerly__layout_first_contact__welcome.setText(welcome);
@@ -303,7 +302,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull XXXIE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        XXXIE_JwtToken token = Customerly.get()._JwtToken;
+        XXXIE_JwtToken token = XXXCustomerly.get()._JwtToken;
         if((token == null || token.isAnonymous())) {
             if(ghostToVisitorEmail == null) {
                 this.input_layout.setVisibility(View.GONE);
@@ -367,7 +366,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
                                             JSONObject conversation = data.optJSONObject("conversation");
                                             JSONObject message = data.optJSONObject("message");
                                             if(conversation != null && message != null) {
-                                                Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                                                XXXCustomerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
                                                 long conversation_id = message.optLong("conversation_id", -1L);
                                                 return conversation_id != -1L ? conversation_id : null;
                                             } else {
@@ -407,7 +406,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
                         JSONObject conversation = data.optJSONObject("conversation");
                         JSONObject message = data.optJSONObject("message");
                         if(conversation != null && message != null) {
-                            Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                            XXXCustomerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
                             long conversation_id = message.optLong("conversation_id", -1L);
                             return conversation_id != -1L ? conversation_id : null;
                         } else {
@@ -480,7 +479,7 @@ public final class XXXIAct_List extends XXXIAct_AInput implements Customerly.SDK
         }
         private void apply(@NonNull XXXIE_Conversation pConversation) {
             this._ConversationID = pConversation.conversation_id;
-            Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+            XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                     .fitCenter()
                     .transformCircle()
                     .load(pConversation.getImageUrl(this._Icon_Size))

@@ -24,7 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import io.customerly.BuildConfig;
-import io.customerly.Customerly;
 
 /**
  * Created by Gianni on 09/09/16.
@@ -65,6 +64,6 @@ class XXXIEr_CustomerlyErrorHandler {
                 .opt__ReportingErrorDisabled()
                 .start();
 
-        Customerly.get()._log("Error sent -> code: " + pErrorCode + " ||| message: " + pDescription + " ||| stack:\n" + sb.toString());
+        XXXCustomerly.get()._log("Error sent -> code: " + pErrorCode + " ||| message: " + pDescription + " ||| stack:\n" + sb.toString());
     }
 }

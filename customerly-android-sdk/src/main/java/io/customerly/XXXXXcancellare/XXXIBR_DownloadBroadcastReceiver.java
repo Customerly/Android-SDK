@@ -33,7 +33,6 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import io.customerly.Customerly;
 import io.customerly.R;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
@@ -64,7 +63,7 @@ public class XXXIBR_DownloadBroadcastReceiver extends BroadcastReceiver {
                         if(file.exists()) {
                             NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
                             if(nm != null) {
-                                    nm.notify((int) downloadID, new NotificationCompat.Builder(context, Customerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD)
+                                    nm.notify((int) downloadID, new NotificationCompat.Builder(context, XXXCustomerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD)
                                         .setSmallIcon(R.drawable.ic_file_download)
                                         .setContentTitle(context.getString(R.string.io_customerly__download_complete))
                                         .setContentText(filename)

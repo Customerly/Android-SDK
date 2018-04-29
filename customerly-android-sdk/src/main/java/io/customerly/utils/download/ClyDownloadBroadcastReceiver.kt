@@ -31,7 +31,7 @@ import android.widget.Toast
 
 import java.io.File
 
-import io.customerly.Customerly
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.XXXXXcancellare.XXXIAct_OpenDownloadedFileActivity
 import io.customerly.XXXXXcancellare.XXXIU_CustomerlyFileProvider
 import io.customerly.R
@@ -115,7 +115,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                             File(Uri.parse(c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))).path).name.takeIf { it.isNotEmpty() }?.let { filename ->
                                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename).takeIf { it.exists() }?.let { file ->
                                     (context.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
-                                            ?.notify(downloadId.toInt(), NotificationCompat.Builder(context, Customerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD)
+                                            ?.notify(downloadId.toInt(), NotificationCompat.Builder(context, XXXCustomerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD)
                                             .setSmallIcon(R.drawable.ic_file_download)
                                             .setContentTitle(context.getString(R.string.io_customerly__download_complete))
                                             .setContentText(filename)

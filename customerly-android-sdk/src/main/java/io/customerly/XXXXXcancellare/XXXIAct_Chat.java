@@ -58,7 +58,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import io.customerly.Customerly;
 import io.customerly.R;
 
 /**
@@ -66,7 +65,7 @@ import io.customerly.R;
  * Project: Customerly Android SDK
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDKActivity {
+public final class XXXIAct_Chat extends XXXIAct_AInput implements XXXCustomerly.SDKActivity {
 
     static final String EXTRA_CONVERSATION_ID= "EXTRA_CONVERSATION_ID";
     private static final int MESSAGES_PER_PAGE = 20, TYPING_NO_ONE = 0;
@@ -79,7 +78,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
     @Nullable private LinearLayoutManager _LinearLayoutManager;
     @NonNull private ArrayList<XXXIE_Message> _ChatList = new ArrayList<>(0);
     @NonNull private final XXXIU_ProgressiveScrollListener.OnBottomReachedListener _OnBottomReachedListener = (scrollListener) -> {
-        if(Customerly.get()._isConfigured()) {
+        if(XXXCustomerly.get()._isConfigured()) {
             long oldestMessageId = Long.MAX_VALUE;
             for(int i = 0; i < this._ChatList.size(); i++) {
                 try {
@@ -168,7 +167,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
             this.finish();
         } else if(this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
             this._Progress_view = (ProgressBar) this.findViewById(R.id.io_customerly__progress_view);
-            this._Progress_view.getIndeterminateDrawable().setColorFilter(Customerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
+            this._Progress_view.getIndeterminateDrawable().setColorFilter(XXXCustomerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
             RecyclerView recyclerView = (RecyclerView) this.findViewById(R.id.io_customerly__recycler_view);
             this._LinearLayoutManager = new LinearLayoutManager(this.getApplicationContext());
             this._LinearLayoutManager.setReverseLayout(true);
@@ -184,14 +183,14 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if(s.length() == 0) {
-                        Customerly.get().__SOCKET_SEND_Typing(_ConversationID, false, null);
+                        XXXCustomerly.get().__SOCKET_SEND_Typing(_ConversationID, false, null);
                     } else {
-                        Customerly.get().__SOCKET_SEND_Typing(_ConversationID, true, s.toString());
+                        XXXCustomerly.get().__SOCKET_SEND_Typing(_ConversationID, true, s.toString());
                     }
                 }
             });
 
-            Customerly.get().__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
+            XXXCustomerly.get().__SOCKET__Typing_listener = (pConversationID, account_id, pTyping) -> {
                 if(pTyping) {
                     if(this._TypingAccountId == account_id) {
                         return;
@@ -293,7 +292,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
     @Override
     protected void onResume() {
         super.onResume();
-        XXXIE_JwtToken jwt = Customerly.get()._JwtToken;
+        XXXIE_JwtToken jwt = XXXCustomerly.get()._JwtToken;
         if(jwt == null || jwt.isAnonymous()) {
             this.onLogoutUser();
         } else {
@@ -314,7 +313,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
     private void sendSeen(final long messageID_seen) {
         final XXXIU_ResultUtils.OnNonNullResult<Long> onSuccess = utc -> {
             utc /= 1000;
-            Customerly.get().__SOCKET_SEND_Seen(messageID_seen, utc);
+            XXXCustomerly.get().__SOCKET_SEND_Seen(messageID_seen, utc);
             new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_MESSAGE_SEEN)
                     .opt_checkConn(this)
                     .opt_tokenMandatory()
@@ -327,14 +326,14 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
 
     @Override
     protected void onDestroy() {
-        Customerly.get().__SOCKET__Typing_listener = null;
-        Customerly.get().__SOCKET_SEND_Typing(this._ConversationID, false, null);
+        XXXCustomerly.get().__SOCKET__Typing_listener = null;
+        XXXCustomerly.get().__SOCKET_SEND_Typing(this._ConversationID, false, null);
         super.onDestroy();
     }
 
     @Override
     protected void onInputActionSend_PerformSend(@NonNull String pMessage, @NonNull XXXIE_Attachment[] pAttachments, @Nullable String ghostToVisitorEmail) {
-        XXXIE_JwtToken token = Customerly.get()._JwtToken;
+        XXXIE_JwtToken token = XXXCustomerly.get()._JwtToken;
         if(token != null && token._UserID != null) {
             XXXIE_Message message = new XXXIE_Message(token._UserID, this._ConversationID, pMessage, pAttachments);
             XXXIU_NullSafe.post(this._ListRecyclerView, () -> {
@@ -357,7 +356,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
                 .opt_checkConn(this)
                 .opt_tokenMandatory()
                 .opt_converter(data -> {
-                    Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
+                    XXXCustomerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L));
                     return new XXXIE_Message(data.optJSONObject("message"));
                 })
                 .opt_receiver((responseState, messageSent) ->
@@ -470,7 +469,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
         protected void apply(@Nullable XXXIE_Message __null, @Nullable String _NoDatesForTyping, boolean pIsFirstMessageOfSender) {//, boolean pShouldAnimate) {
             long typingAccountID = _TypingAccountId;
             if (pIsFirstMessageOfSender && typingAccountID != TYPING_NO_ONE) {
-                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                         .fitCenter()
                         .transformCircle()
                         .load(XXXIE_Account.getAccountImageUrl(typingAccountID, this._IconSize))
@@ -501,7 +500,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
     private class ChatUserMessageVH extends A_ChatMessageVH {
         private ChatUserMessageVH() {
             super(R.layout.io_customerly__li_bubble_user, R.drawable.io_customerly__ic_attach_user, 0.9f);
-            ((GradientDrawable) this.itemView.findViewById(R.id.bubble).getBackground()).setColor(Customerly.get().__PING__LAST_widget_color);
+            ((GradientDrawable) this.itemView.findViewById(R.id.bubble).getBackground()).setColor(XXXCustomerly.get().__PING__LAST_widget_color);
         }
     }
 
@@ -569,7 +568,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
                 this._Time.setText(pMessage.timeString);
 
                 if (pIsFirstMessageOfSender) {
-                    Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                    XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                             .fitCenter()
                             .transformCircle()
                             .load(pMessage.getImageUrl(this._IconSize))
@@ -598,7 +597,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
                     this._Content.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.io_customerly__ic_error, 0);
                     this._Content.setVisibility(View.VISIBLE);
                     View.OnClickListener clickListener = v -> {
-                        if(Customerly.get()._isConfigured()) {
+                        if(XXXCustomerly.get()._isConfigured()) {
                             pMessage.setSending();
                             int pos = _ChatList.indexOf(pMessage);
                             if (pos != -1) {
@@ -631,7 +630,7 @@ public final class XXXIAct_Chat extends XXXIAct_AInput implements Customerly.SDK
                             //Image attachment
                             iv.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XXXIU_Utils.px(80)));
                             if (attachment.path != null && attachment.path.length() != 0) {
-                                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                                XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                                         .centerCrop()
                                         .load(attachment.path)
                                         .into(XXXIAct_Chat.this, iv)

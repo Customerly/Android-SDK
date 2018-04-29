@@ -58,6 +58,7 @@ import java.util.Locale;
 
 import io.customerly.XXXXXcancellare.XXXIAct_List;
 import io.customerly.XXXXXcancellare.XXXIApi_Request;
+import io.customerly.XXXXXcancellare.XXXIDlgF_Survey;
 import io.customerly.XXXXXcancellare.XXXIE_Admin;
 import io.customerly.XXXXXcancellare.XXXIE_JwtToken;
 import io.customerly.XXXXXcancellare.XXXIE_Message;
@@ -74,7 +75,7 @@ import io.socket.client.Socket;
  * The singleton representing the Customerly SDK
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class Customerly {
+public class NewCustomerly {
 
     protected static final String NOTIFICATION_CHANNEL_ID_DOWNLOAD = "io.customerly.customerly_sdk.notification_channel_download";
     private static final String PREFS_PING_RESPONSE__WIDGET_COLOR = "PREFS_PING_RESPONSE__WIDGET_COLOR";
@@ -89,30 +90,17 @@ public class Customerly {
     private static final String SOCKET_EVENT__MESSAGE = "message";
     @ColorInt private static final int DEF_WIDGET_COLOR_MALIBU_INT = 0xff65a9e7;//Blue Malibu
 
-    @NonNull final XXXIU_RemoteImageHandler _RemoteImageHandler = new XXXIU_RemoteImageHandler();
     @NonNull private final Handler __Handler = new Handler();
 
     private boolean initialized = false;
-    private @Nullable SharedPreferences _SharedPreferences;
     @Nullable String _AppID;//useless: _AppCacheDir;
-    @ColorInt private int
-            __WidgetColor__Fallback = DEF_WIDGET_COLOR_MALIBU_INT,
-            __WidgetColor__HardCoded = Color.TRANSPARENT;
-
-    @Nullable
-    XXXIE_JwtToken _JwtToken;
+    @ColorInt private int __WidgetColor__HardCoded = Color.TRANSPARENT;
 
     private boolean __VerboseLogging = false;
 
     @Nullable private Socket _Socket;
 
-    @NonNull private String __PING__LAST_min_version = "0.0.0";
     private long __PING__next_ping_allowed = 0L;
-    @ColorInt int __PING__LAST_widget_color;
-    @Nullable String __PING__LAST_widget_background_url;
-    boolean __PING__LAST_powered_by;
-    @Nullable private String __PING__LAST_welcome_message_users, __PING__LAST_welcome_message_visitors;
-    @Nullable XXXIE_Admin[] __PING__LAST_active_admins;
     private boolean _SupportEnabled = true, _SurveyEnabled = true;
 
     private boolean __isAppInsolvent = false;
@@ -171,37 +159,37 @@ public class Customerly {
         @Nullable
         @Override
         public final Void convert(@NonNull JSONObject root) throws JSONException {
-            __PING__LAST_min_version = root.optString("min-version-android", "0.0.0");
+            //__PING__LAST_min_version = root.optString("min-version-android", "0.0.0");
             __PING__next_ping_allowed = root.optLong("next-ping-allowed", 0);
             __SOCKET__connect(root.optJSONObject("websocket"));
-            JSONObject app_config = root.optJSONObject("app_config");
-            if(app_config != null) {
-                if(__WidgetColor__HardCoded == Color.TRANSPARENT) {
-                    String pingWidgetColor = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
-                    if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
-                        if (pingWidgetColor.charAt(0) != '#') {
-                            pingWidgetColor = '#' + pingWidgetColor;
-                        }
-                        try {
-                            __PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
-                        } catch (IllegalArgumentException notCorrectColor) {
-                            XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
-                            __PING__LAST_widget_color = __WidgetColor__Fallback;
-                        }
-                    }
-                }
-                __PING__LAST_widget_background_url = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "widget_background_url");
-                __PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
-                __PING__LAST_welcome_message_users = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
-                __PING__LAST_welcome_message_visitors = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
-            } else {
-                __PING__LAST_widget_color = __WidgetColor__Fallback;
-                __PING__LAST_widget_background_url = null;
-                __PING__LAST_powered_by = false;
-                __PING__LAST_welcome_message_users = null;
-                __PING__LAST_welcome_message_visitors = null;
-            }
-            __PING__LAST_active_admins = XXXIE_Admin.from(root.optJSONArray("active_admins"));
+//            JSONObject app_config = root.optJSONObject("app_config");
+//            if(app_config != null) {
+//                if(__WidgetColor__HardCoded == Color.TRANSPARENT) {
+//                    String pingWidgetColor = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "widget_color");
+//                    if (pingWidgetColor != null && pingWidgetColor.length() != 0) {
+//                        if (pingWidgetColor.charAt(0) != '#') {
+//                            pingWidgetColor = '#' + pingWidgetColor;
+//                        }
+//                        try {
+//                            __PING__LAST_widget_color = Color.parseColor(pingWidgetColor);
+//                        } catch (IllegalArgumentException notCorrectColor) {
+//                            XXXIEr_CustomerlyErrorHandler.sendError(XXXIEr_CustomerlyErrorHandler.ERROR_CODE__HTTP_RESPONSE_ERROR, String.format("PingResponse:data.apps.app_config.widget_color is an invalid argb color: '%s'", pingWidgetColor), notCorrectColor);
+//                            __PING__LAST_widget_color = __WidgetColor__Fallback;
+//                        }
+//                    }
+//                }
+//                __PING__LAST_widget_background_url = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "widget_background_url");
+//                __PING__LAST_powered_by = 1 == app_config.optLong("powered_by", 0);
+//                __PING__LAST_welcome_message_users = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_users");
+//                __PING__LAST_welcome_message_visitors = XXXIU_Utils.jsonOptStringWithNullCheck(app_config, "welcome_message_visitors");
+//            } else {
+//                __PING__LAST_widget_color = __WidgetColor__Fallback;
+//                __PING__LAST_widget_background_url = null;
+//                __PING__LAST_powered_by = false;
+//                __PING__LAST_welcome_message_users = null;
+//                __PING__LAST_welcome_message_visitors = null;
+//            }
+//            __PING__LAST_active_admins = XXXIE_Admin.from(root.optJSONArray("active_admins"));
 
             final SharedPreferences prefs = _SharedPreferences;
             if(prefs != null) {
@@ -227,12 +215,12 @@ public class Customerly {
                                 if (activity != null && (disabledActivities == null || ! disabledActivities.contains(activity.getClass()))) {
                                     try {
                                         try {
-                                            IDlgF_Survey.show(activity, survey);
+                                            XXXIDlgF_Survey.show(activity, survey);
                                         } catch (WindowManager.BadTokenException changedActivityWhileRunning) {
                                             activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                             if (activity != null) {
                                                 try {
-                                                    IDlgF_Survey.show(activity, survey);
+                                                    XXXIDlgF_Survey.show(activity, survey);
                                                     _log("Survey successfully displayed");
                                                 } catch (WindowManager.BadTokenException ignored) {
                                                     //Second failure.
@@ -251,12 +239,12 @@ public class Customerly {
                                             _PendingRunnableForNotDisabledActivity = null;
                                             try {
                                                 try {
-                                                    IDlgF_Survey.show(p_activity, survey);
+                                                    XXXIDlgF_Survey.show(p_activity, survey);
                                                 } catch (WindowManager.BadTokenException changedActivityWhileRunning) {
                                                     p_activity = _CurrentActivity == null ? null : _CurrentActivity.get();
                                                     if (p_activity != null) {
                                                         try {
-                                                            IDlgF_Survey.show(p_activity, survey);
+                                                            XXXIDlgF_Survey.show(p_activity, survey);
                                                             _log("Survey successfully displayed");
                                                         } catch (WindowManager.BadTokenException ignored) {
                                                             //Second failure.
@@ -370,9 +358,9 @@ public class Customerly {
             __PING__response_converter__Message = new PingResponseConverter(false, true),
             __PING__response_converter__NaN = new PingResponseConverter(false, false);
 
-    @NonNull private static final Customerly _Instance = new Customerly();
+    @NonNull private static final NewCustomerly _Instance = new NewCustomerly();
 
-    private Customerly() {
+    private NewCustomerly() {
         super();
         try {
             this.__PING__DeviceJSON.put("os", "Android")
@@ -697,7 +685,7 @@ public class Customerly {
         this.__isAppInsolvent = true;
     }
 
-    private synchronized void __PING__Start(@Nullable io.customerly.Customerly.Callback pSuccessCallback, @Nullable Callback pFailureCallback) {
+    private synchronized void __PING__Start(@Nullable NewCustomerly.Callback pSuccessCallback, @Nullable Callback pFailureCallback) {
         if(this._isConfigured()) {
             //noinspection SpellCheckingInspection
             new XXXIApi_Request.Builder<Void>(XXXIApi_Request.ENDPOINT_PING)
@@ -724,22 +712,6 @@ public class Customerly {
         }
     }
 
-    void _TOKEN__update(@NonNull JSONObject obj) {
-        @Subst("authB64.payloadB64.checksumB64") String token = obj.optString("token");
-        if(token != null) {
-            try {
-                SharedPreferences prefs = this._SharedPreferences;
-                if(prefs != null) {
-                    this._JwtToken = new XXXIE_JwtToken(token, prefs);
-                } else {
-                    this._JwtToken = new XXXIE_JwtToken(token);
-                }
-            } catch (IllegalArgumentException wrongTokenFormat) {
-                this._JwtToken = null;
-            }
-        }
-    }
-
     /* ****************************************************************************************************************************************************************/
     /* ********************************************************************************************************************************************** Public Methods **/
     /* ****************************************************************************************************************************************************************/
@@ -750,53 +722,53 @@ public class Customerly {
         //useless: Customerly._Instance._AppCacheDir = pApplicationContext.getCacheDir().getPath();
         //APP INFORMATION
         try {
-            Customerly._Instance.__PING__DeviceJSON.put("app_name", pApplicationContext.getApplicationInfo().loadLabel(pApplicationContext.getPackageManager()).toString());
+            NewCustomerly._Instance.__PING__DeviceJSON.put("app_name", pApplicationContext.getApplicationInfo().loadLabel(pApplicationContext.getPackageManager()).toString());
         } catch (JSONException | NullPointerException err) {
             try {
-                Customerly._Instance.__PING__DeviceJSON.put("app_name", "<Error retrieving the app name>");
+                NewCustomerly._Instance.__PING__DeviceJSON.put("app_name", "<Error retrieving the app name>");
             } catch (JSONException ignored) { }
         }
         try {
-            Customerly._Instance.__PING__DeviceJSON.put("app_package", pApplicationContext.getPackageName());
+            NewCustomerly._Instance.__PING__DeviceJSON.put("app_package", pApplicationContext.getPackageName());
         } catch (JSONException | NullPointerException err) {
             try {
-                Customerly._Instance.__PING__DeviceJSON.put("app_package", "<Error retrieving the app app_package>");
+                NewCustomerly._Instance.__PING__DeviceJSON.put("app_package", "<Error retrieving the app app_package>");
             } catch (JSONException ignored) { }
         }
         try {
             PackageInfo pinfo = pApplicationContext.getPackageManager().getPackageInfo(pApplicationContext.getPackageName(), 0);
-            Customerly._Instance.__PING__DeviceJSON.put("app_version", pinfo.versionName).put("app_build", pinfo.versionCode);
+            NewCustomerly._Instance.__PING__DeviceJSON.put("app_version", pinfo.versionName).put("app_build", pinfo.versionCode);
         } catch (JSONException | PackageManager.NameNotFoundException err) {
             try {
-                Customerly._Instance.__PING__DeviceJSON.put("app_version", 0);
+                NewCustomerly._Instance.__PING__DeviceJSON.put("app_version", 0);
             } catch (JSONException ignored) { }
         }
 
         //PREFS
         final SharedPreferences prefs = pApplicationContext.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE);
-        Customerly._Instance._SharedPreferences = prefs;
+        NewCustomerly._Instance._SharedPreferences = prefs;
 
         //WIDGET COLOR
         //noinspection SpellCheckingInspection
-        Customerly._Instance.__WidgetColor__HardCoded = XXXIU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
+        NewCustomerly._Instance.__WidgetColor__HardCoded = XXXIU_Utils.getIntSafe(prefs, "CONFIG_HC_WCOLOR", Color.TRANSPARENT);
 
-        Customerly._Instance.__WidgetColor__Fallback =
-                Customerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
-                        ? Customerly._Instance.__WidgetColor__HardCoded
+        NewCustomerly._Instance.__WidgetColor__Fallback =
+                NewCustomerly._Instance.__WidgetColor__HardCoded != Color.TRANSPARENT
+                        ? NewCustomerly._Instance.__WidgetColor__HardCoded
                         : DEF_WIDGET_COLOR_MALIBU_INT;
 
         //JWT TOKEN
-        Customerly._Instance._JwtToken = XXXIE_JwtToken.from(prefs);
+        NewCustomerly._Instance._JwtToken = XXXIE_JwtToken.from(prefs);
 
         //PING
-        Customerly._Instance.__PING__LAST_widget_color = XXXIU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, Customerly._Instance.__WidgetColor__Fallback);
-        Customerly._Instance.__PING__LAST_widget_background_url = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
-        Customerly._Instance.__PING__LAST_powered_by = XXXIU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
-        Customerly._Instance.__PING__LAST_welcome_message_users = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
-        Customerly._Instance.__PING__LAST_welcome_message_visitors = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
-        Customerly._Instance.__PING__LAST_active_admins = null;
+        NewCustomerly._Instance.__PING__LAST_widget_color = XXXIU_Utils.getIntSafe(prefs, PREFS_PING_RESPONSE__WIDGET_COLOR, NewCustomerly._Instance.__WidgetColor__Fallback);
+        NewCustomerly._Instance.__PING__LAST_widget_background_url = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__BACKGROUND_THEME_URL);
+        NewCustomerly._Instance.__PING__LAST_powered_by = XXXIU_Utils.getBooleanSafe(prefs, PREFS_PING_RESPONSE__POWERED_BY, false);
+        NewCustomerly._Instance.__PING__LAST_welcome_message_users = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_USERS);
+        NewCustomerly._Instance.__PING__LAST_welcome_message_visitors = XXXIU_Utils.getStringSafe(prefs, PREFS_PING_RESPONSE__WELCOME_VISITORS);
+        NewCustomerly._Instance.__PING__LAST_active_admins = null;
 
-        Customerly._Instance._AppID = XXXIU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
+        NewCustomerly._Instance._AppID = XXXIU_Utils.getStringSafe(prefs, "CONFIG_APP_ID");
 
         XXXNetworkReceiver.registerLollipopNetworkReceiver(pApplicationContext);
 
@@ -810,7 +782,7 @@ public class Customerly {
             if(mNotificationManager != null) {
 
                 NotificationChannel mChannel = new NotificationChannel(
-                        Customerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD, // The id of the channel
+                        NewCustomerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD, // The id of the channel
                         "Attachment download", // The user-visible name of the channel.
                         NotificationManager.IMPORTANCE_DEFAULT);
 // Configure the notification channel.
@@ -823,28 +795,28 @@ public class Customerly {
             }
         }
 
-        Customerly._Instance.initialized = true;
+        NewCustomerly._Instance.initialized = true;
     }
 
     /**
      * Call this method to obtain the reference to the Customerly SDK
      * @return The Customerly SDK instance reference
      */
-    @NonNull public static Customerly get() {
-        if(! Customerly._Instance.initialized) {//Avoid to perform lock if not needed
-            synchronized (Customerly.class) {
-                if(! Customerly._Instance.initialized) {//After lock we check again to avoid concurrence
-                    WeakReference<Activity> activityWeakRef = Customerly._Instance._CurrentActivity;
+    @NonNull public static NewCustomerly get() {
+        if(! NewCustomerly._Instance.initialized) {//Avoid to perform lock if not needed
+            synchronized (NewCustomerly.class) {
+                if(! NewCustomerly._Instance.initialized) {//After lock we check again to avoid concurrence
+                    WeakReference<Activity> activityWeakRef = NewCustomerly._Instance._CurrentActivity;
                     if(activityWeakRef != null) {
                         Activity activity = activityWeakRef.get();
                         if(activity != null) {
-                            Customerly._Instance.__init(activity.getApplicationContext());
+                            NewCustomerly._Instance.__init(activity.getApplicationContext());
                         }
                     }
                 }
             }
         }
-        return Customerly._Instance;
+        return NewCustomerly._Instance;
     }
 
     /**
@@ -854,7 +826,7 @@ public class Customerly {
      * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
      */
     public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID) {
-        Customerly.configure(pApplication, pCustomerlyAppID, Color.TRANSPARENT);
+        NewCustomerly.configure(pApplication, pCustomerlyAppID, Color.TRANSPARENT);
     }
 
     /**
@@ -867,7 +839,7 @@ public class Customerly {
      * @param pWidgetColor The custom widget_color. If Color.TRANSPARENT, it will be ignored
      */
     public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
-        Customerly customerly = Customerly._Instance;
+        NewCustomerly customerly = NewCustomerly._Instance;
         customerly.__init(pApplication.getApplicationContext());
         final SharedPreferences prefs = customerly._SharedPreferences;
         if(prefs != null) {
@@ -878,7 +850,7 @@ public class Customerly {
         customerly._AppID = pCustomerlyAppID.trim();
 
         customerly.__WidgetColor__HardCoded = pWidgetColor;
-        customerly.__PING__LAST_widget_color = Customerly._Instance.__WidgetColor__Fallback =
+        customerly.__PING__LAST_widget_color = NewCustomerly._Instance.__WidgetColor__Fallback =
                 pWidgetColor == Color.TRANSPARENT
                         ? DEF_WIDGET_COLOR_MALIBU_INT
                         : pWidgetColor;
@@ -921,7 +893,7 @@ public class Customerly {
     }
 
     private abstract class __Task implements Task{
-        @Nullable protected io.customerly.Customerly.Callback successCallback;
+        @Nullable protected NewCustomerly.Callback successCallback;
         @Nullable protected Callback failureCallback;
         /**
          * @param successCallback To receive success async response
@@ -1632,7 +1604,7 @@ public class Customerly {
                     if (current instanceof SDKActivity) {
                         ((SDKActivity) current).onLogoutUser();
                     }
-                    IDlgF_Survey.dismiss(current);
+                    XXXIDlgF_Survey.dismiss(current);
                 }
                 this._log("Customerly.logoutUser completed successfully");
                 this.__PING__Start(null, null);

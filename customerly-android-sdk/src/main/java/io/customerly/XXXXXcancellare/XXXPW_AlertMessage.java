@@ -36,7 +36,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import io.customerly.Customerly;
 import io.customerly.R;
 
 /**
@@ -168,7 +167,7 @@ class XXXPW_AlertMessage extends PopupWindow {
         this._MessageRawLink = message.rich_mail_link;
         int _50dp = XXXIU_Utils.px(50);
         ImageView icon = (ImageView)this.getContentView().findViewById(R.id.io_customerly__icon);
-        Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+        XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                 .fitCenter()
                 .transformCircle()
                 .load(message.getImageUrl(_50dp))

@@ -21,35 +21,31 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.support.annotation.ColorInt
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.Toast
 import eu.appsolutelyapps.quizpatente.extensions.start
 import eu.appsolutelyapps.quizpatente.extensions.statusBarColorInt
+import io.customerly.Cly
 
 import java.util.ArrayList
 
-import io.customerly.Customerly
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.R
-import io.customerly.R.drawable.io_customerly__ic_arrow_back_black_24dp
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.entity.ClyMessage
 import io.customerly.entity.ERROR_CODE__GLIDE_ERROR
 import io.customerly.entity.clySendError
 import io.customerly.utils.alterColor
-import io.customerly.utils.download.imagehandler.ClyImageHandler
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
 import io.customerly.utils.getContrastBW
-import io.customerly.utils.htmlformatter.HTML_FLAG_MODE_LEGACY
 import io.customerly.utils.htmlformatter.spannedFromHtml
 
 /**
@@ -92,7 +88,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                 super.setContentView(imageView)
 
                 this.supportActionBar?.let { sActionBar ->
-                    @ColorInt val widgetColor = Customerly.get().__PING__LAST_widget_color
+                    @ColorInt val widgetColor = XXXCustomerly.get().__PING__LAST_widget_color
                     if (widgetColor != 0) {
                         sActionBar.setBackgroundDrawable(ColorDrawable(widgetColor))
 
@@ -125,7 +121,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (Customerly.get()._JwtToken?.isAnonymous != false) {
+        if (Cly.jwtToken?.isAnonymous != false) {
             this.onLogoutUser()
         }
     }

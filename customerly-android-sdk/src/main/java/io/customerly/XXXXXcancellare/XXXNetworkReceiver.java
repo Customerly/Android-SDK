@@ -9,8 +9,6 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Build;
 
-import io.customerly.Customerly;
-
 /**
  * Created by Gianni on 27/03/17.
  * Project: CustomerlyApp
@@ -22,7 +20,7 @@ public class XXXNetworkReceiver extends BroadcastReceiver {
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
                 && intent != null && "android.net.conn.CONNECTIVITY_CHANGE".equals(intent.getAction())
                 && XXXIU_Utils.checkConnection(context)) {
-            Customerly.get().__SOCKET__check();
+            XXXCustomerly.get().__SOCKET__check();
         }
     }
 
@@ -38,7 +36,7 @@ public class XXXNetworkReceiver extends BroadcastReceiver {
                         new ConnectivityManager.NetworkCallback() {
                             @Override
                             public void onAvailable(Network network) {
-                                Customerly.get().__SOCKET__check();
+                                XXXCustomerly.get().__SOCKET__check();
                             }
                         });
             }

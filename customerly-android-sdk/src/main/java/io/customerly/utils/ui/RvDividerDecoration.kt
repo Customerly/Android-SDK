@@ -50,7 +50,7 @@ internal const val RVDIVIDER_V_BOTH = 3
 @Retention(AnnotationRetention.SOURCE)
 internal annotation class RvDividerVertical
 
-private val dp1 = Math.max(1, 1.dp2px).toFloat()
+private val dp1 = Math.max(1f, 1f.dp2px)
 
 @ColorRes private val DEFAULT_COLOR_RES = R.color.io_customerly__grey_cc
 

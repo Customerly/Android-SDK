@@ -38,7 +38,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-import io.customerly.Customerly;
 import io.customerly.R;
 
 /**
@@ -68,12 +67,12 @@ public final class XXXIAct_WebView extends AppCompatActivity {
                 final ActionBar actionBar = this.getSupportActionBar();
                 if (actionBar != null) {
                     String title;
-                    if(Customerly.get().__PING__LAST_widget_color != 0) {
-                        actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
+                    if(XXXCustomerly.get().__PING__LAST_widget_color != 0) {
+                        actionBar.setBackgroundDrawable(new ColorDrawable(XXXCustomerly.get().__PING__LAST_widget_color));
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
+                            this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(XXXCustomerly.get().__PING__LAST_widget_color, 0.8f));
                         }
-                        if (XXXIU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
+                        if (XXXIU_Utils.getContrastColor(XXXCustomerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                             actionBar.setHomeAsUpIndicator(this.getIntent() != null ? R.drawable.io_customerly__ic_arrow_back_black_24dp : R.drawable.io_customerly__ic_clear_black_24dp);
                             title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
                         } else {
@@ -90,7 +89,7 @@ public final class XXXIAct_WebView extends AppCompatActivity {
                     actionBar.setDisplayHomeAsUpEnabled(true);
                 }
                 this._ProgressView = (ProgressBar)this.findViewById(R.id.io_customerly__progress_view);
-                this._ProgressView.getIndeterminateDrawable().setColorFilter(Customerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
+                this._ProgressView.getIndeterminateDrawable().setColorFilter(XXXCustomerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY);
                 this._WebView = (WebView) this.findViewById(R.id.io_customerly__webview);
                 this._WebView.getSettings().setJavaScriptEnabled(true);
                 this._WebView.setWebViewClient(new WebViewClient() {

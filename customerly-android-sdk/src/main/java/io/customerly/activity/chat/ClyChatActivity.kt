@@ -34,6 +34,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import io.customerly.*
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
 import io.customerly.activity.ClyIInputActivity
 
@@ -166,7 +167,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         if (this.conversationId == 0L) {
             this.finish()
         } else if (this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
-            this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Customerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY)
+            this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(XXXCustomerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY)
             val weakRv = this.io_customerly__recycler_view.apply {
                 this.layoutManager = LinearLayoutManager(this.context.applicationContext).also { llm ->
                     llm.reverseLayout = true
@@ -185,14 +186,14 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 override fun afterTextChanged(s: Editable) {}
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                     if (s.isEmpty()) {
-                        Customerly.get().__SOCKET_SEND_Typing(conversationId, false, null)
+                        XXXCustomerly.get().__SOCKET_SEND_Typing(conversationId, false, null)
                     } else {
-                        Customerly.get().__SOCKET_SEND_Typing(conversationId, true, s.toString())
+                        XXXCustomerly.get().__SOCKET_SEND_Typing(conversationId, true, s.toString())
                     }
                 }
             })
 
-            Customerly.get().__SOCKET__Typing_listener = { pConversationId, accountId, pTyping ->
+            XXXCustomerly.get().__SOCKET__Typing_listener = { pConversationId, accountId, pTyping ->
                 if((pTyping && typingAccountId != accountId)
                         ||
                         (!pTyping && typingAccountId != TYPING_NO_ONE)) {
@@ -228,8 +229,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     override fun onResume() {
         super.onResume()
-        val jwt : ClyJwtToken? = Customerly.get()._JwtToken
-        if(jwt?.isAnonymous != false) {
+        if(Cly.jwtToken?.isAnonymous != false) {
             this.onLogoutUser()
         } else {
             this.progressiveScrollListener?.let { this.onBottomReachedListener(it) }
@@ -237,8 +237,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
     }
 
     override fun onDestroy() {
-        Customerly.get().__SOCKET__Typing_listener = null
-        Customerly.get().__SOCKET_SEND_Typing(this.conversationId, false, null)
+        XXXCustomerly.get().__SOCKET__Typing_listener = null
+        XXXCustomerly.get().__SOCKET_SEND_Typing(this.conversationId, false, null)
         super.onDestroy()
     }
 
@@ -293,7 +293,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         val wContext = this.weak()
         SntpClient.getNtpTimeAsync(context = this) {
             val utc = (it ?: System.currentTimeMillis()) / 1000
-            Customerly.get().__SOCKET_SEND_Seen(messageId, utc)
+            XXXCustomerly.get().__SOCKET_SEND_Seen(messageId, utc)
 
             ClyApiRequest<Any>(
                     context = wContext.get(),
@@ -313,7 +313,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 requireToken = true,
                 trials = 2,
                 converter = {
-                    Customerly.get().__SOCKET_SEND_Message(it.optLong("timestamp", -1L))
+                    XXXCustomerly.get().__SOCKET_SEND_Message(it.optLong("timestamp", -1L))
                     it.parseMessage()
                 },
                 callback = { response ->
@@ -348,8 +348,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     @UiThread
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String?) {
-        val token: ClyJwtToken? = Customerly.get()._JwtToken
-        token?.userID?.let { userID ->
+        Cly.jwtToken?.userID?.let { userID ->
             val message: ClyMessage = ClyMessage(writerUserid = userID, conversationId = this.conversationId, content = content, attachments = attachments).apply { this.setStateSending() }
             this.chatList.add(0, message)
             this.io_customerly__recycler_view?.let {

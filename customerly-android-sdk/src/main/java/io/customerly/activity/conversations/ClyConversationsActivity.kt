@@ -35,6 +35,7 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import io.customerly.Cly
 
 import org.json.JSONObject
 
@@ -42,7 +43,7 @@ import kotlin.collections.ArrayList
 
 import java.util.Locale
 
-import io.customerly.Customerly
+import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.activity.chat.startClyChatActivity
@@ -66,7 +67,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         private val weakActivity = this@ClyConversationsActivity.weak()
         override fun onRefresh() {
             weakActivity.get()?.also { activity ->
-                if (Customerly.get()._JwtToken?.isAnonymous != true) {
+                if (Cly.jwtToken?.isAnonymous != true) {
                     ClyApiRequest(
                             context = activity,
                             endpoint = ENDPOINT_CONVERSATION_RETRIEVE,
@@ -75,17 +76,18 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                             converter = { it.optArrayList<JSONObject, ClyConversation>(name = "conversations", map = { it.parseConversation() })
                                         ?: ArrayList(0) },
                             callback = {
-                                activity.displayInterface(conversationList = when (it) {
+                                activity.displayInterface(conversationsList = when (it) {
                                     is ClyApiResponse.Success -> it.result
                                     is ClyApiResponse.Failure -> null
                                 })
                             })
                 } else {
-                    activity.displayInterface(conversationList = null)
+                    activity.displayInterface(conversationsList = null)
                 }
             }
         }
     }
+
     internal var conversationsList: ArrayList<ClyConversation> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,7 +146,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (Customerly.get()._JwtToken == null) {
+        if (Cly.jwtToken == null) {
             this.onLogoutUser()
         }
     }
@@ -200,9 +202,8 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             this.io_customerly__recycler_view_swipe_refresh.isRefreshing = false
             this.io_customerly__first_contact_swipe_refresh.isRefreshing = false
             var showWelcomeCard = false
-            val adminIconSizePX = 45.dp2px
             this.io_customerly__layout_first_contact__admin_container.removeAllViews()
-            val admins: Array<ClyAdmin>? = Customerly.get().__PING__LAST_active_admins
+            val admins: Array<ClyAdmin>? = Cly.lastPing.activeAdmins
             admins?.asSequence()?.filterNotNull()?.forEach { admin ->
                 this.io_customerly__layout_first_contact__admin_container.addView(
                         LinearLayout(this).apply {
@@ -213,15 +214,15 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
                             this.addView(
                                     ImageView(this.context).apply {
-                                        this.layoutParams = LinearLayout.LayoutParams(adminIconSizePX, adminIconSizePX).apply {
+                                        this.layoutParams = LinearLayout.LayoutParams(45.dp2px, 45.dp2px).apply {
                                             this.topMargin = 10.dp2px
                                             this.bottomMargin = 10.dp2px
                                         }
 
-                                        ClyImageRequest(context = this.context, url = admin.getImageUrl(adminIconSizePX))
+                                        ClyImageRequest(context = this.context, url = admin.getImageUrl(45.dp2px))
                                                 .fitCenter()
                                                 .transformCircle()
-                                                .resize(width = adminIconSizePX)
+                                                .resize(width = 45.dp2px)
                                                 .placeholder(R.drawable.io_customerly__ic_default_admin)
                                                 .into(imageView = this)
                                                 .start()
@@ -256,7 +257,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 }
             }
 
-            val welcome : Spanned? = Customerly.get()._WELCOME__getMessage()
+            val welcome : Spanned? = XXXCustomerly.get()._WELCOME__getMessage()
             if (welcome?.isNotEmpty() == true) {
                 showWelcomeCard = true
                 this.io_customerly__layout_first_contact__welcome.apply {
@@ -272,9 +273,8 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     }
 
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String?) {
-        val token: ClyJwtToken? = Customerly.get()._JwtToken
         val weakActivity = this.weak()
-        if(token?.isAnonymous != false) {
+        if(Cly.jwtToken?.isAnonymous != false) {
             if(ghostToVisitorEmail == null) {
                 this.inputLayout?.visibility = View.GONE
                 this.io_customerly__input_email_layout.visibility = View.VISIBLE
@@ -360,7 +360,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     data
                             .takeIf { data.has("conversation") }
                             ?.optJSONObject("message")
-                            ?.also { Customerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L)) }
+                            ?.also { XXXCustomerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L)) }
                             ?.optLong("conversation_id", -1L)
                             ?: -1L
                 },

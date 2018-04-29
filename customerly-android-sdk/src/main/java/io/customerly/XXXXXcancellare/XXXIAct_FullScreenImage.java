@@ -40,7 +40,6 @@ import org.jetbrains.annotations.Contract;
 
 import java.util.ArrayList;
 
-import io.customerly.Customerly;
 import io.customerly.R;
 
 /**
@@ -48,7 +47,7 @@ import io.customerly.R;
  * Project: Customerly Android SDK
  */
 @RestrictTo(android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP)
-public final class XXXIAct_FullScreenImage extends AppCompatActivity implements Customerly.SDKActivity {
+public final class XXXIAct_FullScreenImage extends AppCompatActivity implements XXXCustomerly.SDKActivity {
     static final String EXTRA_IMAGE_SOURCE = "EXTRA_IMAGE_SOURCE";
 
     private String _SourceUrl;
@@ -64,7 +63,7 @@ public final class XXXIAct_FullScreenImage extends AppCompatActivity implements 
                 _ImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 _ImageView.setAdjustViewBounds(true);
                 try {
-                    Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                    XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                             .fitCenter()
                             .load(this._SourceUrl)
                             .into(this, _ImageView)
@@ -74,13 +73,13 @@ public final class XXXIAct_FullScreenImage extends AppCompatActivity implements 
                     final ActionBar actionBar = this.getSupportActionBar();
                     if (actionBar != null) {
                         String title;
-                        if(Customerly.get().__PING__LAST_widget_color != 0) {
-                            actionBar.setBackgroundDrawable(new ColorDrawable(Customerly.get().__PING__LAST_widget_color));
+                        if(XXXCustomerly.get().__PING__LAST_widget_color != 0) {
+                            actionBar.setBackgroundDrawable(new ColorDrawable(XXXCustomerly.get().__PING__LAST_widget_color));
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(Customerly.get().__PING__LAST_widget_color, 0.8f));
+                                this.getWindow().setStatusBarColor(XXXIU_Utils.alterColor(XXXCustomerly.get().__PING__LAST_widget_color, 0.8f));
                             }
 
-                            if (XXXIU_Utils.getContrastColor(Customerly.get().__PING__LAST_widget_color) == Color.BLACK) {
+                            if (XXXIU_Utils.getContrastColor(XXXCustomerly.get().__PING__LAST_widget_color) == Color.BLACK) {
                                 actionBar.setHomeAsUpIndicator(R.drawable.io_customerly__ic_arrow_back_black_24dp);
                                 title = String.format("<font color='#000000'>%1$s</font>", actionBar.getTitle());
 
@@ -115,7 +114,7 @@ public final class XXXIAct_FullScreenImage extends AppCompatActivity implements 
     @Override
     protected void onResume() {
         super.onResume();
-        XXXIE_JwtToken jwt = Customerly.get()._JwtToken;
+        XXXIE_JwtToken jwt = XXXCustomerly.get()._JwtToken;
         if (jwt == null || jwt.isAnonymous()) {
             this.onLogoutUser();
         }

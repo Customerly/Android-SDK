@@ -47,8 +47,11 @@ internal inline fun <reified TYPE> JSONObject.optSequenceOpt(name : String) : Se
 internal inline fun <reified TYPE> JSONObject.optSequenceOpt(name : String, fallback : TYPE) : Sequence<TYPE>?
         = this.optJSONArray(name)?.asSequenceOpt(fallback = fallback)
 
-internal inline fun <reified ARRAY_ITEM, LIST_ITEM> JSONObject.optArrayList(name : String, noinline map :(ARRAY_ITEM)->LIST_ITEM) : ArrayList<LIST_ITEM>?
-        = this.optSequence<ARRAY_ITEM>(name = name)?.map(map)?.toList()?.toArrayList()
+internal inline fun <reified JSON_ARRAY_ITEM, LIST_ITEM> JSONObject.optArrayList(name : String, noinline map :(JSON_ARRAY_ITEM)->LIST_ITEM) : ArrayList<LIST_ITEM>?
+        = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.map(map)?.toList()?.toArrayList()
+
+internal inline fun <reified JSON_ARRAY_ITEM, reified ARRAY_ITEM> JSONObject.optArray(name : String, noinline map :(JSON_ARRAY_ITEM)->ARRAY_ITEM) : Array<ARRAY_ITEM>?
+        = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.map(map)?.toList()?.toTypedArray()
 
 /**
  * JSONArray asSequence/Opt

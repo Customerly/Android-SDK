@@ -57,7 +57,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 
-import io.customerly.Customerly;
 import io.customerly.commons.Commons_HtmlFormatter;
 import io.customerly.commons.LambdaUtil;
 
@@ -137,7 +136,7 @@ class XXXIU_Utils {
 
     @NonNull static Spanned fromHtml(@Nullable String message, @Nullable TextView tv, @Nullable LambdaUtil.V__NN_NN<Activity, String> pImageClickableSpan) {
         return Commons_HtmlFormatter.fromHtml(message, tv, pImageClickableSpan, (context, source, handleDrawable) ->
-                Customerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
+                XXXCustomerly.get()._RemoteImageHandler.request(new XXXIU_RemoteImageHandler.Request()
                 .load(source)
                 .into(context, new XXXIU_RemoteImageHandler.Request.Target() {
                     @Override

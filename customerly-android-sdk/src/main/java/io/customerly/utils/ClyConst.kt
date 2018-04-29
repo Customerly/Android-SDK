@@ -16,6 +16,7 @@ package io.customerly.utils
  * limitations under the License.
  */
 
+import android.support.annotation.ColorInt
 import android.support.annotation.IntDef
 
 /**
@@ -39,3 +40,7 @@ const val WRITER_TYPE__USER = 1
 @IntDef(WRITER_TYPE__ACCOUNT, WRITER_TYPE__USER, USER_TYPE__USER)
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class WriterType
+
+
+@ColorInt internal const val COLORINT_BLUE_MALIBU = -0x9a5619//Blue Malibu
+@ColorInt internal const val COLORINT_DEFAULTWIDGET = COLORINT_BLUE_MALIBU
