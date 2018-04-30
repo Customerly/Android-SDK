@@ -24,8 +24,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.Cly
 import io.customerly.utils.ggkext.checkConnection
 
 /**
@@ -33,9 +32,9 @@ import io.customerly.utils.ggkext.checkConnection
  * Project: CustomerlyApp
  */
 
-internal fun registerLollipopNetworkReceiver(context: Context) {
+internal fun Context.registerLollipopNetworkReceiver() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        (context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)
+        (this.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)
                 ?.registerNetworkCallback(
                 NetworkRequest.Builder()
                         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
@@ -43,7 +42,7 @@ internal fun registerLollipopNetworkReceiver(context: Context) {
                         .build(),
                 object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
-                        XXXCustomerly.get().__SOCKET__check()
+                        Cly.clySocket.check()
                     }
                 })
     }
@@ -54,7 +53,7 @@ class ClyNetworkReceiver : BroadcastReceiver() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
                 && intent != null && "android.net.conn.CONNECTIVITY_CHANGE" == intent.action
                 && context.checkConnection()) {
-            XXXCustomerly.get().__SOCKET__check()
+            Cly.clySocket.check()
         }
     }
 }

@@ -21,6 +21,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.DOWNLOAD_SERVICE
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
@@ -28,22 +30,17 @@ import android.os.Environment
 import android.support.v4.app.NotificationCompat
 import android.view.Gravity
 import android.widget.Toast
-
-import java.io.File
-
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.R
 import io.customerly.XXXXXcancellare.XXXIAct_OpenDownloadedFileActivity
 import io.customerly.XXXXXcancellare.XXXIU_CustomerlyFileProvider
-import io.customerly.R
-
-import android.content.Context.DOWNLOAD_SERVICE
-import android.content.Context.NOTIFICATION_SERVICE
+import java.io.File
 
 /**
  * Created by Gianni on 20/02/17.
  * Project: CustomerlyAndroidSDK-demo
  */
 
+internal const val CHANNEL_ID_DOWNLOAD = "io.customerly.customerly_sdk.notification_channel_download"
 
 private val LOCK = arrayOfNulls<Any>(0)
 private var pendingDownloadsId = longArrayOf(0)
@@ -67,8 +64,8 @@ private fun addPendingDownloadId(id: Long) {
     }
 }
 
-private fun checkAndRemovePendingDownloadId(id: Long) {
-    synchronized(LOCK) {
+private fun checkAndRemovePendingDownloadId(id: Long): Boolean {
+    return synchronized(LOCK) {
         pendingDownloadsId
                 .indexOfFirst { it == id }
                 .let {
@@ -108,14 +105,14 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                 var c: Cursor? = null
                 try {
                     val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                    if(downloadId != -1L && ClyDownloadBroadcastReceiver.checkAndRemove(id = downloadId)) {
+                    if(downloadId != -1L && checkAndRemovePendingDownloadId(id = downloadId)) {
 
                         c = dm.query(DownloadManager.Query().setFilterById(downloadId))
                         if (c.moveToFirst() && DownloadManager.STATUS_SUCCESSFUL == c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
                             File(Uri.parse(c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))).path).name.takeIf { it.isNotEmpty() }?.let { filename ->
                                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename).takeIf { it.exists() }?.let { file ->
                                     (context.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
-                                            ?.notify(downloadId.toInt(), NotificationCompat.Builder(context, XXXCustomerly.NOTIFICATION_CHANNEL_ID_DOWNLOAD)
+                                            ?.notify(downloadId.toInt(), NotificationCompat.Builder(context, CHANNEL_ID_DOWNLOAD)
                                             .setSmallIcon(R.drawable.ic_file_download)
                                             .setContentTitle(context.getString(R.string.io_customerly__download_complete))
                                             .setContentText(filename)

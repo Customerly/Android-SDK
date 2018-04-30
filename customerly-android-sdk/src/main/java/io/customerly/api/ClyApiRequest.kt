@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.customerly.api
 
 /*
@@ -26,8 +28,6 @@ import android.support.annotation.RequiresPermission
 import android.util.Log
 import io.customerly.BuildConfig
 import io.customerly.Cly
-import io.customerly.XXXXXcancellare.XXXCustomerly
-import io.customerly.checkClyConfigured
 import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.JWT_KEY
@@ -68,19 +68,19 @@ internal class ClyApiRequest<RESPONSE: Any>
     private val params: JSONObject = JSONObject()
 
     private var wContext: WeakReference<Context>? = context?.weak()
-    internal val context : Context? get() = this.wContext?.get()
+    private val context : Context? get() = this.wContext?.get() ?: Cly.activityLifecycleCallbacks.getLastDisplayedActivity()
 
-    fun p(key: String, value: Boolean) = this.apply { this.params.skipException { it.put(key, value) } }
-    fun p(key: String, value: Double) = this.apply { this.params.skipException { it.put(key, value) } }
-    fun p(key: String, value: Int) = this.apply { this.params.skipException { it.put(key, value) } }
-    fun p(key: String, value: Long) = this.apply { this.params.skipException { it.put(key, value) } }
-    fun p(key: String, value: Any) = this.apply { this.params.skipException { it.putOpt(key, value) } }
+    internal fun p(key: String, value: Boolean) = this.apply { this.params.skipException { it.put(key, value) } }
+    internal fun p(key: String, value: Double) = this.apply { this.params.skipException { it.put(key, value) } }
+    internal fun p(key: String, value: Int) = this.apply { this.params.skipException { it.put(key, value) } }
+    internal fun p(key: String, value: Long) = this.apply { this.params.skipException { it.put(key, value) } }
+    internal fun p(key: String, value: Any) = this.apply { this.params.skipException { it.putOpt(key, value) } }
 
-    fun start() {
-        checkClyConfigured(reportingErrorEnabled = this.reportingErrorEnabled) {
+    internal fun start() {
+        Cly.ifConfigured(reportingErrorEnabled = this.reportingErrorEnabled) {
             val context = this.context
             if(context?.checkConnection() == false) {
-                XXXCustomerly.get()._log("Check your connection")
+                Cly.log(message = "Check your connection")
                 ClyApiResponse.Failure<RESPONSE>(errorCode = RESPONSE_STATE__ERROR_NO_CONNECTION).also { errorResponse ->
                     if(if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 Looper.getMainLooper().isCurrentThread
@@ -98,7 +98,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                 val async : AnkoAsyncContext<*>.()->Unit = {
                     @ClyResponseState var responseState: Int = RESPONSE_STATE__PREPARING
                     var responseResult : RESPONSE? = null
-                    val appId = XXXCustomerly.get()._AppID
+                    val appId = Cly.appId
                     if(appId != null) {
                         var params:JSONObject? = null
 
@@ -209,7 +209,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                             } else {
                                 "Not Active"
                             } +
-                                    "\n+ METHOD:          " + connection.getRequestMethod() +
+                                    "\n+ METHOD:          " + connection.requestMethod +
                                     "\n+ Content-Type:    " + connection.getRequestProperty("Content-Type") +
                                     "\n+ Accept-Language: " + connection.getRequestProperty("Accept-Language") +
                                     "\nJSON BODY:\n")
@@ -217,7 +217,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                             .nullOnException { it.toString(4) } ?: "Malformed JSON")
                             .chunkedSequence(size = 500)
                             .forEach { Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, it) }
-                    Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------");
+                    Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                 }
             }
             try {
@@ -245,7 +245,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                                 .nullOnException { it.toString(4) } ?: "Malformed JSON")
                                 .chunkedSequence(size = 500)
                                 .forEach { Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, it) }
-                        Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------");
+                        Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                     }
 
                     if (!response.has("error")) {
@@ -258,10 +258,10 @@ internal class ClyApiRequest<RESPONSE: Any>
                                 "message": "Exception_message",
                                 "code": "ExceptionCode"     }   */
                         val errorCode = response.optInt("code", -1)
-                        XXXCustomerly.get()._log("ErrorCode: $errorCode Message: ${response.optTyped(name = "message", fallback = "The server received the request but an error occurred")}")
+                        Cly.log(message = "ErrorCode: $errorCode Message: ${response.optTyped(name = "message", fallback = "The server received the request but an error occurred")}")
                         when (errorCode) {
                             RESPONSE_STATE__SERVERERROR_APP_INSOLVENT -> {
-                                XXXCustomerly.get()._setIsAppInsolvent()
+                                Cly.appInsolvent = true
                                 ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT)
                             }
                             RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED -> {
@@ -274,10 +274,10 @@ internal class ClyApiRequest<RESPONSE: Any>
                     }
                 }
             } catch (json : JSONException) {
-                XXXCustomerly.get()._log("The server received the request but an error has come")
+                Cly.log(message = "The server received the request but an error has come")
                 ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_BAD_RESPONSE)
             } catch (json : JSONException) {
-                XXXCustomerly.get()._log("An error occurs during the connection to server")
+                Cly.log(message = "An error occurs during the connection to server")
                 ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
             }
         }.withIndex().firstOrNull { iv : IndexedValue<ClyApiInternalResponse> -> iv.value.responseResult != null || iv.index == this.trials -1 }?.value ?: ClyApiInternalResponse(responseState = ERROR_CODE__GENERIC)
@@ -286,7 +286,7 @@ internal class ClyApiRequest<RESPONSE: Any>
     private fun fillParamsWithAppidAndDeviceInfo(params: JSONObject? = null, appId: String): JSONObject {
         return (params ?: JSONObject())
                     .skipException { it.put("app_id", appId)}
-                    .skipException { it.put("device", XXXCustomerly.get().__PING__DeviceJSON) }
+                    .skipException { it.put("device", Cly.clyDeviceJson) }
     }
 }
 

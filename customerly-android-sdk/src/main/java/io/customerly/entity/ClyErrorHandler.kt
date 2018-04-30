@@ -18,6 +18,9 @@ package io.customerly.entity
 
 import android.support.annotation.IntDef
 import io.customerly.BuildConfig
+import io.customerly.Cly
+import io.customerly.api.ClyApiRequest
+import io.customerly.api.ENDPOINT_REPORT_CRASH
 
 /**
  * Created by Gianni on 09/09/16.
@@ -48,14 +51,14 @@ internal fun clySendError(@ErrorCode errorCode : Int, description : String, thro
                 it.setLength(it.length - 1)
             }.toString()
 
-    //TODO API
-//    IApi_Request.Builder<Void>(IApi_Request.ENDPOINT_REPORT_CRASH)
-//            .param("error_code", errorCode)
-//            .param("error_message", description)
-//            .param("fullstacktrace", stacktraceDump)
-//            .opt__ReportingErrorDisabled()
-//            .start()
+    ClyApiRequest(
+            endpoint = ENDPOINT_REPORT_CRASH,
+            reportingErrorEnabled = false,
+            converter = {})
+            .p(key = "error_code", value = errorCode)
+            .p(key = "error_message", value = description)
+            .p(key = "fullstacktrace", value = stacktraceDump)
+            .start()
 
-    //TODO LOG
-//    Customerly.get()._log("Error sent -> code: $errorCode ||| message: $description ||| stack:\n$stacktraceDump")
+    Cly.log(message = "Error sent -> code: $errorCode ||| message: $description ||| stack:\n$stacktraceDump")
 }

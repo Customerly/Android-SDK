@@ -16,6 +16,7 @@ package io.customerly.activity.conversations
  * limitations under the License.
  */
 
+import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Color
@@ -34,16 +35,11 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import io.customerly.Cly
-
-import org.json.JSONObject
-
-import kotlin.collections.ArrayList
-
-import java.util.Locale
-
-import io.customerly.XXXXXcancellare.XXXCustomerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.activity.chat.startClyChatActivity
@@ -54,12 +50,21 @@ import io.customerly.utils.ggkext.*
 import io.customerly.utils.ui.RVDIVIDER_V_BOTTOM
 import io.customerly.utils.ui.RvDividerDecoration
 import kotlinx.android.synthetic.main.io_customerly__activity_list.*
+import org.json.JSONObject
+import java.util.Locale
+import kotlin.collections.ArrayList
 
 /**
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
 private const val REQUEST_CODE_THEN_REFRESH_LIST = 100
+
+internal fun Activity.startClyConversationsActivity() {
+    if (this !is ClyConversationsActivity) {
+        this.startActivity(Intent(this, ClyConversationsActivity::class.java))
+    }
+}
 
 internal class ClyConversationsActivity : ClyIInputActivity() {
 
@@ -257,7 +262,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 }
             }
 
-            val welcome : Spanned? = XXXCustomerly.get()._WELCOME__getMessage()
+            val welcome : Spanned? = Cly.welcomeMessage
             if (welcome?.isNotEmpty() == true) {
                 showWelcomeCard = true
                 this.io_customerly__layout_first_contact__welcome.apply {
@@ -280,13 +285,13 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 this.io_customerly__input_email_layout.visibility = View.VISIBLE
 
                 this.io_customerly__input_email_edit_text.requestFocus()
-                this.io_customerly__input_email_button.setOnClickListener { btn ->
+                this.io_customerly__input_email_button.setOnClickListener { _ ->
                     weakActivity.get()?.let { activity ->
                         val emailEt = activity.io_customerly__input_email_edit_text
                         val email = emailEt.text.toString().trim().toLowerCase(Locale.ITALY)
                         if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                             activity.io_customerly__input_email_layout.visibility = View.GONE
-                            emailEt.setText(null)
+                            emailEt.text = null
                             activity.inputLayout?.visibility = View.VISIBLE
                             activity.onSendMessage(content = content, attachments = attachments, ghostToVisitorEmail = email)
                         } else {
@@ -310,6 +315,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     }
                 }
             } else {
+                //TODO Replace deprecated ProgressDialog
                 val progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false)
 
                 ClyApiRequest(
@@ -340,6 +346,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     }
 
     private fun doLeadUserSendMessage(
+            //TODO Replace deprecated ProgressDialog
             progressDialog: ProgressDialog = ProgressDialog.show(
                     this,
                     this.getString(R.string.io_customerly__new_conversation),
@@ -360,7 +367,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     data
                             .takeIf { data.has("conversation") }
                             ?.optJSONObject("message")
-                            ?.also { XXXCustomerly.get().__SOCKET_SEND_Message(data.optLong("timestamp", -1L)) }
+                            ?.also { Cly.clySocket.sendMessage(timestamp = data.optLong("timestamp", -1L)) }
                             ?.optLong("conversation_id", -1L)
                             ?: -1L
                 },

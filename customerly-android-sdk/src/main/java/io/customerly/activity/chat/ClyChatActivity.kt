@@ -33,12 +33,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import io.customerly.*
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.Cly
+import io.customerly.R
 import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
 import io.customerly.activity.ClyIInputActivity
-
-import java.util.ArrayList
 import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.*
 import io.customerly.entity.*
@@ -48,6 +46,7 @@ import io.customerly.utils.network.SntpClient
 import io.customerly.utils.ui.RvProgressiveScrollListener
 import kotlinx.android.synthetic.main.io_customerly__activity_chat.*
 import java.lang.ref.WeakReference
+import java.util.*
 
 /**
  * Created by Gianni on 03/09/16.
@@ -86,7 +85,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
     private val adapter = ClyChatAdapter(chatActivity = this)
     private val wThis : WeakReference<ClyChatActivity> = this.weak()
     private val onBottomReachedListener = { scrollListener : RvProgressiveScrollListener ->
-        checkClyConfigured {
+        Cly.ifConfigured {
             val oldestMessageId = this.chatList.minBy { it.id }?.id ?: Long.MAX_VALUE
             ClyApiRequest(
                     context = this.wThis.get(),
@@ -167,18 +166,18 @@ internal class ClyChatActivity : ClyIInputActivity() {
         if (this.conversationId == 0L) {
             this.finish()
         } else if (this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
-            this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(XXXCustomerly.get().__PING__LAST_widget_color, android.graphics.PorterDuff.Mode.MULTIPLY)
-            val weakRv = this.io_customerly__recycler_view.apply {
-                this.layoutManager = LinearLayoutManager(this.context.applicationContext).also { llm ->
+            this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Cly.lastPing.widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
+            val weakRv = this.io_customerly__recycler_view.also { recyclerview ->
+                recyclerview.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
                     llm.reverseLayout = true
                     RvProgressiveScrollListener(llm = llm, onBottomReached = onBottomReachedListener).also {
                         progressiveScrollListener = it
-                        this.addOnScrollListener(it)
+                        recyclerview.addOnScrollListener(it)
                     }
                 }
-                this.itemAnimator = DefaultItemAnimator()
-                this.setHasFixedSize(true)
-                this.adapter = ClyChatAdapter()
+                recyclerview.itemAnimator = DefaultItemAnimator()
+                recyclerview.setHasFixedSize(true)
+                recyclerview.adapter = ClyChatAdapter(chatActivity = this)
             }.weak()
 
             this.inputInput?.addTextChangedListener(object : TextWatcher {
@@ -186,14 +185,14 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 override fun afterTextChanged(s: Editable) {}
                 override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                     if (s.isEmpty()) {
-                        XXXCustomerly.get().__SOCKET_SEND_Typing(conversationId, false, null)
+                        Cly.clySocket.sendStopTyping(conversationId = conversationId)
                     } else {
-                        XXXCustomerly.get().__SOCKET_SEND_Typing(conversationId, true, s.toString())
+                        Cly.clySocket.sendStartTyping(conversationId = conversationId, previewText = s.toString())
                     }
                 }
             })
 
-            XXXCustomerly.get().__SOCKET__Typing_listener = { pConversationId, accountId, pTyping ->
+            Cly.clySocket.typingListener = { pConversationId, accountId, pTyping ->
                 if((pTyping && typingAccountId != accountId)
                         ||
                         (!pTyping && typingAccountId != TYPING_NO_ONE)) {
@@ -237,8 +236,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
     }
 
     override fun onDestroy() {
-        XXXCustomerly.get().__SOCKET__Typing_listener = null
-        XXXCustomerly.get().__SOCKET_SEND_Typing(this.conversationId, false, null)
+        Cly.clySocket.typingListener = null
+        Cly.clySocket.sendStopTyping(conversationId = this.conversationId)
         super.onDestroy()
     }
 
@@ -260,7 +259,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 AlertDialog.Builder(this)
                         .setTitle(R.string.io_customerly__permission_request)
                         .setMessage(R.string.io_customerly__permission_request_explanation_write)
-                        .setPositiveButton(android.R.string.ok) { dlg, which -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE) }
+                        .setPositiveButton(android.R.string.ok) { _, _ -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE) }
                         .show()
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE)
@@ -293,7 +292,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         val wContext = this.weak()
         SntpClient.getNtpTimeAsync(context = this) {
             val utc = (it ?: System.currentTimeMillis()) / 1000
-            XXXCustomerly.get().__SOCKET_SEND_Seen(messageId, utc)
+            Cly.clySocket.sendSeen(messageId = messageId, seenTimestamp = utc)
 
             ClyApiRequest<Any>(
                     context = wContext.get(),
@@ -313,7 +312,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 requireToken = true,
                 trials = 2,
                 converter = {
-                    XXXCustomerly.get().__SOCKET_SEND_Message(it.optLong("timestamp", -1L))
+                    Cly.clySocket.sendMessage(timestamp = it.optLong("timestamp", -1L))
                     it.parseMessage()
                 },
                 callback = { response ->

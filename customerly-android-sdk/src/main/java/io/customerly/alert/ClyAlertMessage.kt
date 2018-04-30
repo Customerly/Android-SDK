@@ -51,8 +51,8 @@ private const val ABORT_CLICK_AFTER_MS = 700
 
 private var currentClyAlertMessage : ClyAlertMessage? = null
 
-internal fun dismissAlertMessageOnActivityDestroyed(activity: Activity) {
-    currentClyAlertMessage?.takeIf { it.activity === activity }?.dismissAllowingStateLoss()
+internal fun Activity.dismissAlertMessageOnActivityDestroyed() {
+    currentClyAlertMessage?.takeIf { it.activity === this }?.dismissAllowingStateLoss()
 }
 
 internal fun dismissAlertMessageOnUserLogout() {

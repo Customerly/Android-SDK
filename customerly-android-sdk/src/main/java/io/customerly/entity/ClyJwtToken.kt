@@ -19,6 +19,7 @@ package io.customerly.entity
 import android.content.SharedPreferences
 import android.support.annotation.Size
 import android.util.Base64
+import io.customerly.Cly
 import io.customerly.utils.USER_TYPE__ANONYMOUS
 import io.customerly.utils.USER_TYPE__LEAD
 import io.customerly.utils.USER_TYPE__USER
@@ -58,16 +59,15 @@ internal fun SharedPreferences?.jwtRemove() {
     this?.edit()?.remove(PREFS_JWT_KEY)?.apply()
 }
 
-internal fun JSONObject.parseJwtToken(preferences: SharedPreferences? = null): ClyJwtToken? {
-    return this.optTyped<String>(name = "token")?.nullOnException { ClyJwtToken(encodedJwt = it, preferences = preferences) }
+internal fun JSONObject.parseJwtToken(): ClyJwtToken? {
+    return this.optTyped<String>(name = "token")?.nullOnException { ClyJwtToken(encodedJwt = it) }
 }
 
 internal class ClyJwtToken @Throws(IllegalArgumentException::class)
     constructor(
         @org.intellij.lang.annotations.Pattern(JWT_VALIDATOR_MATCHER)
         @param:Size(min = 5)
-        private val encodedJwt: String,
-        preferences: SharedPreferences? = null) {
+        private val encodedJwt: String) {
 
     internal val userID: Long?
 
@@ -96,7 +96,7 @@ internal class ClyJwtToken @Throws(IllegalArgumentException::class)
             this.userType = USER_TYPE__ANONYMOUS
         }
 
-        preferences.jwtStore(encodedJwt = this.encodedJwt)
+        Cly.preferences?.jwtStore(encodedJwt = this.encodedJwt)
     }
 
     override fun toString(): String = this.encodedJwt

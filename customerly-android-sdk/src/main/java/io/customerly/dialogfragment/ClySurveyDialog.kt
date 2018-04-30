@@ -15,32 +15,21 @@ package io.customerly.dialogfragment
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import android.app.Activity
 import android.app.DialogFragment
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v7.widget.AppCompatEditText
-import android.support.v7.widget.AppCompatRadioButton
-import android.support.v7.widget.AppCompatRatingBar
-import android.support.v7.widget.AppCompatSeekBar
-import android.support.v7.widget.AppCompatSpinner
+import android.support.v7.widget.*
 import android.text.InputType
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.SeekBar
-import android.widget.TextView
-import android.widget.Toast
-
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import android.widget.*
+import io.customerly.Cly
 import io.customerly.R
 import io.customerly.api.*
 import io.customerly.entity.*
@@ -87,7 +76,7 @@ internal class ClySurveyDialog : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val survey = this.arguments?.getParcelable<ClySurvey>(SURVEY_ARGUMENT_KEY)?.takeUnless { it.isRejectedOrConcluded }
         return if(survey == null) {
-            XXXCustomerly.get()._log("No surveys available")
+            Cly.log(message = "No surveys available")
             this.dismissAllowingStateLoss()
             null
         } else {
@@ -437,9 +426,7 @@ internal class ClySurveyDialog : DialogFragment() {
     }
 
     private fun nextSurvey(survey: ClySurvey, choiceId: Int? = null, answer: String? = null) {
-        if((survey.requireAnswerByChoice && choiceId == null) || (survey.requireAnswerByString && answer == null)) {
-            XXXCustomerly.logException()
-        } else {
+        if((survey.requireAnswerByChoice && choiceId != null) || (survey.requireAnswerByString && answer != null)) {
             val weakDialog = this.weak()
             ClyApiRequest(
                     context = this.activity,

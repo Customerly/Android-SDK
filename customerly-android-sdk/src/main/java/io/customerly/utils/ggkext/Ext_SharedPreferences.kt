@@ -24,20 +24,21 @@ import org.json.JSONObject
 /**
  * Created by Gianni on 05/01/18.
  */
-fun SharedPreferences?.safeString(key: String): String?
-        = this.safeString(key = key, defValue = null)
 
-fun SharedPreferences?.safeString(key: String, defValue: String?): String?
-        = this?.nullOnException { it.getString(key, defValue) }
+fun SharedPreferences.safeString(key: String): String?
+        = this.nullOnException { it.getString(key, null) }
 
-fun SharedPreferences?.safeJson(key: String): JSONObject?
-        = this?.nullOnException { it.getString(key, null) }?.nullOnException { JSONObject(it) }
+fun SharedPreferences.safeString(key: String, defValue: String): String
+        = this.nullOnException { it.getString(key, defValue) } ?: defValue
 
-fun SharedPreferences?.safeJsonNonNull(key: String): JSONObject
+fun SharedPreferences.safeJson(key: String): JSONObject?
+        = this.nullOnException { it.getString(key, null) }?.nullOnException { JSONObject(it) }
+
+fun SharedPreferences.safeJsonNonNull(key: String): JSONObject
         = this.safeJson(key = key) ?: JSONObject()
 
-fun SharedPreferences?.safeInt(key: String, default : Int = 0): Int
-        = this?.nullOnException { it.getInt(key, default) } ?: default
+fun SharedPreferences.safeInt(key: String, default : Int = 0): Int
+        = this.nullOnException { it.getInt(key, default) } ?: default
 
-fun SharedPreferences?.safeBoolean(key: String, default : Boolean = false): Boolean
-        = this?.nullOnException { it.getBoolean(key, default) } ?: default
+fun SharedPreferences.safeBoolean(key: String, default : Boolean = false): Boolean
+        = this.nullOnException { it.getBoolean(key, default) } ?: default

@@ -70,7 +70,7 @@ internal class ClyWebViewActivity : AppCompatActivity() {
             this.currentUrl = targetUrl
             super.setContentView(R.layout.io_customerly__activity_webview)
             val actionBar = this.supportActionBar
-            @ColorInt val widgetColor = XXXCustomerly.get().__PING__LAST_widget_color
+            @ColorInt val widgetColor = Cly.lastPing.widgetColor
             if (actionBar != null) {
                 if (widgetColor != 0) {
 

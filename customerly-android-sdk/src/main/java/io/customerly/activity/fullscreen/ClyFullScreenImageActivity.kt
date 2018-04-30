@@ -88,7 +88,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                 super.setContentView(imageView)
 
                 this.supportActionBar?.let { sActionBar ->
-                    @ColorInt val widgetColor = XXXCustomerly.get().__PING__LAST_widget_color
+                    @ColorInt val widgetColor = Cly.lastPing.widgetColor
                     if (widgetColor != 0) {
                         sActionBar.setBackgroundDrawable(ColorDrawable(widgetColor))
 

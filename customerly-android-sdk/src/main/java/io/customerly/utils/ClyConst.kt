@@ -43,4 +43,3 @@ internal annotation class WriterType
 
 
 @ColorInt internal const val COLORINT_BLUE_MALIBU = -0x9a5619//Blue Malibu
-@ColorInt internal const val COLORINT_DEFAULTWIDGET = COLORINT_BLUE_MALIBU

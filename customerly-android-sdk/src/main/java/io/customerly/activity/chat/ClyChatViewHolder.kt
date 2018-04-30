@@ -34,8 +34,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import io.customerly.*
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.Cly
+import io.customerly.R
 import io.customerly.activity.fullscreen.startClyFullScreenImageActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.ClyMessage
@@ -62,10 +62,10 @@ internal sealed class ClyChatViewHolder (
     val icon: ImageView? = this.itemView.findViewById(iconResId)
     val content: TextView = this.itemView.findViewById<TextView>(contentResId).apply { this.movementMethod = LinkMovementMethod.getInstance() }
 
-    protected val iconSize = recyclerView.resources.getDimensionPixelSize(R.dimen.io_customerly__chat_li_icon_size).also { iconsize ->
+    protected val iconSize = recyclerView.resources.getDimensionPixelSize(R.dimen.io_customerly__chat_li_icon_size).also { iconSize ->
         this.itemView.layoutParams.also {
-            it.height = iconsize
-            it.width = iconsize
+            it.height = iconSize
+            it.width = iconSize
         }
     }
 
@@ -180,7 +180,7 @@ internal sealed class ClyChatViewHolder (
                 this.content.visibility = View.VISIBLE
 
                 ({ v : View ->
-                    checkClyConfigured {
+                    Cly.ifConfigured {
                         message.setStateSending()
                         (v.activity as? ClyChatActivity)?.let {
                             it.notifyItemChangedInList(message = message)
@@ -293,7 +293,7 @@ internal sealed class ClyChatViewHolder (
                     sendingProgressBarResId = R.id.io_customerly__content_sending__only_user_li,
                     iconAttachment = R.drawable.io_customerly__ic_attach_user) {
             init {
-                (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(XXXCustomerly.get().__PING__LAST_widget_color)
+                (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(Cly.lastPing.widgetColor)
             }
         }
 
