@@ -32,11 +32,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import eu.appsolutelyapps.quizpatente.extensions.start
 import eu.appsolutelyapps.quizpatente.extensions.statusBarColorInt
-import io.customerly.Cly
-
-import java.util.ArrayList
-
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.entity.ClyMessage
@@ -47,6 +43,7 @@ import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
 import io.customerly.utils.getContrastBW
 import io.customerly.utils.htmlformatter.spannedFromHtml
+import java.util.*
 
 /**
  * Created by Gianni on 23/09/16.
@@ -88,7 +85,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                 super.setContentView(imageView)
 
                 this.supportActionBar?.let { sActionBar ->
-                    @ColorInt val widgetColor = Cly.lastPing.widgetColor
+                    @ColorInt val widgetColor = Customerly.lastPing.widgetColor
                     if (widgetColor != 0) {
                         sActionBar.setBackgroundDrawable(ColorDrawable(widgetColor))
 
@@ -121,7 +118,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (Cly.jwtToken?.isAnonymous != false) {
+        if (Customerly.jwtToken?.isAnonymous != false) {
             this.onLogoutUser()
         }
     }

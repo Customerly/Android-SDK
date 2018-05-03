@@ -24,12 +24,9 @@ import android.os.Bundle
 import android.support.v7.widget.*
 import android.text.InputType
 import android.util.TypedValue
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.api.*
 import io.customerly.entity.*
@@ -47,6 +44,7 @@ import kotlinx.android.synthetic.main.io_customerly__dialog_fragment_survey.view
 private const val SURVEY_FRAGMENT_TAG = "io.customerly.dialogfragment.ClySurveyDialog"
 private const val SURVEY_ARGUMENT_KEY = "ClySurveyDialog"
 
+@Throws(WindowManager.BadTokenException::class)
 internal fun Activity.showClySurveyDialog(survey: ClySurvey) {
     val fm = this.fragmentManager
     if((fm.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? ClySurveyDialog)?.dialog?.isShowing != true) {
@@ -76,7 +74,7 @@ internal class ClySurveyDialog : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val survey = this.arguments?.getParcelable<ClySurvey>(SURVEY_ARGUMENT_KEY)?.takeUnless { it.isRejectedOrConcluded }
         return if(survey == null) {
-            Cly.log(message = "No surveys available")
+            Customerly.log(message = "No surveys available")
             this.dismissAllowingStateLoss()
             null
         } else {

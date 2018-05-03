@@ -18,7 +18,7 @@ package io.customerly.entity
 
 import android.support.annotation.IntDef
 import io.customerly.BuildConfig
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ENDPOINT_REPORT_CRASH
 
@@ -60,5 +60,5 @@ internal fun clySendError(@ErrorCode errorCode : Int, description : String, thro
             .p(key = "fullstacktrace", value = stacktraceDump)
             .start()
 
-    Cly.log(message = "Error sent -> code: $errorCode ||| message: $description ||| stack:\n$stacktraceDump")
+    Customerly.log(message = "Error sent -> code: $errorCode ||| message: $description ||| stack:\n$stacktraceDump")
 }

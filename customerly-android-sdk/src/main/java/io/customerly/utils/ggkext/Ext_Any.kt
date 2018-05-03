@@ -23,6 +23,8 @@ import android.os.Build
 import android.os.Looper
 import java.lang.ref.WeakReference
 import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty0
+import kotlin.reflect.jvm.isAccessible
 
 /**
  * Created by Gianni on 12/08/17.
@@ -74,4 +76,9 @@ internal fun isOnMainThread() : Boolean {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> Looper.getMainLooper().isCurrentThread
         else -> Thread.currentThread() == Looper.getMainLooper().thread
     }
+}
+
+fun <T> KProperty0<T>.isLazyInitialized(): Boolean {
+    this.isAccessible = true
+    return (getDelegate() as? Lazy<*>)?.isInitialized() ?: true
 }

@@ -96,5 +96,5 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
     override fun getItemCount(): Int
             = this.weakChatActivity.get()?.let { it.chatList.size + if (it.typingAccountId == TYPING_NO_ONE) { 0 } else { 1 } } ?: 0
 
-    override fun onViewDetachedFromWindow(holder: ClyChatViewHolder) { holder.clearAnimation() }
+    override fun onViewDetachedFromWindow(holder: ClyChatViewHolder) { holder.itemView.clearAnimation() }
 }

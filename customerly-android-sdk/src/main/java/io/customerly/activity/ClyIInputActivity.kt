@@ -19,11 +19,7 @@ package io.customerly.activity
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
@@ -42,16 +38,9 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-
-import java.util.ArrayList
-
+import android.widget.*
 import io.customerly.BuildConfig
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.entity.ClyAttachment
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
@@ -63,6 +52,7 @@ import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.checkConnection
 import io.customerly.utils.ggkext.getFileSize
 import io.customerly.utils.htmlformatter.spannedFromHtml
+import java.util.*
 
 /**
  * Created by Gianni on 03/09/16.
@@ -77,7 +67,7 @@ internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
 
     internal var mustShowBack: Boolean = false
-    protected var activityThemed = false
+    private var activityThemed = false
 
     internal var inputLayout: LinearLayout? = null
     internal var inputAttachments: LinearLayout? = null
@@ -103,7 +93,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         if (this.attachments.size >= 10) {
             if(btn != null) {
                 Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok) { v -> }.setActionTextColor(Cly.lastPing.widgetColor).show()
+                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.lastPing.widgetColor).show()
             }
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
@@ -149,98 +139,92 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
      * @return true if the SDK is configured or false otherwise anc finish is called
      */
     internal fun onCreateLayout(@LayoutRes pLayoutRes: Int): Boolean {
-        if (XXXCustomerly.get()._isConfigured()) {
-            super.setContentView(pLayoutRes)
-            //View binding
-            val actionBar = this.supportActionBar
-            val powered_by = this.findViewById<View>(R.id.io_customerly__powered_by) as TextView
-            this.inputInput = this.findViewById<View>(R.id.io_customerly__input_edit_text) as EditText
-            val input_button_attach = this.findViewById<View>(R.id.io_customerly__input_button_attach)
-            this.inputLayout = this.findViewById<View>(R.id.io_customerly__input_layout) as LinearLayout
-            this.inputAttachments = this.findViewById<View>(R.id.io_customerly__input_attachments) as LinearLayout
+        super.setContentView(pLayoutRes)
+        //View binding
+        val actionBar = this.supportActionBar
+        val poweredBy = this.findViewById<View>(R.id.io_customerly__powered_by) as TextView
+        this.inputInput = this.findViewById<View>(R.id.io_customerly__input_edit_text) as EditText
+        this.inputLayout = this.findViewById<View>(R.id.io_customerly__input_layout) as LinearLayout
+        this.inputAttachments = this.findViewById<View>(R.id.io_customerly__input_attachments) as LinearLayout
 
-            this.mustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
-            if (actionBar != null) {
+        this.mustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
+        if (actionBar != null) {
 
-                if (Cly.lastPing.widgetColor != 0) {
-                    actionBar.setBackgroundDrawable(ColorDrawable(Cly.lastPing.widgetColor))
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        this.window.statusBarColor = Cly.lastPing.widgetColor.alterColor(0.8f)
-                    }
-
-                    when(Cly.lastPing.widgetColor.getContrastBW()) {
-                        Color.BLACK -> {
-                            Triple(
-                                    R.drawable.io_customerly__ic_arrow_back_black_24dp,
-                                    R.drawable.io_customerly__ic_clear_black_24dp,
-                                    "#000000")
-                        }
-                        else -> {
-                            Triple(
-                                    R.drawable.io_customerly__ic_arrow_back_white_24dp,
-                                    R.drawable.io_customerly__ic_clear_white_24dp,
-                                    "#ffffff")
-                        }
-                    }.let { (homeBack, homeClear, titleRGB) ->
-                        if (this.intent != null && this.mustShowBack) {
-                            homeBack
-                        } else {
-                            homeClear
-                        } to String.format("<font color='$titleRGB'>%1\$s</font>", actionBar.title)
-                    }.let { (home, title) ->
-                        actionBar.setHomeAsUpIndicator(home)
-                        actionBar.setTitle(spannedFromHtml(source = title))
-                    }
+            if (Customerly.lastPing.widgetColor != 0) {
+                actionBar.setBackgroundDrawable(ColorDrawable(Customerly.lastPing.widgetColor))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    this.window.statusBarColor = Customerly.lastPing.widgetColor.alterColor(0.8f)
                 }
-                actionBar.setDisplayHomeAsUpEnabled(true)
-            }
 
-            if (XXXCustomerly.get().__PING__LAST_powered_by) {
-                val redBoldSpannable = SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME)
-                redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-                redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-                powered_by.text = SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable)
-                powered_by.setOnClickListener { btn -> btn.activity?.let { it.startClyWebViewActivity(targetUrl = BuildConfig.CUSTOMERLY_WEB_SITE) } }
-                powered_by.visibility = View.VISIBLE
-            } else {
-                powered_by.visibility = View.GONE
-            }
-
-            input_button_attach.setOnClickListener(this.attachButtonListener)
-
-            this.findViewById<View>(R.id.io_customerly__input_button_send).setOnClickListener { btn ->
-                if (btn.context.checkConnection()) {
-                    (btn.activity as? ClyIInputActivity)?.let { inputActivity ->
-                        val content = inputActivity.inputInput?.text?.toString()?.trim { it <= ' ' } ?: ""
-                        val attachmentsArray = inputActivity.attachments.toTypedArray()
-                        if (content.isNotEmpty() || attachmentsArray.isNotEmpty()) {
-                            inputActivity.inputInput?.setText(null)
-                            inputActivity.attachments.clear()
-                            inputActivity.inputAttachments?.removeAllViews()
-                            inputActivity.onSendMessage(content = content, attachments = attachmentsArray)
-                        }
+                when(Customerly.lastPing.widgetColor.getContrastBW()) {
+                    Color.BLACK -> {
+                        Triple(
+                                R.drawable.io_customerly__ic_arrow_back_black_24dp,
+                                R.drawable.io_customerly__ic_clear_black_24dp,
+                                "#000000")
                     }
-                } else {
-                    Toast.makeText(btn.context.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                    else -> {
+                        Triple(
+                                R.drawable.io_customerly__ic_arrow_back_white_24dp,
+                                R.drawable.io_customerly__ic_clear_white_24dp,
+                                "#ffffff")
+                    }
+                }.let { (homeBack, homeClear, titleRGB) ->
+                    if (this.intent != null && this.mustShowBack) {
+                        homeBack
+                    } else {
+                        homeClear
+                    } to String.format("<font color='$titleRGB'>%1\$s</font>", actionBar.title)
+                }.let { (home, title) ->
+                    actionBar.setHomeAsUpIndicator(home)
+                    actionBar.title = spannedFromHtml(source = title)
                 }
             }
-
-            val themeUrl = XXXCustomerly.get().__PING__LAST_widget_background_url
-            if (themeUrl != null) {
-                val themeIV = this.findViewById<View>(R.id.io_customerly__background_theme) as ImageView
-                ClyImageRequest(context = this, url = themeUrl)
-                        .centerCrop()
-                        .into(imageView = themeIV)
-                        .start()
-                themeIV.visibility = View.VISIBLE
-                this.activityThemed = true
-            }
-
-            return true
-        } else {
-            this.finish()
-            return false
+            actionBar.setDisplayHomeAsUpEnabled(true)
         }
+
+        if (Customerly.lastPing.poweredBy) {
+            val redBoldSpannable = SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME)
+            redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            poweredBy.text = SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable)
+            poweredBy.setOnClickListener { btn -> btn.activity?.startClyWebViewActivity(targetUrl = BuildConfig.CUSTOMERLY_WEB_SITE) }
+            poweredBy.visibility = View.VISIBLE
+        } else {
+            poweredBy.visibility = View.GONE
+        }
+
+        this.findViewById<View>(R.id.io_customerly__input_button_attach).setOnClickListener(this.attachButtonListener)
+
+        this.findViewById<View>(R.id.io_customerly__input_button_send).setOnClickListener { btn ->
+            if (btn.context.checkConnection()) {
+                (btn.activity as? ClyIInputActivity)?.let { inputActivity ->
+                    val content = inputActivity.inputInput?.text?.toString()?.trim { it <= ' ' } ?: ""
+                    val attachmentsArray = inputActivity.attachments.toTypedArray()
+                    if (content.isNotEmpty() || attachmentsArray.isNotEmpty()) {
+                        inputActivity.inputInput?.text = null
+                        inputActivity.attachments.clear()
+                        inputActivity.inputAttachments?.removeAllViews()
+                        inputActivity.onSendMessage(content = content, attachments = attachmentsArray)
+                    }
+                }
+            } else {
+                Toast.makeText(btn.context.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        val themeUrl = Customerly.lastPing.widgetBackgroundUrl
+        if (themeUrl != null) {
+            val themeIV = this.findViewById<View>(R.id.io_customerly__background_theme) as ImageView
+            ClyImageRequest(context = this, url = themeUrl)
+                    .centerCrop()
+                    .into(imageView = themeIV)
+                    .start()
+            themeIV.visibility = View.VISIBLE
+            this.activityThemed = true
+        }
+
+        return true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -283,7 +267,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                             if (fileUri == att.uri) {
                                 this.inputInput?.let {
                                     Snackbar.make(it, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
-                                            .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Cly.lastPing.widgetColor).show()
+                                            .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                     it.requestFocus()
                                 }
                                 return
@@ -292,7 +276,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                         if (fileUri.getFileSize(context = this) > 5000000) {
                             this.inputInput?.let {
                                 Snackbar.make(it, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
-                                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Cly.lastPing.widgetColor).show()
+                                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                 it.requestFocus()
                             }
                             return

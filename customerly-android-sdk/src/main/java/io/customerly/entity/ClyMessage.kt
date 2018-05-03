@@ -17,11 +17,18 @@ package io.customerly.entity
  */
 
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import android.support.annotation.IntDef
 import android.support.annotation.Px
 import android.text.Spanned
 import android.text.SpannedString
+import android.view.WindowManager
 import android.widget.TextView
+import io.customerly.Customerly
+import io.customerly.activity.ClyAppCompatActivity
+import io.customerly.alert.showClyAlertMessage
+import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.WRITER_TYPE__ACCOUNT
 import io.customerly.utils.WRITER_TYPE__USER
 import io.customerly.utils.ggkext.*
@@ -155,6 +162,45 @@ internal class ClyMessage(
 
     override fun hashCode(): Int {
         return id.hashCode()
+    }
+
+    fun postDisplay() {
+        Handler(Looper.getMainLooper()).post {
+            val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()
+            if (currentActivity != null && Customerly.isEnabledActivity(activity = currentActivity)) {
+                this.displayNow(activity = currentActivity)
+            } else {
+                Customerly.postOnActivity = { activity ->
+                    this.displayNow(activity = activity)
+                    true
+                }
+            }
+        }
+    }
+
+    private fun displayNow(activity: Activity, retryOnFailure: Boolean = true) {
+        try {
+            when (activity) {
+                is ClyAppCompatActivity -> activity.onNewSocketMessages(messages = arrayListOf(this))
+                else -> {
+                    try {
+                        activity.showClyAlertMessage(message = this)
+                        Customerly.log(message = "Last message alert successfully displayed")
+                    } catch (changedActivityWhileExecuting: WindowManager.BadTokenException) {
+                        if(retryOnFailure) {
+                            ClyActivityLifecycleCallback.getLastDisplayedActivity()
+                                    ?.takeIf { Customerly.isEnabledActivity(activity = it) }
+                                    ?.let {
+                                        this.displayNow(activity = it, retryOnFailure = false)
+                                    }
+                        }
+                    }
+                }
+            }
+        } catch (exception: Exception) {
+            Customerly.log(message = "A generic error occurred Customerly while displaying a last message alert")
+            clySendError(errorCode = ERROR_CODE__GENERIC, description = "Generic error in Customerly while displaying a last message alert", throwable = exception)
+        }
     }
 
 }

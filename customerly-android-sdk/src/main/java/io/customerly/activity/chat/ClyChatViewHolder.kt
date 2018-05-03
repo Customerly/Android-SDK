@@ -34,7 +34,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.fullscreen.startClyFullScreenImageActivity
 import io.customerly.activity.startClyWebViewActivity
@@ -67,11 +67,6 @@ internal sealed class ClyChatViewHolder (
             it.height = iconSize
             it.width = iconSize
         }
-    }
-
-    //TODO usato?
-    internal fun clearAnimation() {
-        this.itemView.clearAnimation()
     }
 
     abstract fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean)
@@ -180,7 +175,7 @@ internal sealed class ClyChatViewHolder (
                 this.content.visibility = View.VISIBLE
 
                 ({ v : View ->
-                    Cly.ifConfigured {
+                    Customerly.checkConfigured {
                         message.setStateSending()
                         (v.activity as? ClyChatActivity)?.let {
                             it.notifyItemChangedInList(message = message)
@@ -293,7 +288,7 @@ internal sealed class ClyChatViewHolder (
                     sendingProgressBarResId = R.id.io_customerly__content_sending__only_user_li,
                     iconAttachment = R.drawable.io_customerly__ic_attach_user) {
             init {
-                (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(Cly.lastPing.widgetColor)
+                (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(Customerly.lastPing.widgetColor)
             }
         }
 

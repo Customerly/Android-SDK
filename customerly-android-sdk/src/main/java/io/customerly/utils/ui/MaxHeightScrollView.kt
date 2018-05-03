@@ -45,6 +45,7 @@ internal class MaxHeightScrollView : ScrollView {
         this.init(context, attrs)
     }
 
+    @Suppress("unused")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
         this.init(context, attrs)
@@ -53,7 +54,7 @@ internal class MaxHeightScrollView : ScrollView {
     private fun init(context: Context, attrs: AttributeSet?) {
         if (!this.isInEditMode && attrs != null) {
             val styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.MaxHeightScrollView)
-            this.maxHeight = styledAttrs.getDimensionPixelSize(R.styleable.IU_MaxHeightScrollView_maxHeight, DEFAULT_MAXHEIGHT)
+            this.maxHeight = styledAttrs.getDimensionPixelSize(R.styleable.MaxHeightScrollView_maxHeight, DEFAULT_MAXHEIGHT)
             styledAttrs.recycle()
         }
     }

@@ -68,26 +68,26 @@ internal object ClyImageHandler {
 
     @UiThread
     internal fun request(request: ClyImageRequest) {
-        assert(request._validateRequest())
+        assert(request.handlerValidateRequest())
 
         if(Looper.getMainLooper().thread != Thread.currentThread()) {
             Handler(Looper.getMainLooper()).post { this.request(request = request) }
         } else {
-            val hashCode = request._getHashCode
+            val hashCode = request.handlerGetHashCode
             synchronized(LOCK) {
                 this.pendingDiskRequests.remove(hashCode)
                 this.pendingNetworkRequests.remove(hashCode)
             }
 
-            val diskKey = request._getDiskKey()
+            val diskKey = request.handlerGetDiskKey()
             try {
                 this.lruCache.get(diskKey)?.takeUnless { it.isRecycled }
             } catch (ignored: OutOfMemoryError) {
                 null
             }?.let {
-                request._onResponse(bmp = it)
+                request.handlerOnResponse(bmp = it)
             } ?: {
-                request._loadPlaceholder()
+                request.handlerLoadPlaceholder()
                 this.handleDisk(request = request, hashCode = hashCode, diskKey = diskKey)
             }()
         }
@@ -111,12 +111,12 @@ internal object ClyImageHandler {
                 }?.let { request ->
                     //Searching image in cache (LRU and Disk)
                     try {
-                        request._customerlyCacheDirPath.let { cacheDirPath ->
+                        request.customerlyCacheDirPath.let { cacheDirPath ->
                             val bitmapFile = File(cacheDirPath, diskKey)
                             if (bitmapFile.exists()) {
                                 if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
                                     BitmapFactory.decodeFile(bitmapFile.toString())?.also { bmp ->
-                                        request._onResponse(bmp = bmp)
+                                        request.handlerOnResponse(bmp = bmp)
                                         //Add Bitmap to LruMemory
                                         this.lruCache.put(diskKey, bmp)
                                     }
@@ -172,8 +172,8 @@ internal object ClyImageHandler {
                             }
                         }
                         BitmapFactory.decodeStream(connection.inputStream)
-                                ?.let { request._applyResize(it) }
-                                ?.let { request._applyTransformations(it) }
+                                ?.let { request.handlerApplyResize(it) }
+                                ?.let { request.handlerApplyTransformations(it) }
                                 ?.let { bmp ->
                                     if (null != synchronized(LOCK) {
                                                 this.pendingDiskRequests.get(hashCode)
@@ -183,12 +183,12 @@ internal object ClyImageHandler {
                                         // per la stessa ImageView quindi termina l'esecuzione attuale invalidando la bmp
                                         bmp.recycle()
                                     } else {
-                                        request._onResponse(bmp = bmp)
+                                        request.handlerOnResponse(bmp = bmp)
 
                                         //Caching image (LRU and Disk)
                                         this.lruCache.put(diskKey, bmp)
 
-                                        request._customerlyCacheDirPath.let { cacheDirPath ->
+                                        request.customerlyCacheDirPath.let { cacheDirPath ->
                                             val cacheDir = File(cacheDirPath)
                                             if (!cacheDir.exists()) {
                                                 cacheDir.mkdirs()
@@ -220,7 +220,7 @@ internal object ClyImageHandler {
                                 }
                     } catch (exception: Throwable) {
                         null
-                    } ?: request._loadError()
+                    } ?: request.handlerLoadError()
                 }
             }
         }

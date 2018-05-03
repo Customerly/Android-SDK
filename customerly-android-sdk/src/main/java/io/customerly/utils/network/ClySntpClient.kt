@@ -26,7 +26,7 @@ import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 
-private const val REFERENCE_TIME_OFFSET = 16
+//private const val REFERENCE_TIME_OFFSET = 16
 private const val ORIGINATE_TIME_OFFSET = 24
 private const val RECEIVE_TIME_OFFSET = 32
 private const val TRANSMIT_TIME_OFFSET = 40

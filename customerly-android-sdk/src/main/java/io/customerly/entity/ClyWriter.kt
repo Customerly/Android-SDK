@@ -29,8 +29,8 @@ import io.customerly.utils.WriterType
  */
 internal class ClyWriter(@WriterType val type : Int, internal val id : Long, private val name : String?) {
 
-    internal val isUser : Boolean = type == WRITER_TYPE__USER
-    internal val isAccount : Boolean = type == WRITER_TYPE__ACCOUNT
+    private val isUser : Boolean = type == WRITER_TYPE__USER
+    private val isAccount : Boolean = type == WRITER_TYPE__ACCOUNT
 
     internal fun getName(context : Context) : String {
         return this.name ?: context.getString(R.string.io_customerly__you)
@@ -52,9 +52,7 @@ internal class ClyWriter(@WriterType val type : Int, internal val id : Long, pri
                     &&
                         this.id == other.id
                     &&
-                        this.isUser == other.isUser
-                    &&
-                        this.isAccount == other.isAccount)
+                        this.type == other.type)
     }
 
     override fun hashCode(): Int {

@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 package io.customerly.activity.fullscreen;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -44,7 +45,6 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.OverScroller;
-import android.widget.Scroller;
 
 @SuppressWarnings("unused")
 class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
@@ -122,6 +122,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
     	sharedConstructing(context);
     }
     
+    @SuppressLint("ClickableViewAccessibility")
     private void sharedConstructing(Context context) {
         super.setClickable(true);
         this.context = context;
@@ -745,7 +746,8 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
     	} else if (x >= -1 && direction < 0) {
     		return false;
     		
-    	} else if (Math.abs(x) + viewWidth + 1 >= getImageWidth() && direction > 0) {
+    	} else //noinspection RedundantIfStatement
+            if (Math.abs(x) + viewWidth + 1 >= getImageWidth() && direction > 0) {
     		return false;
     	}
     	
@@ -828,7 +830,8 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
         //
         private PointF last = new PointF();
     	
-    	@Override
+        @Override
+    	@SuppressLint("ClickableViewAccessibility")
         public boolean onTouch(View v, MotionEvent event) {
             mScaleDetector.onTouchEvent(event);
             mGestureDetector.onTouchEvent(event);
@@ -1186,7 +1189,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
     
     @TargetApi(VERSION_CODES.GINGERBREAD)
 	private class CompatScroller {
-    	Scroller scroller;
+//    	Scroller scroller;
     	OverScroller overScroller;
 //    	boolean isPreGingerbread;
     	
@@ -1209,7 +1212,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
 //    		}
     	}
 
-        private void forceFinished(boolean finished) {
+        private void forceFinished(@SuppressWarnings("SameParameterValue") boolean finished) {
 //    		if (isPreGingerbread) {
 //    			scroller.forceFinished(finished);
 //    		} else {

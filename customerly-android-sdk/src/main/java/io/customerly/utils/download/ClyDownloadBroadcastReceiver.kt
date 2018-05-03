@@ -28,11 +28,11 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.FileProvider
 import android.view.Gravity
 import android.widget.Toast
 import io.customerly.R
-import io.customerly.XXXXXcancellare.XXXIAct_OpenDownloadedFileActivity
-import io.customerly.XXXXXcancellare.XXXIU_CustomerlyFileProvider
+import io.customerly.activity.ClyOpenDownloadedFileActivity
 import java.io.File
 
 /**
@@ -121,10 +121,8 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                                                     PendingIntent.getActivity(
                                                             context,
                                                             0,
-                                                            Intent(context, XXXIAct_OpenDownloadedFileActivity::class.java)
-                                                                    .setData(
-                                                                            XXXIU_CustomerlyFileProvider.getUriForFile(context, String.format("io.customerly.provider.%s", context.packageName), file)
-                                                                    ),
+                                                            Intent(context, ClyOpenDownloadedFileActivity::class.java)
+                                                                    .setData(FileProvider.getUriForFile(context, "io.customerly.provider.${context.packageName}", file)),
                                                             PendingIntent.FLAG_UPDATE_CURRENT
                                                     )).build())
                                     val toast = Toast.makeText(context, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT)

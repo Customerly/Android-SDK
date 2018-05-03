@@ -37,5 +37,5 @@ internal class ClyConversationsAdapter(conversationsActivity : ClyConversationsA
         this.weakConversationsActivity.get()?.let { holder.apply(conversationsActivity = it, conversation = it.conversationsList[position]) }
     }
 
-    override fun getItemCount(): Int  = this.weakConversationsActivity.get()?.let { it.conversationsList.size } ?: 0
+    override fun getItemCount(): Int  = this.weakConversationsActivity.get()?.conversationsList?.size ?: 0
 }

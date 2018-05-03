@@ -1,11 +1,27 @@
 package io.customerly.websocket
 
+/*
+ * Copyright (C) 2017 Customerly
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import android.app.Activity
 import android.support.annotation.StringDef
 import android.util.Log
 import android.view.WindowManager
 import io.customerly.BuildConfig
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.ClyApiRequest
@@ -15,6 +31,7 @@ import io.customerly.entity.ClyMessage
 import io.customerly.entity.ClySocketParams
 import io.customerly.entity.parseMessagesList
 import io.customerly.entity.parseSocketParams
+import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.ggkext.ignoreException
 import io.customerly.utils.ggkext.nullOnException
 import io.customerly.utils.ggkext.optTyped
@@ -45,11 +62,11 @@ internal class ClySocket {
 
     internal fun connect(newParams: JSONObject? = null) {
 
-        val params = newParams?.takeIf { Cly.sdkAvailable && !Cly.appInsolvent }?.parseSocketParams() ?: this.activeParams
+        val params = newParams?.takeIf { Customerly.sdkAvailable && !Customerly.appInsolvent }?.parseSocketParams() ?: this.activeParams
 
-        if(Cly.supportEnabled) {
+        if(Customerly.supportEnabled) {
             this.shouldBeConnected = true
-            Cly.ifConfigured {
+            Customerly.checkConfigured {
                 if(params != null) {
                     if(this.socket?.connected() != true || this.activeParams?.equals(params) != true) {
                         //if socket is null or disconnected or connected with different params
@@ -75,7 +92,7 @@ internal class ClySocket {
                                             this.logSocket(event = SOCKET_EVENT__TYPING, payloadJson = payloadJson)
 
                                             payloadJson.optTyped<JSONObject>(name = "conversation")?.let { conversation ->
-                                                if(Cly.jwtToken?.userID == conversation.optTyped(name = "user_id", fallback = -1L)
+                                                if(Customerly.jwtToken?.userID == conversation.optTyped(name = "user_id", fallback = -1L)
                                                         && !conversation.optTyped(name = "is_note", fallback = false)) {
                                                     conversation.optTyped<Long>(name = "conversation_id")?.let {  conversationId ->
                                                         this.typingListener?.invoke(conversationId, accountId, "y" == payloadJson.optTyped<String>("is_typing"))
@@ -94,7 +111,7 @@ internal class ClySocket {
 
                                             payloadJson.optTyped<Long>("timestamp")?.let { timestamp ->
 
-                                                if(Cly.jwtToken?.userID == payloadJson.optTyped(name = "user_id", fallback = -1L)
+                                                if(Customerly.jwtToken?.userID == payloadJson.optTyped(name = "user_id", fallback = -1L)
                                                         && payloadJson.optTyped<JSONObject>(name = "conversation")?.optTyped(name = "is_note", fallback = false) == false) {
 
                                                     ClyApiRequest(
@@ -134,11 +151,11 @@ internal class ClySocket {
 
     private fun onMessageNewsCallbackWithRetry(messages: ArrayList<ClyMessage>, retryOnBadTokenException: Boolean = true) {
         if(messages.isNotEmpty()) {
-            val currentActivity: Activity? = Cly.activityLifecycleCallbacks.getLastDisplayedActivity()
-            if (currentActivity != null && Cly.isEnabledActivity(activity = currentActivity)) {
+            val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()
+            if (currentActivity != null && Customerly.isEnabledActivity(activity = currentActivity)) {
                 when {
                     currentActivity is ClyAppCompatActivity -> currentActivity.onNewSocketMessages(messages = messages)
-                    Cly.supportEnabled -> {
+                    Customerly.supportEnabled -> {
                         try {
                             currentActivity.showClyAlertMessage(message = messages.first())
                         } catch (changedActivityWhileExecuting: WindowManager.BadTokenException) {
@@ -149,13 +166,13 @@ internal class ClySocket {
                     }
                 }
             } else {
-                Cly.postOnActivity = { activity ->
+                Customerly.postOnActivity = { activity ->
                     when {
                         activity is ClyAppCompatActivity -> {
                             activity.onNewSocketMessages(messages = messages)
                             true
                         }
-                        Cly.supportEnabled -> {
+                        Customerly.supportEnabled -> {
                             try {
                                 activity.showClyAlertMessage(message = messages.first())
                                 true
@@ -209,7 +226,7 @@ internal class ClySocket {
             = this.sendTyping(conversationId = conversationId, isTyping = false, previewText = null)
     private fun sendTyping(conversationId: Long, isTyping: Boolean, previewText: String?) {
         //{conversation: {conversation_id: 179170, user_id: 63378, is_note: false}, is_typing: "y", typing_preview: "I am writ"}
-        Cly.jwtToken?.userID?.ignoreException { userId ->
+        Customerly.jwtToken?.userID?.ignoreException { userId ->
             this.send(
                     event = SOCKET_EVENT__TYPING,
                     payloadJson = JSONObject()
@@ -223,7 +240,7 @@ internal class ClySocket {
     }
 
     internal fun sendSeen(messageId: Long, seenTimestamp: Long) {
-        Cly.jwtToken?.userID?.ignoreException { userId ->
+        Customerly.jwtToken?.userID?.ignoreException { userId ->
             this.send(
                     event = SOCKET_EVENT__SEEN,
                     payloadJson = JSONObject()
@@ -236,7 +253,7 @@ internal class ClySocket {
 
     internal fun sendMessage(timestamp: Long) {
         if (timestamp != -1L) {
-            Cly.jwtToken?.userID?.ignoreException { userId ->
+            Customerly.jwtToken?.userID?.ignoreException { userId ->
                 this.send(
                         event = SOCKET_EVENT__MESSAGE,
                         payloadJson = JSONObject()

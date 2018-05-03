@@ -16,8 +16,16 @@ package io.customerly.entity
  * limitations under the License.
  */
 
+import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
 import android.support.annotation.IntDef
+import android.view.WindowManager
+import io.customerly.Customerly
+import io.customerly.dialogfragment.showClySurveyDialog
+import io.customerly.utils.ClyActivityLifecycleCallback
+import io.customerly.utils.ggkext.MSTimestamp
 import io.customerly.utils.ggkext.getTyped
 import io.customerly.utils.ggkext.optSequence
 import io.customerly.utils.ggkext.optTyped
@@ -29,6 +37,8 @@ import org.json.JSONObject
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
+
+@MSTimestamp internal const val SURVEY_DISPLAY_DELAY = 5000L
 
 internal const val TSURVEY_END_SURVEY = -1
 internal const val TSURVEY_BUTTON = 0
@@ -116,22 +126,23 @@ internal class ClySurvey internal constructor(
         var isRejectedOrConcluded: Boolean = false
 ) : Parcelable {
 
-    internal constructor(
-            id: Int,
-            thankYouYext: String,
-            step: Int = 0,
-            seenAt: Long = -1,
-            @TSurvey type: Int,
-            title: String,
-            subtitle: String,
-            limitFrom: Int = -1,
-            limitTo: Int = -1,
-            choices: Array<ClySurveyChoice>?
-    ) : this(id = id, thankYouYext = thankYouYext, step = step, seen = seenAt != -1L, type = type, title = title, subtitle = subtitle, limitFrom = limitFrom, limitTo = limitTo, choices = choices)
+    internal val requireAnswerByChoice: Boolean get() = when(this.type) {
+        TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST -> true
+        TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER,
+        TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA         -> false
+        else /* TSURVEY_END_SURVEY */               -> false
+    }
+
+    internal val requireAnswerByString: Boolean get() = when(this.type) {
+        TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER,
+        TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA -> true
+        TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST -> false
+        else /* TSURVEY_END_SURVEY */ -> false
+    }
 
     internal fun update(from : JSONObject?) : ClySurvey {
         from.parseSurvey { _: Int, _: String, step: Int, seen: Boolean, type: Int, title: String, subtitle: String, limitFrom: Int, limitTo: Int, choices: Array<ClySurveyChoice>? ->
-            this.step = Int.MAX_VALUE
+            this.step = step
             this.seen = seen
             this.type = type
             this.title = title
@@ -144,17 +155,37 @@ internal class ClySurvey internal constructor(
         return this
     }
 
-    internal val requireAnswerByChoice: Boolean get() = when(this.type) {
-        TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST -> true
-        TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER,
-        TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA         -> false
-        else /* TSURVEY_END_SURVEY */               -> false
+    internal fun postDisplay() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()
+            if (currentActivity != null && Customerly.isEnabledActivity(activity = currentActivity)) {
+                this.displayNow(activity = currentActivity)
+            } else {
+                Customerly.postOnActivity = { activity ->
+                    this.displayNow(activity = activity)
+                    true
+                }
+            }
+        }, SURVEY_DISPLAY_DELAY)
     }
 
-    internal val requireAnswerByString: Boolean get() = when(this.type) {
-        TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER,
-        TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA         -> true
-        TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST -> false
-        else /* TSURVEY_END_SURVEY */               -> false
+    private fun displayNow(activity: Activity, retryOnFailure: Boolean = true) {
+        try {
+            try {
+                activity.showClySurveyDialog(survey = this)
+                Customerly.log(message = "Survey successfully displayed")
+            } catch (changedActivityWhileRunning: WindowManager.BadTokenException) {
+                if(retryOnFailure) {
+                    ClyActivityLifecycleCallback.getLastDisplayedActivity()
+                            ?.takeIf { Customerly.isEnabledActivity(activity = it) }
+                            ?.let {
+                                this.displayNow(activity = it, retryOnFailure = false)
+                            }
+                }
+            }
+        } catch (exception: Exception) {
+            Customerly.log(message = "A generic error occurred Customerly while displaying a Survey")
+            clySendError(errorCode = ERROR_CODE__GENERIC, description = "A generic error occurred Customerly while displaying a Survey", throwable = exception)
+        }
     }
 }

@@ -18,7 +18,6 @@ package io.customerly.api
 
 import android.support.annotation.IntDef
 import android.support.annotation.StringDef
-import android.view.View
 import io.customerly.BuildConfig
 
 /**

@@ -53,6 +53,9 @@ internal inline fun <reified JSON_ARRAY_ITEM, LIST_ITEM> JSONObject.optArrayList
 internal inline fun <reified JSON_ARRAY_ITEM, reified ARRAY_ITEM> JSONObject.optArray(name : String, noinline map :(JSON_ARRAY_ITEM)->ARRAY_ITEM) : Array<ARRAY_ITEM>?
         = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.map(map)?.toList()?.toTypedArray()
 
+internal inline fun <reified JSON_ARRAY_ITEM, reified ARRAY_ITEM: Any> JSONObject.optArrayNotNull(name : String, noinline map :(JSON_ARRAY_ITEM)->ARRAY_ITEM?) : Array<ARRAY_ITEM>?
+        = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.mapNotNull(map)?.toList()?.toTypedArray()
+
 /**
  * JSONArray asSequence/Opt
  */
@@ -224,3 +227,6 @@ internal inline fun <reified TYPE> JSONArray.optTyped(index : Int) : TYPE? {
 @Throws(JSONException::class)
 internal inline fun <reified TYPE> JSONArray.optTyped(index : Int, fallback : TYPE) : TYPE
         = this.optTyped(index = index) ?: fallback
+
+internal fun JSONObject.asValuesSequence()
+        = this.keys().asSequence().mapNotNull { this.opt(it) }

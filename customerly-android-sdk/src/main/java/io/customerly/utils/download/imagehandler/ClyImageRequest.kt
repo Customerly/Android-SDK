@@ -18,7 +18,6 @@ package io.customerly.utils.download.imagehandler
 
 import android.content.Context
 import android.graphics.*
-import android.support.annotation.CheckResult
 import android.support.annotation.DrawableRes
 import android.support.annotation.IntRange
 import android.widget.ImageView
@@ -36,9 +35,7 @@ internal const val IMAGE_REQUEST_DONT_RESIZE = -1
 
 internal class ClyImageRequest(context : Context, internal val url : String ) {
 
-    //TODO ottenere in altro modo
-    @Suppress("PropertyName")
-    internal val _customerlyCacheDirPath: String = File(context.cacheDir, BuildConfig.CUSTOMERLY_SDK_NAME).path
+    internal val customerlyCacheDirPath: String = File(context.cacheDir, BuildConfig.CUSTOMERLY_SDK_NAME).path
 
     private var scaleType: ImageView.ScaleType? = null
     private fun ImageView.ScaleType?.setTo(iv : ImageView) {
@@ -99,14 +96,11 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         this.intoGenericTarget = target
     }
 
-    @Suppress("FunctionName")
-    internal fun _getDiskKey() = BuildConfig.CUSTOMERLY_SDK_NAME + '-' + "${this.url}|${this.applyCircleTransformation}|${this.resizeWidth}|${this.resizeHeight}".hashCode()
+    internal fun handlerGetDiskKey() = BuildConfig.CUSTOMERLY_SDK_NAME + '-' + "${this.url}|${this.applyCircleTransformation}|${this.resizeWidth}|${this.resizeHeight}".hashCode()
 
-    @Suppress("FunctionName")
-    internal val _getHashCode : Int get() = this.intoImageView?.get()?.hashCode() ?: this.intoGenericTarget?.hashCode() ?: -1
+    internal val handlerGetHashCode : Int get() = this.intoImageView?.get()?.hashCode() ?: this.intoGenericTarget?.hashCode() ?: -1
 
-    @Suppress("FunctionName")
-    internal fun _applyTransformations(bmp: Bitmap) : Bitmap {
+    internal fun handlerApplyTransformations(bmp: Bitmap) : Bitmap {
         return if(this.applyCircleTransformation) {
             val size = Math.min(bmp.width, bmp.height)
             val r = size / 2f
@@ -127,8 +121,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @Suppress("FunctionName")
-    internal fun _applyResize(bmp : Bitmap) : Bitmap {
+    internal fun handlerApplyResize(bmp : Bitmap) : Bitmap {
         return if (this.resizeWidth != IMAGE_REQUEST_DONT_RESIZE && this.resizeHeight != IMAGE_REQUEST_DONT_RESIZE) {
             val matrix = Matrix().also {
                 it.postScale(this.resizeWidth.toFloat() / bmp.width, this.resizeHeight.toFloat() / bmp.height)
@@ -143,11 +136,9 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @Suppress("FunctionName")
-    internal fun _validateRequest() = this.intoGenericTarget ?: this.intoImageView != null
+    internal fun handlerValidateRequest() = this.intoGenericTarget ?: this.intoImageView != null
 
-    @Suppress("FunctionName")
-    internal fun _onResponse(bmp : Bitmap) {
+    internal fun handlerOnResponse(bmp : Bitmap) {
         this.intoGenericTarget?.invoke(bmp)
                 ?: this.intoImageView?.get()?.let { iv ->
                     this.scaleType.setTo(iv)
@@ -155,8 +146,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
                 }
     }
 
-    @Suppress("FunctionName")
-    internal fun _loadPlaceholder() {
+    internal fun handlerLoadPlaceholder() {
         val placeholder = this.placeholder
         if(placeholder != 0) {
             this.onPlaceholder?.invoke(placeholder)
@@ -167,8 +157,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @Suppress("FunctionName")
-    internal fun _loadError() {
+    internal fun handlerLoadError() {
         val error = this.error
         if(error != 0) {
             this.onError?.invoke(error)

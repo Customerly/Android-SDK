@@ -18,7 +18,7 @@ package io.customerly.entity
 
 import android.util.Base64
 import io.customerly.BuildConfig
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.utils.ggkext.nullOnException
 import io.customerly.utils.ggkext.optTyped
 import org.json.JSONException
@@ -53,7 +53,7 @@ internal fun JSONObject.parseSocketParams() : ClySocketParams? {
         }
         val endpoint: String? = this.optTyped(name = "endpoint")
         val port: String? = this.optTyped(name = "port")
-        val userId = Cly.jwtToken?.userID
+        val userId = Customerly.jwtToken?.userID
         if(query != null && endpoint != null && port != null && userId != null) {
             ClySocketParams(uri = "$endpoint:$port/", query = query, userId = userId)
         } else {

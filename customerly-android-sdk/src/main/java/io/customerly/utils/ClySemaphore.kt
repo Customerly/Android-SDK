@@ -21,9 +21,9 @@ package io.customerly.utils
  * Project: Customerly-KAndroid-SDK
  */
 class ClySemaphore(private var value : Boolean = false) {
-    private val LOCK = arrayOfNulls<Any>(0)
+    private val lock = arrayOfNulls<Any>(0)
 
-    fun on() = synchronized(LOCK) {
+    fun on() = synchronized(this.lock) {
         if(! this.look()) {
             this.value = true
             false
@@ -32,7 +32,7 @@ class ClySemaphore(private var value : Boolean = false) {
         }
     }
 
-    fun off() = synchronized(LOCK) {
+    fun off() = synchronized(this.lock) {
         if(this.look()) {
             this.value = false
             true

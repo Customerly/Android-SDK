@@ -19,7 +19,7 @@ package io.customerly.entity
 import android.content.SharedPreferences
 import android.support.annotation.Size
 import android.util.Base64
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.utils.USER_TYPE__ANONYMOUS
 import io.customerly.utils.USER_TYPE__LEAD
 import io.customerly.utils.USER_TYPE__USER
@@ -96,7 +96,7 @@ internal class ClyJwtToken @Throws(IllegalArgumentException::class)
             this.userType = USER_TYPE__ANONYMOUS
         }
 
-        Cly.preferences?.jwtStore(encodedJwt = this.encodedJwt)
+        Customerly.preferences?.jwtStore(encodedJwt = this.encodedJwt)
     }
 
     override fun toString(): String = this.encodedJwt

@@ -24,7 +24,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.utils.ggkext.checkConnection
 
 /**
@@ -42,7 +42,7 @@ internal fun Context.registerLollipopNetworkReceiver() {
                         .build(),
                 object : ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
-                        Cly.clySocket.check()
+                        Customerly.clySocket.check()
                     }
                 })
     }
@@ -53,7 +53,7 @@ class ClyNetworkReceiver : BroadcastReceiver() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
                 && intent != null && "android.net.conn.CONNECTIVITY_CHANGE" == intent.action
                 && context.checkConnection()) {
-            Cly.clySocket.check()
+            Customerly.clySocket.check()
         }
     }
 }

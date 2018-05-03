@@ -39,7 +39,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import io.customerly.Cly
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.activity.chat.startClyChatActivity
@@ -72,7 +72,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         private val weakActivity = this@ClyConversationsActivity.weak()
         override fun onRefresh() {
             weakActivity.get()?.also { activity ->
-                if (Cly.jwtToken?.isAnonymous != true) {
+                if (Customerly.jwtToken?.isAnonymous != true) {
                     ClyApiRequest(
                             context = activity,
                             endpoint = ENDPOINT_CONVERSATION_RETRIEVE,
@@ -151,7 +151,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (Cly.jwtToken == null) {
+        if (Customerly.jwtToken == null) {
             this.onLogoutUser()
         }
     }
@@ -208,7 +208,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             this.io_customerly__first_contact_swipe_refresh.isRefreshing = false
             var showWelcomeCard = false
             this.io_customerly__layout_first_contact__admin_container.removeAllViews()
-            val admins: Array<ClyAdmin>? = Cly.lastPing.activeAdmins
+            val admins: Array<ClyAdmin>? = Customerly.lastPing.activeAdmins
             admins?.asSequence()?.filterNotNull()?.forEach { admin ->
                 this.io_customerly__layout_first_contact__admin_container.addView(
                         LinearLayout(this).apply {
@@ -262,7 +262,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 }
             }
 
-            val welcome : Spanned? = Cly.welcomeMessage
+            val welcome : Spanned? = Customerly.welcomeMessage
             if (welcome?.isNotEmpty() == true) {
                 showWelcomeCard = true
                 this.io_customerly__layout_first_contact__welcome.apply {
@@ -279,7 +279,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String?) {
         val weakActivity = this.weak()
-        if(Cly.jwtToken?.isAnonymous != false) {
+        if(Customerly.jwtToken?.isAnonymous != false) {
             if(ghostToVisitorEmail == null) {
                 this.inputLayout?.visibility = View.GONE
                 this.io_customerly__input_email_layout.visibility = View.VISIBLE
@@ -367,7 +367,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     data
                             .takeIf { data.has("conversation") }
                             ?.optJSONObject("message")
-                            ?.also { Cly.clySocket.sendMessage(timestamp = data.optLong("timestamp", -1L)) }
+                            ?.also { Customerly.clySocket.sendMessage(timestamp = data.optLong("timestamp", -1L)) }
                             ?.optLong("conversation_id", -1L)
                             ?: -1L
                 },

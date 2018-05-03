@@ -49,4 +49,5 @@
     <item type="id" name="io_customerly__title" />
     <item type="id" name="io_customerly__subtitle" />
     <item type="id" name="io_customerly__typing_account_icon" />
+    <item type="id" name="io_customerly__background_theme" />
 </resources>

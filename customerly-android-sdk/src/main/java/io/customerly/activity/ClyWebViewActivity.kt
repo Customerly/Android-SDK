@@ -35,8 +35,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import eu.appsolutelyapps.quizpatente.extensions.startUrl
 import eu.appsolutelyapps.quizpatente.extensions.statusBarColorInt
-
-import io.customerly.XXXXXcancellare.XXXCustomerly
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.utils.alterColor
 import io.customerly.utils.getContrastBW
@@ -70,7 +69,7 @@ internal class ClyWebViewActivity : AppCompatActivity() {
             this.currentUrl = targetUrl
             super.setContentView(R.layout.io_customerly__activity_webview)
             val actionBar = this.supportActionBar
-            @ColorInt val widgetColor = Cly.lastPing.widgetColor
+            @ColorInt val widgetColor = Customerly.lastPing.widgetColor
             if (actionBar != null) {
                 if (widgetColor != 0) {
 
@@ -92,7 +91,7 @@ internal class ClyWebViewActivity : AppCompatActivity() {
                         actionBar.setHomeAsUpIndicator(homeIndicator)
                         "<font color='$titleFontColor'>${actionBar.title}</font>"
                     }.let { title ->
-                        actionBar.setTitle(spannedFromHtml(source = title))
+                        actionBar.title = spannedFromHtml(source = title)
                     }
                 }
                 actionBar.setDisplayHomeAsUpEnabled(true)

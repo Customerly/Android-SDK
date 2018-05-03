@@ -32,8 +32,6 @@ const val USER_TYPE__USER = 4 //hex 0x04 dec: 4
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class UserType
 
-
-
 const val WRITER_TYPE__ACCOUNT = 0
 const val WRITER_TYPE__USER = 1
 
@@ -41,5 +39,7 @@ const val WRITER_TYPE__USER = 1
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class WriterType
 
-
 @ColorInt internal const val COLORINT_BLUE_MALIBU = -0x9a5619//Blue Malibu
+
+internal const val JSON_COMPANY_KEY_ID = "company_id"
+internal const val JSON_COMPANY_KEY_NAME = "name"
