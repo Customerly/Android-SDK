@@ -31,10 +31,9 @@ internal fun Throwable.tryCrashlyticsLog() {
     } catch (ignored: Exception) { }
 }
 
-//internal fun tryCrashlyticsSetString(key: String, value: String) {
-//    try {
-//        Class.forName(CRASHLYTICS_PACKAGE)
-//                .getDeclaredMethod("setString", String::class.java, String::class.java)
-//                .invoke(null, key, value)
-//    } catch (ignored: Exception) { }
-//}
+internal fun tryCrashlyticsSetString(key: String, value: String) {
+    try {
+        Class.forName(CRASHLYTICS_PACKAGE)
+                .getDeclaredMethod("setString", String::class.java, String::class.java)(null, key, value)
+    } catch (ignored: Exception) { }
+}

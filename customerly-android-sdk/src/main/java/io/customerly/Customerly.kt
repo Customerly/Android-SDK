@@ -320,10 +320,7 @@ object Customerly {
 
         context.registerLollipopNetworkReceiver()
 
-        ignoreException {
-            Class.forName("com.crashlytics.android.Crashlytics")
-                    .getDeclaredMethod("setString", String::class.java, String::class.java)(null, BuildConfig.APPLICATION_ID + " version:", BuildConfig.VERSION_NAME)
-        }
+        tryCrashlyticsSetString(key = BuildConfig.APPLICATION_ID + " version", value = BuildConfig.VERSION_NAME)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
