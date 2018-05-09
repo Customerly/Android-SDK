@@ -26,12 +26,13 @@ import android.os.Looper
 import android.support.annotation.IntRange
 import android.support.annotation.RequiresPermission
 import android.util.Log
-import io.customerly.BuildConfig
 import io.customerly.Customerly
 import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.JWT_KEY
 import io.customerly.entity.parseJwtToken
+import io.customerly.utils.CUSTOMERLY_DEV_MODE
+import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.ggkext.*
 import org.jetbrains.anko.AnkoAsyncContext
@@ -205,8 +206,8 @@ internal class ClyApiRequest<RESPONSE: Any>
                 }
             }.also { connection ->
                 @Suppress("ConstantConditionIf")
-                if (BuildConfig.CUSTOMERLY_DEV_MODE) {
-                    Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
+                if (CUSTOMERLY_DEV_MODE) {
+                    Log.e(CUSTOMERLY_SDK_NAME,
                             "-----------------------------------------------------------" +
                                     "\nNEW HTTP REQUEST" +
                                     "\n+ Endpoint:        " + endpoint +
@@ -222,8 +223,8 @@ internal class ClyApiRequest<RESPONSE: Any>
                     (requestBody
                             .nullOnException { it.toString(4) } ?: "Malformed JSON")
                             .chunkedSequence(size = 500)
-                            .forEach { Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, it) }
-                    Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
+                            .forEach { Log.e(CUSTOMERLY_SDK_NAME, it) }
+                    Log.e(CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                 }
             }
             try {
@@ -241,8 +242,8 @@ internal class ClyApiRequest<RESPONSE: Any>
                             .let { JSONObject(it) }
 
                     @Suppress("ConstantConditionIf")
-                    if (BuildConfig.CUSTOMERLY_DEV_MODE) {
-                        Log.e(BuildConfig.CUSTOMERLY_SDK_NAME,
+                    if (CUSTOMERLY_DEV_MODE) {
+                        Log.e(CUSTOMERLY_SDK_NAME,
                                 "-----------------------------------------------------------" +
                                         "\nHTTP RESPONSE" +
                                         "\n+ Endpoint:        " + endpoint +
@@ -250,8 +251,8 @@ internal class ClyApiRequest<RESPONSE: Any>
                         (response
                                 .nullOnException { it.toString(4) } ?: "Malformed JSON")
                                 .chunkedSequence(size = 500)
-                                .forEach { Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, it) }
-                        Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
+                                .forEach { Log.e(CUSTOMERLY_SDK_NAME, it) }
+                        Log.e(CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                     }
 
                     if (!response.has("error")) {

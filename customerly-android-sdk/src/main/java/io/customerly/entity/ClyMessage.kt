@@ -80,7 +80,7 @@ internal fun JSONObject.parseMessage() : ClyMessage {
 }
 
 internal fun JSONObject.parseMessagesList() : ArrayList<ClyMessage> {
-    return this.optArrayList<JSONObject,ClyMessage>(name = "messages", map = { it.parseMessage() }) ?: ArrayList(initialCapacity = 0)
+    return this.optArrayList<JSONObject,ClyMessage>(name = "messages", map = { it.parseMessage() }) ?: ArrayList(0)
 }
 
 internal class ClyMessage(

@@ -43,3 +43,11 @@ internal annotation class WriterType
 
 internal const val JSON_COMPANY_KEY_ID = "company_id"
 internal const val JSON_COMPANY_KEY_NAME = "name"
+
+internal const val CUSTOMERLY_WEB_SITE = "https://www.customerly.io/"
+internal const val CUSTOMERLY_SDK_NAME = "Customerly"
+internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "http://pictures.cdn.customerly.io/"
+internal const val CUSTOMERLY_API_ENDPOINT_BASEURL = "https://tracking.customerly.io/"
+internal const val CUSTOMERLY_API_VERSION = "v1"
+internal const val CUSTOMERLY_SOCKET_VERSION = "1"
+internal const val CUSTOMERLY_DEV_MODE = false

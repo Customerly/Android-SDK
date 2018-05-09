@@ -34,8 +34,8 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
     return try {
         val minVersion = this.optTyped(name = "min-version-android", fallback = "0.0.0")
         val activeAdmins = this.optArray<JSONObject,ClyAdmin>(name = "active_admins", map = { it.parseAdmin() })
-        val lastSurveys = this.optArrayNotNull<JSONObject,ClySurvey>(name = "last_surveys", map = { it.parseSurvey() })
-        val lastMessages = this.optArrayNotNull<JSONObject,ClyMessage>(name = "last_messages", map = { it.nullOnException { it.parseMessage() } })
+        val lastSurveys = this.optArray<JSONObject,ClySurvey>(name = "last_surveys", map = { it.parseSurvey() })
+        val lastMessages = this.optArray<JSONObject,ClyMessage>(name = "last_messages", map = { it.nullOnException { it.parseMessage() } })
         this.optTyped<JSONObject>(name = "app_config")?.let { appConfig ->
             @ColorInt val widgetColor: Int = Customerly.widgetColorHardcoded ?: appConfig.optTyped<String>(name = "widget_color")?.takeIf { it.isNotEmpty() }?.let {
                     when {
@@ -113,7 +113,7 @@ internal class ClyPingResponse(
 
 
     internal fun tryShowSurvey(): Boolean {
-        return if(Customerly.surveyEnabled) {
+        return if(Customerly.isSurveyEnabled) {
             val survey = this.lastSurveys?.firstOrNull { !it.isRejectedOrConcluded }
             if(survey != null) {
                 survey.postDisplay()
@@ -128,7 +128,7 @@ internal class ClyPingResponse(
     }
 
     internal fun tryShowLastMessage(): Boolean {
-        return if(Customerly.supportEnabled) {
+        return if(Customerly.isSupportEnabled) {
             val lastMessage = this.lastMessages?.firstOrNull()
             if(lastMessage != null) {
                 lastMessage.postDisplay()

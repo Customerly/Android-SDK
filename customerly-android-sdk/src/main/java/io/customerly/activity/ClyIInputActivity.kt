@@ -45,6 +45,8 @@ import io.customerly.R
 import io.customerly.entity.ClyAttachment
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
 import io.customerly.entity.clySendError
+import io.customerly.utils.CUSTOMERLY_SDK_NAME
+import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.getContrastBW
@@ -184,11 +186,11 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
 
         if (Customerly.lastPing.poweredBy) {
-            val redBoldSpannable = SpannableString(BuildConfig.CUSTOMERLY_SDK_NAME)
+            val redBoldSpannable = SpannableString(CUSTOMERLY_SDK_NAME)
             redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
             redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
             poweredBy.text = SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable)
-            poweredBy.setOnClickListener { btn -> btn.activity?.startClyWebViewActivity(targetUrl = BuildConfig.CUSTOMERLY_WEB_SITE) }
+            poweredBy.setOnClickListener { btn -> btn.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_WEB_SITE) }
             poweredBy.visibility = View.VISIBLE
         } else {
             poweredBy.visibility = View.GONE
@@ -257,10 +259,10 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUESTCODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
-                val fileUri = data.data
+                val fileUri = data?.data
                 if (fileUri != null) {
                     try {
                         for (att in this.attachments) {

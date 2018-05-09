@@ -78,14 +78,14 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                             endpoint = ENDPOINT_CONVERSATION_RETRIEVE,
                             requireToken = true,
                             trials = 2,
-                            converter = { it.optArrayList<JSONObject, ClyConversation>(name = "conversations", map = { it.parseConversation() })
-                                        ?: ArrayList(0) },
+                            converter = { it.optArrayList(name = "conversations", map = JSONObject::parseConversation) ?: ArrayList(0) },
                             callback = {
                                 activity.displayInterface(conversationsList = when (it) {
                                     is ClyApiResponse.Success -> it.result
                                     is ClyApiResponse.Failure -> null
                                 })
                             })
+                            .start()
                 } else {
                     activity.displayInterface(conversationsList = null)
                 }
@@ -175,7 +175,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         this.onRefreshListener.onRefresh()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_THEN_REFRESH_LIST) {
             this.onReconnection()
@@ -246,7 +246,6 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                                         this.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
                                     })
                         })
-
             }
 
             admins?.asSequence()?.mapNotNull { it.last_active }?.max()?.let { lastActiveAdmin ->

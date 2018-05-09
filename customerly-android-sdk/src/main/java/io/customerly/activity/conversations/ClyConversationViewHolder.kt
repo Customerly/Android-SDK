@@ -17,12 +17,14 @@ package io.customerly.activity.conversations
  */
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
+import android.widget.ImageView
+import android.widget.TextView
 import io.customerly.R
 import io.customerly.entity.ClyConversation
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
-import kotlinx.android.synthetic.main.io_customerly__li_conversation.view.*
 
 /**
  * Created by Gianni on 27/04/18.
@@ -33,13 +35,17 @@ internal class ClyConversationViewHolder(recyclerView: RecyclerView)
 
     private var conversationId = 0L
 
-    private val icon = this.itemView.io_customerly__icon
-    private val name = this.itemView.io_customerly__name
-    private val lastMessage = this.itemView.io_customerly__last_message
-    private val time = this.itemView.io_customerly__time
+    private val icon = this.itemView.also {
+
+
+        Log.e("ViewHolder", it.toString())
+    }.findViewById<ImageView>(R.id.io_customerly__icon)
+    private val name = this.itemView.findViewById<TextView>(R.id.io_customerly__name)
+    private val lastMessage = this.itemView.findViewById<TextView>(R.id.io_customerly__last_message)
+    private val time = this.itemView.findViewById<TextView>(R.id.io_customerly__time)
 
     init {
-        this.itemView.layoutParams.also {
+        this.icon.layoutParams.also {
             it.height = 50.dp2px
             it.width = 50.dp2px
         }
@@ -50,6 +56,24 @@ internal class ClyConversationViewHolder(recyclerView: RecyclerView)
 
     internal fun apply(conversationsActivity: ClyConversationsActivity, conversation: ClyConversation) {
         this.conversationId = conversation.id
+
+//        this.icon.setImageResource(R.drawable.io_customerly__ic_default_admin)
+
+//        val diskKey = CUSTOMERLY_SDK_NAME + '-' + "${conversation.getImageUrl(50.dp2px)}|${true}|${50.dp2px}|${50.dp2px}".hashCode()
+//
+//        val bitmapFile = File(File(conversationsActivity.cacheDir, CUSTOMERLY_SDK_NAME), diskKey)
+//        if (bitmapFile.exists()) {
+//            if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
+//                BitmapFactory.decodeFile(bitmapFile.toString())?.also { bmp ->
+//                    this.icon.setImageBitmap(bmp)
+//                }
+//            } else {
+//                bitmapFile.delete()
+//            }
+//        } else {
+//            this.icon.setImageResource(R.drawable.io_customerly__ic_default_admin)
+//        }
+
         ClyImageRequest(context = conversationsActivity, url = conversation.getImageUrl(50.dp2px))
                 .fitCenter()
                 .transformCircle()

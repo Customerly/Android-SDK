@@ -20,7 +20,6 @@ import android.app.Activity
 import android.support.annotation.StringDef
 import android.util.Log
 import android.view.WindowManager
-import io.customerly.BuildConfig
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
@@ -31,6 +30,8 @@ import io.customerly.entity.ClyMessage
 import io.customerly.entity.ClySocketParams
 import io.customerly.entity.parseMessagesList
 import io.customerly.entity.parseSocketParams
+import io.customerly.utils.CUSTOMERLY_DEV_MODE
+import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.ggkext.ignoreException
 import io.customerly.utils.ggkext.nullOnException
@@ -62,9 +63,9 @@ internal class ClySocket {
 
     internal fun connect(newParams: JSONObject? = null) {
 
-        val params = newParams?.takeIf { Customerly.sdkAvailable && !Customerly.appInsolvent }?.parseSocketParams() ?: this.activeParams
+        val params = newParams?.takeIf { Customerly.isSdkAvailable && !Customerly.appInsolvent }?.parseSocketParams() ?: this.activeParams
 
-        if(Customerly.supportEnabled) {
+        if(Customerly.isSupportEnabled) {
             this.shouldBeConnected = true
             Customerly.checkConfigured {
                 if(params != null) {
@@ -155,7 +156,7 @@ internal class ClySocket {
             if (currentActivity != null && Customerly.isEnabledActivity(activity = currentActivity)) {
                 when {
                     currentActivity is ClyAppCompatActivity -> currentActivity.onNewSocketMessages(messages = messages)
-                    Customerly.supportEnabled -> {
+                    Customerly.isSupportEnabled -> {
                         try {
                             currentActivity.showClyAlertMessage(message = messages.first())
                         } catch (changedActivityWhileExecuting: WindowManager.BadTokenException) {
@@ -172,7 +173,7 @@ internal class ClySocket {
                             activity.onNewSocketMessages(messages = messages)
                             true
                         }
-                        Customerly.supportEnabled -> {
+                        Customerly.isSupportEnabled -> {
                             try {
                                 activity.showClyAlertMessage(message = messages.first())
                                 true
@@ -208,8 +209,8 @@ internal class ClySocket {
 
     private fun logSocket(@SocketEvent event: String, payloadJson: JSONObject, receiving: Boolean = true) {
         @Suppress("ConstantConditionIf")
-        if(BuildConfig.CUSTOMERLY_DEV_MODE) {
-            Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, "SOCKET ${ if(receiving) "RX" else "TX" } : $event -> ${payloadJson.nullOnException { it.toString(1) } ?: "malformed json payload" }")
+        if(CUSTOMERLY_DEV_MODE) {
+            Log.e(CUSTOMERLY_SDK_NAME, "SOCKET ${ if(receiving) "RX" else "TX" } : $event -> ${payloadJson.nullOnException { it.toString(1) } ?: "malformed json payload" }")
         }
     }
 

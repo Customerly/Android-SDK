@@ -21,7 +21,7 @@ import android.graphics.*
 import android.support.annotation.DrawableRes
 import android.support.annotation.IntRange
 import android.widget.ImageView
-import io.customerly.BuildConfig
+import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ggkext.weak
 import java.io.File
 import java.lang.ref.WeakReference
@@ -35,7 +35,7 @@ internal const val IMAGE_REQUEST_DONT_RESIZE = -1
 
 internal class ClyImageRequest(context : Context, internal val url : String ) {
 
-    internal val customerlyCacheDirPath: String = File(context.cacheDir, BuildConfig.CUSTOMERLY_SDK_NAME).path
+    internal val customerlyCacheDirPath: String = File(context.cacheDir, CUSTOMERLY_SDK_NAME).path
 
     private var scaleType: ImageView.ScaleType? = null
     private fun ImageView.ScaleType?.setTo(iv : ImageView) {
@@ -96,7 +96,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         this.intoGenericTarget = target
     }
 
-    internal fun handlerGetDiskKey() = BuildConfig.CUSTOMERLY_SDK_NAME + '-' + "${this.url}|${this.applyCircleTransformation}|${this.resizeWidth}|${this.resizeHeight}".hashCode()
+    internal fun handlerGetDiskKey() = CUSTOMERLY_SDK_NAME + '-' + "${this.url}|${this.applyCircleTransformation}|${this.resizeWidth}|${this.resizeHeight}".hashCode()
 
     internal val handlerGetHashCode : Int get() = this.intoImageView?.get()?.hashCode() ?: this.intoGenericTarget?.hashCode() ?: -1
 
@@ -141,8 +141,10 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
     internal fun handlerOnResponse(bmp : Bitmap) {
         this.intoGenericTarget?.invoke(bmp)
                 ?: this.intoImageView?.get()?.let { iv ->
-                    this.scaleType.setTo(iv)
-                    iv.setImageBitmap(bmp)
+                    iv.post {
+                        this.scaleType.setTo(iv)
+                        iv.setImageBitmap(bmp)
+                    }
                 }
     }
 
@@ -151,8 +153,10 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         if(placeholder != 0) {
             this.onPlaceholder?.invoke(placeholder)
                     ?: this.intoImageView?.get()?.let { iv ->
-                        this.scaleType.setTo(iv)
-                        iv.setImageResource(placeholder)
+                        iv.post {
+                            this.scaleType.setTo(iv)
+                            iv.setImageResource(placeholder)
+                        }
                     }
         }
     }
@@ -162,8 +166,10 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         if(error != 0) {
             this.onError?.invoke(error)
                     ?: this.intoImageView?.get()?.let { iv ->
-                        this.scaleType.setTo(iv)
-                        iv.setImageResource(error)
+                        iv.post {
+                            this.scaleType.setTo(iv)
+                            iv.setImageResource(error)
+                        }
                     }
         }
     }

@@ -19,6 +19,8 @@ package io.customerly.api
 import android.content.Context
 import android.os.Build
 import io.customerly.BuildConfig
+import io.customerly.utils.CUSTOMERLY_API_VERSION
+import io.customerly.utils.CUSTOMERLY_SOCKET_VERSION
 import org.json.JSONObject
 
 /**
@@ -31,8 +33,8 @@ internal object DeviceJson {
                 .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
                 .put("os_version", Build.VERSION.SDK_INT)
                 .put("sdk_version", BuildConfig.VERSION_NAME)
-                .put("api_version", BuildConfig.CUSTOMERLY_API_VERSION)
-                .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION)
+                .put("api_version", CUSTOMERLY_API_VERSION)
+                .put("socket_version", CUSTOMERLY_SOCKET_VERSION)
     }
     internal fun loadContextInfos(context: Context) {
         this.json.apply {

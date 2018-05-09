@@ -17,7 +17,7 @@ package io.customerly.entity
  */
 
 import android.support.annotation.Px
-import io.customerly.BuildConfig
+import io.customerly.utils.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL
 
 /**
  * Created by Gianni on 09/04/18.
@@ -25,7 +25,7 @@ import io.customerly.BuildConfig
  */
 
 fun urlImageAccount(accountId: Long, @Px sizePX: Int): String
-        = "${BuildConfig.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL}accounts/$accountId/$sizePX"
+        = "${CUSTOMERLY_PICTURE_ENDPOINT_BASEURL}accounts/$accountId/$sizePX"
 
 fun urlImageUser(userID: Long, @Px sizePX: Int): String
-        = "${BuildConfig.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL}users/$userID/$sizePX"
+        = "${CUSTOMERLY_PICTURE_ENDPOINT_BASEURL}users/$userID/$sizePX"

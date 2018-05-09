@@ -63,7 +63,7 @@ internal sealed class ClyChatViewHolder (
     val content: TextView = this.itemView.findViewById<TextView>(contentResId).apply { this.movementMethod = LinkMovementMethod.getInstance() }
 
     protected val iconSize = recyclerView.resources.getDimensionPixelSize(R.dimen.io_customerly__chat_li_icon_size).also { iconSize ->
-        this.itemView.layoutParams.also {
+        this.icon?.layoutParams?.also {
             it.height = iconSize
             it.width = iconSize
         }

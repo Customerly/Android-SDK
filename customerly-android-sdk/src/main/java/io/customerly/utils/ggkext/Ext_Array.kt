@@ -132,7 +132,7 @@ internal inline fun <E, reified T> List<E>.toTypedMappedArray(map : (E)->T) : Ar
 }
 
 internal fun <E> List<E>.toArrayList() : ArrayList<E> {
-    return (this as? ArrayList<E>) ?: ArrayList(c = this)
+    return (this as? ArrayList<E>) ?: ArrayList(this)
 }
 
 internal infix fun <K,V> K.entry(that: V): Map.Entry<K, V> = MyMapEntry(this, that)

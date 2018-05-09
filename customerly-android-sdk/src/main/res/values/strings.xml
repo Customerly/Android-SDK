@@ -90,7 +90,7 @@
     <string name="io_customerly__rich_message_text">This message was sent by email.\nTap to read.</string>
     <string name="io_customerly__rich_message_text__condensed_for_alert">Message sent by email.\nTap to read.</string>
     <string name="io_customerly__support">Support</string>
-    <string name="io_customerly__webview_act_label">Email content</string>
+    <string name="io_customerly__webview_act_label">Customerly browsing</string>
     <string name="io_customerly__open_conversation">Open conversation</string>
     <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>
     <string name="io_customerly__open_in_browser">Open in browser</string>

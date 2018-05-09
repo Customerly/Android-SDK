@@ -26,6 +26,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
+import android.support.annotation.CheckResult
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
@@ -44,6 +45,8 @@ import io.customerly.utils.network.registerLollipopNetworkReceiver
 import io.customerly.websocket.ClySocket
 import org.json.JSONObject
 
+
+
 /**
  * Created by Gianni on 19/04/18.
  * Project: Customerly-KAndroid-SDK
@@ -51,25 +54,18 @@ import org.json.JSONObject
 private const val PREF_KEY_APP_ID = "CUSTOMERLY_APP_ID"
 private const val PREF_KEY_HARDCODED_WIDGETCOLOR = "CUSTOMERLY_HARDCODED_WIDGETCOLOR"
 
-fun jsonFrom(vararg values: Pair<String,Any>): JSONObject {
-    return values.asSequence()
-            .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) })
-}
-
-fun jsonFrom(map: HashMap<String, Any>): JSONObject {
-    return JSONObject(map)
-}
-
-fun companyJson(companyId: String, companyName: String, existing: JSONObject = JSONObject()): JSONObject {
-    return existing.put(JSON_COMPANY_KEY_ID, companyId).put(JSON_COMPANY_KEY_NAME, companyName)
-}
-
 object Customerly {
+
+    //TODO JAVADOC
 
     ////////////////////////////////////////////////////////////////////////////////
     // Public fields & functions ///////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
 
+    //JAVADOC
+
+    @JvmStatic
+    @JvmOverloads
     fun configure(application: Application, customerlyAppId: String, widgetColor: Int? = null) {
         Customerly.initialize(context = application.applicationContext)
         Customerly.preferences?.edit()
@@ -139,7 +135,7 @@ object Customerly {
      */
     fun openSupport(activity: Activity) {
         this.checkConfigured {
-            this.supportEnabled = true
+            this.isSupportEnabled = true
             try {
                 activity.startClyConversationsActivity()
                 Customerly.log(message = "openSupport completed successfully")
@@ -150,7 +146,7 @@ object Customerly {
         }
     }
 
-    val sdkAvailable: Boolean get() = nullOnException { Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.lastPing.minVersion)) } ?: false
+    val isSdkAvailable: Boolean get() = nullOnException { Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.lastPing.minVersion)) } ?: false
 
     @Throws(IllegalArgumentException::class)
     fun setAttributes(attributes: JSONObject, success: ()->Unit = {}, failure: ()->Unit = {}) {
@@ -167,6 +163,7 @@ object Customerly {
         }
     }
 
+    @JvmOverloads
     @Throws(IllegalArgumentException::class)
     fun setCompany(company: JSONObject, success: ()->Unit = {}, failure: ()->Unit = {}) {
         company.assertValidCompanyMap()
@@ -183,6 +180,7 @@ object Customerly {
         }
     }
 
+    @JvmOverloads
     fun registerUser(email: String, userId: String? = null, name: String? = null,
                      attributes: JSONObject? = null, company: JSONObject? = null,
                      success: ()->Unit = {}, failure: ()->Unit = {}) {
@@ -205,7 +203,7 @@ object Customerly {
         }
     }
 
-    var supportEnabled: Boolean = true
+    var isSupportEnabled: Boolean = true
         set(value) {
             when {
                 field && !value -> {
@@ -221,7 +219,7 @@ object Customerly {
             }
         }
 
-    var surveyEnabled: Boolean = true
+    var isSurveyEnabled: Boolean = true
 
     /**
      * Call this method to keep track of custom labeled events.<br></br>
@@ -246,6 +244,7 @@ object Customerly {
         }
     }
 
+    @JvmOverloads
     fun update(success: ()->Unit = {}, failure: ()->Unit = {}) {
         if(System.currentTimeMillis() > Customerly.nextPingAllowed) {
             Customerly.ping(
@@ -257,11 +256,170 @@ object Customerly {
         }
     }
 
-     /**
-     * Set to true to enable error logging in the Console.
-     * Avoid to enable it in release app versions, the suggestion is to pass your.application.package.BuildConfig.DEBUG as set value
-     */
-    var verboseLogging: Boolean = false
+    /**
+    * Set to true to enable error logging in the Console.
+    * Avoid to enable it in release app versions, the suggestion is to pass your.application.package.BuildConfig.DEBUG as set value
+    */
+    fun setVerboseLogging(enabled: Boolean) {
+        this.isVerboseLogging = enabled
+    }
+
+    @JvmStatic
+    fun attributeJson(vararg values: Pair<String,Any>): JSONObject {
+        return values.asSequence()
+                .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) })
+    }
+
+    @JvmStatic
+    fun attributeJson(map: HashMap<String, Any>): JSONObject {
+        return JSONObject(map)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun companyJson(companyId: String, companyName: String, existing: JSONObject = JSONObject()): JSONObject {
+        return existing.put(JSON_COMPANY_KEY_ID, companyId).put(JSON_COMPANY_KEY_NAME, companyName)
+    }
+
+    @JvmStatic
+    fun companyJson(companyId: String, companyName: String, existing: HashMap<String, Any>): JSONObject {
+        return companyJson(companyId = companyId, companyName = companyName, existing = JSONObject(existing))
+    }
+
+    @JvmStatic
+    fun companyJson(companyId: String, companyName: String, vararg values: Pair<String,Any>): JSONObject {
+        return companyJson(companyId = companyId, companyName = companyName, existing = values.asSequence()
+                .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) }))
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Java SDK Deprecated Fields and Methods //////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    @JvmStatic
+    @Deprecated(
+            message = "In Kotlin you can access directly the Customerly object. So simply remove this `.get()` calling. In Java please call Customerly.INSTANCE instead of Customerly.get()",
+            replaceWith = ReplaceWith("Customerly.INSTANCE"))
+    fun get() = this
+
+    @Deprecated(
+            message = "Use Customerly.companyJson(companyId,companyName) instead",
+            replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+    class CompanyBuilder
+    @Deprecated(
+            message = "Use Customerly.companyJson(companyId,companyName) instead",
+            replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)")) constructor(companyId: String, companyName: String) {
+        private val company = Customerly.companyJson(companyId = companyId, companyName = companyName)
+
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: String) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Int) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Byte) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Long) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Double) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Float) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Char) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult fun put(key: String, value: Boolean) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        @CheckResult private fun put(key: String, value: Any): CompanyBuilder {
+            if (!(JSON_COMPANY_KEY_ID == key || JSON_COMPANY_KEY_NAME == key)) {
+                ignoreException {
+                    this.company.put(key, value)
+                }
+            }
+            return this
+        }
+        @Deprecated(
+                message = "Use Customerly.companyJson(companyId,companyName) instead",
+                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
+        fun build(): JSONObject {
+            return this.company
+        }
+    }
+
+    @Deprecated(
+            message = "Use Customerly.attributeJson() instead",
+            replaceWith = ReplaceWith("Customerly.attributeJson()"))
+    class AttributesBuilder
+    @Deprecated(
+            message = "Use Customerly.companyJson(companyId,companyName) instead",
+            replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)")) constructor(companyId: String, companyName: String) {
+        private val attributes = Customerly.attributeJson()
+
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: String) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Int) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Byte) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Long) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Double) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Float) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Char) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult fun put(key: String, value: Boolean) = this.put(key, value as Any)
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        @CheckResult private fun put(key: String, value: Any): AttributesBuilder {
+            ignoreException {
+                this.attributes.put(key, value)
+            }
+            return this
+        }
+        @Deprecated(
+                message = "Use Customerly.attributeJson() instead",
+                replaceWith = ReplaceWith("Customerly.attributeJson()"))
+        fun build(): JSONObject {
+            return this.attributes
+        }
+    }
+
+
 
     ////////////////////////////////////////////////////////////////////////////////
     // Private fields //////////////////////////////////////////////////////////////
@@ -269,6 +427,8 @@ object Customerly {
 
     private var initialized: Boolean = false
     private var configured: Boolean = false
+
+    internal var isVerboseLogging: Boolean = false
 
     internal var appInsolvent: Boolean = false
 
@@ -346,7 +506,7 @@ object Customerly {
                 not.invoke()
             }
             true -> when {
-                !this.sdkAvailable  -> this.log(message = "This version of Customerly SDK is not supported anymore. Please update your dependency", error = true)
+                !this.isSdkAvailable  -> this.log(message = "This version of Customerly SDK is not supported anymore. Please update your dependency", error = true)
                 this.appInsolvent   -> this.log(message = "Your app has some pending payment. Please visit app.customerly.io", error = true)
                 else                -> ok()
             }
@@ -354,11 +514,11 @@ object Customerly {
     }
 
     internal fun log(message: String, error: Boolean = false) {
-        if (this.verboseLogging) {
+        if (this.isVerboseLogging) {
             if(error) {
-                Log.e(BuildConfig.CUSTOMERLY_SDK_NAME, message)
+                Log.e(CUSTOMERLY_SDK_NAME, message)
             } else {
-                Log.v(BuildConfig.CUSTOMERLY_SDK_NAME, message)
+                Log.v(CUSTOMERLY_SDK_NAME, message)
             }
         }
     }

@@ -47,13 +47,10 @@ internal inline fun <reified TYPE> JSONObject.optSequenceOpt(name : String) : Se
 internal inline fun <reified TYPE> JSONObject.optSequenceOpt(name : String, fallback : TYPE) : Sequence<TYPE>?
         = this.optJSONArray(name)?.asSequenceOpt(fallback = fallback)
 
-internal inline fun <reified JSON_ARRAY_ITEM, LIST_ITEM> JSONObject.optArrayList(name : String, noinline map :(JSON_ARRAY_ITEM)->LIST_ITEM) : ArrayList<LIST_ITEM>?
-        = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.map(map)?.toList()?.toArrayList()
+internal inline fun <reified JSON_ARRAY_ITEM: Any, LIST_ITEM> JSONObject.optArrayList(name : String, noinline map :(JSON_ARRAY_ITEM)->LIST_ITEM) : ArrayList<LIST_ITEM>?
+        = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.filterNotNull()?.map(map)?.toList()?.toArrayList()
 
-internal inline fun <reified JSON_ARRAY_ITEM, reified ARRAY_ITEM> JSONObject.optArray(name : String, noinline map :(JSON_ARRAY_ITEM)->ARRAY_ITEM) : Array<ARRAY_ITEM>?
-        = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.map(map)?.toList()?.toTypedArray()
-
-internal inline fun <reified JSON_ARRAY_ITEM, reified ARRAY_ITEM: Any> JSONObject.optArrayNotNull(name : String, noinline map :(JSON_ARRAY_ITEM)->ARRAY_ITEM?) : Array<ARRAY_ITEM>?
+internal inline fun <reified JSON_ARRAY_ITEM, reified ARRAY_ITEM: Any> JSONObject.optArray(name : String, noinline map :(JSON_ARRAY_ITEM)->ARRAY_ITEM?) : Array<ARRAY_ITEM>?
         = this.optSequence<JSON_ARRAY_ITEM>(name = name)?.mapNotNull(map)?.toList()?.toTypedArray()
 
 /**
@@ -63,7 +60,7 @@ internal inline fun <reified TYPE> JSONArray.asSequence() : Sequence<TYPE>
         = if(this.length() == 0) {
             emptySequence()
         } else {
-            (1 until this.length())
+            (0 until this.length())
             .asSequence()
             .map { this.getTyped<TYPE>(index = it) }
         }
@@ -72,7 +69,7 @@ internal inline fun <reified TYPE> JSONArray.asSequenceOpt(fallback : TYPE) : Se
         = if(this.length() == 0) {
             emptySequence()
         } else {
-            (1 until this.length())
+            (0 until this.length())
             .asSequence()
             .map { this.optTyped(index = it, fallback = fallback) }
         }
@@ -81,7 +78,7 @@ internal inline fun <reified TYPE> JSONArray.asSequenceOpt() : Sequence<TYPE?>
         = if(this.length() == 0) {
             emptySequence()
         } else {
-            (1 until this.length())
+            (0 until this.length())
             .asSequence()
             .map { this.optTyped<TYPE>(index = it) }
         }
@@ -114,41 +111,41 @@ internal inline fun <reified TYPE> JSONObject.optTyped(name : String) : TYPE? {
         Boolean::class ->   {
             val value = this.opt(name)
             when(value) {
-                is Boolean  ->  value as TYPE
-                is String   -> value.toBooleanOrNull() as TYPE
+                is Boolean  ->  value as? TYPE
+                is String   -> value.toBooleanOrNull() as? TYPE
                 else    ->  null
             }
         }
         Double::class -> {
             val value = this.opt(name)
             when (value) {
-                is Double -> value as TYPE
-                is Number -> value.toDouble() as TYPE
-                is String -> value.toDoubleOrNull() as TYPE
+                is Double -> value as? TYPE
+                is Number -> value.toDouble() as? TYPE
+                is String -> value.toDoubleOrNull() as? TYPE
                 else -> null
             }
         }
         Int::class -> {
             val value = this.opt(name)
             when (value) {
-                is Int -> value as TYPE
-                is Number -> value.toInt() as TYPE
-                is String -> value.toIntOrNull() as TYPE
+                is Int -> value as? TYPE
+                is Number -> value.toInt() as? TYPE
+                is String -> value.toIntOrNull() as? TYPE
                 else -> null
             }
         }
         Long::class -> {
             val value = this.opt(name)
             when (value) {
-                is Long -> value as TYPE
-                is Number -> value.toLong() as TYPE
-                is String -> value.toLongOrNull() as TYPE
+                is Long -> value as? TYPE
+                is Number -> value.toLong() as? TYPE
+                is String -> value.toLongOrNull() as? TYPE
                 else -> null
             }
         }
-        String::class ->    this.optString(name, null) as TYPE
-        JSONArray::class -> this.optJSONArray(name) as TYPE
-        JSONObject::class ->this.optJSONObject(name) as TYPE
+        String::class ->    this.optString(name, null) as? TYPE
+        JSONArray::class -> this.optJSONArray(name) as? TYPE
+        JSONObject::class ->this.optJSONObject(name) as? TYPE
         else -> throw JSONException("Only can be retrieved Boolean,Double,Int,Long,String,JSONArray or JSONObject from a JSONObject")
     }
 }

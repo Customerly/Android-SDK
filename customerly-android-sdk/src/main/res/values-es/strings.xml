@@ -63,7 +63,7 @@
   <string name="io_customerly__rich_message_text">Este mensaje ha sido enviado por correo electrónico.\nToca para leerlo.</string>
   <string name="io_customerly__rich_message_text__condensed_for_alert">Mensaje enviado por correo electrónico.\nToca para leerlo.</string>
   <string name="io_customerly__support">Asistencia</string>
-  <string name="io_customerly__webview_act_label">Contenido del correo electrónico</string>
+  <string name="io_customerly__webview_act_label">Customerly browsing</string>
   <string name="io_customerly__open_conversation">Abrir una conversación</string>
   <string name="io_customerly__cant_access_external_memory">No se puede acceder a la memoria externa</string>
   <string name="io_customerly__open_in_browser">Abrir en el navegador</string>

@@ -17,8 +17,8 @@ package io.customerly.entity
  */
 
 import android.util.Base64
-import io.customerly.BuildConfig
 import io.customerly.Customerly
+import io.customerly.utils.CUSTOMERLY_SOCKET_VERSION
 import io.customerly.utils.ggkext.nullOnException
 import io.customerly.utils.ggkext.optTyped
 import org.json.JSONException
@@ -46,7 +46,7 @@ internal fun JSONObject.parseSocketParams() : ClySocketParams? {
                                     )
                             )
                                     .put("is_mobile", true)
-                                    .put("socket_version", BuildConfig.CUSTOMERLY_SOCKET_VERSION)
+                                    .put("socket_version", CUSTOMERLY_SOCKET_VERSION)
                                     .toString().toByteArray(Charset.forName("UTF-8")),
                             Base64.NO_WRAP),
                     "UTF-8")

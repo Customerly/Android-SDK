@@ -17,10 +17,10 @@ package io.customerly.entity
  */
 
 import android.support.annotation.IntDef
-import io.customerly.BuildConfig
 import io.customerly.Customerly
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ENDPOINT_REPORT_CRASH
+import io.customerly.utils.CUSTOMERLY_SDK_NAME
 
 /**
  * Created by Gianni on 09/09/16.
@@ -40,7 +40,7 @@ import io.customerly.api.ENDPOINT_REPORT_CRASH
 internal annotation class ErrorCode
 
 internal fun clySendUnconfiguredError() {
-    clySendError(errorCode = ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, description = BuildConfig.CUSTOMERLY_SDK_NAME + "is not configured")
+    clySendError(errorCode = ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, description = CUSTOMERLY_SDK_NAME + "is not configured")
 }
 
 internal fun clySendError(@ErrorCode errorCode : Int, description : String, throwable : Throwable? = null) {
