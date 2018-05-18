@@ -45,7 +45,7 @@ internal val Int.months31_s :Long  get() = this.days_s * 31
 
 internal val Long.asDate :Date get() = Date(this)
 @STimestamp internal val Long.msAsSeconds :Long get() = this / 1000
-@MSTimestamp internal val Long.secondsAsMs :Long get() = this / 1000
+@MSTimestamp internal val Long.secondsAsMs :Long get() = this * 1000
 
 @STimestamp internal fun nowSeconds() = nowMs().msAsSeconds
 internal fun nowMs() = System.currentTimeMillis()

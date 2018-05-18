@@ -109,7 +109,9 @@ private fun JSONObject?.parseSurvey(use : (id: Int, thankYouYext: String, step: 
 }
 
 @Parcelize
-internal data class ClySurveyChoice(val id: Int, val value: String) : Parcelable
+internal data class ClySurveyChoice(val id: Int, val value: String) : Parcelable {
+    override fun toString() = this.value
+}
 
 @Parcelize
 internal class ClySurvey internal constructor(

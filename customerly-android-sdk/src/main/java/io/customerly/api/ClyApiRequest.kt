@@ -20,9 +20,6 @@ package io.customerly.api
 
 import android.Manifest
 import android.content.Context
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.support.annotation.IntRange
 import android.support.annotation.RequiresPermission
 import android.util.Log
@@ -31,13 +28,8 @@ import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.JWT_KEY
 import io.customerly.entity.parseJwtToken
-import io.customerly.utils.CUSTOMERLY_DEV_MODE
-import io.customerly.utils.CUSTOMERLY_SDK_NAME
-import io.customerly.utils.ClyActivityLifecycleCallback
+import io.customerly.utils.*
 import io.customerly.utils.ggkext.*
-import org.jetbrains.anko.AnkoAsyncContext
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -85,61 +77,46 @@ internal class ClyApiRequest<RESPONSE: Any>
             if(context?.checkConnection() == false) {
                 Customerly.log(message = "Check your connection")
                 ClyApiResponse.Failure<RESPONSE>(errorCode = RESPONSE_STATE__ERROR_NO_CONNECTION).also { errorResponse ->
-                    if(if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                Looper.getMainLooper().isCurrentThread
-                            } else {
-                                Looper.getMainLooper() == Looper.myLooper()
-                            }) {
-                        this.callback?.invoke(errorResponse)
-                    } else {
-                        Handler(Looper.getMainLooper()).post { this.callback?.invoke(errorResponse) }
+                    this.callback?.doOnUiThread {
+                        it.invoke(errorResponse)
                     }
                 }
             } else {
                 this.onPreExecute?.invoke(this.context)
                 val request = this
-                val async : AnkoAsyncContext<*>.()->Unit = {
+                doOnBackground {
                     @ClyResponseState var responseState: Int = RESPONSE_STATE__PREPARING
-                    var responseResult : RESPONSE? = null
+                    var responseResult: RESPONSE? = null
                     val appId = Customerly.appId
-                    if(appId != null) {
-                        var params:JSONObject? = null
-
-                        if(ENDPOINT_PING == request.endpoint) {
-                            params = request.fillParamsWithAppidAndDeviceInfo(params = request.params, appId = appId)
-                        } else {
-                            when(Customerly.jwtToken) {
-                                null -> {
-                                    when(request.requireToken) {
-                                        true -> {
-                                            //If not token available and token is mandatory,
-                                            //first perform first a ping to obtain it
-                                            //or kill the request
+                    if (appId != null) {
+                        val params: JSONObject? = when (request.endpoint) {
+                            ENDPOINT_PING, ENDPOINT_REPORT_CRASH -> request.fillParamsWithAppidAndDeviceInfo(params = request.params, appId = appId)
+                            else -> {
+                                when (Customerly.jwtToken) {
+                                    null/* no jwt */ -> when (request.requireToken) {
+                                        true/* jwt is required */ -> {
+                                            //If not token available and token is mandatory, first perform first a ping to obtain it or kill the request
                                             request.executeRequest(endpoint = ENDPOINT_PING, params = request.fillParamsWithAppidAndDeviceInfo(appId = appId))
-                                            when(Customerly.jwtToken) {
-                                                null -> responseState = RESPONSE_STATE__PREPARING
-                                                else -> if(ENDPOINT_REPORT_CRASH == request.endpoint) {
-                                                    params = request.fillParamsWithAppidAndDeviceInfo(appId = appId)
+                                            when (Customerly.jwtToken) {
+                                                null/* failed retrieving jwt */ -> {
+                                                    responseState = RESPONSE_STATE__NO_TOKEN_AVAILABLE
+                                                    null
                                                 }
+                                                else/* jwt ok */ -> request.fillParamsWithAppidAndDeviceInfo(params = request.params, appId = appId)
                                             }
                                         }
-                                        false -> {
-                                            //If not token available and token is not mandatory, i send the app_id and device
-                                            params = request.fillParamsWithAppidAndDeviceInfo(appId = appId)
-                                        }
+                                        false/* jwt is not required */ -> request.params
                                     }
-                                }
-                                else/* jwt ok */ -> if(ENDPOINT_REPORT_CRASH == request.endpoint) {
-                                    params = request.fillParamsWithAppidAndDeviceInfo(appId = appId)
+                                    else/* jwt ok */ -> request.params
                                 }
                             }
                         }
 
-                        if(responseState == RESPONSE_STATE__PREPARING) {
+                        if (responseState == RESPONSE_STATE__PREPARING) {
                             //No errors
                             request.executeRequest(jwtToken = Customerly.jwtToken, params = params).let { (state, result) ->
                                 responseState = state
-                                if(request.endpoint == ENDPOINT_PING && result != null) {
+                                if (request.endpoint == ENDPOINT_PING && result != null) {
                                     Customerly.nextPingAllowed = result.optLong("next-ping-allowed", 0)
                                     Customerly.clySocket.connect(newParams = result.optJSONObject("websocket"))
                                 }
@@ -150,11 +127,11 @@ internal class ClyApiRequest<RESPONSE: Any>
                         responseState = RESPONSE_STATE__NO_APPID_AVAILABLE
                     }
 
-                    uiThread {
-                        val localResult : RESPONSE? = responseResult
-                        request.callback?.invoke(
-                                when(responseState) {
-                                    RESPONSE_STATE__OK -> if(localResult != null) {
+                    val localResult: RESPONSE? = responseResult
+                    request.callback?.doOnUiThread {
+                            it.invoke(
+                                when (responseState) {
+                                    RESPONSE_STATE__OK -> if (localResult != null) {
                                         ClyApiResponse.Success(result = localResult)
                                     } else {
                                         ClyApiResponse.Failure(errorCode = RESPONSE_STATE__ERROR_BAD_RESPONSE)
@@ -162,11 +139,6 @@ internal class ClyApiRequest<RESPONSE: Any>
                                     else -> ClyApiResponse.Failure(errorCode = responseState)
                                 })
                     }
-                }
-                if(context != null) {
-                    context.doAsync { async() }
-                } else {
-                    request.doAsync { async() }
                 }
             }
         }
@@ -257,7 +229,7 @@ internal class ClyApiRequest<RESPONSE: Any>
 
                     if (!response.has("error")) {
                         if (ENDPOINT_PING == endpoint) {
-                            Customerly.jwtToken = response.parseJwtToken()
+                            response.parseJwtToken()
                         }
                         ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResult = response)
                     } else {

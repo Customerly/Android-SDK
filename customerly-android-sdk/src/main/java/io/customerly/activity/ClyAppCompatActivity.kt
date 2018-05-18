@@ -16,6 +16,7 @@ package io.customerly.activity
  * limitations under the License.
  */
 
+import android.support.annotation.UiThread
 import android.support.v7.app.AppCompatActivity
 import io.customerly.entity.ClyMessage
 import java.util.*
@@ -25,6 +26,7 @@ import java.util.*
  * Project: Customerly-KAndroid-SDK
  */
 internal abstract class ClyAppCompatActivity : AppCompatActivity() {
+    @UiThread
     internal abstract fun onNewSocketMessages(messages: ArrayList<ClyMessage>)
     internal abstract fun onLogoutUser()
 }

@@ -18,6 +18,7 @@ package io.customerly.websocket
 
 import android.app.Activity
 import android.support.annotation.StringDef
+import android.support.annotation.UiThread
 import android.util.Log
 import android.view.WindowManager
 import io.customerly.Customerly
@@ -33,6 +34,7 @@ import io.customerly.entity.parseSocketParams
 import io.customerly.utils.CUSTOMERLY_DEV_MODE
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ClyActivityLifecycleCallback
+import io.customerly.utils.ggkext.STimestamp
 import io.customerly.utils.ggkext.ignoreException
 import io.customerly.utils.ggkext.nullOnException
 import io.customerly.utils.ggkext.optTyped
@@ -150,6 +152,7 @@ internal class ClySocket {
         }
     }
 
+    @UiThread
     private fun onMessageNewsCallbackWithRetry(messages: ArrayList<ClyMessage>, retryOnBadTokenException: Boolean = true) {
         if(messages.isNotEmpty()) {
             val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()
@@ -240,7 +243,7 @@ internal class ClySocket {
         }
     }
 
-    internal fun sendSeen(messageId: Long, seenTimestamp: Long) {
+    internal fun sendSeen(messageId: Long, @STimestamp seenTimestamp: Long) {
         Customerly.jwtToken?.userID?.ignoreException { userId ->
             this.send(
                     event = SOCKET_EVENT__SEEN,
@@ -252,7 +255,7 @@ internal class ClySocket {
         }
     }
 
-    internal fun sendMessage(timestamp: Long) {
+    internal fun sendMessage(@STimestamp timestamp: Long) {
         if (timestamp != -1L) {
             Customerly.jwtToken?.userID?.ignoreException { userId ->
                 this.send(

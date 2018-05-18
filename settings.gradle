@@ -1,4 +1,1 @@
 include ':customerly-android-sdk'
-
-//include ':customerly-android-commons'
-//project(':customerly-android-commons').projectDir = new File('../CustomerlyCommons/customerly-android-commons')

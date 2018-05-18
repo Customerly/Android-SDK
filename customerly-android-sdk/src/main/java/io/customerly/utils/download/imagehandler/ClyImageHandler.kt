@@ -18,16 +18,17 @@ package io.customerly.utils.download.imagehandler
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Handler
+import android.os.Looper
 import android.support.annotation.UiThread
 import android.util.LruCache
 import android.util.SparseArray
+import io.customerly.utils.ggkext.resolveBitmapUrl
 import io.customerly.utils.ggkext.useSkipExeption
 import java.io.File
 import java.io.FileFilter
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -40,10 +41,8 @@ private const val MAX_DISK_CACHE_SIZE = 1024 * 1024 * 2
 private const val MAX_LRU_CACHE_SIZE = 1024 * 1024 * 2
 
 internal object ClyImageHandler {
-    private val LOCK = arrayOfNulls<Any>(0)
     private val lruCache = LruCache<String, Bitmap>(MAX_LRU_CACHE_SIZE)
-    private val pendingDiskRequests = SparseArray<ClyImageRequest>()
-    private val pendingNetworkRequests = SparseArray<ClyImageRequest>()
+    private val pendingRequests = SparseArray<ClyImageRequest>()
     private var executorService: ExecutorService = Executors.newFixedThreadPool(5)
     private var diskCacheSize = -1L
 
@@ -51,12 +50,7 @@ internal object ClyImageHandler {
     internal fun request(request: ClyImageRequest) {
         assert(request.handlerValidateRequest())
 
-        val hashCode = request.handlerGetHashCode
-        synchronized(LOCK) {
-            this.pendingDiskRequests.remove(hashCode)
-            this.pendingNetworkRequests.remove(hashCode)
-        }
-
+        request.handlerSetScaleType()
         val diskKey = request.handlerGetDiskKey()
         try {
             this.lruCache.get(diskKey)?.takeUnless { it.isRecycled }
@@ -64,24 +58,19 @@ internal object ClyImageHandler {
             null
         }?.let {
             request.handlerOnResponse(bmp = it)
-        } ?: this.handleDisk(request = request, hashCode = hashCode, diskKey = diskKey)
+        } ?: this.handleDisk(request = request, hashCode = request.handlerGetHashCode, diskKey = diskKey)
     }
 
+    @UiThread
     private fun handleDisk(request: ClyImageRequest, hashCode : Int, diskKey: String) {
-        synchronized(LOCK) {
-            this.pendingDiskRequests.put(hashCode, request)
-            this.pendingNetworkRequests.remove(hashCode)
+        request.handlerLoadPlaceholder()
+        synchronized(this.pendingRequests) {
+            this.pendingRequests.get(hashCode)?.cancel()
+            this.pendingRequests.remove(hashCode)
+            this.pendingRequests.put(hashCode, request)
         }
         this.executorService.submit {
-            synchronized(LOCK) {
-                /*
-                In questo modo anche se nel frattempo c'è stata una successiva richiesta per la stessa ImageView (es: ImageView riciclata da un'adapter di una RecyclerView), viene elaborata la richiesta più recente.
-                Atomicamente viene anche rimossa la richiesta, quindi il callback pendente nell'handler quando verrà eseguito a questo punto del codice troverà null e al successivo check req != null interromperà l'esecuzione
-                 */
-                this.pendingDiskRequests.get(hashCode)?.also {
-                    this.pendingDiskRequests.remove(hashCode)
-                }
-            }?.let { request ->
+            if(this.pendingRequests.get(hashCode) == request) {
                 //Searching image in cache (LRU and Disk)
                 try {
                     request.customerlyCacheDirPath.let { cacheDirPath ->
@@ -89,9 +78,20 @@ internal object ClyImageHandler {
                         if (bitmapFile.exists()) {
                             if (System.currentTimeMillis() - bitmapFile.lastModified() < 24 * 60 * 60 * 1000) {
                                 BitmapFactory.decodeFile(bitmapFile.toString())?.also { bmp ->
-                                    request.handlerOnResponse(bmp = bmp)
+                                    if(synchronized(this.pendingRequests) {
+                                                if(this.pendingRequests.get(hashCode) == request) {
+                                                    this.pendingRequests.remove(hashCode)
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            }) {
+                                        Handler(Looper.getMainLooper()).post {
+                                            request.handlerOnResponse(bmp = bmp)
+                                        }
+                                    }
 //                                        //Add Bitmap to LruMemory
-                                    this.lruCache.put(diskKey, bmp)
+                                        this.lruCache.put(diskKey, bmp)
                                 }
                             } else {
                                 bitmapFile.delete()
@@ -109,39 +109,25 @@ internal object ClyImageHandler {
     }
 
     private fun handleNetwork(request: ClyImageRequest, hashCode : Int, diskKey: String) {
-        synchronized(LOCK) {
-            this.pendingNetworkRequests.put(hashCode, request)
-        }
         this.executorService.submit {
-            synchronized(LOCK) {
-                /*
-                In questo modo anche se nel frattempo c'è stata una successiva richiesta per la stessa ImageView (es: ImageView riciclata da un'adapter di una RecyclerView), viene elaborata la richiesta più recente.
-                Atomicamente viene anche rimossa la richiesta, quindi il callback pendente nell'handler quando verrà eseguito a questo punto del codice troverà null e al successivo check req != null interromperà l'esecuzione
-                 */
-                this.pendingNetworkRequests.get(hashCode)?.also {
-                    this.pendingNetworkRequests.remove(hashCode)
-                }
-            }?.let { request ->
+            if(this.pendingRequests.get(hashCode) == request) {
                 if(!try {
-                    val connection = (URL(request.url).openConnection() as HttpURLConnection).also {
-                        it.readTimeout = 5000
-                        it.doInput = true
-                        it.instanceFollowRedirects = true
-                        it.connect()
-                    }
-                    BitmapFactory.decodeStream(connection.inputStream)
+                    request.url.resolveBitmapUrl()
                             ?.let { request.handlerApplyResize(it) }
                             ?.let { request.handlerApplyTransformations(it) }
                             ?.let { bmp ->
-                                if (null != synchronized(LOCK) {
-                                            this.pendingDiskRequests.get(hashCode)
-                                                    ?: this.pendingNetworkRequests.get(hashCode)
+                                if (synchronized(this.pendingRequests) {
+                                            if(this.pendingRequests.get(hashCode) == request) {
+                                                this.pendingRequests.remove(hashCode)
+                                                true
+                                            } else {
+                                                false
+                                            }
                                         }) {
-                                    // Nel frattempo che scaricava l'immagine da internet ed eventualmente applicava resize e transformCircle è staa fatta una nuova richiesta
-                                    // per la stessa ImageView quindi termina l'esecuzione attuale invalidando la bmp
-                                    bmp.recycle()
-                                } else {
-                                    request.handlerOnResponse(bmp = bmp)
+
+                                    Handler(Looper.getMainLooper()).post {
+                                        request.handlerOnResponse(bmp = bmp)
+                                    }
 
                                     //Caching image (LRU and Disk)
                                     this.lruCache.put(diskKey, bmp)
@@ -174,13 +160,17 @@ internal object ClyImageHandler {
                                             }
                                         }
                                     }
+                                } else {
+                                    bmp.recycle()
                                 }
                                 true
                             } == true
                 } catch (exception: Throwable) {
                     false
                 }) {
-                    request.handlerLoadError()
+                    Handler(Looper.getMainLooper()).post {
+                        request.handlerLoadError()
+                    }
                 }
             }
         }

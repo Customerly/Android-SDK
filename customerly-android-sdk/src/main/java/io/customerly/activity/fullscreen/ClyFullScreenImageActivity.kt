@@ -23,6 +23,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.annotation.ColorInt
+import android.support.annotation.UiThread
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
@@ -185,6 +186,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
         }
     }
 
+    @UiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {}
 
     //    private void saveImageToGallery() {

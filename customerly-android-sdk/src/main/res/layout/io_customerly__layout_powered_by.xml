@@ -26,8 +26,6 @@
     android:gravity="center"
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
     android:visibility="gone">
 
     <requestFocus />

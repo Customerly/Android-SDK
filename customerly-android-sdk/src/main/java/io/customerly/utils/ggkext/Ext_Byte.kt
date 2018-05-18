@@ -18,17 +18,15 @@
 
 package io.customerly.utils.ggkext
 
-import kotlin.experimental.and
-
 /**
  * Created by Gianni on 11/11/17.
  */
 
-internal fun Byte.asUnsigned() : Byte {
-    val h80 = 0x80.toByte()
-    return if (this and h80 == h80) {
-        ((this and 0x7F.toByte()) + h80).toByte()
+internal fun Byte.asUnsignedInt() : Int {
+    val intThis = this.toInt()
+    return if (intThis and 0x80 == 0x80) {
+        (intThis and 0x7F) + 0x80
     } else {
-        this
+        intThis
     }
 }

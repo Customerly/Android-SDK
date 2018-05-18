@@ -18,10 +18,11 @@ package io.customerly.utils.network
 
 import android.content.Context
 import android.os.SystemClock
-import io.customerly.utils.ggkext.asUnsigned
+import io.customerly.utils.doOnBackground
+import io.customerly.utils.doOnUiThread
+import io.customerly.utils.ggkext.MSTimestamp
+import io.customerly.utils.ggkext.asUnsignedInt
 import io.customerly.utils.ggkext.checkConnection
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -72,13 +73,7 @@ private val SERVERS = arrayOf(
  * }
 </pre> *
  */
-internal object SntpClient {
-    /** The time computed from the NTP transaction. */
-    private var ntpTime: Long = 0
-    /** The reference clock value (value of SystemClock.elapsedRealtime()) corresponding to the NTP time. */
-    private var ntpTimeReference: Long = 0
-    /** The round trip time of the NTP transaction */
-    private var roundTripTime: Long = 0
+internal object ClySntpClient {
 
     /**
      * Sends an SNTP request to the given host and processes the response.
@@ -87,7 +82,8 @@ internal object SntpClient {
      * @param timeout network timeout in milliseconds.
      * @return true if the transaction was successful.
      */
-    private fun requestTime(host: String, timeout: Int = 5000): Boolean {
+    @MSTimestamp
+    private fun requestTime(host: String, timeout: Int = 5000): Long? {
         var socket: DatagramSocket? = null
         try {
             socket = DatagramSocket()
@@ -116,34 +112,33 @@ internal object SntpClient {
             val originateTime = readTimeStamp(buffer, ORIGINATE_TIME_OFFSET)
             val receiveTime = readTimeStamp(buffer, RECEIVE_TIME_OFFSET)
             val transmitTime = readTimeStamp(buffer, TRANSMIT_TIME_OFFSET)
-            val roundTripTime = responseTicks - requestTicks - (transmitTime - receiveTime)
+//            val roundTripTime = responseTicks - requestTicks - (transmitTime - receiveTime)
             val clockOffset = (receiveTime - originateTime + (transmitTime - responseTime)) / 2
 
             // save our results - use the times on this side of the network latency
             // (response rather than request time)
-            ntpTime = responseTime + clockOffset
-            ntpTimeReference = responseTicks
-            SntpClient.roundTripTime = roundTripTime
+//            this.ntpTime = responseTime + clockOffset
+//            this.ntpTimeReference = responseTicks
+//            this.roundTripTime = roundTripTime
+            return responseTime + clockOffset + SystemClock.elapsedRealtime() - responseTicks
         } catch (e: Exception) {
             //if (false) Log.d(TAG, "request time failed: " + e);
-            return false
+            return null
         } finally {
             if (socket != null) {
                 socket.close()
             }
         }
-
-        return true
     }
 
     /**
      * Reads an unsigned 32 bit big endian number from the given offset in the buffer.
      */
     private fun read32(buffer: ByteArray, offset: Int): Long {
-        val i0 = buffer[offset].asUnsigned()
-        val i1 = buffer[offset + 1].asUnsigned()
-        val i2 = buffer[offset + 2].asUnsigned()
-        val i3 = buffer[offset + 3].asUnsigned()
+        val i0: Int = buffer[offset].asUnsignedInt()
+        val i1: Int = buffer[offset + 1].asUnsignedInt()
+        val i2: Int = buffer[offset + 2].asUnsignedInt()
+        val i3: Int = buffer[offset + 3].asUnsignedInt()
         return (i0.toLong() shl 24) + (i1.toLong() shl 16) + (i2.toLong() shl 8) + i3.toLong()
     }
 
@@ -182,21 +177,18 @@ internal object SntpClient {
         buffer[offset2] = (Math.random() * 255.0).toByte()
     }
 
+    @MSTimestamp
     private fun getNtpTime() : Long? {
-        return if(SERVERS.asSequence().any { requestTime(host = it) }) {
-            ntpTime + SystemClock.elapsedRealtime() - ntpTimeReference
-        } else {
-            null
-        }
+        return SERVERS.asSequence().mapNotNull { this.requestTime(host = it) }.firstOrNull()
     }
 
     internal fun getNtpTimeAsync(context : Context? = null, onTime : (Long?)->Unit) {
         if(context?.checkConnection() == false) {
             onTime(null)
         } else {
-            context.doAsync {
+            doOnBackground {
                 val ntpTime = getNtpTime()
-                uiThread {
+                doOnUiThread {
                     onTime(ntpTime)
                 }
             }

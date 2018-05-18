@@ -47,10 +47,14 @@ internal class ClyCurrentUser(userId: String? = null, email: String? = null, com
     }
 
     fun logout() {
+        this.email = null
+        this.userId = null
+        this.company = null
         Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_EMAIL)?.remove(CUSTOMERLY_LOGGED_USERID)?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
     }
 
     fun removeCompany() {
+        this.company = null
         Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
     }
 

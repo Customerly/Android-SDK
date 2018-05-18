@@ -41,16 +41,13 @@ import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.ClyMessage
 import io.customerly.entity.urlImageAccount
 import io.customerly.utils.download.imagehandler.ClyImageRequest
-import io.customerly.utils.ggkext.activity
-import io.customerly.utils.ggkext.dp2px
-import io.customerly.utils.ggkext.inflater
-import io.customerly.utils.ggkext.weak
+import io.customerly.utils.ggkext.*
 
 /**
  * Created by Gianni on 24/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-private const val TYPING_DOTS_SPEED = 500L
+@MSTimestamp private const val TYPING_DOTS_SPEED = 500L
 
 internal sealed class ClyChatViewHolder (
         recyclerView: RecyclerView,
@@ -73,24 +70,25 @@ internal sealed class ClyChatViewHolder (
 
     class Typing(recyclerView: RecyclerView): ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_typing) {
         init {
-            this.content.weak().also { contentTv ->
-                object : Runnable {
-                    override fun run() {
-                        contentTv.get()?.also { tv ->
-                            tv.text = when(tv.text) {
-                                ".    " -> ". .  "
-                                ". .  " -> ". . ."
-                                else /* "" or ". . ." */ -> ".    "
-                            }
-                            tv.requestLayout()
-                            tv.postDelayed(this, TYPING_DOTS_SPEED)
+            val weakContentTv = this.content.weak()
+            object : Runnable {
+                override fun run() {
+                    weakContentTv.get()?.also { tv ->
+                        tv.text = when (tv.text.toString()) {
+                            ".    " -> ". .  "
+                            ". .  " -> ". . ."
+                            else /* "" or ". . ." */ -> ".    "
                         }
+                        tv.postInvalidate()
+                        tv.postDelayed(this, TYPING_DOTS_SPEED)
                     }
                 }
-            }
+            }.run()
         }
+
         override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
             val typingAccountID = chatActivity.typingAccountId
+            this.content.text = ".    "
             this.icon?.also { icon ->
                 icon.visibility = if (isFirstMessageOfSender && typingAccountID != TYPING_NO_ONE) {
                     ClyImageRequest(context = chatActivity, url = urlImageAccount(accountId = typingAccountID, sizePX = this.iconSize))
@@ -195,7 +193,7 @@ internal sealed class ClyChatViewHolder (
             this.sendingProgressBar?.visibility = if(message.isStateSending) View.VISIBLE else View.GONE
 
             this.attachmentLayout.removeAllViews()
-            attachmentLayout.visibility = if(message.attachments.isNotEmpty()) {
+            this.attachmentLayout.visibility = if(message.attachments.isNotEmpty()) {
                 message.attachments.forEach { attachment ->
 
                     val ll = LinearLayout(chatActivity).apply {

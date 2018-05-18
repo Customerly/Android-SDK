@@ -50,4 +50,4 @@ internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "http://pictures.cdn.cu
 internal const val CUSTOMERLY_API_ENDPOINT_BASEURL = "https://tracking.customerly.io/"
 internal const val CUSTOMERLY_API_VERSION = "v1"
 internal const val CUSTOMERLY_SOCKET_VERSION = "1"
-internal const val CUSTOMERLY_DEV_MODE = false
+internal const val CUSTOMERLY_DEV_MODE = true//TODO

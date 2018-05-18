@@ -30,7 +30,7 @@ import org.json.JSONObject
 internal object DeviceJson {
     internal val json: JSONObject by lazy {
         JSONObject().put("os", "Android")
-                .put("device", String.format("%s %s (%s)", Build.MANUFACTURER, Build.MODEL, Build.DEVICE))
+                .put("device", "${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
                 .put("os_version", Build.VERSION.SDK_INT)
                 .put("sdk_version", BuildConfig.VERSION_NAME)
                 .put("api_version", CUSTOMERLY_API_VERSION)

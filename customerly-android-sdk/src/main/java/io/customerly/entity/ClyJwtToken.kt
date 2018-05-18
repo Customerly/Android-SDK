@@ -16,7 +16,6 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import android.content.SharedPreferences
 import android.support.annotation.Size
 import android.util.Base64
 import io.customerly.Customerly
@@ -40,27 +39,16 @@ private const val JWT_VALIDATOR_MATCHER = "([^.]+)\\.([^.]+)\\.([^.]+)"
 private val JWT_PAYLOAD_MATCHER = java.util.regex.Pattern.compile("\\.(.*?)\\.")
 private const val PREFS_JWT_KEY = "PREFS_TOKEN_KEY"
 
-private fun SharedPreferences?.jwtStore(encodedJwt : String) {
-    this?.edit()?.putString(PREFS_JWT_KEY, encodedJwt)?.apply()
+internal fun jwtRestore() {
+    Customerly.jwtToken = Customerly.preferences?.safeString(key = PREFS_JWT_KEY)?.nullOnException { ClyJwtToken(it) }
 }
 
-internal fun SharedPreferences.jwtRestore() : ClyJwtToken? {
-    return this.safeString(key = PREFS_JWT_KEY)?.let { /* @Subst("authB64.payloadB64.checksumB64") it -> */
-        try {
-            ClyJwtToken(it)
-        } catch (wrongTokenFormat: IllegalArgumentException) {
-            this.jwtRemove()
-            null
-        }
-    }
+internal fun jwtRemove() {
+    Customerly.preferences?.edit()?.remove(PREFS_JWT_KEY)?.apply()
 }
 
-internal fun SharedPreferences?.jwtRemove() {
-    this?.edit()?.remove(PREFS_JWT_KEY)?.apply()
-}
-
-internal fun JSONObject.parseJwtToken(): ClyJwtToken? {
-    return this.optTyped<String>(name = "token")?.nullOnException { ClyJwtToken(encodedJwt = it) }
+internal fun JSONObject.parseJwtToken() {
+    Customerly.jwtToken = this.optTyped<String>(name = "token")?.nullOnException { ClyJwtToken(encodedJwt = it) }
 }
 
 internal class ClyJwtToken @Throws(IllegalArgumentException::class)
@@ -96,7 +84,7 @@ internal class ClyJwtToken @Throws(IllegalArgumentException::class)
             this.userType = USER_TYPE__ANONYMOUS
         }
 
-        Customerly.preferences?.jwtStore(encodedJwt = this.encodedJwt)
+        Customerly.preferences?.edit()?.putString(PREFS_JWT_KEY, this.encodedJwt)?.apply()
     }
 
     override fun toString(): String = this.encodedJwt

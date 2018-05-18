@@ -31,7 +31,6 @@ import android.text.style.ImageSpan
 import android.text.style.URLSpan
 import android.view.View
 import android.widget.TextView
-import io.customerly.utils.download.imagehandler.ClyImageHandler
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px

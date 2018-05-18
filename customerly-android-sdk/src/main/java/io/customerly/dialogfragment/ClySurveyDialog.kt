@@ -149,26 +149,26 @@ internal class ClySurveyDialog : DialogFragment() {
                 }
             }
 
-            this.applySurvey(survey = survey)
+            this.applySurvey(survey = survey, rootView = view)
             view
         }
     }
 
-    private fun applySurvey(survey: ClySurvey?) {
+    private fun applySurvey(survey: ClySurvey?, rootView: View? = this.view) {
         val context = this.activity
-        if (survey == null || context == null) {
+        if (survey == null || context == null || rootView == null) {
             this.dismissAllowingStateLoss()
         } else {
             this.currentSurvey = survey
 
             if(survey.type == TSURVEY_END_SURVEY) {
 
-                this.io_customerly__back.visibility = View.INVISIBLE
+                rootView.io_customerly__back.visibility = View.INVISIBLE
                 this.surveyCompleted = true
                 survey.isRejectedOrConcluded = true
 
 
-                this.io_customerly__input_layout.addView(
+                rootView.io_customerly__input_layout.addView(
                         TextView(context).apply {
                             this.setTextColor(Color.BLACK)
                             this.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
@@ -181,13 +181,13 @@ internal class ClySurveyDialog : DialogFragment() {
                         })
             } else {
 
-                this.io_customerly__back.visibility = if (survey.step == 0) View.INVISIBLE else View.VISIBLE
+                rootView.io_customerly__back.visibility = if (survey.step == 0) View.INVISIBLE else View.VISIBLE
                 this.surveyCompleted = false
-                this.io_customerly__title.apply {
+                rootView.io_customerly__title.apply {
                     this.text = survey.title
                     this.visibility = View.VISIBLE
                 }
-                this.io_customerly__subtitle.apply {
+                rootView.io_customerly__subtitle.apply {
                     this.text = survey.subtitle
                     this.visibility = View.VISIBLE
                 }
@@ -196,7 +196,7 @@ internal class ClySurveyDialog : DialogFragment() {
                 when(survey.type) {
                     TSURVEY_BUTTON -> {
                         survey.choices?.forEach { (choiceId,choiceValue) ->
-                            this.io_customerly__input_layout.addView(
+                            rootView.io_customerly__input_layout.addView(
                                 Button(context).apply {
                                     this.setTextColor(Color.WHITE)
                                     this.setBackgroundResource(R.drawable.io_customerly__button_blue_state)
@@ -215,8 +215,8 @@ internal class ClySurveyDialog : DialogFragment() {
                     TSURVEY_RADIO -> {
                         val inflater = context.layoutInflater
                         survey.choices?.forEach { (choiceId, choiceValue) ->
-                            this.io_customerly__input_layout.addView(
-                                (inflater.inflate(R.layout.io_customerly__surveyitem_radio, this.io_customerly__input_layout, false) as AppCompatRadioButton).apply {
+                            rootView.io_customerly__input_layout.addView(
+                                (inflater.inflate(R.layout.io_customerly__surveyitem_radio, rootView.io_customerly__input_layout, false) as AppCompatRadioButton).apply {
                                     this.text = choiceValue
                                     this.setOnClickListener { weakDialog.get()?.nextSurvey(survey = survey, choiceId = choiceId) }
                                 })
@@ -224,7 +224,7 @@ internal class ClySurveyDialog : DialogFragment() {
                     }
                     TSURVEY_LIST -> {
                         survey.choices?.let { choices ->
-                            this.io_customerly__input_layout.addView(
+                            rootView.io_customerly__input_layout.addView(
                                 AppCompatSpinner(context).apply {
                                     this.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 40.dp2px).apply {
                                         this.topMargin = 15.dp2px
@@ -284,7 +284,7 @@ internal class ClySurveyDialog : DialogFragment() {
                         }
                     }
                     TSURVEY_SCALE -> {
-                        this.io_customerly__input_layout.addView(
+                        rootView.io_customerly__input_layout.addView(
                                 /* Root */LinearLayout(context).apply {
                                     this.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                                     this.orientation = LinearLayout.VERTICAL
@@ -354,13 +354,13 @@ internal class ClySurveyDialog : DialogFragment() {
                                 })
                     }
                     TSURVEY_STAR -> {
-                        this.io_customerly__input_layout.addView(
-                                (context.layoutInflater.inflate(R.layout.io_customerly__surveyitem_ratingbar, this.io_customerly__input_layout, false) as AppCompatRatingBar).apply {
+                        rootView.io_customerly__input_layout.addView(
+                                (context.layoutInflater.inflate(R.layout.io_customerly__surveyitem_ratingbar, rootView.io_customerly__input_layout, false) as AppCompatRatingBar).apply {
                                     this.setOnRatingBarChangeListener { _, rating, _ -> weakDialog.get()?.nextSurvey(survey = survey, answer = rating.toString()) }
                                 })
                     }
                     TSURVEY_NUMBER, TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA -> {
-                        this.io_customerly__input_layout.addView(
+                        rootView.io_customerly__input_layout.addView(
                                 LinearLayout(context).apply {
                                     this.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                                     this.orientation = LinearLayout.VERTICAL

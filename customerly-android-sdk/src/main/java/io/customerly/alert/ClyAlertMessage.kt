@@ -19,7 +19,6 @@ package io.customerly.alert
 import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.media.MediaPlayer
 import android.support.annotation.UiThread
 import android.view.*
 import android.view.animation.Animation
@@ -35,6 +34,7 @@ import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
+import io.customerly.utils.playNotifSound
 import kotlinx.android.synthetic.main.io_customerly__alert_message.view.*
 
 /**
@@ -62,7 +62,7 @@ internal fun dismissAlertMessageOnUserLogout() {
 @UiThread
 @Throws(WindowManager.BadTokenException::class)
 internal fun Activity.showClyAlertMessage(message: ClyMessage) {
-    if(false == currentClyAlertMessage?.onNewMessage(activity = this, newMessage = message)) {
+    if(true != currentClyAlertMessage?.onNewMessage(activity = this, newMessage = message)) {
         currentClyAlertMessage = null
 
         this.window.decorView?.let { activityDecorView ->
@@ -76,12 +76,7 @@ internal fun Activity.showClyAlertMessage(message: ClyMessage) {
             clyAlertMessage.showAtLocation(activityDecorView, Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, topOffsetFix)
             currentClyAlertMessage = clyAlertMessage
             clyAlertMessage.postFadeOut()
-            MediaPlayer.create(this, R.raw.notif_2).also {
-                it.setOnCompletionListener { mp ->
-                    mp.reset()
-                    mp.release()
-                }
-            }.start()
+            this.playNotifSound()
         }
     }
 }
@@ -184,6 +179,7 @@ internal class ClyAlertMessage
                 .transformCircle()
                 .resize(width = 50.dp2px)
                 .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
+                .into(imageView = icon)
                 .start()
 
         this.contentView.io_customerly__name.text = message.writer.getName(context = this.contentView.context)

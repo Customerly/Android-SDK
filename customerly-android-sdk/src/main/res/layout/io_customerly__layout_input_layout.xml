@@ -68,11 +68,9 @@
             android:layout_width="45dp"
             android:layout_height="match_parent"
             android:scaleType="centerInside"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackground"
             android:src="@drawable/io_customerly__ic_send"
-            android:contentDescription="@string/io_customerly__attach_file"
-            android:focusable="true" />
+            android:foreground="?attr/selectableItemBackground"
+            android:contentDescription="@string/io_customerly__attach_file" />
 
     </LinearLayout>
 

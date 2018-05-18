@@ -39,7 +39,6 @@ import android.text.style.StyleSpan
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import io.customerly.BuildConfig
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.entity.ClyAttachment
@@ -176,7 +175,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                         homeBack
                     } else {
                         homeClear
-                    } to String.format("<font color='$titleRGB'>%1\$s</font>", actionBar.title)
+                    } to "<font color='$titleRGB'>${actionBar.title}</font>"
                 }.let { (home, title) ->
                     actionBar.setHomeAsUpIndicator(home)
                     actionBar.title = spannedFromHtml(source = title)
@@ -190,7 +189,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
             redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
             poweredBy.text = SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable)
-            poweredBy.setOnClickListener { btn -> btn.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_WEB_SITE) }
+            poweredBy.setOnClickListener { it.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_WEB_SITE) }
             poweredBy.visibility = View.VISIBLE
         } else {
             poweredBy.visibility = View.GONE

@@ -41,8 +41,9 @@ import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.*
 import io.customerly.entity.*
 import io.customerly.utils.download.startFileDownload
+import io.customerly.utils.ggkext.msAsSeconds
 import io.customerly.utils.ggkext.weak
-import io.customerly.utils.network.SntpClient
+import io.customerly.utils.network.ClySntpClient
 import io.customerly.utils.ui.RvProgressiveScrollListener
 import kotlinx.android.synthetic.main.io_customerly__activity_chat.*
 import java.lang.ref.WeakReference
@@ -82,11 +83,9 @@ internal class ClyChatActivity : ClyIInputActivity() {
     private var conversationId = 0L
     internal var typingAccountId = TYPING_NO_ONE
     internal var chatList = ArrayList<ClyMessage>(0)
-    private val adapter = ClyChatAdapter(chatActivity = this)
     private val wThis : WeakReference<ClyChatActivity> = this.weak()
     private val onBottomReachedListener = { scrollListener : RvProgressiveScrollListener ->
         Customerly.checkConfigured {
-            val oldestMessageId = this.chatList.minBy { it.id }?.id ?: Long.MAX_VALUE
             ClyApiRequest(
                     context = this.wThis.get(),
                     endpoint = ENDPOINT_MESSAGE_RETRIEVE,
@@ -136,6 +135,10 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                     }
 
                                     response.result.firstOrNull()?.takeIf { it.isNotSeen }?.let { activity.sendSeen(messageId = it.id) }
+
+                                    if(previousSize == 0) {
+                                        activity.io_customerly__recycler_view.layoutManager?.scrollToPosition(0)
+                                    }
                                 }
 
                                 if(response.result.size >= MESSAGES_PER_PAGE) {
@@ -152,7 +155,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                     }).also {
                 it.p(key = "conversation_id", value = this.conversationId)
                 it.p(key = "per_page", value = MESSAGES_PER_PAGE)
-                it.p(key = "messages_before_id", value = oldestMessageId)
+                it.p(key = "messages_before_id", value = this.chatList.minBy { it.id }?.id ?: Long.MAX_VALUE)
             }.start()
         }
     }
@@ -167,17 +170,17 @@ internal class ClyChatActivity : ClyIInputActivity() {
             this.finish()
         } else if (this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
             this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Customerly.lastPing.widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
-            val weakRv = this.io_customerly__recycler_view.also { recyclerview ->
-                recyclerview.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
+            val weakRv = this.io_customerly__recycler_view.also { recyclerView ->
+                recyclerView.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
                     llm.reverseLayout = true
                     RvProgressiveScrollListener(llm = llm, onBottomReached = onBottomReachedListener).also {
                         progressiveScrollListener = it
-                        recyclerview.addOnScrollListener(it)
+                        recyclerView.addOnScrollListener(it)
                     }
                 }
-                recyclerview.itemAnimator = DefaultItemAnimator()
-                recyclerview.setHasFixedSize(true)
-                recyclerview.adapter = ClyChatAdapter(chatActivity = this)
+                recyclerView.itemAnimator = DefaultItemAnimator()
+                recyclerView.setHasFixedSize(true)
+                recyclerView.adapter = ClyChatAdapter(chatActivity = this)
             }.weak()
 
             this.inputInput?.addTextChangedListener(object : TextWatcher {
@@ -290,8 +293,10 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     private fun sendSeen(messageId: Long) {
         val wContext = this.weak()
-        SntpClient.getNtpTimeAsync(context = this) {
-            val utc = (it ?: System.currentTimeMillis()) / 1000
+        ClySntpClient.getNtpTimeAsync(context = this) {
+
+            val utc = (it ?: System.currentTimeMillis()).msAsSeconds
+
             Customerly.clySocket.sendSeen(messageId = messageId, seenTimestamp = utc)
 
             ClyApiRequest<Any>(
@@ -306,6 +311,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
     }
 
     internal fun startSendMessageRequest(message: ClyMessage) {
+        val weakAct = this.weak()
         ClyApiRequest(
                 context = this,
                 endpoint = ENDPOINT_MESSAGE_SEND,
@@ -313,21 +319,25 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 trials = 2,
                 converter = {
                     Customerly.clySocket.sendMessage(timestamp = it.optLong("timestamp", -1L))
-                    it.parseMessage()
+                    it.optJSONObject("message")?.parseMessage()
                 },
                 callback = { response ->
-                    val chatList = this.chatList
-                    val tmpMessageIndex = chatList.indexOf(message).takeIf { it != -1 }
-                    when(response) {
-                        is ClyApiResponse.Success -> {
-                            tmpMessageIndex?.also { chatList[it] = response.result }
+                    weakAct.get()?.also { activity ->
+                        val chatList = activity.chatList
+                        val tmpMessageIndex = chatList.indexOf(message).takeIf { it != -1 }
+                        when (response) {
+                            is ClyApiResponse.Success -> {
+                                tmpMessageIndex?.also { chatList[it] = response.result }
+                            }
+                            is ClyApiResponse.Failure -> {
+                                message.setStateFailed()
+                                Toast.makeText(activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                            }
                         }
-                        is ClyApiResponse.Failure -> {
-                            message.setStateFailed()
-                            Toast.makeText(this.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                        tmpMessageIndex?.also {
+                            weakAct.get()?.io_customerly__recycler_view?.adapter?.notifyItemChanged(it)
                         }
                     }
-                    tmpMessageIndex?.also { this.adapter.notifyItemChanged(it) }
                 })
                 .p(key = "conversation_id", value = message.conversationId)
                 .p(key = "message", value = message.content)
@@ -363,6 +373,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         }
     }
 
+    @UiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {
         val newChatList = ArrayList(this.chatList)
         messages

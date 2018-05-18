@@ -23,9 +23,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.support.annotation.UiThread
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
 import android.text.Spanned
@@ -47,6 +47,7 @@ import io.customerly.api.*
 import io.customerly.entity.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
+import io.customerly.utils.playNotifSound
 import io.customerly.utils.ui.RVDIVIDER_V_BOTTOM
 import io.customerly.utils.ui.RvDividerDecoration
 import kotlinx.android.synthetic.main.io_customerly__activity_list.*
@@ -101,7 +102,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
             this.io_customerly__recycler_view.also {
                 it.layoutManager = LinearLayoutManager(this.applicationContext)
-                it.itemAnimator = DefaultItemAnimator()
+                it.itemAnimator = null
                 it.setHasFixedSize(true)
                 it.addItemDecoration(RvDividerDecoration.Vertical(context = this, colorRes = R.color.io_customerly__li_conversation_divider_color, where = RVDIVIDER_V_BOTTOM))
                 it.adapter = ClyConversationsAdapter(conversationsActivity = this)
@@ -122,6 +123,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
     }
 
+    @UiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {
         val newConversationList = ArrayList(this.conversationsList)
         newConversationList.apply {
@@ -141,12 +143,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
         this.displayInterface(conversationsList = newConversationList)
 
-        MediaPlayer.create(this, R.raw.notif_2).apply {
-            this.setOnCompletionListener {
-                it.reset()
-                it.release()
-            }
-        }.start()
+        this.playNotifSound()
     }
 
     override fun onResume() {
@@ -182,16 +179,12 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
     }
 
+    @UiThread
     private fun displayInterface(conversationsList: ArrayList<ClyConversation>?) {
-        val weakActivity = this.weak()
         if(conversationsList?.isNotEmpty() == true) {
             this.io_customerly__first_contact_swipe_refresh.visibility = View.GONE
-            this.io_customerly__recycler_view.post {
-                weakActivity.get()?.let {
-                    it.conversationsList = conversationsList
-                    it.io_customerly__recycler_view.adapter.notifyDataSetChanged()
-                }
-            }
+            this.conversationsList = conversationsList
+            this.io_customerly__recycler_view.adapter.notifyDataSetChanged()
             this.inputLayout?.visibility = View.GONE
             this.io_customerly__input_email_layout.visibility = View.GONE
             this.io_customerly__new_conversation_layout.visibility = View.VISIBLE
@@ -199,6 +192,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             this.io_customerly__recycler_view_swipe_refresh.isRefreshing = false
             this.io_customerly__first_contact_swipe_refresh.isRefreshing = false
         } else {//Layout first contact
+            this.conversationsList.clear()
             this.io_customerly__recycler_view_swipe_refresh.visibility = View.GONE
             this.io_customerly__input_email_layout.visibility = View.GONE
             this.io_customerly__new_conversation_layout.visibility = View.GONE

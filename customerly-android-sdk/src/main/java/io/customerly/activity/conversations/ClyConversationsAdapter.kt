@@ -38,4 +38,8 @@ internal class ClyConversationsAdapter(conversationsActivity : ClyConversationsA
     }
 
     override fun getItemCount(): Int  = this.weakConversationsActivity.get()?.conversationsList?.size ?: 0
+
+    override fun onViewRecycled(holder: ClyConversationViewHolder) {
+        holder.onViewRecycled()
+    }
 }

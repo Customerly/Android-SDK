@@ -27,6 +27,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import android.support.annotation.CheckResult
+import android.support.annotation.ColorInt
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
@@ -52,7 +53,6 @@ import org.json.JSONObject
  * Project: Customerly-KAndroid-SDK
  */
 private const val PREF_KEY_APP_ID = "CUSTOMERLY_APP_ID"
-private const val PREF_KEY_HARDCODED_WIDGETCOLOR = "CUSTOMERLY_HARDCODED_WIDGETCOLOR"
 
 object Customerly {
 
@@ -62,18 +62,15 @@ object Customerly {
     // Public fields & functions ///////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
 
-    //JAVADOC
-
     @JvmStatic
     @JvmOverloads
-    fun configure(application: Application, customerlyAppId: String, widgetColor: Int? = null) {
+    fun configure(application: Application, customerlyAppId: String, @ColorInt widgetColorInt: Int? = null) {
         Customerly.initialize(context = application.applicationContext)
         Customerly.preferences?.edit()
                 ?.putString(PREF_KEY_APP_ID, customerlyAppId)
-                ?.putInt(PREF_KEY_HARDCODED_WIDGETCOLOR, widgetColor ?: 0)
                 ?.apply()
         Customerly.appId = customerlyAppId
-        Customerly.widgetColorHardcoded = widgetColor
+        Customerly.widgetColorHardcoded = widgetColorInt
 
         ClyActivityLifecycleCallback.registerOn(application = application)
 
@@ -87,7 +84,11 @@ object Customerly {
      * @param activityClass The Activity class
      * @see #enableOn(Class)
      */
+    @JvmStatic
     fun disableOn(activityClass: Class<out Activity>) {
+        if(!this::disabledActivities.isInitialized) {
+            this.disabledActivities = ArrayList(1)
+        }
         this.disabledActivities.add(activityClass)
     }
 
@@ -96,8 +97,9 @@ object Customerly {
      * @param activityClass The Activity class
      * @see .disableOn
      */
+    @JvmStatic
     fun enableOn(activityClass: Class<out Activity>) {
-        if(this::disabledActivities.isLazyInitialized()) {
+        if(this::disabledActivities.isInitialized) {
             this.disabledActivities.remove(activityClass)
         }
     }
@@ -107,10 +109,11 @@ object Customerly {
      * <br>
      * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
      */
+    @JvmStatic
     fun logoutUser() {
         this.checkConfigured {
             ignoreException {
-                this.preferences?.jwtRemove()
+                Customerly.jwtToken = null
                 Customerly.currentUser.logout()
                 Customerly.clySocket.disconnect()
                 Customerly.nextPingAllowed = 0
@@ -133,6 +136,7 @@ object Customerly {
      * You have to configure the Customerly SDK before using this method with [.configure]
      * @param activity The current activity
      */
+    @JvmStatic
     fun openSupport(activity: Activity) {
         this.checkConfigured {
             this.isSupportEnabled = true
@@ -146,9 +150,11 @@ object Customerly {
         }
     }
 
+    @JvmStatic
     val isSdkAvailable: Boolean get() = nullOnException { Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.lastPing.minVersion)) } ?: false
 
     @Throws(IllegalArgumentException::class)
+    @JvmStatic
     fun setAttributes(attributes: JSONObject, success: ()->Unit = {}, failure: ()->Unit = {}) {
         attributes.assertValidAttributesMap()
         if(Customerly.jwtToken?.isUser == true) {
@@ -164,6 +170,7 @@ object Customerly {
     }
 
     @JvmOverloads
+    @JvmStatic
     @Throws(IllegalArgumentException::class)
     fun setCompany(company: JSONObject, success: ()->Unit = {}, failure: ()->Unit = {}) {
         company.assertValidCompanyMap()
@@ -181,6 +188,7 @@ object Customerly {
     }
 
     @JvmOverloads
+    @JvmStatic
     fun registerUser(email: String, userId: String? = null, name: String? = null,
                      attributes: JSONObject? = null, company: JSONObject? = null,
                      success: ()->Unit = {}, failure: ()->Unit = {}) {
@@ -203,6 +211,7 @@ object Customerly {
         }
     }
 
+    @JvmStatic
     var isSupportEnabled: Boolean = true
         set(value) {
             when {
@@ -219,6 +228,7 @@ object Customerly {
             }
         }
 
+    @JvmStatic
     var isSurveyEnabled: Boolean = true
 
     /**
@@ -227,6 +237,7 @@ object Customerly {
      * You have to configure the Customerly SDK before using this method with [.configure]
      * @param eventName The event custom label
      */
+    @JvmStatic
     fun trackEvent(eventName: String) {
         if(eventName.isNotEmpty()) {
             Customerly.tryClyTask {
@@ -245,6 +256,7 @@ object Customerly {
     }
 
     @JvmOverloads
+    @JvmStatic
     fun update(success: ()->Unit = {}, failure: ()->Unit = {}) {
         if(System.currentTimeMillis() > Customerly.nextPingAllowed) {
             Customerly.ping(
@@ -260,6 +272,7 @@ object Customerly {
     * Set to true to enable error logging in the Console.
     * Avoid to enable it in release app versions, the suggestion is to pass your.application.package.BuildConfig.DEBUG as set value
     */
+    @JvmStatic
     fun setVerboseLogging(enabled: Boolean) {
         this.isVerboseLogging = enabled
     }
@@ -277,18 +290,18 @@ object Customerly {
 
     @JvmStatic
     @JvmOverloads
-    fun companyJson(companyId: String, companyName: String, existing: JSONObject = JSONObject()): JSONObject {
-        return existing.put(JSON_COMPANY_KEY_ID, companyId).put(JSON_COMPANY_KEY_NAME, companyName)
+    fun companyJson(companyId: String, companyName: String, json: JSONObject = JSONObject()): JSONObject {
+        return json.put(JSON_COMPANY_KEY_ID, companyId).put(JSON_COMPANY_KEY_NAME, companyName)
     }
 
     @JvmStatic
-    fun companyJson(companyId: String, companyName: String, existing: HashMap<String, Any>): JSONObject {
-        return companyJson(companyId = companyId, companyName = companyName, existing = JSONObject(existing))
+    fun companyJson(companyId: String, companyName: String, map: HashMap<String, Any>): JSONObject {
+        return companyJson(companyId = companyId, companyName = companyName, json = JSONObject(map))
     }
 
     @JvmStatic
-    fun companyJson(companyId: String, companyName: String, vararg values: Pair<String,Any>): JSONObject {
-        return companyJson(companyId = companyId, companyName = companyName, existing = values.asSequence()
+    fun companyJson(vararg values: Pair<String,Any>, companyId: String, companyName: String): JSONObject {
+        return companyJson(companyId = companyId, companyName = companyName, json = values.asSequence()
                 .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) }))
     }
 
@@ -297,8 +310,8 @@ object Customerly {
     ////////////////////////////////////////////////////////////////////////////////
     @JvmStatic
     @Deprecated(
-            message = "In Kotlin you can access directly the Customerly object. So simply remove this `.get()` calling. In Java please call Customerly.INSTANCE instead of Customerly.get()",
-            replaceWith = ReplaceWith("Customerly.INSTANCE"))
+            message = "You can access directly to Customerly object. So simply remove this `.get()` calling.",
+            replaceWith = ReplaceWith("Customerly"))
     fun get() = this
 
     @Deprecated(
@@ -435,10 +448,12 @@ object Customerly {
     internal var preferences: SharedPreferences? = null
             private set
 
-    internal val widgetColorFallback: Int get() = this.widgetColorHardcoded ?: COLORINT_BLUE_MALIBU
-    internal var widgetColorHardcoded: Int? = null
+    internal val widgetColorFallback: Int @ColorInt get() = this.widgetColorHardcoded ?: COLORINT_BLUE_MALIBU
+    @ColorInt internal var widgetColorHardcoded: Int? = null
             set(value) {
-                field = value?.takeIf { it != 0 } ?: field
+                if(value != 0) {
+                    field = value
+                }
             }
 
     internal var currentUser: ClyCurrentUser by DefaultInitializerDelegate(constructor = { ClyCurrentUser() })
@@ -448,6 +463,12 @@ object Customerly {
     internal var nextPingAllowed: Long = 0L
 
     internal var jwtToken: ClyJwtToken? = null
+            set(value) {
+                field = value
+                if(value == null) {
+                    jwtRemove()
+                }
+            }
 
     internal var appId: String? by TryOnceDelegate(attempt = { Customerly.preferences?.safeString(key = PREF_KEY_APP_ID) })
 
@@ -457,7 +478,7 @@ object Customerly {
                 this.lastPing.welcomeMessageVisitors
             })
 
-    private val disabledActivities: ArrayList<Class<out Activity>> by lazy { ArrayList<Class<out Activity>>(1) }
+    private lateinit var disabledActivities: ArrayList<Class<out Activity>>
 
     internal var postOnActivity: ((Activity) -> Boolean)? = null
 
@@ -474,9 +495,7 @@ object Customerly {
         this.preferences = context.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE)
         this.currentUser.restore()
 
-        this.widgetColorHardcoded = this.preferences?.getInt(PREF_KEY_HARDCODED_WIDGETCOLOR, 0)
-
-        this.jwtToken = this.preferences?.jwtRestore()
+        jwtRestore()
 
         context.registerLollipopNetworkReceiver()
 
@@ -524,7 +543,7 @@ object Customerly {
     }
 
     internal fun isEnabledActivity(activity: Activity): Boolean {
-        return !this::disabledActivities.isLazyInitialized() || !this.disabledActivities.contains(activity.javaClass)
+        return !this::disabledActivities.isInitialized || !this.disabledActivities.contains(activity.javaClass)
     }
 
     internal inline fun ping(trySurvey: Boolean = true, tryLastMessage: Boolean = true,

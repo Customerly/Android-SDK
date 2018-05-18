@@ -20,7 +20,9 @@ import android.content.Context
 import android.graphics.*
 import android.support.annotation.DrawableRes
 import android.support.annotation.IntRange
+import android.support.annotation.UiThread
 import android.widget.ImageView
+import io.customerly.R
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ggkext.weak
 import java.io.File
@@ -60,6 +62,8 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
     private var intoImageView: WeakReference<ImageView>? = null
     private var intoGenericTarget: ((Bitmap)->Unit)? = null
 
+    private var isCancelled: Boolean = false
+
     internal fun fitCenter() = this.apply {
         this.scaleType = ImageView.ScaleType.FIT_CENTER
     }
@@ -98,7 +102,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
 
     internal fun handlerGetDiskKey() = CUSTOMERLY_SDK_NAME + '-' + "${this.url}|${this.applyCircleTransformation}|${this.resizeWidth}|${this.resizeHeight}".hashCode()
 
-    internal val handlerGetHashCode : Int get() = this.intoImageView?.get()?.hashCode() ?: this.intoGenericTarget?.hashCode() ?: -1
+    internal val handlerGetHashCode : Int get() = this.intoImageView?.get()?.toString()?.hashCode() ?: this.intoGenericTarget?.hashCode() ?: -1
 
     internal fun handlerApplyTransformations(bmp: Bitmap) : Bitmap {
         return if(this.applyCircleTransformation) {
@@ -121,6 +125,12 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
+    internal fun handlerSetScaleType() {
+        this.intoImageView?.get()?.let { iv ->
+            this.scaleType.setTo(iv)
+        }
+    }
+
     internal fun handlerApplyResize(bmp : Bitmap) : Bitmap {
         return if (this.resizeWidth != IMAGE_REQUEST_DONT_RESIZE && this.resizeHeight != IMAGE_REQUEST_DONT_RESIZE) {
             val matrix = Matrix().also {
@@ -138,43 +148,55 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
 
     internal fun handlerValidateRequest() = this.intoGenericTarget ?: this.intoImageView != null
 
+    @UiThread
     internal fun handlerOnResponse(bmp : Bitmap) {
-        this.intoGenericTarget?.invoke(bmp)
-                ?: this.intoImageView?.get()?.let { iv ->
-                    iv.post {
-                        this.scaleType.setTo(iv)
-                        iv.setImageBitmap(bmp)
+        if(!this.isCancelled) {
+            this.intoGenericTarget?.invoke(bmp)
+                    ?: this.intoImageView?.get()?.let { iv ->
+                        if (!this.isCancelled){
+                            iv.setTag(R.id.io_customerly__icon, bmp)
+                            iv.setImageBitmap(bmp)
+                        }
                     }
-                }
+        }
     }
 
+    @UiThread
     internal fun handlerLoadPlaceholder() {
-        val placeholder = this.placeholder
-        if(placeholder != 0) {
-            this.onPlaceholder?.invoke(placeholder)
-                    ?: this.intoImageView?.get()?.let { iv ->
-                        iv.post {
-                            this.scaleType.setTo(iv)
-                            iv.setImageResource(placeholder)
+        if(!this.isCancelled) {
+            val placeholder = this.placeholder
+            if (placeholder != 0) {
+                this.onPlaceholder?.invoke(placeholder)
+                        ?: this.intoImageView?.get()?.let { iv ->
+                            iv.setTag(R.id.io_customerly__icon, placeholder)
+                            iv.setImageBitmap(this.handlerApplyTransformations(BitmapFactory.decodeResource(iv.resources, placeholder)))
                         }
-                    }
+            }
         }
     }
 
+    @UiThread
     internal fun handlerLoadError() {
-        val error = this.error
-        if(error != 0) {
-            this.onError?.invoke(error)
-                    ?: this.intoImageView?.get()?.let { iv ->
-                        iv.post {
-                            this.scaleType.setTo(iv)
-                            iv.setImageResource(error)
+        if(!this.isCancelled) {
+            val error = this.error
+            if (error != 0) {
+                this.onError?.invoke(error)
+                        ?: this.intoImageView?.get()?.let { iv ->
+                            if (!this.isCancelled) {
+                                iv.setTag(R.id.io_customerly__icon, error)
+                                iv.setImageBitmap(this.handlerApplyTransformations(BitmapFactory.decodeResource(iv.resources, error)))
+                            }
                         }
-                    }
+            }
         }
     }
 
-    internal fun start() {
+    internal fun start(): ClyImageRequest {
         ClyImageHandler.request(request = this)
+        return this
+    }
+
+    internal fun cancel() {
+        this.isCancelled = true
     }
 }

@@ -21,6 +21,7 @@ import android.os.Handler
 import android.os.Looper
 import android.support.annotation.IntDef
 import android.support.annotation.Px
+import android.support.annotation.UiThread
 import android.text.Spanned
 import android.text.SpannedString
 import android.view.WindowManager
@@ -178,6 +179,7 @@ internal class ClyMessage(
         }
     }
 
+    @UiThread
     private fun displayNow(activity: Activity, retryOnFailure: Boolean = true) {
         try {
             when (activity) {
