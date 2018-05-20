@@ -22,7 +22,6 @@ import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
@@ -31,11 +30,6 @@ import android.support.annotation.UiThread
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -44,7 +38,6 @@ import io.customerly.R
 import io.customerly.entity.ClyAttachment
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
 import io.customerly.entity.clySendError
-import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
@@ -185,10 +178,6 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
 
         if (Customerly.lastPing.poweredBy) {
-            val redBoldSpannable = SpannableString(CUSTOMERLY_SDK_NAME)
-            redBoldSpannable.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.io_customerly__blue_malibu)), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-            redBoldSpannable.setSpan(StyleSpan(Typeface.BOLD), 0, redBoldSpannable.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-            poweredBy.text = SpannableStringBuilder(this.getString(R.string.io_customerly__powered_by_)).append(redBoldSpannable)
             poweredBy.setOnClickListener { it.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_WEB_SITE) }
             poweredBy.visibility = View.VISIBLE
         } else {

@@ -25,7 +25,6 @@
     <item quantity="one">Última actividad hace %1$d día</item>
     <item quantity="other">Última actividad hace %1$d días</item>
   </plurals>
-  <string name="io_customerly__powered_by_">Desarrollado por&#160;</string>
   <string name="io_customerly__write_your_question">Haz tu pregunta…</string>
   <string name="io_customerly__attach_file">Adjuntar archivo</string>
   <string name="io_customerly__insert_your_email">Pon tu correo electrónico</string>
@@ -63,7 +62,6 @@
   <string name="io_customerly__rich_message_text">Este mensaje ha sido enviado por correo electrónico.\nToca para leerlo.</string>
   <string name="io_customerly__rich_message_text__condensed_for_alert">Mensaje enviado por correo electrónico.\nToca para leerlo.</string>
   <string name="io_customerly__support">Asistencia</string>
-  <string name="io_customerly__webview_act_label">Customerly browsing</string>
   <string name="io_customerly__open_conversation">Abrir una conversación</string>
   <string name="io_customerly__cant_access_external_memory">No se puede acceder a la memoria externa</string>
   <string name="io_customerly__open_in_browser">Abrir en el navegador</string>

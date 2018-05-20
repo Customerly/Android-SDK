@@ -15,6 +15,7 @@
 -->
 <resources>
     <color name="io_customerly__grey_cc">#FFCCCCCC</color>
+    <color name="io_customerly__grey_99">#FF999999</color>
     <color name="io_customerly__grey_f0">#FFF0F0F0</color>
     <color name="io_customerly__grey_f3">#FFF3F3F3</color>
     <color name="io_customerly__dark_text">#FF282828</color>

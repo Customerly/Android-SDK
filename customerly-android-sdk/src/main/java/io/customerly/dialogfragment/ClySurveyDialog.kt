@@ -28,8 +28,12 @@ import android.view.*
 import android.widget.*
 import io.customerly.Customerly
 import io.customerly.R
+import io.customerly.activity.startClyWebViewActivity
 import io.customerly.api.*
 import io.customerly.entity.*
+import io.customerly.utils.CUSTOMERLY_SURVEY_SITE
+import io.customerly.utils.CUSTOMERLY_WEB_SITE
+import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
 import io.customerly.utils.htmlformatter.fromHtml
@@ -149,6 +153,13 @@ internal class ClySurveyDialog : DialogFragment() {
                 }
             }
 
+            if (Customerly.lastPing.poweredBy) {
+                view.io_customerly__survey_by_customerly.setOnClickListener { it.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_SURVEY_SITE) }
+                view.io_customerly__survey_by_customerly.visibility = View.VISIBLE
+            } else {
+                view.io_customerly__survey_by_customerly.visibility = View.GONE
+            }
+
             this.applySurvey(survey = survey, rootView = view)
             view
         }
@@ -204,6 +215,7 @@ internal class ClySurveyDialog : DialogFragment() {
                                     this.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
                                     this.text = choiceValue
                                     this.gravity = Gravity.CENTER
+                                    this.setPadding(3.dp2px, 3.dp2px, 3.dp2px, 3.dp2px)
                                     this.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 40.dp2px).apply {
                                         this.topMargin = 5.dp2px
                                         this.bottomMargin = 5.dp2px

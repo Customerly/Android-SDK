@@ -24,10 +24,7 @@ import android.support.annotation.IntRange
 import android.support.annotation.RequiresPermission
 import android.util.Log
 import io.customerly.Customerly
-import io.customerly.entity.ClyJwtToken
-import io.customerly.entity.ERROR_CODE__GENERIC
-import io.customerly.entity.JWT_KEY
-import io.customerly.entity.parseJwtToken
+import io.customerly.entity.*
 import io.customerly.utils.*
 import io.customerly.utils.ggkext.*
 import org.json.JSONException
@@ -117,6 +114,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                             request.executeRequest(jwtToken = Customerly.jwtToken, params = params).let { (state, result) ->
                                 responseState = state
                                 if (request.endpoint == ENDPOINT_PING && result != null) {
+                                    Customerly.lastPing = result.parsePing()
                                     Customerly.nextPingAllowed = result.optLong("next-ping-allowed", 0)
                                     Customerly.clySocket.connect(newParams = result.optJSONObject("websocket"))
                                 }

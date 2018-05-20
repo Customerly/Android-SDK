@@ -19,13 +19,15 @@
     android:background="@drawable/io_customerly__poweredby_bkg"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textColor="@color/io_customerly__text_color_dark_grey"
+    android:textColor="@color/io_customerly__text_color_grey_lightgrey"
     android:textSize="13sp"
     android:fontFamily="sans-serif"
     tools:ignore="UnusedAttribute"
     android:gravity="center"
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
+    android:textStyle="bold"
+    android:text="@string/io_customerly__powered_by_customerly"
     android:visibility="gone">
 
     <requestFocus />

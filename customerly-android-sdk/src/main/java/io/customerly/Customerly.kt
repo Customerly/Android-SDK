@@ -45,8 +45,9 @@ import io.customerly.utils.htmlformatter.fromHtml
 import io.customerly.utils.network.registerLollipopNetworkReceiver
 import io.customerly.websocket.ClySocket
 import org.json.JSONObject
+import java.util.*
 
-
+interface Callback : Function0<Unit>
 
 /**
  * Created by Gianni on 19/04/18.
@@ -75,6 +76,8 @@ object Customerly {
         ClyActivityLifecycleCallback.registerOn(application = application)
 
         Customerly.configured = true
+
+        Customerly.ping()
     }
 
 
@@ -89,7 +92,7 @@ object Customerly {
         if(!this::disabledActivities.isInitialized) {
             this.disabledActivities = ArrayList(1)
         }
-        this.disabledActivities.add(activityClass)
+        this.disabledActivities.add(activityClass.name)
     }
 
     /**
@@ -100,7 +103,7 @@ object Customerly {
     @JvmStatic
     fun enableOn(activityClass: Class<out Activity>) {
         if(this::disabledActivities.isInitialized) {
-            this.disabledActivities.remove(activityClass)
+            this.disabledActivities.remove(activityClass.name)
         }
     }
 
@@ -277,7 +280,7 @@ object Customerly {
         this.isVerboseLogging = enabled
     }
 
-    @JvmStatic
+    //Not visible for java developers
     fun attributeJson(vararg values: Pair<String,Any>): JSONObject {
         return values.asSequence()
                 .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) })
@@ -299,7 +302,7 @@ object Customerly {
         return companyJson(companyId = companyId, companyName = companyName, json = JSONObject(map))
     }
 
-    @JvmStatic
+    //Not visible for java developers
     fun companyJson(vararg values: Pair<String,Any>, companyId: String, companyName: String): JSONObject {
         return companyJson(companyId = companyId, companyName = companyName, json = values.asSequence()
                 .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) }))
@@ -456,7 +459,7 @@ object Customerly {
                 }
             }
 
-    internal var currentUser: ClyCurrentUser by DefaultInitializerDelegate(constructor = { ClyCurrentUser() })
+    internal var currentUser: ClyCurrentUser = ClyCurrentUser()
 
     internal var lastPing: ClyPingResponse by DefaultInitializerDelegate(constructor = { Customerly.preferences?.lastPingRestore() ?: ClyPingResponse() })
 
@@ -478,7 +481,7 @@ object Customerly {
                 this.lastPing.welcomeMessageVisitors
             })
 
-    private lateinit var disabledActivities: ArrayList<Class<out Activity>>
+    private lateinit var disabledActivities: ArrayList<String>
 
     internal var postOnActivity: ((Activity) -> Boolean)? = null
 
@@ -543,7 +546,7 @@ object Customerly {
     }
 
     internal fun isEnabledActivity(activity: Activity): Boolean {
-        return !this::disabledActivities.isInitialized || !this.disabledActivities.contains(activity.javaClass)
+        return !this::disabledActivities.isInitialized || !this.disabledActivities.contains(activity.javaClass.name)
     }
 
     internal inline fun ping(trySurvey: Boolean = true, tryLastMessage: Boolean = true,
@@ -553,8 +556,9 @@ object Customerly {
         Customerly.checkConfigured(ok = {
             ClyApiRequest(
                     endpoint = ENDPOINT_PING,
-                    converter = { it.parsePing().let {
-                        (trySurvey && it.tryShowSurvey()) || (tryLastMessage && it.tryShowLastMessage()) }
+                    converter = {
+                        //Customerly.lastPing = it.parsePing()
+                        (trySurvey && Customerly.lastPing.tryShowSurvey()) || (tryLastMessage && Customerly.lastPing.tryShowLastMessage())
                     },
                     callback = {
                         when(it) {

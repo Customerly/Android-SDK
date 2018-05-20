@@ -30,7 +30,6 @@
     </plurals>
 
     <!-- Localized -->
-    <string name="io_customerly__powered_by_">Offerto da&#160;</string>
     <string name="io_customerly__write_your_question">Scrivi la tua domanda…</string>
     <string name="io_customerly__attach_file">Allega file</string>
     <string name="io_customerly__insert_your_email">Inserisci la tua email</string>

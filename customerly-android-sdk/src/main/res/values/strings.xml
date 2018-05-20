@@ -14,9 +14,13 @@
 -->
 <resources>
     <!-- Not translatable -->
+    <string name="io_customerly__powered_by_customerly">Live Chat ⚡️ Customerly</string>
+    <string name="io_customerly__surveys_by_customerly">Surveys ⚡️ Customerly</string>
+
     <string name="io_customerly__download" translatable="false">Download</string>
     <string name="io_customerly__activity_title_chat" translatable="false">Chat</string>
     <string name="io_customerly__background" translatable="false">background</string>
+    <string name="io_customerly__webview_act_label">Customerly web</string>
 
     <string name="io_customerly__XX_sec_ago" translatable="false">%1$ds ago</string>
     <string name="io_customerly__XX_min_ago" translatable="false">%1$dm ago</string>
@@ -52,7 +56,6 @@
     </plurals>
 
     <!-- Localized -->
-    <string name="io_customerly__powered_by_">Powered by&#160;</string>
     <string name="io_customerly__write_your_question">Ask your question…</string>
     <string name="io_customerly__attach_file">Attach file</string>
     <string name="io_customerly__insert_your_email">Insert your email</string>
@@ -90,7 +93,6 @@
     <string name="io_customerly__rich_message_text">This message was sent by email.\nTap to read.</string>
     <string name="io_customerly__rich_message_text__condensed_for_alert">Message sent by email.\nTap to read.</string>
     <string name="io_customerly__support">Support</string>
-    <string name="io_customerly__webview_act_label">Customerly browsing</string>
     <string name="io_customerly__open_conversation">Open conversation</string>
     <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>
     <string name="io_customerly__open_in_browser">Open in browser</string>

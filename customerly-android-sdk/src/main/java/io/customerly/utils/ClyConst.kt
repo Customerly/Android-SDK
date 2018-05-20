@@ -18,6 +18,7 @@ package io.customerly.utils
 
 import android.support.annotation.ColorInt
 import android.support.annotation.IntDef
+import io.customerly.Customerly
 
 /**
  * Created by Gianni on 11/04/18.
@@ -46,8 +47,10 @@ internal const val JSON_COMPANY_KEY_NAME = "name"
 
 internal const val CUSTOMERLY_WEB_SITE = "https://www.customerly.io/"
 internal const val CUSTOMERLY_SDK_NAME = "Customerly"
-internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "http://pictures.cdn.customerly.io/"
+internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "http://pictures.customerly.io/"
 internal const val CUSTOMERLY_API_ENDPOINT_BASEURL = "https://tracking.customerly.io/"
 internal const val CUSTOMERLY_API_VERSION = "v1"
 internal const val CUSTOMERLY_SOCKET_VERSION = "1"
-internal const val CUSTOMERLY_DEV_MODE = true//TODO
+internal const val CUSTOMERLY_DEV_MODE = false
+
+internal val CUSTOMERLY_SURVEY_SITE: String get() = "http://www.customerly.io/go/survey?utm_source=sdk&utm_medium=widget&utm_campaign=${Customerly.appId}"
