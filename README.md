@@ -456,3 +456,4 @@ Made with ❤️ by [Gianni Genovesi](https://www.linkedin.com/in/ggenovesi/) fo
 
 Customerly Android SDK is available under the Apache License 2.0.
 See the [Customerly_LICENSE.txt](https://github.com/customerly/Customerly-Android-SDK/blob/master/Customerly_LICENSE.txt) file for more info.
+
