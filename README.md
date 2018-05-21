@@ -10,7 +10,7 @@
   [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-red.svg)]()
 
 <p align="center">
-  <img src="https://cdn.worldvectorlogo.com/logos/kotlin-1.svg" width=25 alt="Icon"/> **Kotlin oriented** (Java fully supported)
+  <img src="https://cdn.worldvectorlogo.com/logos/kotlin-1.svg" width=25 alt="Icon"/> <b>Kotlin oriented</b> (Java fully supported)
 </p>
 
 **Customerly.io** is the perfect tool to getting closer to your customers. Help them where they are with the customer support widget. Manage your audience based on their behaviours, build campaigns and automations.
