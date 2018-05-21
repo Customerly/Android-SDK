@@ -96,5 +96,6 @@
     <string name="io_customerly__open_conversation">Open conversation</string>
     <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>
     <string name="io_customerly__open_in_browser">Open in browser</string>
+    <string name="io_customerly__i_accept_the_privacy_policy">I accept the Privacy Policy</string>
 
 </resources>

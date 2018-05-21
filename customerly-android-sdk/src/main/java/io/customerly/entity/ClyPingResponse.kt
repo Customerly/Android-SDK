@@ -55,6 +55,7 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                         minVersion = minVersion,
                         widgetColor = widgetColor,
                         widgetBackgroundUrl = appConfig.optTyped(name = "widget_background_url"),
+                        privacyUrl = appConfig.optTyped(name = "widget_privacy_url"),
                         poweredBy = appConfig.optTyped(name = "powered_by", fallback = 0L) == 1L,
                         welcomeMessageUsers = appConfig.optTyped(name = "welcome_message_users"),
                         welcomeMessageVisitors = appConfig.optTyped(name = "welcome_message_visitors"),
@@ -71,6 +72,7 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
 private const val PREFS_KEY_MIN_VERSION             = "CUSTOMERLY_LASTPING_MIN_VERSION"
 private const val PREFS_KEY_WIDGET_COLOR            = "CUSTOMERLY_LASTPING_WIDGET_COLOR"
 private const val PREFS_KEY_BACKGROUND_THEME_URL    = "CUSTOMERLY_LASTPING_BACKGROUND_THEME_URL"
+private const val PREFS_KEY_PRIVACY_URL             = "CUSTOMERLY_LASTPING_PRIVACY_URL"
 private const val PREFS_KEY_POWERED_BY              = "CUSTOMERLY_LASTPING_POWERED_BY"
 private const val PREFS_KEY_WELCOME_USERS           = "CUSTOMERLY_LASTPING_WELCOME_USERS"
 private const val PREFS_KEY_WELCOME_VISITORS        = "CUSTOMERLY_LASTPING_WELCOME_VISITORS"
@@ -80,6 +82,7 @@ internal fun SharedPreferences.lastPingRestore() : ClyPingResponse {
                 minVersion = this.safeString(PREFS_KEY_MIN_VERSION, "0.0.0"),
                 widgetColor = this.safeInt(PREFS_KEY_WIDGET_COLOR, Customerly.widgetColorFallback),
                 widgetBackgroundUrl = this.safeString(PREFS_KEY_BACKGROUND_THEME_URL),
+                privacyUrl = this.safeString(PREFS_KEY_PRIVACY_URL),
                 poweredBy = this.safeBoolean(PREFS_KEY_POWERED_BY, true),
                 welcomeMessageUsers = this.safeString(PREFS_KEY_WELCOME_USERS),
                 welcomeMessageVisitors = this.safeString(PREFS_KEY_WELCOME_VISITORS))
@@ -90,6 +93,7 @@ private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
             ?.putString(PREFS_KEY_MIN_VERSION, lastPing.minVersion)
             ?.putInt(PREFS_KEY_WIDGET_COLOR, lastPing.widgetColor)
             ?.putString(PREFS_KEY_BACKGROUND_THEME_URL, lastPing.widgetBackgroundUrl)
+            ?.putString(PREFS_KEY_PRIVACY_URL, lastPing.privacyUrl)
             ?.putBoolean(PREFS_KEY_POWERED_BY, lastPing.poweredBy)
             ?.putString(PREFS_KEY_WELCOME_USERS, lastPing.welcomeMessageUsers)
             ?.putString(PREFS_KEY_WELCOME_VISITORS, lastPing.welcomeMessageVisitors)
@@ -100,6 +104,7 @@ internal class ClyPingResponse(
         internal val minVersion: String = "0.0.0",
         @ColorInt internal val widgetColor: Int = Customerly.widgetColorHardcoded ?: COLORINT_BLUE_MALIBU,
         internal val widgetBackgroundUrl: String? = null,
+        internal val privacyUrl: String? = null,
         internal val poweredBy: Boolean = true,
         internal val welcomeMessageUsers: String? = null,
         internal val welcomeMessageVisitors:String? = null,

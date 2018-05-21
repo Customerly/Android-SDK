@@ -21,7 +21,6 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.support.annotation.UiThread
 import android.support.v4.content.ContextCompat
@@ -43,6 +42,7 @@ import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.activity.chat.startClyChatActivity
+import io.customerly.activity.startClyWebViewActivity
 import io.customerly.api.*
 import io.customerly.entity.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
@@ -275,6 +275,17 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         if(Customerly.jwtToken?.isAnonymous != false) {
             if(ghostToVisitorEmail == null) {
                 this.inputLayout?.visibility = View.GONE
+
+                (Customerly.lastPing.privacyUrl?.let { privacyUrl ->
+                    this.io_customerly__input_privacy_policy.setOnClickListener {
+                        it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
+                    }
+                    2.5f.dp2px.toInt() to View.VISIBLE
+                } ?: 10.dp2px to View.GONE).let { (topMargin, visibility) ->
+                    (this.io_customerly__input_email_button.layoutParams as? LinearLayout.LayoutParams)?.topMargin = topMargin
+                    this.io_customerly__input_privacy_policy.visibility = visibility
+                }
+
                 this.io_customerly__input_email_layout.visibility = View.VISIBLE
 
                 this.io_customerly__input_email_edit_text.requestFocus()

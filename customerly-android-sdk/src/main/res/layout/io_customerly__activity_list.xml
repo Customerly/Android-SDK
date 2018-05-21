@@ -120,7 +120,7 @@
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:paddingBottom="5dp"
-        android:visibility="gone" >
+        android:visibility="gone"  >
 
         <EditText android:id="@id/io_customerly__input_email_edit_text"
             android:theme="@style/io_customerly__EditText_ViewsAccent"
@@ -141,10 +141,19 @@
             android:hint="@string/io_customerly__insert_your_email"
             android:background="@android:color/transparent" />
 
+        <TextView android:id="@+id/io_customerly__input_privacy_policy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:padding="5dp"
+            android:textColor="#666666"
+            android:text="@string/io_customerly__i_accept_the_privacy_policy"
+            android:visibility="gone" />
+
         <Button android:id="@id/io_customerly__input_email_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="2.5dp"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="15dp"
             android:layout_marginStart="15dp"
