@@ -172,6 +172,17 @@ object Customerly {
         }
     }
 
+    @Throws(IllegalArgumentException::class)
+    @JvmStatic
+    fun setAttributes(attributes: HashMap<String, Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.setAttributes(attributes = Customerly.attributeJson(map = attributes), success = success, failure = failure)
+    }
+
+    @Throws(IllegalArgumentException::class)
+    fun setAttributes(vararg values: Pair<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.setAttributes(attributes = Customerly.attributeJson(*values), success = success, failure = failure)
+    }
+
     @JvmOverloads
     @JvmStatic
     @Throws(IllegalArgumentException::class)
@@ -188,6 +199,17 @@ object Customerly {
             Customerly.log(message = "Cannot setCompany for lead users")
             failure()
         }
+    }
+
+    @Throws(IllegalArgumentException::class)
+    @JvmStatic
+    fun setCompany(company: HashMap<String, Any>, companyId: String, companyName: String, success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.setCompany(company = Customerly.companyJson(companyId = companyId, companyName = companyName, map = company), success = success, failure = failure)
+    }
+
+    @Throws(IllegalArgumentException::class)
+    fun setCompany(vararg values: Pair<String,Any>, companyId: String, companyName: String, success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.setCompany(company = Customerly.companyJson(*values, companyId = companyId, companyName = companyName), success = success, failure = failure)
     }
 
     @JvmOverloads
@@ -212,6 +234,36 @@ object Customerly {
                     success = success, successLog = "registerUser task completed successfully",
                     failure = failure, failureLog = "A generic error occurred in registerUser")
         }
+    }
+
+    @JvmOverloads
+    @JvmStatic
+    fun registerUser(email: String, userId: String? = null, name: String? = null,
+                     attributes: HashMap<String, Any>, company: JSONObject? = null,
+                     success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.registerUser(email = email, userId = userId, name = name,
+                attributes = Customerly.attributeJson(map = attributes), company = company,
+                success = success, failure = failure)
+    }
+
+    @JvmOverloads
+    @JvmStatic
+    fun registerUser(email: String, userId: String? = null, name: String? = null,
+                     attributes: JSONObject?, companyId: String, companyName: String, company: HashMap<String, Any>,
+                     success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.registerUser(email = email, userId = userId, name = name,
+                attributes = attributes, company = Customerly.companyJson(companyId = companyId, companyName = companyName, map = company),
+                success = success, failure = failure)
+    }
+
+    @JvmOverloads
+    @JvmStatic
+    fun registerUser(email: String, userId: String? = null, name: String? = null,
+                     attributes: HashMap<String, Any>, companyId: String, companyName: String, company: HashMap<String, Any>,
+                     success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.registerUser(email = email, userId = userId, name = name,
+                attributes = Customerly.attributeJson(map = attributes), company = Customerly.companyJson(companyId = companyId, companyName = companyName, map = company),
+                success = success, failure = failure)
     }
 
     @JvmStatic
@@ -382,8 +434,8 @@ object Customerly {
             replaceWith = ReplaceWith("Customerly.attributeJson()"))
     class AttributesBuilder
     @Deprecated(
-            message = "Use Customerly.companyJson(companyId,companyName) instead",
-            replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)")) constructor(companyId: String, companyName: String) {
+            message = "Use Customerly.attributeJson()",
+            replaceWith = ReplaceWith("Customerly.attributeJson()")) constructor( ) {
         private val attributes = Customerly.attributeJson()
 
         @Deprecated(

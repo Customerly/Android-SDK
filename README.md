@@ -162,7 +162,7 @@ Customerly.setVerboseLogging(enabled = BuildConfig.DEBUG)
 ```
 `Java`
 ```java
-Customerly.get().setVerboseLogging(BuildConfig.DEBUG);
+Customerly.setVerboseLogging(BuildConfig.DEBUG);
 //Passing BuildConfig.DEBUG, logging will be automatically disabled for the release apk
 ```
 
@@ -176,7 +176,7 @@ Customerly.openSupport(activity = this@Activity)
 ```
 `Java`
 ```java
-Customerly.get().openSupport(Activity.this);
+Customerly.openSupport(Activity.this);
 ```
 
 <p align="center">
@@ -276,10 +276,9 @@ val attributesMap = Customerly.attributeJson("experience" to 3, "job" to "Employ
 ```
 `Java`
 ```java
-HashMap<String, Object> attributesHashMap = new HashMap<String, Object>();
-attributesHashMap.put("experience", 3);
-attributesHashMap.put("job", "Employee");
-JSONObject attributesMap = Customerly.attributeJson(attributesHashMap);
+HashMap<String, Object> attributesMap = new HashMap<String, Object>();
+attributesMap.put("experience", 3);
+attributesMap.put("job", "Employee");
 ```
 
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:
@@ -377,7 +376,7 @@ Eg. This send an event that track a potential purchase
 
 `Kotlin`
 ```kotlin
-Customerly.trackEvent("added_to_cart")
+Customerly.trackEvent(eventName = "added_to_cart")
 ```
 `Java`
 ```java
@@ -393,8 +392,8 @@ Every Activity is enabled as default. Once disabled, you can re-enable it by cal
 
 `Kotlin`
 ```kotlin
-Customerly.disableOn(SplashActivity::class)
-Customerly.enableOn(SplashActivity::class)
+Customerly.disableOn(activityClass = SplashActivity::class)
+Customerly.enableOn(activityClass = SplashActivity::class)
 ```
 `Java`
 
@@ -424,7 +423,7 @@ The following permission will be AUTOMATICALLY added to the merged AndroidManife
 
 ## Proguard
 
-The library needs the following three rules to work with proguard enabled
+The library needs the following rules to work with proguard enabled
 ```
 -dontwarn java.lang.invoke.*
 -dontwarn okio.**
