@@ -147,7 +147,7 @@
             android:textSize="12sp"
             android:padding="5dp"
             android:textColor="#666666"
-            android:text="@string/io_customerly__i_accept_the_privacy_policy"
+            tools:text="@string/io_customerly__i_accept_the_privacy_policy"
             android:visibility="gone" />
 
         <Button android:id="@id/io_customerly__input_email_button"

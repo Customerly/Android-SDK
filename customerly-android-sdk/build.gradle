@@ -34,7 +34,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka-android'
 
-def CustomerlySDKVersion = '2.0.0-rc1'//TODO '2.0.0'
+def CustomerlySDKVersion = '2.0.0-rc7'//TODO '2.0.0'
 
 ext {
     bintrayRepo = 'maven'

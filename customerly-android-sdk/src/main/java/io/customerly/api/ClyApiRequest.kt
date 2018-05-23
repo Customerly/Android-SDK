@@ -66,6 +66,7 @@ internal class ClyApiRequest<RESPONSE: Any>
     internal fun p(key: String, value: Double?) = this.apply { if(value != null) this.params.skipException { it.put(key, value) } }
     internal fun p(key: String, value: Int?) = this.apply { if(value != null) this.params.skipException { it.put(key, value) } }
     internal fun p(key: String, value: Long?) = this.apply { if(value != null) this.params.skipException { it.put(key, value) } }
+    internal fun p(key: String, value: HashMap<String,Any>?) = this.apply { if(value != null) this.params.skipException { it.putOpt(key, JSONObject(value)) } }
     internal fun p(key: String, value: Any?) = this.apply { if(value != null) this.params.skipException { it.putOpt(key, value) } }
 
     internal fun start() {
@@ -266,7 +267,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                     .skipException { it.put("device", DeviceJson.json) }
     }
 
-    internal fun fillParamsWithCurrentUser(overrideCompany: JSONObject? = null): ClyApiRequest<RESPONSE> {
+    internal fun fillParamsWithCurrentUser(overrideCompany: HashMap<String,Any>? = null): ClyApiRequest<RESPONSE> {
         if(overrideCompany != null) {
             Customerly.currentUser.removeCompany()
         }

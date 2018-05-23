@@ -99,7 +99,7 @@ internal fun Long.timizeSeconds() : String {
 /**
  * Assert this Long is a past timestamp in seconds
  */
-fun <RESULT> Long.formatByTimeAgo(
+internal fun <RESULT> Long.formatByTimeAgo(
         seconds : ((Long)->RESULT)? = null,
         minutes : ((Long)->RESULT)? = null,
         hours : ((Long)->RESULT)? = null,

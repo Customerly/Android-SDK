@@ -33,8 +33,8 @@ import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import eu.appsolutelyapps.quizpatente.extensions.startUrl
-import eu.appsolutelyapps.quizpatente.extensions.statusBarColorInt
+import io.customerly.utils.ggkext.startUrl
+import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.utils.alterColor

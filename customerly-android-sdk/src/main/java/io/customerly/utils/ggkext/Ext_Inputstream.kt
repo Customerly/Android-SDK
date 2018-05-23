@@ -1,6 +1,8 @@
 package io.customerly.utils.ggkext
 
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.URLConnection
 
 /**
@@ -8,7 +10,7 @@ import java.net.URLConnection
  * Project: CustomerlyApp
  */
 const val BUFFER_SIZE = 1024
-fun InputStream.write(on: OutputStream) {
+internal fun InputStream.write(on: OutputStream) {
     val bytes = ByteArray(BUFFER_SIZE)
     this.useSkipExeption {
         var count = it.read(bytes, 0, BUFFER_SIZE)
@@ -18,9 +20,6 @@ fun InputStream.write(on: OutputStream) {
         }
     }
 }
-fun URLConnection.write(on: OutputStream) {
+internal fun URLConnection.write(on: OutputStream) {
     on.use { BufferedInputStream(this.inputStream).write(on = it) }
-}
-fun URLConnection.write(on: File) {
-    FileOutputStream(on).use { this.write(on = it) }
 }

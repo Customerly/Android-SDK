@@ -26,7 +26,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
-import android.support.annotation.CheckResult
 import android.support.annotation.ColorInt
 import android.text.Spanned
 import android.util.Log
@@ -44,8 +43,8 @@ import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.fromHtml
 import io.customerly.utils.network.registerLollipopNetworkReceiver
 import io.customerly.websocket.ClySocket
-import org.json.JSONObject
 import java.util.*
+import kotlin.collections.HashMap
 
 interface Callback : Function0<Unit>
 
@@ -57,12 +56,18 @@ private const val PREF_KEY_APP_ID = "CUSTOMERLY_APP_ID"
 
 object Customerly {
 
-    //TODO JAVADOC
-
     ////////////////////////////////////////////////////////////////////////////////
     // Public fields & functions ///////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
-
+    /**
+     * Call this method to configure the SDK indicating the Customerly App ID before accessing it.<br>
+     * Call this from your custom Application {@link Application#onCreate()}<br>
+     *     <br>
+     * You can choose to ignore the widget_color provided by the Customerly web console for the action bar styling in support activities and use an app-local widget_color instead.
+     * @param application The application class reference
+     * @param customerlyAppId The Customerly App ID found in your Customerly console
+     * @param widgetColorInt Optional, the custom widget color int. If Color.TRANSPARENT, it will be ignored
+     */
     @JvmStatic
     @JvmOverloads
     fun configure(application: Application, customerlyAppId: String, @ColorInt widgetColorInt: Int? = null) {
@@ -110,7 +115,7 @@ object Customerly {
     /**
      * Call this method to close the user's Customerly session.<br>
      * <br>
-     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * You have to configure the Customerly SDK before using this method with [.configure]
      */
     @JvmStatic
     fun logoutUser() {
@@ -153,40 +158,56 @@ object Customerly {
         }
     }
 
+    /**
+     * @return Returns true if the SDK is available.
+     */
     @JvmStatic
     val isSdkAvailable: Boolean get() = nullOnException { Version.valueOf(BuildConfig.VERSION_NAME).greaterThan(Version.valueOf(this.lastPing.minVersion)) } ?: false
 
-    @Throws(IllegalArgumentException::class)
-    @JvmStatic
-    fun setAttributes(attributes: JSONObject, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        attributes.assertValidAttributesMap()
-        if(Customerly.jwtToken?.isUser == true) {
-            Customerly.tryClyTask(failure = failure) {
-                Customerly.ping(trySurvey = false, tryLastMessage = false, attributes = attributes,
-                        success = success, successLog = "setAttributes task completed successfully",
-                        failure = failure, failureLog = "A generic error occurred in setAttributes")
-            }
-        } else {
-            Customerly.log(message = "Cannot setAttributes for lead users")
-            failure()
-        }
-    }
-
+    /**
+     * Call this method to set custom attributes to the user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with [.configure]
+     * @param attributes Attributes HashMap for the user. Can contain only String, char, int, long, float or double values
+     * @param success Optional. The callback to be called when the task completes successfully
+     * @param failure Optional. The callback to be called when the task completes with failure
+     * @throws IllegalArgumentException is thrown if the attributes check fails
+     */
+    @JvmOverloads
     @Throws(IllegalArgumentException::class)
     @JvmStatic
     fun setAttributes(attributes: HashMap<String, Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setAttributes(attributes = Customerly.attributeJson(map = attributes), success = success, failure = failure)
+        Customerly.setJsonAttributes(attributes = attributes, success = success, failure = failure)
     }
 
+    /**
+     * Call this method to set custom attributes to the user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with [.configure]
+     * @param attributes Attributes pairs for the user. Can contain only String, char, int, long, float or double values
+     * @param success Optional. The callback to be called when the task completes successfully
+     * @param failure Optional. The callback to be called when the task completes with failure
+     * @throws IllegalArgumentException is thrown if the attributes check fails
+     */
+    @JvmOverloads
     @Throws(IllegalArgumentException::class)
-    fun setAttributes(vararg values: Pair<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setAttributes(attributes = Customerly.attributeJson(*values), success = success, failure = failure)
+    fun setAttributes(vararg attributes: Pair<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
+        Customerly.setJsonAttributes(attributes = hashMapOf(*attributes), success = success, failure = failure)
     }
 
+    /**
+     * Call this method to set custom attributes to the user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with [.configure]
+     * @param company Company attributes map for the user. Can contain only String, char, int, long, float or double values and must contain the company id and name with keys 'company_id' and 'name'
+     * @param success Optional. The callback to be called when the task completes successfully
+     * @param failure Optional. The callback to be called when the task completes with failure
+     * @throws IllegalArgumentException is thrown if the attributes check fails
+     */
     @JvmOverloads
     @JvmStatic
     @Throws(IllegalArgumentException::class)
-    fun setCompany(company: JSONObject, success: ()->Unit = {}, failure: ()->Unit = {}) {
+    fun setCompany(company: HashMap<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
         company.assertValidCompanyMap()
 
         if(Customerly.jwtToken?.isUser == true) {
@@ -201,21 +222,39 @@ object Customerly {
         }
     }
 
-    @Throws(IllegalArgumentException::class)
-    @JvmStatic
-    fun setCompany(company: HashMap<String, Any>, companyId: String, companyName: String, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setCompany(company = Customerly.companyJson(companyId = companyId, companyName = companyName, map = company), success = success, failure = failure)
-    }
-
+    /**
+     * Call this method to set custom attributes to the user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with [.configure]
+     * @param values Company attributes pairs for the user. Can contain only String, char, int, long, float or double values.
+     * @param companyId The company ID
+     * @param companyName The company name
+     * @param success Optional. The callback to be called when the task completes successfully
+     * @param failure Optional. The callback to be called when the task completes with failure
+     * @throws IllegalArgumentException is thrown if the attributes check fails
+     */
     @Throws(IllegalArgumentException::class)
     fun setCompany(vararg values: Pair<String,Any>, companyId: String, companyName: String, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setCompany(company = Customerly.companyJson(*values, companyId = companyId, companyName = companyName), success = success, failure = failure)
+        Customerly.setCompany(company = Customerly.company(*values, companyId = companyId, companyName = companyName), success = success, failure = failure)
     }
 
+    /**
+     * Call this method to link your app user to the Customerly session.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with [.configure]
+     * @param email The user email address
+     * @param userId Optional. The user id
+     * @param name Optional. The user name
+     * @param attributes Optional. The user attributes HashMap<String, Any>
+     * @param company Optional. The user company HashMap<String, Any>. Remember a company map must contain a 'company_id' and a 'name'
+     * @param success Optional. The callback to be called when the task completes successfully
+     * @param failure Optional. The callback to be called when the task completes with failure
+     * @throws IllegalArgumentException is thrown if the attributes check fails
+     */
     @JvmOverloads
     @JvmStatic
     fun registerUser(email: String, userId: String? = null, name: String? = null,
-                     attributes: JSONObject? = null, company: JSONObject? = null,
+                     attributes: HashMap<String, Any>? = null, company: HashMap<String,Any>? = null,
                      success: ()->Unit = {}, failure: ()->Unit = {}) {
         val emailTrimmed = email.trim()
         if(! Patterns.EMAIL_ADDRESS.matcher(emailTrimmed).matches()) {
@@ -236,36 +275,10 @@ object Customerly {
         }
     }
 
-    @JvmOverloads
-    @JvmStatic
-    fun registerUser(email: String, userId: String? = null, name: String? = null,
-                     attributes: HashMap<String, Any>, company: JSONObject? = null,
-                     success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.registerUser(email = email, userId = userId, name = name,
-                attributes = Customerly.attributeJson(map = attributes), company = company,
-                success = success, failure = failure)
-    }
-
-    @JvmOverloads
-    @JvmStatic
-    fun registerUser(email: String, userId: String? = null, name: String? = null,
-                     attributes: JSONObject?, companyId: String, companyName: String, company: HashMap<String, Any>,
-                     success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.registerUser(email = email, userId = userId, name = name,
-                attributes = attributes, company = Customerly.companyJson(companyId = companyId, companyName = companyName, map = company),
-                success = success, failure = failure)
-    }
-
-    @JvmOverloads
-    @JvmStatic
-    fun registerUser(email: String, userId: String? = null, name: String? = null,
-                     attributes: HashMap<String, Any>, companyId: String, companyName: String, company: HashMap<String, Any>,
-                     success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.registerUser(email = email, userId = userId, name = name,
-                attributes = Customerly.attributeJson(map = attributes), company = Customerly.companyJson(companyId = companyId, companyName = companyName, map = company),
-                success = success, failure = failure)
-    }
-
+    /**
+     * Set to true or false to enable or disable the message receiving. It is ENABLED by default.<br>
+     * A call to the method [.openSupport(Activity)] will force the enabling if it is disabled
+     */
     @JvmStatic
     var isSupportEnabled: Boolean = true
         set(value) {
@@ -283,6 +296,10 @@ object Customerly {
             }
         }
 
+    /**
+     * Set to true or false to enable or disable the survey receiving. It is ENABLED by default.<br>
+     * A call to the method [.openSupport(Activity)] will force the enabling if it is disabled
+     */
     @JvmStatic
     var isSurveyEnabled: Boolean = true
 
@@ -310,6 +327,11 @@ object Customerly {
         }
     }
 
+    /**
+     * Call this method to force a check for pending Surveys or Message for the current user.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with [.configure()]
+     */
     @JvmOverloads
     @JvmStatic
     fun update(success: ()->Unit = {}, failure: ()->Unit = {}) {
@@ -332,162 +354,25 @@ object Customerly {
         this.isVerboseLogging = enabled
     }
 
+    /**
+     * Build the attribute JSON starting from the pairs and companyId and companyName
+     * @param companyAttributes Company attributes pairs for the user. Can contain only String, char, int, long, float or double values.
+     * @param companyId The user company ID
+     * @param companyName The user company name
+     */
     //Not visible for java developers
-    fun attributeJson(vararg values: Pair<String,Any>): JSONObject {
-        return values.asSequence()
-                .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) })
-    }
-
-    @JvmStatic
-    fun attributeJson(map: HashMap<String, Any>): JSONObject {
-        return JSONObject(map)
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    fun companyJson(companyId: String, companyName: String, json: JSONObject = JSONObject()): JSONObject {
-        return json.put(JSON_COMPANY_KEY_ID, companyId).put(JSON_COMPANY_KEY_NAME, companyName)
-    }
-
-    @JvmStatic
-    fun companyJson(companyId: String, companyName: String, map: HashMap<String, Any>): JSONObject {
-        return companyJson(companyId = companyId, companyName = companyName, json = JSONObject(map))
-    }
-
-    //Not visible for java developers
-    fun companyJson(vararg values: Pair<String,Any>, companyId: String, companyName: String): JSONObject {
-        return companyJson(companyId = companyId, companyName = companyName, json = values.asSequence()
-                .fold(initial = JSONObject(), operation = { acc,(key,value) -> acc.put(key, value) }))
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // Java SDK Deprecated Fields and Methods //////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////
-    @JvmStatic
-    @Deprecated(
-            message = "You can access directly to Customerly object. So simply remove this `.get()` calling.",
-            replaceWith = ReplaceWith("Customerly"))
-    fun get() = this
-
-    @Deprecated(
-            message = "Use Customerly.companyJson(companyId,companyName) instead",
-            replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-    class CompanyBuilder
-    @Deprecated(
-            message = "Use Customerly.companyJson(companyId,companyName) instead",
-            replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)")) constructor(companyId: String, companyName: String) {
-        private val company = Customerly.companyJson(companyId = companyId, companyName = companyName)
-
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: String) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Int) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Byte) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Long) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Double) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Float) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Char) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult fun put(key: String, value: Boolean) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        @CheckResult private fun put(key: String, value: Any): CompanyBuilder {
-            if (!(JSON_COMPANY_KEY_ID == key || JSON_COMPANY_KEY_NAME == key)) {
-                ignoreException {
-                    this.company.put(key, value)
-                }
-            }
-            return this
-        }
-        @Deprecated(
-                message = "Use Customerly.companyJson(companyId,companyName) instead",
-                replaceWith = ReplaceWith("Customerly.companyJson(companyId,companyName)"))
-        fun build(): JSONObject {
-            return this.company
+    fun company(vararg companyAttributes: Pair<String,Any>, companyId: String, companyName: String): HashMap<String,Any> {
+        return HashMap<String,Any>().apply {
+            this[JSON_COMPANY_KEY_ID] = companyId
+            this[JSON_COMPANY_KEY_NAME] = companyName
+            companyAttributes.asSequence().fold(
+                    initial = this,
+                    operation = { acc,(key,value) ->
+                        acc[key] = value
+                        acc
+                    })
         }
     }
-
-    @Deprecated(
-            message = "Use Customerly.attributeJson() instead",
-            replaceWith = ReplaceWith("Customerly.attributeJson()"))
-    class AttributesBuilder
-    @Deprecated(
-            message = "Use Customerly.attributeJson()",
-            replaceWith = ReplaceWith("Customerly.attributeJson()")) constructor( ) {
-        private val attributes = Customerly.attributeJson()
-
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: String) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Int) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Byte) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Long) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Double) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Float) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Char) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult fun put(key: String, value: Boolean) = this.put(key, value as Any)
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        @CheckResult private fun put(key: String, value: Any): AttributesBuilder {
-            ignoreException {
-                this.attributes.put(key, value)
-            }
-            return this
-        }
-        @Deprecated(
-                message = "Use Customerly.attributeJson() instead",
-                replaceWith = ReplaceWith("Customerly.attributeJson()"))
-        fun build(): JSONObject {
-            return this.attributes
-        }
-    }
-
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // Private fields //////////////////////////////////////////////////////////////
@@ -602,7 +487,7 @@ object Customerly {
     }
 
     internal inline fun ping(trySurvey: Boolean = true, tryLastMessage: Boolean = true,
-                             name: String? = null, attributes: JSONObject? = null, company: JSONObject? = null,
+                             name: String? = null, attributes: HashMap<String, Any>? = null, company: HashMap<String,Any>? = null,
                              crossinline success: ()->Unit = {}, successLog: String? = null,
                              crossinline failure: ()->Unit = {}, failureLog: String? = null) {
         Customerly.checkConfigured(ok = {
@@ -652,30 +537,45 @@ object Customerly {
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun JSONObject.assertValidAttributesMap() {
-        if(! this.asValuesSequence().all {
+    private fun setJsonAttributes(attributes: HashMap<String, Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
+        attributes.assertValidAttributesMap()
+        if(Customerly.jwtToken?.isUser == true) {
+            Customerly.tryClyTask(failure = failure) {
+                Customerly.ping(trySurvey = false, tryLastMessage = false, attributes = attributes,
+                        success = success, successLog = "setAttributes task completed successfully",
+                        failure = failure, failureLog = "A generic error occurred in setAttributes")
+            }
+        } else {
+            Customerly.log(message = "Cannot setAttributes for lead users")
+            failure()
+        }
+    }
+
+    @Throws(IllegalArgumentException::class)
+    private fun HashMap<String, Any>.assertValidAttributesMap() {
+        if(! this.values.asSequence().all {
             when(it) {
                 is String,is Int, is Byte,is Long,is Double,is Float,is Char,is Boolean -> true
                 else -> false
             }
-            }) {
+        }) {
             Customerly.log(message = "Attributes Map can only contain String, char, byte, int, long, float or double values")
             throw IllegalArgumentException("Attributes Map can contain only Strings, int, float, long, double or char values")
         }
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun JSONObject.assertValidCompanyMap() {
+    private fun HashMap<String,Any>.assertValidCompanyMap() {
         when {
-            !this.has(JSON_COMPANY_KEY_ID) -> {
+            !this.containsKey(JSON_COMPANY_KEY_ID) -> {
                 Customerly.log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_ID\" containing the Company ID")
                 throw IllegalArgumentException("Company Map must contain a String value with key \"$JSON_COMPANY_KEY_ID\" containing the Company ID")
             }
-            !this.has(JSON_COMPANY_KEY_NAME) -> {
+            !this.containsKey(JSON_COMPANY_KEY_NAME) -> {
                 Customerly.log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
                 throw IllegalArgumentException("Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
             }
-            ! this.asValuesSequence().all {
+            ! this.values.asSequence().all {
                 when(it) {
                     is String,is Int, is Byte,is Long,is Double,is Float,is Char,is Boolean -> true
                     else -> false

@@ -77,8 +77,3 @@ internal fun isOnMainThread() : Boolean {
         else -> Thread.currentThread() == Looper.getMainLooper().thread
     }
 }
-
-fun <T> KProperty0<T>.isLazyInitialized(): Boolean {
-    this.isAccessible = true
-    return (getDelegate() as? Lazy<*>)?.isInitialized() ?: true
-}

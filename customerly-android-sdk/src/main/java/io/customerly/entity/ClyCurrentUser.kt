@@ -28,19 +28,26 @@ import org.json.JSONObject
 private const val CUSTOMERLY_LOGGED_EMAIL = "CUSTOMERLY_LOGGED_EMAIL"
 private const val CUSTOMERLY_LOGGED_USERID = "CUSTOMERLY_LOGGED_USERID"
 private const val CUSTOMERLY_LOGGED_COMPANYINFO = "CUSTOMERLY_LOGGED_COMPANYINFO"
-internal class ClyCurrentUser(userId: String? = null, email: String? = null, company: JSONObject? = null) {
-    internal var email: String? = email
+internal class ClyCurrentUser {
+    internal var email: String? = null
         private set
-    internal var userId: String? = userId
+    internal var userId: String? = null
             private set
-    internal var company: JSONObject? = company
-        private set
+    internal var company: HashMap<String,Any>? = null
+            private set
 
     fun restore() {
         this.email = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_EMAIL, null)
         this.userId = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_USERID, null)
         this.company = try {
-            JSONObject(Customerly.preferences?.getString(CUSTOMERLY_LOGGED_COMPANYINFO, null))
+            val json = JSONObject(Customerly.preferences?.getString(CUSTOMERLY_LOGGED_COMPANYINFO, null))
+            val map = HashMap<String,Any>()
+            json.keys().asSequence().forEach {  key ->
+                json.opt(key)?.let { value ->
+                    map.put(key, value)
+                }
+            }
+            map
         } catch (exception: Exception) {
             null
         }
@@ -67,13 +74,15 @@ internal class ClyCurrentUser(userId: String? = null, email: String? = null, com
                 ?.apply()
     }
 
-    fun updateCompany(company: JSONObject) {
-        val newCompany = JSONObject()
-                .put(JSON_COMPANY_KEY_ID, company.getString("company_id"))
-                .put(JSON_COMPANY_KEY_NAME, company.getString("name"))
-        this.company = newCompany
-        Customerly.preferences?.edit()
-                ?.putString(CUSTOMERLY_LOGGED_COMPANYINFO,newCompany.toString())
-                ?.apply()
+    fun updateCompany(company: HashMap<String,Any>) {
+        val companyId = company[JSON_COMPANY_KEY_ID]
+        val companyName = company[JSON_COMPANY_KEY_NAME]
+        if(companyId != null && companyName != null) {
+            val newCompany = hashMapOf(JSON_COMPANY_KEY_ID to companyId, JSON_COMPANY_KEY_NAME to companyName)
+            this.company = newCompany
+            Customerly.preferences?.edit()
+                    ?.putString(CUSTOMERLY_LOGGED_COMPANYINFO, newCompany.toString())
+                    ?.apply()
+        }
     }
 }

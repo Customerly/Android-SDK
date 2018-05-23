@@ -272,7 +272,9 @@ Eg. This is an attribute map that contains the experience in year and the job of
 
 `Kotlin`
 ```kotlin
-val attributesMap = Customerly.attributeJson("experience" to 3, "job" to "Employee")
+val attributesMap = HashMap<String, Any>()
+attributesMap.put("experience", 3)
+attributesMap.put("job", "Employee")
 ```
 `Java`
 ```java
@@ -327,13 +329,12 @@ Eg. This is a company map that contains the company mandatory fields (company_id
 
 `Kotlin`
 ```kotlin
-val companyMap = Customerly.companyJson("foundation year" to 2017, companyId = "123abc", companyName = "Customerly")
+val companyMap = Customerly.company("foundation year" to 2017, companyId = "123abc", companyName = "Customerly")
 ```
 `Java`
 ```java
 HashMap<String, Object> companyAttributesMap = new HashMap<String, Object>();
 companyAttributesMap.put("foundation year", 2017);//Optionally any other values
-JSONObject companyMap = Customerly.companyJson("123abc", "Customerly", companyAttributesMap)
 ```
 
 The map above can be passed as parameter of the registerUser or passed in a second time for already registered user:

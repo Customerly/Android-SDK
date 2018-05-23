@@ -47,6 +47,7 @@ import io.customerly.api.*
 import io.customerly.entity.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
+import io.customerly.utils.htmlformatter.spannedFromHtml
 import io.customerly.utils.playNotifSound
 import io.customerly.utils.ui.RVDIVIDER_V_BOTTOM
 import io.customerly.utils.ui.RvDividerDecoration
@@ -277,8 +278,11 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 this.inputLayout?.visibility = View.GONE
 
                 (Customerly.lastPing.privacyUrl?.let { privacyUrl ->
-                    this.io_customerly__input_privacy_policy.setOnClickListener {
-                        it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
+                    this.io_customerly__input_privacy_policy.also { policy ->
+                        policy.setOnClickListener {
+                            it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
+                        }
+                        policy.text = spannedFromHtml(source = this.getString(R.string.io_customerly__i_accept_the_privacy_policy))
                     }
                     2.5f.dp2px.toInt() to View.VISIBLE
                 } ?: 10.dp2px to View.GONE).let { (topMargin, visibility) ->

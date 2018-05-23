@@ -31,8 +31,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.Toast
-import eu.appsolutelyapps.quizpatente.extensions.start
-import eu.appsolutelyapps.quizpatente.extensions.statusBarColorInt
+import io.customerly.utils.ggkext.start
+import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyAppCompatActivity
