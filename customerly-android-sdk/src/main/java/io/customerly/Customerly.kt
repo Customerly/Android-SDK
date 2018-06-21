@@ -43,6 +43,8 @@ import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.fromHtml
 import io.customerly.utils.network.registerLollipopNetworkReceiver
 import io.customerly.websocket.ClySocket
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -360,7 +362,7 @@ object Customerly {
      * @param companyId The user company ID
      * @param companyName The user company name
      */
-    //Not visible for java developers
+    //Not visible as static for java developers
     fun company(vararg companyAttributes: Pair<String,Any>, companyId: String, companyName: String): HashMap<String,Any> {
         return HashMap<String,Any>().apply {
             this[JSON_COMPANY_KEY_ID] = companyId
@@ -372,6 +374,25 @@ object Customerly {
                         acc
                     })
         }
+    }
+
+    /**
+     * Utility method that converts a JSONObject to an HashMap
+     * @param jo The JSONObject to convert
+     * @return The HashMap<String></String>,Object> containing the same values of the parameter
+     */
+    @JvmStatic
+    fun json2hashmap(jo: JSONObject): java.util.HashMap<String, Any> {
+        val map = java.util.HashMap<String, Any>()
+        val keys = jo.keys()
+        var key: String
+        while (keys.hasNext()) {
+            key = keys.next()
+            try {
+                map[key] = jo.get(key)
+            } catch (ignored: JSONException) { }
+        }
+        return map
     }
 
     ////////////////////////////////////////////////////////////////////////////////

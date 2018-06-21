@@ -40,6 +40,12 @@ The Customerly Android SDK is really simple to integrate in your apps, and allow
 - Java 6+
 (Customerly SDK is now optimized for Kotlin, and it works also with pure Java projects)
 
+## Migrating from v1.x.x to v2.0.0?
+
+Are you migrating from a previous version of this SDK (v1.x.x) to the newest version (v2.x.x) and need help for the transition?
+I have changed a little the structure, making it more Kotlin-oriented but don't worry: Java it is still and totally supported!!
+Check the [Migration Guide](README_MIGRATION_v1_to_v2.md) for a rapid (10 seconds) and a complete(2-10 minutes) transition.
+
 ## Setup Customerly SDK
 
 ### Integration via Gradle or Maven dependency (Recommended)

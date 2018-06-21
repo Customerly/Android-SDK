@@ -23,9 +23,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -296,13 +293,11 @@ public class CustomerlyBackSupport {
     @Deprecated
     @SuppressWarnings("deprecation")
     public static class CompanyBuilder {
-        @NonNull private final HashMap<String,Object> company = new HashMap();
+        @NonNull private final HashMap<String,Object> company = new HashMap<>();
         public CompanyBuilder(@NonNull String company_id, @NonNull String name) {
             super();
-            try {
-                this.company.put("company_id", company_id);
-                this.company.put("name", name);
-            } catch (JSONException ignored) { }
+            this.company.put("company_id", company_id);
+            this.company.put("name", name);
         }
         @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, @NonNull String value) {
             return this.put(key, (Object) value);
@@ -330,13 +325,11 @@ public class CustomerlyBackSupport {
         }
         @NonNull @CheckResult private CompanyBuilder put(@NonNull String key, Object value) {
             if(!("company_id".equals(key) || "name".equals(key))) {
-                try {
-                    this.company.put(key, value);
-                } catch (JSONException ignored) { }
+                this.company.put(key, value);
             }
             return this;
         }
-        @NonNull public JSONObject build() {
+        @NonNull public HashMap<String,Object> build() {
             return this.company;
         }
     }
@@ -347,7 +340,7 @@ public class CustomerlyBackSupport {
     @Deprecated
     @SuppressWarnings("deprecation")
     public static class AttributesBuilder {
-        @NonNull private final JSONObject attrs = new JSONObject();
+        @NonNull private final HashMap<String,Object> attrs = new HashMap<>();
         @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, @NonNull String value) {
             return this.put(key, (Object) value);
         }
@@ -373,12 +366,10 @@ public class CustomerlyBackSupport {
             return this.put(key, (Object) value);
         }
         @NonNull @CheckResult private AttributesBuilder put(@NonNull String key, Object value) {
-            try {
-                this.attrs.put(key, value);
-            } catch (JSONException ignored) { }
+            this.attrs.put(key, value);
             return this;
         }
-        @NonNull public JSONObject build() {
+        @NonNull public HashMap<String,Object> build() {
             return this.attrs;
         }
     }
