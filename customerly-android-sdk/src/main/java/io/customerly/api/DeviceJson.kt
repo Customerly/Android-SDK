@@ -21,6 +21,7 @@ import android.os.Build
 import io.customerly.BuildConfig
 import io.customerly.utils.CUSTOMERLY_API_VERSION
 import io.customerly.utils.CUSTOMERLY_SOCKET_VERSION
+import io.customerly.utils.ggkext.nullOnException
 import org.json.JSONObject
 
 /**
@@ -39,21 +40,10 @@ internal object DeviceJson {
     internal fun loadContextInfos(context: Context) {
         this.json.apply {
             val pm = context.packageManager
-            this.put("app_name", try {
-                context.applicationInfo.loadLabel(pm).toString()
-            } catch (exception: Exception) {
-                "<Error retrieving the app name>"
-            })
             this.put("app_package", context.packageName)
-            this.put("app_version", try {
-                pm.getPackageInfo(context.packageName, 0).also { packageInfo ->
-                    this.put("app_version", packageInfo.versionName)
-                    this.put("app_build", packageInfo.versionCode)
-                }
-                context.applicationInfo.loadLabel(pm).toString()
-            } catch (exception: Exception) {
-                "<Error retrieving the app name>"
-            })
+            this.put("app_name", context.nullOnException { it.applicationInfo.loadLabel(pm).toString() } ?: "<Error retrieving the app name>")
+            this.put("app_version", pm.nullOnException { it.getPackageInfo(context.packageName, 0).versionName } ?: "<Error retrieving the app version>")
+            this.put("app_build", pm.nullOnException { it.getPackageInfo(context.packageName, 0).versionCode } ?: "<Error retrieving the app build>")
         }
     }
 }

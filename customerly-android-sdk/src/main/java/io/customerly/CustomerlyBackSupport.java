@@ -296,7 +296,7 @@ public class CustomerlyBackSupport {
     @Deprecated
     @SuppressWarnings("deprecation")
     public static class CompanyBuilder {
-        @NonNull private final JSONObject company = new JSONObject();
+        @NonNull private final HashMap<String,Object> company = new HashMap();
         public CompanyBuilder(@NonNull String company_id, @NonNull String name) {
             super();
             try {

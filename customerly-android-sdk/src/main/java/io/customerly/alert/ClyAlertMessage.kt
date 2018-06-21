@@ -222,7 +222,7 @@ internal class ClyAlertMessage
     internal fun dismissAllowingStateLoss() {
         try {
             this.dismiss()
-        } catch (ignored: IllegalStateException) { }
+        } catch (ignored: Exception) { }
     }
 
     override fun dismiss() {
