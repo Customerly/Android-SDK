@@ -16,15 +16,15 @@
 # Migration doc from v1.x.x to v2.0.0
 
 ## Instant migration (10 seconds)
-We are developers too and we know that the time is precious and i make the transition as more effortless as possible:
-You can just replace every occourrence of `Customerly.xxx` in your code with `CustomerlyBackSupport.xxx` and everything works fine.
-This will be notified as a Deprecated class because is meant only as a transition step.
+We are developers too and we know that the time is precious and i make the transition as more effortless as possible.  
+You can just replace every occourrence of `Customerly.xxx` in your code with `CustomerlyBackSupport.xxx` and everything works fine.  
+This will be notified as a Deprecated class because is meant only as a transition step.  
 Please complete the migration as soon as possible.
 
 ## Complete migration (2-10 minutes)
-Here below you'll find, method by method, the uses in the previous 1.x.x version of the SDK and the "new" use for kotlin or java code.
-You'll see that for the most of the cases is necessary only replace `Customerly.get().xxx` with `Customerly.xxx`.
-For the registerUser, setAttributes and setCompany a little adjustement of the code is required
+Here below you'll find, method by method, the uses in the previous 1.x.x version of the SDK and the "new" use for kotlin or java code.  
+You'll see that for the most of the cases is only necessary to replace `Customerly.get().xxx` with `Customerly.xxx`.  
+For the registerUser, setAttributes and setCompany a little adjustement of the code is required instead.  
 
 ### Customerly.configure (immutated)
 
