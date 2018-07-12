@@ -56,6 +56,12 @@
         <item quantity="other">Last activity %1$d days ago</item>
     </plurals>
 
+    <string name="io_customerly__outofoffice_dayx_atx" translatable="false">We are out of office at the moment. We will be back %s at %s</string>
+    <string name="io_customerly__outofoffice_tomorrow_atx" translatable="false">We are out of office at the moment. We will be back tomorrow at %s</string>
+    <string name="io_customerly__outofoffice_nextweekday_atx" translatable="false">We are out of office at the moment. We will be back next monday at %s</string>
+    <string name="io_customerly__outofoffice_nextweekend_atx" translatable="false">We are out of office at the moment. We will be back next saturday at %s</string>
+    <string name="io_customerly__outofoffice_today_atx" translatable="false">We are out of office at the moment. We will be back today at %s</string>
+
     <!-- Localized -->
     <string name="io_customerly__write_your_question">Ask your question…</string>
     <string name="io_customerly__attach_file">Attach file</string>
@@ -97,5 +103,9 @@
     <string name="io_customerly__open_conversation">Open conversation</string>
     <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>
     <string name="io_customerly__open_in_browser">Open in browser</string>
+    <string name="io_customerly__replytime_minutes">Team usually replies in some minutes.</string>
+    <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string>
+    <string name="io_customerly__replytime_day">Team usually replies in a day.</string>
+    <string name="io_customerly__choose_a_date">Choose a date</string>
 
 </resources>

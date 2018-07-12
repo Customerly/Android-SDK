@@ -70,5 +70,9 @@
     <string name="io_customerly__open_conversation">Apri conversazione</string>
     <string name="io_customerly__cant_access_external_memory">Impossibile accedere alla memoria esterna</string>
     <string name="io_customerly__open_in_browser">Apri nel browser</string>
+    <string name="io_customerly__replytime_minutes">Il Team normalmente risponde in pochi minuti.</string>
+    <string name="io_customerly__replytime_hour">Il Team normalmente risponde entro un\'ora.</string>
+    <string name="io_customerly__replytime_day">Il Team normalmente risponde in un giorno.</string>
+    <string name="io_customerly__choose_a_date">Scegli una data</string>
 
 </resources>

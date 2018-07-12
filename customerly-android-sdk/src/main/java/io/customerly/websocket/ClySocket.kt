@@ -27,9 +27,9 @@ import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_MESSAGE_NEWS
-import io.customerly.entity.ClyMessage
+import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.ClySocketParams
-import io.customerly.entity.parseMessagesList
+import io.customerly.entity.chat.parseMessagesList
 import io.customerly.entity.parseSocketParams
 import io.customerly.utils.CUSTOMERLY_DEV_MODE
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
@@ -120,7 +120,7 @@ internal class ClySocket {
                                                     ClyApiRequest(
                                                             endpoint = ENDPOINT_MESSAGE_NEWS,
                                                             requireToken = true,
-                                                            converter = { it.parseMessagesList() },
+                                                            jsonObjectConverter = { it.parseMessagesList() },
                                                             callback = { response ->
                                                                 when (response) {
                                                                     //is ClyApiResponse.Failure -> { }

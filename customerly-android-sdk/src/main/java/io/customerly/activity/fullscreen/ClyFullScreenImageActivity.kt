@@ -36,7 +36,7 @@ import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyAppCompatActivity
-import io.customerly.entity.ClyMessage
+import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.ERROR_CODE__GLIDE_ERROR
 import io.customerly.entity.clySendError
 import io.customerly.utils.alterColor

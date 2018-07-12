@@ -189,6 +189,19 @@ Customerly.openSupport(Activity.this);
   <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/chat.gif?raw=true" width=200 alt="Chat"/>
 </p>
 
+### Chat - Disable attachment button (Optional)
+
+You can hide the attachment button to the user to deny the sending of them by calling  `setAttachmentsAvailable(false)`:
+
+`Kotlin`
+```kotlin
+Customerly.setAttachmentsAvailable(enabled = false)
+```
+`Java`
+```java
+Customerly.setAttachmentsAvailable(false);
+```
+
 ### Survey (No action required)
 
 With the Customerly SDK you can deliver surveys directly into your app without any lines of code.

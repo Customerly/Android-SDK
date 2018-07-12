@@ -26,6 +26,7 @@ import java.util.*
 
 internal annotation class STimestamp
 internal annotation class MSTimestamp
+internal annotation class MTimestamp
 
 internal val Int.seconds_ms :Long   get() = this * 1000L
 internal val Int.minutes_ms :Long   get() = this.seconds_ms * 60
@@ -46,6 +47,8 @@ internal val Int.months31_s :Long  get() = this.days_s * 31
 internal val Long.asDate :Date get() = Date(this)
 @STimestamp internal val Long.msAsSeconds :Long get() = this / 1000
 @MSTimestamp internal val Long.secondsAsMs :Long get() = this * 1000
+@MTimestamp internal val Long.sAsMinutes :Long get() = this / 60
+@MTimestamp internal val Long.msAsMinutes :Long get() = this.msAsSeconds.sAsMinutes
 
 @STimestamp internal fun nowSeconds() = nowMs().msAsSeconds
 internal fun nowMs() = System.currentTimeMillis()

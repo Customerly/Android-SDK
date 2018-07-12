@@ -20,7 +20,70 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:animateLayoutChanges="true"
+    tools:context=".activity.chat.ClyChatActivity"
     tools:ignore="UnusedAttribute" >
+    
+    <android.support.design.widget.AppBarLayout android:id="@+id/io_customerly__actionlayout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        tools:background="@color/io_customerly__blue_malibu">
+        
+        <android.support.v7.widget.Toolbar android:id="@+id/io_customerly__toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+            
+            <io.customerly.utils.ui.AllClickableLinearLayout android:id="@id/io_customerly__title"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:orientation="horizontal"
+                android:gravity="center_vertical" >
+
+                <ImageView android:id="@id/io_customerly__icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    tools:src="@drawable/io_customerly__ic_default_admin"
+                    android:contentDescription="@string/io_customerly__icon" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="start|left|center_vertical"
+                    android:animateLayoutChanges="true"
+                    tools:ignore="RtlHardcoded">
+
+                    <TextView android:id="@id/io_customerly__name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif"
+                        tools:text="Gianni Genovesi"
+                        tools:textColor="#ffffff"
+                        tools:ignore="UnusedAttribute" />
+
+                    <TextView android:id="@id/io_customerly__job"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        tools:textColor="#ffffff"
+                        tools:text="CEO"
+                        tools:ignore="UnusedAttribute" />
+
+                </LinearLayout>
+
+            </io.customerly.utils.ui.AllClickableLinearLayout>
+            
+        </android.support.v7.widget.Toolbar>
+        
+    </android.support.design.widget.AppBarLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

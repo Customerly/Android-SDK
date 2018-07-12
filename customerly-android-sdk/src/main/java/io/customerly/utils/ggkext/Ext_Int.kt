@@ -40,3 +40,9 @@ internal fun getStartOfTodaySeconds()
             it.set(Calendar.HOUR_OF_DAY, 0)
             it.set(Calendar.HOUR, 0)
         }.timeInMillis / 1000
+
+val /* @STimestamp */Int.toHoursMins get() = (this / 1.hours_s).toInt() to ((this % 1.hours_s).sAsMinutes).toInt()
+
+val /* @STimestamp */Long.toHoursMins get() = (this / 1.hours_s) to ((this % 1.hours_s).sAsMinutes)
+
+internal val /* @STimestamp */Int.toHoursMinsString get() = this.toHoursMins.let { (hours, mins) -> String.format(Locale.ITALIAN, "%d:%02d", hours, mins) }

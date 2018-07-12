@@ -36,10 +36,21 @@
     <item type="id" name="io_customerly__icon" />
     <item type="id" name="io_customerly__arrow" />
     <item type="id" name="io_customerly__name" />
+    <item type="id" name="io_customerly__job" />
     <item type="id" name="io_customerly__last_message" />
     <item type="id" name="io_customerly__time" />
     <item type="id" name="io_customerly__date" />
     <item type="id" name="io_customerly__content" />
+    <item type="id" name="io_customerly__bubble" />
+    <item type="id" name="io_customerly__profilingform_container_truefalse" />
+    <item type="id" name="io_customerly__profilingform_button_true" />
+    <item type="id" name="io_customerly__profilingform_button_false" />
+    <item type="id" name="io_customerly__profilingform_container_input" />
+    <item type="id" name="io_customerly__profilingform_container_date" />
+    <item type="id" name="io_customerly__profilingform_input" />
+    <item type="id" name="io_customerly__profilingform_date" />
+    <item type="id" name="io_customerly__profilingform_button_submit_input" />
+    <item type="id" name="io_customerly__profilingform_button_submit_date" />
     <item type="id" name="io_customerly__attachment_layout" />
     <item type="id" name="io_customerly__content_sending__only_user_li" />
     <item type="id" name="io_customerly__menu__download" />
@@ -47,7 +58,18 @@
     <item type="id" name="io_customerly__back" />
     <item type="id" name="io_customerly__close" />
     <item type="id" name="io_customerly__title" />
+    <item type="id" name="io_customerly__toolbar" />
+    <item type="id" name="io_customerly__actionlayout" />
     <item type="id" name="io_customerly__subtitle" />
     <item type="id" name="io_customerly__typing_account_icon" />
     <item type="id" name="io_customerly__background_theme" />
+    <item type="id" name="io_customerly__cardaccount_name" />
+    <item type="id" name="io_customerly__cardaccount_job" />
+    <item type="id" name="io_customerly__cardaccount_motto" />
+    <item type="id" name="io_customerly__cardaccount_location" />
+    <item type="id" name="io_customerly__cardaccount_location_layout" />
+    <item type="id" name="io_customerly__cardaccount_fb" />
+    <item type="id" name="io_customerly__cardaccount_twitter" />
+    <item type="id" name="io_customerly__cardaccount_linkedin" />
+    <item type="id" name="io_customerly__cardaccount_instagram" />
 </resources>

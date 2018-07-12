@@ -19,14 +19,16 @@
     <color name="io_customerly__grey_f0">#FFF0F0F0</color>
     <color name="io_customerly__grey_f3">#FFF3F3F3</color>
     <color name="io_customerly__dark_text">#FF282828</color>
+    <color name="io_customerly__green">#fd04ce00</color>
+    <color name="io_customerly__red">#fdff0000</color>
 
 
     <color name="io_customerly__chat_date_accounttime">#FF999999</color>
     <color name="io_customerly__hints_textcolor">#FF999999</color>
     <color name="io_customerly__welcomecard_texts">#FF999999</color>
 
-    <color name="io_customerly__blue_malibu">#FF65A9E7</color>
-    <color name="io_customerly__blue_malibu_transparent">#00007DB9</color>
+    <color name="io_customerly__blue_malibu">#ff38b9ff</color>
+    <color name="io_customerly__blue_malibu_transparent">#0038b9ff</color>
 
     <color name="io_customerly__view_accent">#FF007DB9</color>
 

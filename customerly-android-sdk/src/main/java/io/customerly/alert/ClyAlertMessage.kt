@@ -28,9 +28,8 @@ import android.widget.PopupWindow
 import io.customerly.R
 import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
-import io.customerly.entity.ClyMessage
+import io.customerly.entity.chat.ClyMessage
 import io.customerly.utils.ClySemaphore
-import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
@@ -174,13 +173,7 @@ internal class ClyAlertMessage
         this.message = message
         val icon = this.contentView.findViewById<View>(R.id.io_customerly__icon) as ImageView
 
-        ClyImageRequest(context = icon.context, url = message.getImageUrl(sizePx = 50.dp2px))
-                .fitCenter()
-                .transformCircle()
-                .resize(width = 50.dp2px)
-                .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
-                .into(imageView = icon)
-                .start()
+        message.writer.loadUrl(into = icon, size = 50.dp2px)
 
         this.contentView.io_customerly__name.text = message.writer.getName(context = this.contentView.context)
 

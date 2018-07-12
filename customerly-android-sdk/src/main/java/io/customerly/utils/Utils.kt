@@ -19,6 +19,8 @@ package io.customerly.utils
 import android.graphics.Color
 import android.support.annotation.ColorInt
 import android.support.annotation.FloatRange
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by Gianni on 04/04/18.
@@ -41,3 +43,6 @@ fun @receiver:ColorInt Int.alterColor(@FloatRange(from = 0.0, to = 255.0) factor
             Math.min(255f, Color.green(this) * factor).toInt(),
             Math.min(255f, Color.blue(this) * factor).toInt())
 }
+
+
+val shortDateFomatter by lazy { SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT, Locale.ITALIAN) }

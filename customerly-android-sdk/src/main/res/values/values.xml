@@ -14,6 +14,7 @@
     limitations under the License.
 -->
 <resources>
+    <dimen name="io_customerly__form_corners">6dp</dimen>
     <dimen name="io_customerly__chat_li_icon_size">25dp</dimen>
     <dimen name="io_customerly__chat_li_margin_icon_screen_border">10dp</dimen>
     <dimen name="io_customerly__chat_li_margin_bubble_screen_border">45dp</dimen>

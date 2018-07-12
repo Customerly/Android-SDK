@@ -1,4 +1,4 @@
-package io.customerly.entity
+package io.customerly.entity.chat
 
 /*
  * Copyright (C) 2017 Customerly
@@ -16,11 +16,11 @@ package io.customerly.entity
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.IntDef
-import android.support.annotation.Px
 import android.support.annotation.UiThread
 import android.text.Spanned
 import android.text.SpannedString
@@ -29,9 +29,10 @@ import android.widget.TextView
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
+import io.customerly.entity.ERROR_CODE__GENERIC
+import io.customerly.entity.clySendError
+import io.customerly.entity.ping.ClyFormDetails
 import io.customerly.utils.ClyActivityLifecycleCallback
-import io.customerly.utils.WRITER_TYPE__ACCOUNT
-import io.customerly.utils.WRITER_TYPE__USER
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.fromHtml
 import org.json.JSONException
@@ -45,6 +46,7 @@ import kotlin.collections.ArrayList
  * Project: Customerly Android SDK
  */
 
+@SuppressLint("ConstantLocale")
 private val TIME_FORMATTER = SimpleDateFormat("HH:mm", Locale.getDefault())
 private val DATE_FORMATTER = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG)
 
@@ -58,7 +60,7 @@ private annotation class CState
 
 @Throws(JSONException::class)
 internal fun JSONObject.parseMessage() : ClyMessage {
-    return ClyMessage(
+    return ClyMessage.Real(
             writerUserid = this.optTyped(name = "user_id", fallback = 0L),
             writerAccountId = this.optTyped(name = "account_id", fallback = 0L),
             writerAccountName = this.optTyped<JSONObject>(name = "account")?.optTyped(name = "name"),
@@ -72,7 +74,7 @@ internal fun JSONObject.parseMessage() : ClyMessage {
             contentAbstract = fromHtml(this.optTyped(name = "abstract", fallback = "")),
             sentDatetime = this.optTyped(name = "sent_date", fallback = 0L),
             seenDate = this.optTyped(name = "seen_date", fallback = 0L),
-            richMailLink = if(this.optTyped(name = "rich_mail", fallback = 0) == 0) {
+            richMailLink = if (this.optTyped(name = "rich_mail", fallback = 0) == 0) {
                 null
             } else {
                 this.optTyped<String>(name = "rich_mail_link")
@@ -81,17 +83,15 @@ internal fun JSONObject.parseMessage() : ClyMessage {
 }
 
 internal fun JSONObject.parseMessagesList() : ArrayList<ClyMessage> {
-    return this.optArrayList<JSONObject,ClyMessage>(name = "messages", map = { it.parseMessage() }) ?: ArrayList(0)
+    return this.optArrayList<JSONObject, ClyMessage>(name = "messages", map = { it.parseMessage() }) ?: ArrayList(0)
 }
 
-internal class ClyMessage(
-        writerUserid : Long = 0,
-        writerAccountId : Long = 0,
-        writerAccountName : String? = null,
-        internal val id : Long = 0,
+internal sealed class ClyMessage(
+        internal val writer : ClyWriter,
+        internal val id : Long,
         internal val conversationId : Long,
         internal val content : String,
-        internal val attachments : Array<ClyAttachment>,
+        internal val attachments : Array<ClyAttachment> = emptyArray(),
         internal val contentAbstract : Spanned = when {
             content.isNotEmpty() -> fromHtml(message = content)
             attachments.isNotEmpty() -> SpannedString("[Attachment]")
@@ -100,27 +100,64 @@ internal class ClyMessage(
         @STimestamp internal val sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
         @STimestamp private val seenDate : Long = sentDatetime,
         internal val richMailLink : String? = null,
-        @CState private var cState : Int = CSTATE_SENDING ) {
+        @CState private var cState : Int = CSTATE_SENDING) {
+
+    internal open class Bot(
+            conversationId: Long,
+            content: String
+    ): ClyMessage(
+            writer = ClyWriter.Bot,
+            content = content,
+            id = - Math.abs(content.hashCode()).toLong(),
+            conversationId = conversationId,
+            cState = CSTATE_COMPLETED
+    )
+
+    internal class BotProfilingForm(
+            conversationId: Long,
+            internal val form: ClyFormDetails
+    ): Bot(
+            content = form.label.takeIf { it.isNotEmpty() } ?: form.hint ?: "",
+            conversationId = conversationId
+    )
+
+    internal class Real(
+            writerUserid : Long = 0,
+            writerAccountId : Long = 0,
+            writerAccountName : String? = null,
+            id : Long = 0,
+            conversationId : Long,
+            content : String,
+            attachments : Array<ClyAttachment>,
+            contentAbstract : Spanned = when {
+                content.isNotEmpty() -> fromHtml(message = content)
+                attachments.isNotEmpty() -> SpannedString("[Attachment]")
+                else -> SpannedString("")
+            },
+            @STimestamp sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
+            @STimestamp seenDate : Long = sentDatetime,
+            richMailLink : String? = null,
+            @CState cState : Int = CSTATE_SENDING
+    ): ClyMessage(
+            writer = ClyWriter.Real.from(userId = writerUserid, accountId = writerAccountId, name = writerAccountName),
+            id = id,
+            conversationId = conversationId,
+            content = content,
+            attachments = attachments,
+            contentAbstract = contentAbstract,
+            sentDatetime = sentDatetime,
+            seenDate = seenDate,
+            richMailLink = richMailLink,
+            cState = cState
+    )
 
     internal val dateString: String = DATE_FORMATTER.format(Date(this.sentDatetime.secondsAsMs))
     internal val timeString: String = TIME_FORMATTER.format(Date(this.sentDatetime.secondsAsMs))
+
     private var contentSpanned : Spanned? = null
 
-    internal val writer : ClyWriter = ClyWriter(
-            type = if(writerUserid != 0L) {
-                WRITER_TYPE__USER
-            } else {
-                WRITER_TYPE__ACCOUNT
-            },
-            id = if(writerUserid != 0L) { writerUserid } else { writerAccountId },
-            name = writerAccountName)
-
-    internal val isUserMessage : Boolean = writerUserid != 0L
-
-    internal fun getImageUrl(@Px sizePx: Int) : String = this.writer.getImageUrl(sizePx = sizePx)
-
     internal val isNotSeen: Boolean
-        get() = !this.isUserMessage && this.seenDate == 0L
+        get() = this.writer.isAccount && this.seenDate == 0L
 
     internal val isStateSending: Boolean
         get() = this.cState == CSTATE_SENDING
@@ -136,10 +173,6 @@ internal class ClyMessage(
     internal fun isSentSameDay(of : ClyMessage) : Boolean
             = this.sentDatetime / (/*1000**/60 * 60 * 24) == of.sentDatetime / (/*1000**/60 * 60 * 24)
 
-    fun hasSameWriter(of: ClyMessage?): Boolean {
-        return of?.writer?.equals(this.writer) == true
-    }
-
     internal fun getContentSpanned(tv: TextView, pImageClickableSpan : (Activity, String)->Unit): Spanned {
         var spanned = this.contentSpanned
         if(spanned == null) {
@@ -153,7 +186,7 @@ internal class ClyMessage(
         return ClyConversation(id = this.conversationId, lastMessage = this.toConvLastMessage())
     }
 
-    fun toConvLastMessage() : ClyConvLastMessage{
+    fun toConvLastMessage() : ClyConvLastMessage {
         return ClyConvLastMessage(message = this.contentAbstract, date = this.sentDatetime, writer = this.writer)
     }
 
@@ -204,5 +237,4 @@ internal class ClyMessage(
             clySendError(errorCode = ERROR_CODE__GENERIC, description = "Generic error in Customerly while displaying a last message alert", throwable = exception)
         }
     }
-
 }

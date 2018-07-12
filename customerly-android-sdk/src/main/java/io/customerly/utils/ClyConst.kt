@@ -33,10 +33,11 @@ const val USER_TYPE__USER = 4 //hex 0x04 dec: 4
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class UserType
 
+const val WRITER_TYPE__BOT = -1//Local value
 const val WRITER_TYPE__ACCOUNT = 0
 const val WRITER_TYPE__USER = 1
 
-@IntDef(WRITER_TYPE__ACCOUNT, WRITER_TYPE__USER, USER_TYPE__USER)
+@IntDef(WRITER_TYPE__BOT, WRITER_TYPE__ACCOUNT, WRITER_TYPE__USER)
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class WriterType
 

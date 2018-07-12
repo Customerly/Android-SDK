@@ -18,7 +18,7 @@ package io.customerly.activity
 
 import android.support.annotation.UiThread
 import android.support.v7.app.AppCompatActivity
-import io.customerly.entity.ClyMessage
+import io.customerly.entity.chat.ClyMessage
 import java.util.*
 
 /**

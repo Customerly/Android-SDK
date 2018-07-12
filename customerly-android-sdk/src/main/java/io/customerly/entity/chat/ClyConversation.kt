@@ -1,4 +1,4 @@
-package io.customerly.entity
+package io.customerly.entity.chat
 
 /*
  * Copyright (C) 2017 Customerly
@@ -18,7 +18,8 @@ package io.customerly.entity
 
 import android.support.annotation.Px
 import android.text.Spanned
-import io.customerly.utils.WriterType
+import android.widget.ImageView
+import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.getTyped
 import io.customerly.utils.ggkext.optTyped
 import io.customerly.utils.htmlformatter.fromHtml
@@ -33,13 +34,14 @@ import org.json.JSONObject
 @Throws(JSONException::class)
 internal fun JSONObject.parseConversation() : ClyConversation {
     return ClyConversation(
-                id = this.getTyped("conversation_id"),
-                lastMessageAbstract = fromHtml(message = this.getTyped("last_message_abstract")),
-                lastMessageDate = this.getTyped("last_message_date"),
-                lastMessageWriterId = this.getTyped("last_message_writer"),
-                lastMessageWriterType = this.getTyped("last_message_writer_type"),
-                lastMessageWriterName = this.optTyped<JSONObject>("last_account")?.optTyped(name = "name"),
-                unread = this.optTyped("unread", 0) == 1)
+            id = this.getTyped("conversation_id"),
+            lastMessageAbstract = fromHtml(message = this.getTyped("last_message_abstract")),
+            lastMessageDate = this.getTyped("last_message_date"),
+            writer = ClyWriter.Real.from(
+                    type = this.getTyped("last_message_writer"),
+                    id = this.getTyped("last_message_writer_type"),
+                    name = this.optTyped<JSONObject>("last_account")?.optTyped(name = "name")),
+            unread = this.optTyped("unread", 0) == 1)
 }
 
 internal class ClyConversation (
@@ -53,9 +55,7 @@ internal class ClyConversation (
     internal constructor(id : Long,
                          lastMessageAbstract : Spanned,
                          lastMessageDate : Long,
-                         lastMessageWriterId : Long,
-                         @WriterType lastMessageWriterType : Int,
-                         lastMessageWriterName : String?,
+                         writer: ClyWriter,
                          unread : Boolean = true
 
         ) : this(
@@ -63,9 +63,7 @@ internal class ClyConversation (
                 lastMessage = ClyConvLastMessage(
                         message = lastMessageAbstract,
                         date = lastMessageDate,
-                        writerType = lastMessageWriterType,
-                        writerId = lastMessageWriterId,
-                        writerName = lastMessageWriterName),
+                        writer = writer),
                 unread = unread)
 
     internal fun onNewMessage(message : ClyMessage) {
@@ -73,6 +71,6 @@ internal class ClyConversation (
         this.unread = true
     }
 
-    internal fun getImageUrl(@Px sizePx: Int) : String = this.lastMessage.getImageUrl(sizePx = sizePx)
-
+    internal fun loadUrl(into: ImageView, @Px size: Int): ClyImageRequest?
+            = this.lastMessage.loadUrl(into = into, size = size)
 }

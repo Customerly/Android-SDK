@@ -37,6 +37,8 @@ import io.customerly.alert.dismissAlertMessageOnUserLogout
 import io.customerly.api.*
 import io.customerly.dialogfragment.dismissClySurveyDialog
 import io.customerly.entity.*
+import io.customerly.entity.ping.ClyPingResponse
+import io.customerly.entity.ping.lastPingRestore
 import io.customerly.utils.*
 import io.customerly.utils.download.CHANNEL_ID_DOWNLOAD
 import io.customerly.utils.ggkext.*
@@ -85,6 +87,8 @@ object Customerly {
         Customerly.configured = true
 
         Customerly.ping()
+
+        Customerly.getAccountDetails()
     }
 
 
@@ -319,7 +323,7 @@ object Customerly {
                     ClyApiRequest(
                             endpoint = ENDPOINT_EVENT_TRACKING,
                             trials = 2,
-                            converter = { Customerly.log(message = "trackEvent completed successfully for event $eventName") })
+                            jsonObjectConverter = { Customerly.log(message = "trackEvent completed successfully for event $eventName") })
                             .p(key = "name", value = eventName)
                             .start()
                 } else {
@@ -354,6 +358,15 @@ object Customerly {
     @JvmStatic
     fun setVerboseLogging(enabled: Boolean) {
         this.isVerboseLogging = enabled
+    }
+
+    /**
+    * Set to false to disable the attachment button in the chats.
+    * Is enabled by default
+    */
+    @JvmStatic
+    fun setAttachmentsAvailable(enabled: Boolean) {
+        this.isAttachmentsAvailable = enabled
     }
 
     /**
@@ -445,6 +458,10 @@ object Customerly {
 
     internal val clySocket = ClySocket()
 
+    internal var adminsFullDetails: Array<ClyAdminFull>? = null
+
+    internal var isAttachmentsAvailable: Boolean = true
+
     ////////////////////////////////////////////////////////////////////////////////
     // Private functions ///////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
@@ -514,7 +531,7 @@ object Customerly {
         Customerly.checkConfigured(ok = {
             ClyApiRequest(
                     endpoint = ENDPOINT_PING,
-                    converter = {
+                    jsonObjectConverter = {
                         //Customerly.lastPing = it.parsePing()
                         (trySurvey && Customerly.lastPing.tryShowSurvey()) || (tryLastMessage && Customerly.lastPing.tryShowLastMessage())
                     },
@@ -606,5 +623,25 @@ object Customerly {
                 throw IllegalArgumentException("Company Map can contain only Strings, int, float, long, double or char values")
             }
         }
+    }
+
+    private fun getAccountDetails() {
+        Customerly.checkConfigured(ok = {
+            ClyApiRequest(
+                    endpoint = ENDPOINT_ACCOUNT_DETAILS,
+                    requireToken = true,
+                    jsonArrayConverter = {
+                        it.asSequenceOptNotNullMapped<JSONObject,ClyAdminFull> { it.nullOnException { it.parseAdminFull() } }.toList().toTypedArray()
+                    },
+                    callback = {
+                        when(it) {
+                            is ClyApiResponse.Success -> {
+                                Customerly.adminsFullDetails = it.result
+                            }
+                            is ClyApiResponse.Failure -> { }
+                        }
+                    })
+                    .start()
+        })
     }
 }

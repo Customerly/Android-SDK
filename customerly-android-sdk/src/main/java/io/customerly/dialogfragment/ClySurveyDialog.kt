@@ -32,7 +32,6 @@ import io.customerly.activity.startClyWebViewActivity
 import io.customerly.api.*
 import io.customerly.entity.*
 import io.customerly.utils.CUSTOMERLY_SURVEY_SITE
-import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
@@ -116,7 +115,7 @@ internal class ClySurveyDialog : DialogFragment() {
                                                 dialog.io_customerly__progress_view.visibility = View.VISIBLE
                                             }
                                         },
-                                        converter = { it.parseSurvey() },
+                                        jsonObjectConverter = { it.parseSurvey() },
                                         callback = {
                                             weakDialog.get()?.also { dialog ->
                                                 dialog.io_customerly__progress_view.visibility = View.GONE
@@ -145,7 +144,7 @@ internal class ClySurveyDialog : DialogFragment() {
                                 endpoint = ENDPOINT_SURVEY_REJECT,
                                 requireToken = true,
                                 trials = 2,
-                                converter = { Unit })
+                                jsonObjectConverter = { Unit })
                                 .p(key = "survey_id", value = currentSurvey.id)
                                 .start()
                     }
@@ -427,7 +426,7 @@ internal class ClySurveyDialog : DialogFragment() {
                             endpoint = ENDPOINT_SURVEY_SEEN,
                             requireToken = true,
                             trials = 2,
-                            converter = { Unit })
+                            jsonObjectConverter = { Unit })
                             .p(key = "survey_id", value = survey.id)
                             .start()
                 }
@@ -454,7 +453,7 @@ internal class ClySurveyDialog : DialogFragment() {
                             dialog.io_customerly__progress_view.visibility = View.VISIBLE
                         }
                     },
-                    converter = { survey.update(it) },
+                    jsonObjectConverter = { survey.update(it) },
                     callback = {
                         weakDialog.get()?.also { dialog ->
                             dialog.io_customerly__progress_view.visibility = View.GONE

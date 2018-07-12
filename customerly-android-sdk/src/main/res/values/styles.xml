@@ -20,6 +20,12 @@
         <item name="android:windowBackground">@android:color/white</item><!-- Background color -->
         <item name="android:colorBackground">@android:color/white</item><!-- Background color -->
     </style>
+    <style name="io_customerly__Activity.NoActionBar" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/io_customerly__blue_malibu</item>
+        <item name="android:windowBackground">@android:color/white</item><!-- Background color -->
+        <item name="android:colorBackground">@android:color/white</item><!-- Background color -->
+    </style>
 
     <style name="io_customerly__SurveyFragment" parent="@style/Theme.AppCompat.Light.Dialog">
         <item name="android:windowBackground">@android:color/white</item><!-- Background color -->

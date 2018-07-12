@@ -1,4 +1,4 @@
-package io.customerly.entity
+package io.customerly.entity.chat
 
 /*
  * Copyright (C) 2017 Customerly
@@ -19,8 +19,9 @@ package io.customerly.entity
 import android.content.Context
 import android.support.annotation.Px
 import android.text.Spanned
+import android.widget.ImageView
 import io.customerly.R
-import io.customerly.utils.WriterType
+import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.STimestamp
 import io.customerly.utils.ggkext.formatByTimeAgo
 
@@ -34,10 +35,9 @@ internal class ClyConvLastMessage(
         @STimestamp internal val date : Long,
         internal val writer : ClyWriter
 ) {
-    internal constructor(message : Spanned, @STimestamp date : Long, @WriterType writerType : Int, writerId : Long, writerName : String?)
-            : this(message = message, date = date, writer = ClyWriter(type = writerType, id = writerId, name = writerName))
 
-    internal fun getImageUrl(@Px sizePx: Int) : String = this.writer.getImageUrl(sizePx = sizePx)
+    internal fun loadUrl(into: ImageView, @Px size: Int): ClyImageRequest?
+            = this.writer.loadUrl(into = into, size = size)
 
     internal fun getWriterName(context : Context) : String = this.writer.getName(context = context)
 

@@ -1,4 +1,4 @@
-package io.customerly.entity
+package io.customerly.entity.chat
 
 /*
  * Copyright (C) 2017 Customerly

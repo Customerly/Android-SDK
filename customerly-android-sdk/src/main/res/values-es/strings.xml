@@ -65,4 +65,8 @@
   <string name="io_customerly__open_conversation">Abrir una conversación</string>
   <string name="io_customerly__cant_access_external_memory">No se puede acceder a la memoria externa</string>
   <string name="io_customerly__open_in_browser">Abrir en el navegador</string>
+  <string name="io_customerly__replytime_minutes">Team usually replies in some minutes.</string><!-- TODO loc es -->
+  <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string><!-- TODO loc es -->
+  <string name="io_customerly__replytime_day">Team usually replies in a day.</string><!-- TODO loc es -->
+  <string name="io_customerly__choose_a_date">Choose a date</string><!-- TODO loc es -->
 </resources>

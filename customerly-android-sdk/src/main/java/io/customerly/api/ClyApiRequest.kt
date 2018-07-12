@@ -24,9 +24,14 @@ import android.support.annotation.IntRange
 import android.support.annotation.RequiresPermission
 import android.util.Log
 import io.customerly.Customerly
-import io.customerly.entity.*
+import io.customerly.entity.ClyJwtToken
+import io.customerly.entity.ERROR_CODE__GENERIC
+import io.customerly.entity.JWT_KEY
+import io.customerly.entity.parseJwtToken
+import io.customerly.entity.ping.parsePing
 import io.customerly.utils.*
 import io.customerly.utils.ggkext.*
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -48,14 +53,15 @@ import javax.net.ssl.SSLContext
 internal class ClyApiRequest<RESPONSE: Any>
     @RequiresPermission(Manifest.permission.INTERNET)
     internal constructor(
-        context: Context? = null,
-        @ClyEndpoint private val endpoint: String,
-        private val requireToken: Boolean = false,
-        @IntRange(from=1, to=5) private val trials: Int = 1,
-        private val onPreExecute: ((Context?)->Unit)? = null,
-        private val converter: (JSONObject)->RESPONSE?,
-        private val callback: ((ClyApiResponse<RESPONSE>)->Unit)? = null,
-        private val reportingErrorEnabled: Boolean = true
+            context: Context? = null,
+            @ClyEndpoint private val endpoint: String,
+            private val requireToken: Boolean = false,
+            @IntRange(from=1, to=5) private val trials: Int = 1,
+            private val onPreExecute: ((Context?)->Unit)? = null,
+            private val jsonObjectConverter: ((JSONObject)->RESPONSE?)? = null,
+            private val jsonArrayConverter: ((JSONArray)->RESPONSE?)? = null,
+            private val callback: ((ClyApiResponse<RESPONSE>)->Unit)? = null,
+            private val reportingErrorEnabled: Boolean = true
     ){
     private val params: JSONObject = JSONObject()
 
@@ -112,14 +118,18 @@ internal class ClyApiRequest<RESPONSE: Any>
 
                         if (responseState == RESPONSE_STATE__PREPARING) {
                             //No errors
-                            request.executeRequest(jwtToken = Customerly.jwtToken, params = params).let { (state, result) ->
+                            request.executeRequest(jwtToken = Customerly.jwtToken, params = params).let { (state, resultJsonObject, resultJsonArray) ->
                                 responseState = state
-                                if (request.endpoint == ENDPOINT_PING && result != null) {
-                                    Customerly.lastPing = result.parsePing()
-                                    Customerly.nextPingAllowed = result.optLong("next-ping-allowed", 0)
-                                    Customerly.clySocket.connect(newParams = result.optJSONObject("websocket"))
+                                if (request.endpoint == ENDPOINT_PING && resultJsonObject != null) {
+                                    Customerly.lastPing = resultJsonObject.parsePing()
+                                    Customerly.nextPingAllowed = resultJsonObject.optLong("next-ping-allowed", 0)
+                                    Customerly.clySocket.connect(newParams = resultJsonObject.optJSONObject("websocket"))
                                 }
-                                responseResult = result?.let { request.converter(it) }
+                                responseResult = when {
+                                    resultJsonObject != null -> request.jsonObjectConverter?.invoke(resultJsonObject)
+                                    resultJsonArray != null -> request.jsonArrayConverter?.invoke(resultJsonArray)
+                                    else -> null
+                                }
                             }
                         }
                     } else {
@@ -203,53 +213,56 @@ internal class ClyApiRequest<RESPONSE: Any>
                     os.write(requestBody.toString().toByteArray())
                     os.flush()
 
-                    val response = BufferedReader(
+                    val responseString = BufferedReader(
                             InputStreamReader(
                                     if (conn.responseCode == HttpURLConnection.HTTP_OK) {
                                         conn.inputStream
                                     } else {
                                         conn.errorStream
                                     })).use { it.lineSequence().joinToString { it } }
-                            .let { JSONObject(it) }
 
-                    @Suppress("ConstantConditionIf")
-                    if (CUSTOMERLY_DEV_MODE) {
-                        Log.e(CUSTOMERLY_SDK_NAME,
-                                "-----------------------------------------------------------" +
-                                        "\nHTTP RESPONSE" +
-                                        "\n+ Endpoint:        " + endpoint +
-                                        "\nJSON BODY:\n")
-                        (response
-                                .nullOnException { it.toString(4) } ?: "Malformed JSON")
-                                .chunkedSequence(size = 500)
-                                .forEach { Log.e(CUSTOMERLY_SDK_NAME, it) }
-                        Log.e(CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
-                    }
-
-                    if (!response.has("error")) {
-                        if (ENDPOINT_PING == endpoint) {
-                            response.parseJwtToken()
+                    nullOnException { JSONObject(responseString) }?.let { responseJO -> //JSONObject Response
+                        @Suppress("ConstantConditionIf")
+                        if (CUSTOMERLY_DEV_MODE) {
+                            Log.e(CUSTOMERLY_SDK_NAME,
+                                    "-----------------------------------------------------------" +
+                                            "\nHTTP RESPONSE" +
+                                            "\n+ Endpoint:        " + endpoint +
+                                            "\nJSON BODY:\n")
+                            (responseJO
+                                    .nullOnException { it.toString(4) } ?: "Malformed JSON")
+                                    .chunkedSequence(size = 500)
+                                    .forEach { Log.e(CUSTOMERLY_SDK_NAME, it) }
+                            Log.e(CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                         }
-                        ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResult = response)
-                    } else {
-                        /* example: {   "error": "exception_title",
-                                "message": "Exception_message",
-                                "code": "ExceptionCode"     }   */
-                        val errorCode = response.optInt("code", -1)
-                        Customerly.log(message = "ErrorCode: $errorCode Message: ${response.optTyped(name = "message", fallback = "The server received the request but an error occurred")}")
-                        when (errorCode) {
-                            RESPONSE_STATE__SERVERERROR_APP_INSOLVENT -> {
-                                Customerly.appInsolvent = true
-                                ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT)
+
+                        if (!responseJO.has("error")) {
+                            if (ENDPOINT_PING == endpoint) {
+                                responseJO.parseJwtToken()
                             }
-                            RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED -> {
-                                ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED)
-                            }
+                            ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResultJsonObject = responseJO)
+                        } else {
+                            /* example: {   "error": "exception_title",
+                                    "message": "Exception_message",
+                                    "code": "ExceptionCode"     }   */
+                            val errorCode = responseJO.optInt("code", -1)
+                            Customerly.log(message = "ErrorCode: $errorCode Message: ${responseJO.optTyped(name = "message", fallback = "The server received the request but an error occurred")}")
+                            when (errorCode) {
+                                RESPONSE_STATE__SERVERERROR_APP_INSOLVENT -> {
+                                    Customerly.appInsolvent = true
+                                    ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_APP_INSOLVENT)
+                                }
+                                RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED -> {
+                                    ClyApiInternalResponse(responseState = RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED)
+                                }
                             /* -1, */ else -> {
-                            ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
+                                ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
+                                }
                             }
                         }
-                    }
+                    } ?: nullOnException { JSONArray(responseString) }?.let { responseJA -> //JSONArray response
+                        ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResultJsonArray = responseJA)
+                    } ?: ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
                 }
             } catch (json : JSONException) {
                 Customerly.log(message = "The server received the request but an error has come")
@@ -258,7 +271,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                 Customerly.log(message = "An error occurs during the connection to server")
                 ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
             }
-        }.withIndex().firstOrNull { iv : IndexedValue<ClyApiInternalResponse> -> iv.value.responseResult != null || iv.index == this.trials -1 }?.value ?: ClyApiInternalResponse(responseState = ERROR_CODE__GENERIC)
+        }.withIndex().firstOrNull { iv : IndexedValue<ClyApiInternalResponse> -> iv.value.responseResultJsonObject != null || iv.index == this.trials -1 }?.value ?: ClyApiInternalResponse(responseState = ERROR_CODE__GENERIC)
     }
 
     private fun fillParamsWithAppidAndDeviceInfo(params: JSONObject? = null, appId: String): JSONObject {
@@ -278,7 +291,7 @@ internal class ClyApiRequest<RESPONSE: Any>
     }
 }
 
-private data class ClyApiInternalResponse(@ClyResponseState val responseState: Int, val responseResult: JSONObject? = null)
+private data class ClyApiInternalResponse(@ClyResponseState val responseState: Int, val responseResultJsonObject: JSONObject? = null, val responseResultJsonArray: JSONArray? = null)
 
 @Suppress("unused")
 internal sealed class ClyApiResponse<RESPONSE: Any> {

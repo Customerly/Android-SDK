@@ -20,7 +20,7 @@ import android.support.v7.widget.RecyclerView
 import android.widget.ImageView
 import android.widget.TextView
 import io.customerly.R
-import io.customerly.entity.ClyConversation
+import io.customerly.entity.chat.ClyConversation
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
@@ -55,13 +55,8 @@ internal class ClyConversationViewHolder(recyclerView: RecyclerView)
         this.conversationId = conversation.id
 
         this.request?.cancel()
-        this.request = ClyImageRequest(context = conversationsActivity, url = conversation.getImageUrl(50.dp2px))
-                .fitCenter()
-                .transformCircle()
-                .resize(width = 50.dp2px)
-                .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
-                .into(imageView = this.icon)
-                .start()
+
+        this.request = conversation.loadUrl(into = this.icon, size = 50.dp2px)
 
         this.name.text = conversation.lastMessage.getWriterName(context = conversationsActivity)
         this.lastMessage.text = conversation.lastMessage.message

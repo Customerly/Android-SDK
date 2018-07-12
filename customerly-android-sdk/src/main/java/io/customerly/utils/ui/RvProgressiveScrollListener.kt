@@ -18,6 +18,7 @@ package io.customerly.utils.ui
 
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import io.customerly.utils.MyMutableBoolean
 
 /**
  * Created by Gianni on 24/06/15.
@@ -27,23 +28,34 @@ internal class RvProgressiveScrollListener(
         private val llm: LinearLayoutManager,
         private val onBottomReached: (RvProgressiveScrollListener)->Unit) : RecyclerView.OnScrollListener() {
 
-    private var loading = false
+    private var loading: MyMutableBoolean = MyMutableBoolean()
+    private var skipNext: MyMutableBoolean = MyMutableBoolean()
 
     override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
 
         if (this.llm.itemCount <= this.llm.findLastVisibleItemPosition() + 1) {
-            synchronized(this.loading) {
-                if (this.loading) {
+            synchronized(this.skipNext) {
+                if (this.skipNext.value) {
+                    this.skipNext.value = false
                     return
                 }
-                this.loading = true
+            }
+            synchronized(this.loading) {
+                if (this.loading.value) {
+                    return
+                }
+                this.loading.value = true
             }
             this.onBottomReached(this)
         }
     }
 
     internal fun onFinishedUpdating() {
-        this.loading = false
+        this.loading.value = false
+    }
+
+    fun skipNextBottom() {
+        this.skipNext.value = true
     }
 }

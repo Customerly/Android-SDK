@@ -35,8 +35,8 @@ import android.view.View
 import android.widget.*
 import io.customerly.Customerly
 import io.customerly.R
-import io.customerly.entity.ClyAttachment
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
+import io.customerly.entity.chat.ClyAttachment
 import io.customerly.entity.clySendError
 import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.alterColor
@@ -45,7 +45,9 @@ import io.customerly.utils.getContrastBW
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.checkConnection
 import io.customerly.utils.ggkext.getFileSize
+import io.customerly.utils.ggkext.weak
 import io.customerly.utils.htmlformatter.spannedFromHtml
+import java.lang.ref.WeakReference
 import java.util.*
 
 /**
@@ -70,15 +72,16 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     internal val attachments = ArrayList<ClyAttachment>(1)
 
     private val broadcastReceiver = object : BroadcastReceiver() {
-        internal var attendingReconnection = false
+        private var waitingReconnection = false
+        private val weakActivity: WeakReference<ClyIInputActivity> = this@ClyIInputActivity.weak()
         override fun onReceive(context: Context, intent: Intent) {
             if (context.checkConnection()) {
-                if (this.attendingReconnection) {
-                    this.attendingReconnection = false
-                    onReconnection()
+                if (this.waitingReconnection) {
+                    this.waitingReconnection = false
+                    this.weakActivity.get()?.onReconnection()
                 }
             } else {
-                this.attendingReconnection = true
+                this.waitingReconnection = true
             }
         }
     }
@@ -134,12 +137,13 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
      */
     internal fun onCreateLayout(@LayoutRes pLayoutRes: Int): Boolean {
         super.setContentView(pLayoutRes)
-        //View binding
+
+        this.findViewById<android.support.v7.widget.Toolbar>(R.id.io_customerly__toolbar)?.also { this.setSupportActionBar(it) }
         val actionBar = this.supportActionBar
-        val poweredBy = this.findViewById<View>(R.id.io_customerly__powered_by) as TextView
-        this.inputInput = this.findViewById<View>(R.id.io_customerly__input_edit_text) as EditText
-        this.inputLayout = this.findViewById<View>(R.id.io_customerly__input_layout) as LinearLayout
-        this.inputAttachments = this.findViewById<View>(R.id.io_customerly__input_attachments) as LinearLayout
+        val poweredBy = this.findViewById<TextView>(R.id.io_customerly__powered_by)
+        this.inputInput = this.findViewById(R.id.io_customerly__input_edit_text)
+        this.inputLayout = this.findViewById(R.id.io_customerly__input_layout)
+        this.inputAttachments = this.findViewById(R.id.io_customerly__input_attachments)
 
         this.mustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
         if (actionBar != null) {
@@ -184,7 +188,13 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             poweredBy.visibility = View.GONE
         }
 
-        this.findViewById<View>(R.id.io_customerly__input_button_attach).setOnClickListener(this.attachButtonListener)
+        this.findViewById<View>(R.id.io_customerly__input_button_attach).also {
+            if (Customerly.isAttachmentsAvailable) {
+                it.setOnClickListener(this.attachButtonListener)
+            } else {
+                it.visibility = View.GONE
+            }
+        }
 
         this.findViewById<View>(R.id.io_customerly__input_button_send).setOnClickListener { btn ->
             if (btn.context.checkConnection()) {

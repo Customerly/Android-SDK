@@ -45,6 +45,7 @@ import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.api.*
 import io.customerly.entity.*
+import io.customerly.entity.chat.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.spannedFromHtml
@@ -80,7 +81,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                             endpoint = ENDPOINT_CONVERSATION_RETRIEVE,
                             requireToken = true,
                             trials = 2,
-                            converter = { it.optArrayList(name = "conversations", map = JSONObject::parseConversation) ?: ArrayList(0) },
+                            jsonObjectConverter = { it.optArrayList(name = "conversations", map = JSONObject::parseConversation) ?: ArrayList(0) },
                             callback = {
                                 activity.displayInterface(conversationsList = when (it) {
                                     is ClyApiResponse.Success -> it.result
@@ -243,7 +244,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                         })
             }
 
-            admins?.asSequence()?.mapNotNull { it.last_active }?.max()?.let { lastActiveAdmin ->
+            admins?.asSequence()?.mapNotNull { it.lastActive }?.max()?.let { lastActiveAdmin ->
                 showWelcomeCard = true
                 this.io_customerly__layout_first_contact__last_activity.also {
                     it.text = lastActiveAdmin.formatByTimeAgo(
@@ -329,7 +330,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 ClyApiRequest(
                         context = this,
                         endpoint = ENDPOINT_PING,
-                        converter = { Unit },
+                        jsonObjectConverter = { Unit },
                         callback = { response ->
                             when(response) {
                                 is ClyApiResponse.Success -> {
@@ -371,7 +372,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 endpoint = ENDPOINT_MESSAGE_SEND,
                 requireToken = true,
                 trials = 2,
-                converter = { data ->
+                jsonObjectConverter = { data ->
                     data
                             .takeIf { data.has("conversation") }
                             ?.optJSONObject("message")

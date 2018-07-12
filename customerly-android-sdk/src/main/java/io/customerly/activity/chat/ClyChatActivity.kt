@@ -21,6 +21,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.annotation.ColorInt
 import android.support.annotation.UiThread
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -39,10 +40,12 @@ import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.*
-import io.customerly.entity.*
+import io.customerly.entity.ClyAdminFull
+import io.customerly.entity.chat.*
+import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
-import io.customerly.utils.ggkext.msAsSeconds
-import io.customerly.utils.ggkext.weak
+import io.customerly.utils.getContrastBW
+import io.customerly.utils.ggkext.*
 import io.customerly.utils.network.ClySntpClient
 import io.customerly.utils.ui.RvProgressiveScrollListener
 import kotlinx.android.synthetic.main.io_customerly__activity_chat.*
@@ -83,80 +86,87 @@ internal class ClyChatActivity : ClyIInputActivity() {
     private var conversationId = 0L
     internal var typingAccountId = TYPING_NO_ONE
     internal var chatList = ArrayList<ClyMessage>(0)
-    private val wThis : WeakReference<ClyChatActivity> = this.weak()
-    private val onBottomReachedListener = { scrollListener : RvProgressiveScrollListener ->
-        Customerly.checkConfigured {
-            ClyApiRequest(
-                    context = this.wThis.get(),
-                    endpoint = ENDPOINT_MESSAGE_RETRIEVE,
-                    requireToken = true,
-                    trials = 2,
-                    onPreExecute = { this.wThis.get()?.io_customerly__progress_view?.visibility = View.VISIBLE },
-                    converter = { it.parseMessagesList() },
-                    callback = { response ->
-                        when(response) {
-                            is ClyApiResponse.Success -> {
-                                response.result.sortByDescending { it.id }
-                                val newChatList = ArrayList(this.chatList)
-                                val previousSize = newChatList.size
-                                val scrollToLastUnread = response.result
-                                        .asSequence()
-                                        .filterNot { newChatList.contains(it) }//Avoid duplicates
-                                        .mapIndexedNotNull { index, clyMessage ->
-                                            newChatList.add(clyMessage)//Add new not duplicate message to list
-                                            if(clyMessage.isNotSeen) {//If not seen map it to his index, discard it otherwise
-                                                index
-                                            } else {
-                                                null
+    internal var conversationFullAdmin: ClyAdminFull? = null
+    private val onBottomReachedListener = object : Function1<RvProgressiveScrollListener,Unit> {
+        private val wActivity : WeakReference<ClyChatActivity> = this@ClyChatActivity.weak()
+        override fun invoke(scrollListener: RvProgressiveScrollListener) {
+            this.wActivity.get()?.let { activity ->
+                Customerly.checkConfigured {
+                    ClyApiRequest(
+                            context = this.wActivity.get(),
+                            endpoint = ENDPOINT_MESSAGE_RETRIEVE,
+                            requireToken = true,
+                            trials = 2,
+                            onPreExecute = { this.wActivity.get()?.io_customerly__progress_view?.visibility = View.VISIBLE },
+                            jsonObjectConverter = { it.parseMessagesList() },
+                            callback = { response ->
+                                when (response) {
+                                    is ClyApiResponse.Success -> {
+                                        this.wActivity.get()?.let { activity ->
+
+                                            response.result.sortByDescending { it.id }
+                                            val newChatList = ArrayList(activity.chatList)
+                                            val previousSize = newChatList.size
+                                            val scrollToLastUnread = response.result
+                                                    .asSequence()
+                                                    .filterNot { newChatList.contains(it) }//Avoid duplicates
+                                                    .mapIndexedNotNull { index, clyMessage ->
+                                                        newChatList.add(clyMessage)//Add new not duplicate message to list
+                                                        if (clyMessage.isNotSeen) {//If not seen map it to his index, discard it otherwise
+                                                            index
+                                                        } else {
+                                                            null
+                                                        }
+                                                    }
+                                                    .min() ?: -1
+                                            val addedMessagesCount = newChatList.size - previousSize
+
+                                            activity.io_customerly__progress_view.visibility = View.GONE
+                                            activity.io_customerly__recycler_view.visibility = View.VISIBLE
+
+                                            if (addedMessagesCount > 0) {
+                                                activity.setNewChatList(newChatList = newChatList)
+                                                (activity.io_customerly__recycler_view.layoutManager as? LinearLayoutManager)?.let { llm ->
+                                                    if (llm.findFirstCompletelyVisibleItemPosition() == 0) {
+                                                        llm.scrollToPosition(0)
+                                                    } else if (previousSize == 0 && scrollToLastUnread != -1) {
+                                                        llm.scrollToPosition(scrollToLastUnread)
+                                                    }
+                                                }
+                                                activity.io_customerly__recycler_view.adapter?.let { adapter ->
+                                                    if (previousSize != 0) {
+                                                        adapter.notifyItemChanged(previousSize - 1)
+                                                    }
+                                                    adapter.notifyItemRangeInserted(previousSize, addedMessagesCount)
+                                                }
+                                            }
+
+                                            response.result.firstOrNull()?.takeIf { it.isNotSeen }?.let { activity.sendSeen(messageId = it.id) }
+
+                                            if (previousSize == 0) {
+                                                activity.io_customerly__recycler_view.layoutManager?.scrollToPosition(0)
                                             }
                                         }
-                                        .min() ?: -1
-                                val addedMessagesCount = newChatList.size - previousSize
 
-                                this.wThis.get()?.let { activity ->
-                                    activity.io_customerly__progress_view.visibility = View.GONE
-                                    activity.io_customerly__recycler_view.visibility = View.VISIBLE
-
-                                    if(addedMessagesCount > 0) {
-                                        this.chatList = newChatList
-                                        (activity.io_customerly__recycler_view.layoutManager as? LinearLayoutManager)?.let { llm ->
-                                            if(llm.findFirstCompletelyVisibleItemPosition() == 0) {
-                                                llm.scrollToPosition(0)
-                                            } else if(previousSize == 0 && scrollToLastUnread != -1) {
-                                                llm.scrollToPosition(scrollToLastUnread)
-                                            }
-                                        }
-                                        activity.io_customerly__recycler_view.adapter?.let { adapter ->
-                                            if(previousSize != 0) {
-                                                adapter.notifyItemChanged(previousSize - 1)
-                                            }
-                                            adapter.notifyItemRangeInserted(previousSize, addedMessagesCount)
+                                        if (response.result.size >= MESSAGES_PER_PAGE) {
+                                            scrollListener.onFinishedUpdating()
                                         }
                                     }
-
-                                    response.result.firstOrNull()?.takeIf { it.isNotSeen }?.let { activity.sendSeen(messageId = it.id) }
-
-                                    if(previousSize == 0) {
-                                        activity.io_customerly__recycler_view.layoutManager?.scrollToPosition(0)
+                                    is ClyApiResponse.Failure -> {
+                                        this.wActivity.get()?.let {
+                                            it.io_customerly__progress_view?.visibility = View.GONE
+                                            Toast.makeText(it.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                 }
-
-                                if(response.result.size >= MESSAGES_PER_PAGE) {
-                                    scrollListener.onFinishedUpdating()
-                                }
-                            }
-                            is ClyApiResponse.Failure -> {
-                                this.wThis.get()?.let {
-                                    it.io_customerly__progress_view?.visibility = View.GONE
-                                    Toast.makeText(it.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    }).also {
-                it.p(key = "conversation_id", value = this.conversationId)
-                it.p(key = "per_page", value = MESSAGES_PER_PAGE)
-                it.p(key = "messages_before_id", value = this.chatList.minBy { it.id }?.id ?: Long.MAX_VALUE)
-            }.start()
+                            }).also {
+                        it.p(key = "conversation_id", value = activity.conversationId)
+                        it.p(key = "per_page", value = MESSAGES_PER_PAGE)
+                        it.p(key = "messages_before_id", value = activity.chatList.minBy { it.id }?.id
+                                ?: Long.MAX_VALUE)
+                    }.start()
+                }
+            }
         }
     }
     private var progressiveScrollListener: RvProgressiveScrollListener? = null
@@ -173,8 +183,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
             val weakRv = this.io_customerly__recycler_view.also { recyclerView ->
                 recyclerView.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
                     llm.reverseLayout = true
-                    RvProgressiveScrollListener(llm = llm, onBottomReached = onBottomReachedListener).also {
-                        progressiveScrollListener = it
+                    RvProgressiveScrollListener(llm = llm, onBottomReached = this.onBottomReachedListener).also {
+                        this.progressiveScrollListener = it
                         recyclerView.addOnScrollListener(it)
                     }
                 }
@@ -182,6 +192,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 recyclerView.setHasFixedSize(true)
                 recyclerView.adapter = ClyChatAdapter(chatActivity = this)
             }.weak()
+
+            this.updateActivityTitleBar()
 
             this.inputInput?.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -226,6 +238,33 @@ internal class ClyChatActivity : ClyIInputActivity() {
                     }
                 }
             }
+
+            val weakActivity = this.weak()
+            this.io_customerly__recycler_view.postDelayed( {
+                val now = Calendar.getInstance()
+
+                val nearestOfficeHours = Customerly.lastPing.officeHours?.map { it to it.getNearestFactor(now = now) }?.minBy { (_,factor) -> factor }
+                if(nearestOfficeHours == null || nearestOfficeHours.second == 0L) {
+                    Customerly.lastPing.replyTime?.stringResId?.also { replyTimeStringResId ->
+                        weakActivity.reference { activity ->
+                            if(activity.chatList.count { it.writer.isAccount } == 0) {
+                                activity.addMessageAt0(message = ClyMessage.Bot(conversationId = activity.conversationId, content = activity.getString(replyTimeStringResId)))
+                            }
+                        }
+                    }
+                } else {
+                    weakActivity.reference { activity ->
+                        if(activity.chatList.count { it.writer.isAccount } == 0) {
+                            nearestOfficeHours.first.getBotMessage(context = activity, now = now)?.apply {
+                                activity.addMessageAt0(message = ClyMessage.Bot(conversationId = activity.conversationId, content = this))
+                            }
+                        }
+                    }
+                }
+            }, 3000)
+            this.io_customerly__recycler_view.postDelayed( {
+                weakActivity.get()?.tryLoadForm()
+            }, 4000)
         }
     }
 
@@ -303,7 +342,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                     context = wContext.get(),
                     endpoint = ENDPOINT_MESSAGE_SEEN,
                     requireToken = true,
-                    converter = { it })
+                    jsonObjectConverter = { it })
                     .p(key = "conversation_message_id", value = messageId)
                     .p(key = "seen_date", value = utc)
                     .start()
@@ -317,26 +356,23 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 endpoint = ENDPOINT_MESSAGE_SEND,
                 requireToken = true,
                 trials = 2,
-                converter = {
+                jsonObjectConverter = {
                     Customerly.clySocket.sendMessage(timestamp = it.optLong("timestamp", -1L))
                     it.optJSONObject("message")?.parseMessage()
                 },
                 callback = { response ->
                     weakAct.get()?.also { activity ->
                         val chatList = activity.chatList
-                        val tmpMessageIndex = chatList.indexOf(message).takeIf { it != -1 }
                         when (response) {
                             is ClyApiResponse.Success -> {
-                                tmpMessageIndex?.also { chatList[it] = response.result }
+                                chatList.indexOf(message).takeIf { it != -1 }?.also { chatList[it] = response.result }
                             }
                             is ClyApiResponse.Failure -> {
                                 message.setStateFailed()
                                 Toast.makeText(activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
                             }
                         }
-                        tmpMessageIndex?.also {
-                            weakAct.get()?.io_customerly__recycler_view?.adapter?.notifyItemChanged(it)
-                        }
+                        weakAct.get()?.notifyItemChangedInList(message = message)
                     }
                 })
                 .p(key = "conversation_id", value = message.conversationId)
@@ -358,18 +394,32 @@ internal class ClyChatActivity : ClyIInputActivity() {
     @UiThread
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String?) {
         Customerly.jwtToken?.userID?.let { userID ->
-            val message: ClyMessage = ClyMessage(writerUserid = userID, conversationId = this.conversationId, content = content, attachments = attachments).apply { this.setStateSending() }
-            this.chatList.add(0, message)
-            this.io_customerly__recycler_view?.let {
-                it.adapter?.notifyItemInserted(
-                        if (this.typingAccountId == TYPING_NO_ONE) {
-                            0
-                        } else {
-                            1
-                        })
-                (it.layoutManager as? LinearLayoutManager)?.takeIf { it.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
+            ClyMessage.Real(writerUserid = userID, conversationId = this.conversationId, content = content, attachments = attachments).also { message ->
+                message.setStateSending()
+                this.addMessageAt0(message = message)
+                this.startSendMessageRequest(message = message)
             }
-            this.startSendMessageRequest(message = message)
+        }
+    }
+
+    internal fun tryLoadForm() {
+        if(this.chatList.asSequence().none { it is ClyMessage.BotProfilingForm && !it.form.answerConfirmed}) {
+            Customerly.lastPing.tryProfilingForm()?.also { form ->
+                this.addMessageAt0(message = ClyMessage.BotProfilingForm(conversationId = this.conversationId, form = form))
+            }
+        }
+    }
+
+    private fun addMessageAt0(message: ClyMessage) {
+        this.chatList.add(0, message)
+        this.io_customerly__recycler_view?.let {
+            it.adapter?.notifyItemInserted(
+                    if (this.typingAccountId == TYPING_NO_ONE) {
+                        0
+                    } else {
+                        1
+                    })
+            (it.layoutManager as? LinearLayoutManager)?.takeIf { it.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
         }
     }
 
@@ -392,7 +442,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
         newChatList.sortByDescending { it.id }//Sorting by conversation_message_id DESC
 
-        this.chatList = newChatList
+        this.setNewChatList(newChatList = newChatList)
+
         this.io_customerly__recycler_view?.let {
             val wRv = it.weak()
             it.post {
@@ -406,8 +457,56 @@ internal class ClyChatActivity : ClyIInputActivity() {
         newChatList.firstOrNull()?.takeIf { it.isNotSeen }?.also { this.sendSeen(messageId = it.id) }
     }
 
+    private fun setNewChatList(newChatList: ArrayList<ClyMessage>) {
+        this.chatList = newChatList
+        if(this.conversationFullAdmin == null) {
+            newChatList.firstOrNull { it.writer.isAccount }?.writer?.id?.let { lastAccountId ->
+                Customerly.adminsFullDetails?.firstOrNull { it.accountId == lastAccountId }
+            }?.also { conversationFullAdmin ->
+                this.conversationFullAdmin = conversationFullAdmin
+                this.updateActivityTitleBar(conversationAdminFullDetails = conversationFullAdmin)
+            }
+        }
+    }
+
+    private fun updateActivityTitleBar(conversationAdminFullDetails: ClyAdminFull? = this.conversationFullAdmin) {
+        this.io_customerly__actionlayout.setBackgroundColor(Customerly.lastPing.widgetColor)
+        @ColorInt val titleTextColorInt = Customerly.lastPing.widgetColor.getContrastBW()
+        (
+            conversationAdminFullDetails?.also { clyAdminFull ->
+                    clyAdminFull.jobTitle?.also { jobTitle ->
+                        this.io_customerly__job.apply {
+                            this.text = jobTitle
+                            this.setTextColor(titleTextColorInt)
+                            this.visibility = View.VISIBLE
+                        }
+                    }
+                    this.io_customerly__title.setOnClickListener {
+                        (it.activity as? ClyChatActivity)?.also { chatActivity ->
+                            chatActivity.io_customerly__recycler_view?.layoutManager?.also { llm ->
+                                this.progressiveScrollListener?.skipNextBottom()
+                                llm.scrollToPosition(llm.itemCount - 1)
+                            }
+                        }
+                    }
+                } ?: Customerly.lastPing.activeAdmins?.asSequence()?.maxBy { it.lastActive }
+        )?.also { admin ->
+            ClyImageRequest(context = this, url = admin.getImageUrl(sizePx = 48.dp2px))
+                    .fitCenter()
+                    .transformCircle()
+                    .resize(width = 48.dp2px)
+                    .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
+                    .into(imageView = this.io_customerly__icon)
+                    .start()
+            this.io_customerly__name.apply {
+                this.text = admin.name
+                this.setTextColor(titleTextColorInt)
+            }
+        }
+    }
+
     fun notifyItemChangedInList(message: ClyMessage) {
-        this.chatList.indexOf(message).takeIf { it != -1 }?.also { io_customerly__recycler_view.adapter?.notifyItemChanged(it) }
+        this.chatList.indexOf(message).takeIf { it != -1 }?.also { this.io_customerly__recycler_view.adapter?.notifyItemChanged(it) }
     }
 
 }

@@ -83,6 +83,21 @@ internal inline fun <reified TYPE> JSONArray.asSequenceOpt() : Sequence<TYPE?>
             .map { this.optTyped<TYPE>(index = it) }
         }
 
+internal inline fun <reified TYPE: Any> JSONArray.asSequenceOptNotNull() : Sequence<TYPE>
+        = if(this.length() == 0) {
+            emptySequence()
+        } else {
+            (0 until this.length())
+            .asSequence()
+            .mapNotNull { this.optTyped<TYPE>(index = it) }
+        }
+
+internal inline fun <reified JSON_ARRAY_ITEM,reified SEQUENCE_ITEM> JSONArray.asSequenceOptMapped(noinline map:(JSON_ARRAY_ITEM?)->SEQUENCE_ITEM?): Sequence<SEQUENCE_ITEM?>
+        = this.asSequenceOpt<JSON_ARRAY_ITEM>().map(map)
+
+internal inline fun <reified JSON_ARRAY_ITEM: Any,reified SEQUENCE_ITEM: Any> JSONArray.asSequenceOptNotNullMapped(noinline map:(JSON_ARRAY_ITEM)->SEQUENCE_ITEM?): Sequence<SEQUENCE_ITEM>
+        = this.asSequenceOptNotNull<JSON_ARRAY_ITEM>().mapNotNull(map)
+
 /**
  * JSONObject get/opt
  */

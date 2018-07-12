@@ -27,17 +27,14 @@ import org.json.JSONObject
  */
 
 @Throws(JSONException::class)
-internal fun JSONObject.parseAdmin() : ClyAdmin {
-    return ClyAdmin(
-            account_id = this.optTyped(name = "account_id", fallback = 0L),
-            name = this.optTyped(name = "name", fallback = ""),
-            last_active = this.optTyped(name = "last_active", fallback = 0L))
-}
+internal fun JSONObject.parseAdmin() = ClyAdmin(adminJson = this)
 
-internal data class ClyAdmin (
-            private val account_id: Long,
-            val name: String,
-            val last_active: Long) {
+internal open class ClyAdmin
+@Throws(JSONException::class) constructor(adminJson: JSONObject) {
 
-    internal fun getImageUrl(@Px sizePx: Int) : String = urlImageAccount(accountId = this.account_id, sizePX = sizePx)
+    val accountId: Long = adminJson.optTyped(name = "account_id", fallback = 0L)
+    val name: String = adminJson.optTyped(name = "name", fallback = "")
+    val lastActive: Long = adminJson.optTyped(name = "last_active", fallback = 0L)
+
+    internal fun getImageUrl(@Px sizePx: Int) : String = urlImageAccount(accountId = this.accountId, sizePX = sizePx)
 }

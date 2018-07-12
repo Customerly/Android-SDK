@@ -54,7 +54,7 @@ internal fun clySendError(@ErrorCode errorCode : Int, description : String, thro
     ClyApiRequest(
             endpoint = ENDPOINT_REPORT_CRASH,
             reportingErrorEnabled = false,
-            converter = {})
+            jsonObjectConverter = {})
             .p(key = "error_code", value = errorCode)
             .p(key = "error_message", value = description)
             .p(key = "fullstacktrace", value = stacktraceDump)
