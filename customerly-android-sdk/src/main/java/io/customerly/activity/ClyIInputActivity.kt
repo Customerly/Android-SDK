@@ -21,7 +21,9 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
@@ -30,6 +32,7 @@ import android.support.annotation.UiThread
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.widget.ImageViewCompat
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -144,6 +147,12 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         this.inputInput = this.findViewById(R.id.io_customerly__input_edit_text)
         this.inputLayout = this.findViewById(R.id.io_customerly__input_layout)
         this.inputAttachments = this.findViewById(R.id.io_customerly__input_attachments)
+        val tintColor = Customerly.lastPing.widgetColor.let { widgetColor ->
+            this.inputLayout?.setBackgroundColor(widgetColor)
+            widgetColor.getContrastBW()
+        }
+        this.inputInput?.setTextColor(tintColor)
+        this.inputInput?.setHintTextColor(tintColor)
 
         this.mustShowBack = this.intent.getBooleanExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, false)
         if (actionBar != null) {
@@ -188,7 +197,9 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             poweredBy.visibility = View.GONE
         }
 
-        this.findViewById<View>(R.id.io_customerly__input_button_attach).also {
+        this.findViewById<ImageView>(R.id.io_customerly__input_button_attach).also {
+            ImageViewCompat.setImageTintMode(it, PorterDuff.Mode.SRC_ATOP)
+            ImageViewCompat.setImageTintList(it, ColorStateList.valueOf(tintColor))
             if (Customerly.isAttachmentsAvailable) {
                 it.setOnClickListener(this.attachButtonListener)
             } else {
@@ -196,20 +207,25 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             }
         }
 
-        this.findViewById<View>(R.id.io_customerly__input_button_send).setOnClickListener { btn ->
-            if (btn.context.checkConnection()) {
-                (btn.activity as? ClyIInputActivity)?.let { inputActivity ->
-                    val content = inputActivity.inputInput?.text?.toString()?.trim { it <= ' ' } ?: ""
-                    val attachmentsArray = inputActivity.attachments.toTypedArray()
-                    if (content.isNotEmpty() || attachmentsArray.isNotEmpty()) {
-                        inputActivity.inputInput?.text = null
-                        inputActivity.attachments.clear()
-                        inputActivity.inputAttachments?.removeAllViews()
-                        inputActivity.onSendMessage(content = content, attachments = attachmentsArray)
+        this.findViewById<ImageView>(R.id.io_customerly__input_button_send).apply {
+            ImageViewCompat.setImageTintMode(this, PorterDuff.Mode.SRC_ATOP)
+            ImageViewCompat.setImageTintList(this, ColorStateList.valueOf(tintColor))
+            this.setOnClickListener { btn ->
+                if (btn.context.checkConnection()) {
+                    (btn.activity as? ClyIInputActivity)?.let { inputActivity ->
+                        val content = inputActivity.inputInput?.text?.toString()?.trim { it <= ' ' }
+                                ?: ""
+                        val attachmentsArray = inputActivity.attachments.toTypedArray()
+                        if (content.isNotEmpty() || attachmentsArray.isNotEmpty()) {
+                            inputActivity.inputInput?.text = null
+                            inputActivity.attachments.clear()
+                            inputActivity.inputAttachments?.removeAllViews()
+                            inputActivity.onSendMessage(content = content, attachments = attachmentsArray)
+                        }
                     }
+                } else {
+                    Toast.makeText(btn.context.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(btn.context.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -245,7 +261,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     }
 
     @UiThread
-    protected abstract fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String? = null)
+    protected abstract fun onSendMessage(content: String, attachments: Array<ClyAttachment>)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

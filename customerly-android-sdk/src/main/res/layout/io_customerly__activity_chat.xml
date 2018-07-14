@@ -36,14 +36,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:orientation="horizontal"
-                android:gravity="center_vertical" >
+                android:gravity="center_vertical"
+                android:animateLayoutChanges="true" >
 
                 <ImageView android:id="@id/io_customerly__icon"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:scaleType="fitCenter"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="10dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
                     tools:src="@drawable/io_customerly__ic_default_admin"

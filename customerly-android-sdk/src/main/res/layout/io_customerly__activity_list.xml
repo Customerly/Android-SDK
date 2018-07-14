@@ -56,7 +56,10 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginRight="30dp"
                     android:layout_marginEnd="30dp"
-                    android:padding="30dp"
+                    android:paddingLeft="30dp"
+                    android:paddingTop="30dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="98dp"
                     android:visibility="gone" >
 
                     <LinearLayout android:id="@id/io_customerly__layout_first_contact__admin_container"
@@ -100,7 +103,9 @@
             <android.support.v7.widget.RecyclerView android:id="@id/io_customerly__recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:overScrollMode="never" />
+                android:overScrollMode="never"
+                android:clipToPadding="false"
+                android:paddingBottom="68dp" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
@@ -110,96 +115,46 @@
             android:layout_gravity="bottom"
             android:background="@drawable/io_customerly__5dp_shadow_from_bottom" />
 
+        <LinearLayout android:id="@id/io_customerly__new_conversation_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible" >
+
+            <Button android:id="@id/io_customerly__new_conversation_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:paddingLeft="25dp"
+                android:paddingRight="25dp"
+                android:includeFontPadding="false"
+                android:textSize="15sp"
+                android:background="@drawable/io_customerly__button_viewaccent"
+                android:foreground="?attr/selectableItemBackground"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif"
+                tools:ignore="UnusedAttribute"
+                android:textAllCaps="false"
+                android:text="@string/io_customerly__start_a_new_conversation"/>
+
+        </LinearLayout>
+
     </FrameLayout>
 
-    <include layout="@layout/io_customerly__layout_input_layout" />
+    <include layout="@layout/io_customerly__layout_powered_by"
+        tools:visibility="visible" />
 
-    <LinearLayout android:id="@id/io_customerly__input_email_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:paddingBottom="5dp"
-        android:visibility="gone"  >
-
-        <EditText android:id="@id/io_customerly__input_email_edit_text"
-            android:theme="@style/io_customerly__EditText_ViewsAccent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingEnd="15dp"
-            android:paddingRight="15dp"
-            android:paddingStart="15dp"
-            android:paddingLeft="15dp"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
-            android:textColorHint="@color/io_customerly__hints_textcolor"
-            android:textColor="@color/io_customerly__dark_text"
-            android:fontFamily="sans-serif"
-            tools:ignore="UnusedAttribute"
-            android:inputType="textEmailAddress"
-            android:hint="@string/io_customerly__insert_your_email"
-            android:background="@android:color/transparent" />
-
-        <TextView android:id="@+id/io_customerly__input_privacy_policy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:padding="5dp"
-            android:textColor="#666666"
-            tools:text="@string/io_customerly__i_accept_the_privacy_policy"
-            android:visibility="gone" />
-
-        <Button android:id="@id/io_customerly__input_email_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2.5dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginRight="15dp"
-            android:minHeight="0dp"
-            android:paddingEnd="15dp"
-            android:paddingRight="15dp"
-            android:paddingStart="15dp"
-            android:paddingLeft="15dp"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp"
-            android:background="@drawable/io_customerly__button_viewaccent"
-            android:foreground="?attr/selectableItemBackground"
-            android:textColor="@android:color/white"
-            android:fontFamily="sans-serif"
-            tools:ignore="UnusedAttribute"
-            android:text="@string/io_customerly__start_the_conversation"/>
-
-    </LinearLayout>
-
-    <LinearLayout android:id="@id/io_customerly__new_conversation_layout"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:gravity="center_horizontal"
-        android:visibility="gone" >
-
-        <Button android:id="@id/io_customerly__new_conversation_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:minHeight="0dp"
-            android:gravity="center"
-            android:background="@drawable/io_customerly__button_viewaccent"
-            android:foreground="?attr/selectableItemBackground"
-            android:textColor="@android:color/white"
-            android:fontFamily="sans-serif"
-            tools:ignore="UnusedAttribute"
-            android:text="@string/io_customerly__start_a_new_conversation"/>
-
-    </LinearLayout>
-
-    <include layout="@layout/io_customerly__layout_powered_by" />
+    <include layout="@layout/io_customerly__layout_input_layout"
+        android:visibility="gone" />
 
 </LinearLayout>

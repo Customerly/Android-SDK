@@ -45,7 +45,7 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
             else -> {
                 when (position) {
                     this.itemCount - 1 -> {
-                        R.layout.io_customerly__li_chat_account_infos
+                        R.layout.io_customerly__li_bubble_account_infos
                     }
                     else -> {
                         val message = this.weakChatActivity.get()?.chatList?.get(index = listIndex)
@@ -69,43 +69,46 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
             R.layout.io_customerly__li_bubble_user -> ClyChatViewHolder.Bubble.Message.User(recyclerView = recyclerView)
             R.layout.io_customerly__li_bubble_account -> ClyChatViewHolder.Bubble.Message.Account(recyclerView = recyclerView)
             R.layout.io_customerly__li_bubble_bot -> ClyChatViewHolder.Bubble.Message.Bot(recyclerView = recyclerView)
-            R.layout.io_customerly__li_chat_account_infos -> ClyChatViewHolder.AccountInfos(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_account_infos -> ClyChatViewHolder.AccountInfos(recyclerView = recyclerView)
             else/* R.layout.io_customerly__li_message_account_rich */ -> ClyChatViewHolder.Bubble.Message.AccountRich(recyclerView = recyclerView)
         }
     }
 
     override fun onBindViewHolder(holder: ClyChatViewHolder, position: Int) {
         this.weakChatActivity.get()?.let { chatActivity ->
-            if(holder is ClyChatViewHolder.Bubble) {
-                val listIndex = this.position2listIndex(position = position)
-                val message: ClyMessage? = if (listIndex == -1) {
-                    null
-                } else {
-                    chatActivity.chatList[listIndex]
-                }
-                val previousMessage: ClyMessage? = if (listIndex == chatActivity.chatList.size - 1) {
-                    null
-                } else {
-                    chatActivity.chatList[listIndex + 1]
-                }
-                val isFirstMessageOfSender = when {
-                    previousMessage == null -> true
-                    message == null && !previousMessage.writer.isUser -> true
-                    message != null && message.writer != previousMessage.writer -> true
-                    else -> false
-                }
-                val dateToDisplay = if (message == null || previousMessage != null && message.isSentSameDay(of = previousMessage)) {
-                    null
-                } else {
-                    message.dateString
-                }
+            when (holder) {
+                is ClyChatViewHolder.Bubble -> {
+                    val listIndex = this.position2listIndex(position = position)
+                    val message: ClyMessage? = if (listIndex == -1) {
+                        null
+                    } else {
+                        chatActivity.chatList[listIndex]
+                    }
+                    val previousMessage: ClyMessage? = if (listIndex == chatActivity.chatList.size - 1) {
+                        null
+                    } else {
+                        chatActivity.chatList[listIndex + 1]
+                    }
+                    val isFirstMessageOfSender = when {
+                        previousMessage == null -> true
+                        message == null && !previousMessage.writer.isUser -> true
+                        message != null && message.writer != previousMessage.writer -> true
+                        else -> false
+                    }
+                    val dateToDisplay = if (message == null || previousMessage != null && message.isSentSameDay(of = previousMessage)) {
+                        null
+                    } else {
+                        message.dateString
+                    }
 
-                holder.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
-                holder.itemView.setPadding(0, if (isFirstMessageOfSender) 15.dp2px else 0, 0, if (listIndex <= 0 /* -1 is typing item */) 5.dp2px else 0)
-                //paddingTop = 15dp to every first message of the group
-                //paddingBottom = 5dp to the last message of the chat
-            } else if(holder is ClyChatViewHolder.AccountInfos) {
-
+                    holder.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
+                    holder.itemView.setPadding(0, if (isFirstMessageOfSender) 15.dp2px else 0, 0, if (listIndex <= 0 /* -1 is typing item */) 5.dp2px else 0)
+                    //paddingTop = 15dp to every first message of the group
+                    //paddingBottom = 5dp to the last message of the chat
+                }
+                is ClyChatViewHolder.AccountInfos -> {
+                    holder.apply(chatActivity = chatActivity)
+                }
             }
         }
     }

@@ -120,7 +120,7 @@ private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
 
 internal class ClyPingResponse(
         internal val minVersion: String = "0.0.0",
-        @ColorInt internal val widgetColor: Int = Customerly.widgetColorHardcoded ?: COLORINT_BLUE_MALIBU,
+        @ColorInt internal val widgetColor: Int = Customerly.widgetColorFallback,
         internal val widgetBackgroundUrl: String? = null,
         internal val privacyUrl: String? = null,
         internal val poweredBy: Boolean = true,

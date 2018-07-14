@@ -47,7 +47,7 @@ internal class ClyConversationViewHolder(recyclerView: RecyclerView)
             it.width = 50.dp2px
         }
         this.itemView.setOnClickListener { v ->
-            (v.activity as? ClyConversationsActivity)?.openConversationById(conversationId = this.conversationId, thenFinishCurrent = false)
+            (v.activity as? ClyConversationsActivity)?.openConversationById(conversationId = this.conversationId)
         }
     }
 

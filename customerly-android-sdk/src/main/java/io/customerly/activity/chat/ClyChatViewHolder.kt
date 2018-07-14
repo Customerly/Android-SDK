@@ -45,7 +45,7 @@ import io.customerly.entity.urlImageAccount
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.shortDateFomatter
-import kotlinx.android.synthetic.main.io_customerly__li_chat_account_infos.view.*
+import kotlinx.android.synthetic.main.io_customerly__li_bubble_account_infos.view.*
 import java.text.DecimalFormat
 import java.util.*
 
@@ -514,7 +514,7 @@ internal sealed class ClyChatViewHolder (
 
     }
 
-    internal class AccountInfos(recyclerView: RecyclerView) : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_chat_account_infos) {
+    internal class AccountInfos(recyclerView: RecyclerView) : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_infos) {
 
         fun apply(chatActivity: ClyChatActivity) {
             (

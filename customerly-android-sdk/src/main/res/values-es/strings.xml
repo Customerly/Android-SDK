@@ -29,7 +29,7 @@
   <string name="io_customerly__attach_file">Adjuntar archivo</string>
   <string name="io_customerly__insert_your_email">Pon tu correo electrónico</string>
   <string name="io_customerly__start_the_conversation">Iniciar la conversación</string>
-  <string name="io_customerly__start_a_new_conversation">Iniciar una nueva conversación</string>
+  <string name="io_customerly__start_a_new_conversation">Nueva conversación</string>
   <string name="io_customerly__install_a_file_manager">Primero debes instalar un Administrador de archivos</string>
   <string name="io_customerly__choose_a_file_to_attach">Elige un archivo para adjuntar</string>
   <string name="io_customerly__cancel_attachment">¿Deseas eliminar el archivo adjunto %s?</string>
@@ -68,5 +68,4 @@
   <string name="io_customerly__replytime_minutes">Team usually replies in some minutes.</string><!-- TODO loc es -->
   <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string><!-- TODO loc es -->
   <string name="io_customerly__replytime_day">Team usually replies in a day.</string><!-- TODO loc es -->
-  <string name="io_customerly__choose_a_date">Choose a date</string><!-- TODO loc es -->
 </resources>

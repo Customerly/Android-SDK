@@ -19,17 +19,13 @@ package io.customerly.activity.conversations
 import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Intent
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.support.annotation.UiThread
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
-import android.text.Editable
 import android.text.Spanned
-import android.text.TextWatcher
-import android.util.Patterns
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MenuItem
@@ -42,20 +38,19 @@ import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.activity.chat.startClyChatActivity
-import io.customerly.activity.startClyWebViewActivity
-import io.customerly.api.*
-import io.customerly.entity.*
+import io.customerly.api.ClyApiRequest
+import io.customerly.api.ClyApiResponse
+import io.customerly.api.ENDPOINT_CONVERSATION_RETRIEVE
+import io.customerly.api.ENDPOINT_MESSAGE_SEND
+import io.customerly.entity.ClyAdmin
 import io.customerly.entity.chat.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
-import io.customerly.utils.htmlformatter.spannedFromHtml
 import io.customerly.utils.playNotifSound
 import io.customerly.utils.ui.RVDIVIDER_V_BOTTOM
 import io.customerly.utils.ui.RvDividerDecoration
 import kotlinx.android.synthetic.main.io_customerly__activity_list.*
 import org.json.JSONObject
-import java.util.Locale
-import kotlin.collections.ArrayList
 
 /**
  * Created by Gianni on 03/09/16.
@@ -110,13 +105,8 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 it.adapter = ClyConversationsAdapter(conversationsActivity = this)
             }
 
-            this.inputLayout?.visibility = View.GONE
             this.io_customerly__new_conversation_button.setOnClickListener {
-                (it.activity as? ClyConversationsActivity)?.let { activity ->
-                    activity.io_customerly__new_conversation_layout.visibility = View.GONE
-                    activity.restoreAttachments()
-                    activity.inputLayout?.visibility = View.VISIBLE
-                }
+                (it.activity as? ClyConversationsActivity)?.startClyChatActivity(conversationId = 0, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
             }
 
             this.io_customerly__recycler_view_swipe_refresh.setOnRefreshListener(this.onRefreshListener)
@@ -159,15 +149,6 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         this.finish()
     }
 
-    override fun onBackPressed() {
-        if (this.io_customerly__input_email_layout?.visibility == View.VISIBLE) {
-            this.io_customerly__input_email_layout?.visibility = View.GONE
-            this.inputLayout?.visibility = View.VISIBLE
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     override fun onReconnection() {
         this.io_customerly__recycler_view_swipe_refresh.isRefreshing = true
         this.io_customerly__first_contact_swipe_refresh.isRefreshing = true
@@ -188,7 +169,6 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             this.conversationsList = conversationsList
             this.io_customerly__recycler_view.adapter.notifyDataSetChanged()
             this.inputLayout?.visibility = View.GONE
-            this.io_customerly__input_email_layout.visibility = View.GONE
             this.io_customerly__new_conversation_layout.visibility = View.VISIBLE
             this.io_customerly__recycler_view_swipe_refresh.visibility = View.VISIBLE
             this.io_customerly__recycler_view_swipe_refresh.isRefreshing = false
@@ -196,7 +176,6 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         } else {//Layout first contact
             this.conversationsList.clear()
             this.io_customerly__recycler_view_swipe_refresh.visibility = View.GONE
-            this.io_customerly__input_email_layout.visibility = View.GONE
             this.io_customerly__new_conversation_layout.visibility = View.GONE
             this.restoreAttachments()
             this.inputLayout?.visibility = View.VISIBLE
@@ -272,85 +251,12 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
     }
 
-    override fun onSendMessage(content: String, attachments: Array<ClyAttachment>, ghostToVisitorEmail: String?) {
-        val weakActivity = this.weak()
+    override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
         if(Customerly.jwtToken?.isAnonymous != false) {
-            if(ghostToVisitorEmail == null) {
-                this.inputLayout?.visibility = View.GONE
-
-                (Customerly.lastPing.privacyUrl?.let { privacyUrl ->
-                    this.io_customerly__input_privacy_policy.also { policy ->
-                        policy.setOnClickListener {
-                            it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
-                        }
-                        policy.text = spannedFromHtml(source = this.getString(R.string.io_customerly__i_accept_the_privacy_policy))
-                    }
-                    2.5f.dp2px.toInt() to View.VISIBLE
-                } ?: 10.dp2px to View.GONE).let { (topMargin, visibility) ->
-                    (this.io_customerly__input_email_button.layoutParams as? LinearLayout.LayoutParams)?.topMargin = topMargin
-                    this.io_customerly__input_privacy_policy.visibility = visibility
-                }
-
-                this.io_customerly__input_email_layout.visibility = View.VISIBLE
-
-                this.io_customerly__input_email_edit_text.requestFocus()
-                this.io_customerly__input_email_button.setOnClickListener { _ ->
-                    weakActivity.get()?.let { activity ->
-                        val emailEt = activity.io_customerly__input_email_edit_text
-                        val email = emailEt.text.toString().trim().toLowerCase(Locale.ITALY)
-                        if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                            activity.io_customerly__input_email_layout.visibility = View.GONE
-                            emailEt.text = null
-                            activity.inputLayout?.visibility = View.VISIBLE
-                            activity.onSendMessage(content = content, attachments = attachments, ghostToVisitorEmail = email)
-                        } else {
-                            if (emailEt.tag == null) {
-                                emailEt.tag = Unit
-                                val originalColor = emailEt.textColors.defaultColor
-                                emailEt.setTextColor(Color.RED)
-                                emailEt.addTextChangedListener(object : TextWatcher {
-                                    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                                    override fun afterTextChanged(s: Editable) {}
-                                    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                                        weakActivity.get()?.io_customerly__input_email_edit_text?.also {
-                                            it.setTextColor(originalColor)
-                                            it.removeTextChangedListener(this)
-                                            it.tag = null
-                                        }
-                                    }
-                                })
-                            }
-                        }
-                    }
-                }
-            } else {
-                //TODO Replace deprecated ProgressDialog
-                val progressDialog = ProgressDialog.show(this, this.getString(R.string.io_customerly__new_conversation), this.getString(R.string.io_customerly__sending_message), true, false)
-
-                ClyApiRequest(
-                        context = this,
-                        endpoint = ENDPOINT_PING,
-                        jsonObjectConverter = { Unit },
-                        callback = { response ->
-                            when(response) {
-                                is ClyApiResponse.Success -> {
-                                    weakActivity.get()?.doLeadUserSendMessage(progressDialog = progressDialog, content = content, attachments = attachments, thenFinishCurrent = true)
-                                }
-                                is ClyApiResponse.Failure -> {
-                                    progressDialog.ignoreException { it.dismiss() }
-                                    weakActivity.get()?.also { activity ->
-                                        activity.inputInput?.setText(content)
-                                        attachments.forEach { it.addAttachmentToInput(inputActivity = activity) }
-                                        Toast.makeText(activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                        })
-                        .p(key = "lead_email", value = ghostToVisitorEmail)
-                        .start()
-            }
+            this.startClyChatActivity(conversationId = 0, messageContent = content, attachments = attachments.toList().toArrayList(), mustShowBack = false, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+            this.finish()
         } else {
-            this.doLeadUserSendMessage(content = content, attachments = attachments, thenFinishCurrent = ghostToVisitorEmail != null)
+            this.doLeadUserSendMessage(content = content, attachments = attachments)
         }
     }
 
@@ -363,8 +269,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     true,
                     false),
             content: String,
-            attachments: Array<ClyAttachment>,
-            thenFinishCurrent: Boolean) {
+            attachments: Array<ClyAttachment>) {
 
         val weakActivity = this.weak()
         ClyApiRequest(
@@ -385,7 +290,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     weakActivity.get()?.also { activity ->
                         when {
                             response is ClyApiResponse.Success && response.result != -1L -> {
-                                activity.openConversationById(conversationId = response.result, thenFinishCurrent = thenFinishCurrent)
+                                activity.openConversationById(conversationId = response.result)
                             }
                             else/* response is ClyApiResponse.Success && response.result == -1L || response is ClyApiResponse.Failure */ -> {
                                 activity.inputInput?.setText(content)
@@ -413,12 +318,9 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
     }
 
-    internal fun openConversationById(conversationId: Long, thenFinishCurrent: Boolean = false) {
+    internal fun openConversationById(conversationId: Long) {
         if(conversationId != 0L && this.checkConnection()) {
-            this.startClyChatActivity(conversationId = conversationId, mustShowBack = !thenFinishCurrent, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
-            if(thenFinishCurrent) {
-                this.finish()
-            }
+            this.startClyChatActivity(conversationId = conversationId, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
         } else {
             Toast.makeText(this.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
         }

@@ -67,7 +67,7 @@
     <string name="io_customerly__attach_file">Attach file</string>
     <string name="io_customerly__insert_your_email">Insert your email</string>
     <string name="io_customerly__start_the_conversation">Start the conversation</string>
-    <string name="io_customerly__start_a_new_conversation">Start a new conversation</string>
+    <string name="io_customerly__start_a_new_conversation">New conversation</string>
     <string name="io_customerly__install_a_file_manager">You need to install a File Manager first</string>
     <string name="io_customerly__choose_a_file_to_attach">Choose an attachment file</string>
     <string name="io_customerly__cancel_attachment">Do you want to remove the attachment %s?</string>
@@ -106,6 +106,5 @@
     <string name="io_customerly__replytime_minutes">Team usually replies in some minutes.</string>
     <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string>
     <string name="io_customerly__replytime_day">Team usually replies in a day.</string>
-    <string name="io_customerly__choose_a_date">Choose a date</string>
 
 </resources>

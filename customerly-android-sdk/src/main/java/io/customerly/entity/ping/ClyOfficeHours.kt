@@ -40,6 +40,9 @@ internal data class ClyOfficeHours(
 
     private val startTimeString: String = (this.startTime + offsetTimeZone).toHoursMinsString
 
+    /**
+     * True if this timetable is active today
+     */
     private fun isToday(now: Calendar = Calendar.getInstance()): Boolean {
         return if(this.period == PERIOD_EVERYDAY) {
             true
@@ -50,6 +53,7 @@ internal data class ClyOfficeHours(
                 Calendar.WEDNESDAY -> this.period == PERIOD_WEEKDAYS || this.period == PERIOD_WEDNESDAY
                 Calendar.THURSDAY -> this.period == PERIOD_WEEKDAYS || this.period == PERIOD_THURSDAY
                 Calendar.FRIDAY -> this.period == PERIOD_WEEKDAYS || this.period == PERIOD_FRIDAY
+
                 Calendar.SATURDAY -> this.period == PERIOD_WEEKENDS || this.period == PERIOD_SATURDAY
                 Calendar.SUNDAY -> this.period == PERIOD_WEEKENDS || this.period == PERIOD_SUNDAY
                 else -> false
@@ -57,6 +61,9 @@ internal data class ClyOfficeHours(
         }
     }
 
+    /**
+     * True if we are inside this timetable
+     */
     private fun isNowIn(now: Calendar = Calendar.getInstance()): Boolean {
         return if(this.isToday(now = now)) {
             @STimestamp val nowTimeSinceStartDay = (now.timeInMillis / 1000) % 1.days_s
@@ -66,19 +73,38 @@ internal data class ClyOfficeHours(
         }
     }
 
+    /**
+     * Calcola fra quanti secondi inizia l'orario, 0 se siamo attualmente in questo orario
+     */
     internal fun getNearestFactor(now: Calendar = Calendar.getInstance()): Long {
         return if(this.isNowIn(now = now)) {
             0
         } else {
             @STimestamp val nowTimeSinceStartDay = (now.timeInMillis / 1000) % 1.days_s
+
             var dayOfWeek: Int = now.get(Calendar.DAY_OF_WEEK)
-            var offset = 0
+            val offset: Int
             if(nowTimeSinceStartDay > this.startTime) {
-                dayOfWeek++
-                offset++
+                /*
+                Se ho già superato l'orario allora effettuo i calcoli successivi come se fosse già domani.
+                offset = memorizza che ho traslato i calcoli di un giorno per poter effettuare la correzione
+                 */
+                dayOfWeek = when(dayOfWeek) {
+                    Calendar.MONDAY ->  Calendar.TUESDAY
+                    Calendar.TUESDAY ->  Calendar.WEDNESDAY
+                    Calendar.WEDNESDAY ->  Calendar.THURSDAY
+                    Calendar.THURSDAY ->  Calendar.FRIDAY
+                    Calendar.FRIDAY ->  Calendar.SATURDAY
+                    Calendar.SATURDAY ->  Calendar.SUNDAY
+                    Calendar.SUNDAY -> Calendar.MONDAY
+                    else -> dayOfWeek
+                }
+                offset = 1
+            } else {
+                offset = 0
             }
 
-            offset + when(dayOfWeek) {
+            (offset + when(dayOfWeek) {
                 Calendar.MONDAY -> {
                     when(this.period) {
                         PERIOD_EVERYDAY, PERIOD_WEEKDAYS, PERIOD_MONDAY -> 0
@@ -89,7 +115,7 @@ internal data class ClyOfficeHours(
                         PERIOD_WEEKENDS, PERIOD_SATURDAY -> 5
                         PERIOD_SUNDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 Calendar.TUESDAY -> {
                     when(this.period) {
@@ -101,7 +127,7 @@ internal data class ClyOfficeHours(
                         PERIOD_SUNDAY -> 5
                         PERIOD_MONDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 Calendar.WEDNESDAY -> {
                     when(this.period) {
@@ -113,7 +139,7 @@ internal data class ClyOfficeHours(
                         PERIOD_MONDAY -> 5
                         PERIOD_TUESDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 Calendar.THURSDAY -> {
                     when(this.period) {
@@ -125,7 +151,7 @@ internal data class ClyOfficeHours(
                         PERIOD_TUESDAY -> 5
                         PERIOD_WEDNESDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 Calendar.FRIDAY -> {
                     when(this.period) {
@@ -137,7 +163,7 @@ internal data class ClyOfficeHours(
                         PERIOD_WEDNESDAY -> 5
                         PERIOD_THURSDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 Calendar.SATURDAY -> {
                     when(this.period) {
@@ -149,7 +175,7 @@ internal data class ClyOfficeHours(
                         PERIOD_THURSDAY -> 5
                         PERIOD_FRIDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 Calendar.SUNDAY -> {
                     when(this.period) {
@@ -161,10 +187,10 @@ internal data class ClyOfficeHours(
                         PERIOD_FRIDAY -> 5
                         PERIOD_SATURDAY -> 6
                         else -> 99999
-                    } + this.startTime - nowTimeSinceStartDay
+                    }
                 }
                 else -> 99999
-            }
+            }).days_s + this.startTime - nowTimeSinceStartDay
         }
     }
 
@@ -174,10 +200,25 @@ internal data class ClyOfficeHours(
         } else {
             @STimestamp val nowTimeSinceStartDay = (now.timeInMillis / 1000) % 1.days_s
             var dayOfWeek: Int = now.get(Calendar.DAY_OF_WEEK)
-            var offset = 0
+            val offset: Int
             if(nowTimeSinceStartDay > this.startTime) {
-                dayOfWeek++
-                offset++
+                /*
+                Se ho già superato l'orario allora effettuo i calcoli successivi come se fosse già domani.
+                offset = memorizza che ho traslato i calcoli di un giorno per poter scegliere la stringa giusta da mostrare (tomorrow)
+                 */
+                dayOfWeek = when(dayOfWeek) {
+                    Calendar.MONDAY ->  Calendar.TUESDAY
+                    Calendar.TUESDAY ->  Calendar.WEDNESDAY
+                    Calendar.WEDNESDAY ->  Calendar.THURSDAY
+                    Calendar.THURSDAY ->  Calendar.FRIDAY
+                    Calendar.FRIDAY ->  Calendar.SATURDAY
+                    Calendar.SATURDAY ->  Calendar.SUNDAY
+                    Calendar.SUNDAY -> Calendar.MONDAY
+                    else -> dayOfWeek
+                }
+                offset = 1
+            } else {
+                offset = 0
             }
 
             when(dayOfWeek) {

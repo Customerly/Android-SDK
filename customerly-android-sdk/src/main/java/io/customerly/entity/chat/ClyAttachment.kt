@@ -17,20 +17,26 @@ package io.customerly.entity.chat
  */
 
 import android.content.Context
+import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Parcelable
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.util.Base64
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
+import io.customerly.utils.getContrastBW
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.getFileName
 import io.customerly.utils.ggkext.getTyped
+import kotlinx.android.parcel.Parcelize
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -68,12 +74,13 @@ internal fun Array<ClyAttachment>?.toJSON(context: Context): JSONArray {
     return array
 }
 
+@Parcelize
 internal class ClyAttachment internal constructor(
         internal val uri : Uri?,
         internal val name : String,
         internal var path : String? = null,
-        private var base64 : String? = null
-){
+        @field:Transient private var base64 : String? = null
+): Parcelable {
 
     internal constructor(context: Context, uri: Uri): this(uri = uri, name = uri.getFileName(context = context))
 
@@ -114,13 +121,18 @@ internal class ClyAttachment internal constructor(
     }
 
     internal fun addAttachmentToInput(inputActivity: ClyIInputActivity) {
+        val tintColor = Customerly.lastPing.widgetColor.getContrastBW()
         inputActivity.attachments.add(this)
         val tv = TextView(inputActivity)
         tv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.io_customerly__ld_chat_attachment, 0, 0, 0)
-        tv.compoundDrawablePadding = 5.dp2px
+        ContextCompat.getDrawable(tv.context, R.drawable.io_customerly__ld_chat_attachment)?.apply {
+            DrawableCompat.setTintMode(this, PorterDuff.Mode.SRC_ATOP)
+            DrawableCompat.setTint(this, tintColor)
+            tv.setCompoundDrawablesWithIntrinsicBounds(this, null, null, null)
+            tv.compoundDrawablePadding = 5.dp2px
+        }
         tv.setPadding(5.dp2px, 0, 0, 0)
-        tv.setTextColor(ContextCompat.getColorStateList(inputActivity, R.color.io_customerly__textcolor_malibu_grey))
+        tv.setTextColor(tintColor)
         tv.setLines(1)
         tv.setSingleLine()
         tv.ellipsize = TextUtils.TruncateAt.MIDDLE

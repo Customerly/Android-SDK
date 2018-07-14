@@ -361,8 +361,8 @@ object Customerly {
     }
 
     /**
-    * Set to false to disable the attachment button in the chats.
-    * Is enabled by default
+    * Set to false to disable the attachment button inside the chat.
+    * It is enabled by default
     */
     @JvmStatic
     fun setAttachmentsAvailable(enabled: Boolean) {
