@@ -19,4 +19,7 @@
     <dimen name="io_customerly__chat_li_margin_icon_screen_border">10dp</dimen>
     <dimen name="io_customerly__chat_li_margin_bubble_screen_border">45dp</dimen>
     <dimen name="io_customerly__dialog_fragment_survey_header_height">30dp</dimen>
+    <dimen name="io_customerly__bubble_max_width">600dp</dimen>
+    <dimen name="io_customerly__bubble_max_width_half">300dp</dimen>
+    <dimen name="io_customerly__bubble_max_minus40dp">560dp</dimen>
 </resources>

@@ -36,11 +36,9 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
     return try {
         val minVersion = this.optTyped(name = "min-version-android", fallback = "0.0.0")
         val activeAdmins = this.optArray<JSONObject, ClyAdmin>(name = "active_admins", map = { it.parseAdmin() })
-        val userProfilingForms = this.optArray<JSONObject, ClyProfilingForm>(name = "user_profiling_forms", map = { it.parseProfilingForm() })?.apply { this.sortBy { it.id } }
-        val appStates = this.getTyped<JSONObject>("app_states").asValuesSequence().mapNotNull { (it as? JSONObject)?.parseAppState() }.toList().toTypedArray()
         val lastSurveys = this.optArray<JSONObject, ClySurvey>(name = "last_surveys", map = { it.parseSurvey() })
         val lastMessages = this.optArray<JSONObject, ClyMessage>(name = "last_messages", map = { it.nullOnException { it.parseMessage() } })
-        val userDataAttributes = this.optTyped<JSONObject>("user")?.parseUserDataAttributes()
+
         this.optTyped<JSONObject>(name = "app_config")?.let { appConfig ->
             @ColorInt val widgetColor: Int = Customerly.widgetColorHardcoded ?: appConfig.optTyped<String>(name = "widget_color")?.takeIf { it.isNotEmpty() }?.let {
                     when {
@@ -56,6 +54,26 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     }
                 } ?: COLORINT_BLUE_MALIBU
 
+            val nextFormDetails: ClyFormDetails?
+            if(appConfig.optTyped(name = "user_profiling_form_enabled", fallback = 0) == 1) {
+
+                val appStates:JSONObject? = this.optTyped<JSONObject>("app_states")
+                val userDataAttributes = this.optTyped<JSONObject>("user")?.parseUserDataAttributes()
+
+                nextFormDetails = this.optArray<JSONObject, ClyProfilingForm>(name = "user_profiling_forms", map = { it.parseProfilingForm() })
+                        ?.apply { this.sortBy { it.id } }
+                        ?.asSequence()
+                        ?.mapNotNull { form ->
+                            if(userDataAttributes?.needFormProfiling(form) != false) {
+                                appStates?.optJSONObject(form.appStateName)?.parseAppState()
+                            } else {
+                                null
+                            }
+                        }?.firstOrNull()
+            } else {
+                nextFormDetails = null
+            }
+
             ClyPingResponse(
                     minVersion = minVersion,
                     widgetColor = widgetColor,
@@ -64,24 +82,18 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     poweredBy = appConfig.optTyped(name = "powered_by", fallback = 0L) == 1L,
                     welcomeMessageUsers = appConfig.optTyped(name = "welcome_message_users"),
                     welcomeMessageVisitors = appConfig.optTyped(name = "welcome_message_visitors"),
-                    userProfilingFormEnabled = appConfig.optTyped(name = "user_profiling_form_enabled", fallback = 0) == 1,
-                    userProfilingForms = userProfilingForms,
-                    appStates = appStates,
+                    nextFormDetails = nextFormDetails,
                     officeHours = appConfig.optArray<JSONObject, ClyOfficeHours>(name = "office_hours", map = { it.parseOfficeHours() }),
                     replyTime = appConfig.optTyped(name = "reply_time", fallback = 0).toClyReplyTime,
                     activeAdmins = activeAdmins,
                     lastSurveys = lastSurveys,
-                    lastMessages = lastMessages,
-                    userDataAttributes = userDataAttributes)
+                    lastMessages = lastMessages)
 
         } ?: ClyPingResponse(
                 minVersion = minVersion,
                 activeAdmins = activeAdmins,
                 lastSurveys = lastSurveys,
-                lastMessages = lastMessages,
-                userProfilingForms = userProfilingForms,
-                appStates = appStates,
-                userDataAttributes = userDataAttributes)
+                lastMessages = lastMessages)
     } catch (wrongJson: JSONException) {
         ClyPingResponse()
     }
@@ -126,15 +138,12 @@ internal class ClyPingResponse(
         internal val poweredBy: Boolean = true,
         internal val welcomeMessageUsers: String? = null,
         internal val welcomeMessageVisitors:String? = null,
-        internal val userProfilingFormEnabled:Boolean = false,
         internal val activeAdmins: Array<ClyAdmin>? = null,
         internal val lastSurveys: Array<ClySurvey>? = null,
         internal val lastMessages: Array<ClyMessage>? = null,
+        internal val nextFormDetails: ClyFormDetails? = null,
         internal val officeHours: Array<ClyOfficeHours>? = null,
-        internal val replyTime: ClyReplyTime? = null,
-        internal val userProfilingForms: Array<ClyProfilingForm>? = null,
-        internal val appStates: Array<ClyFormDetails>? = null,
-        internal val userDataAttributes: ClyUserDataAttributes? = null) {
+        internal val replyTime: ClyReplyTime? = null) {
 
     init {
         Customerly.preferences?.lastPingStore(lastPing = this)
@@ -168,20 +177,6 @@ internal class ClyPingResponse(
             }
         } else {
             false
-        }
-    }
-    
-    internal fun tryProfilingForm(): ClyFormDetails? {
-        return if(this.userProfilingFormEnabled) {
-            this.userProfilingForms?.asSequence()?.mapNotNull { form ->
-                if(this.userDataAttributes?.needFormProfiling(form) != false) {
-                    this.appStates?.firstOrNull { state -> state.attributeName == form.appStateName }
-                } else {
-                    null
-                }
-            }?.firstOrNull()
-        } else {
-            null
         }
     }
 }

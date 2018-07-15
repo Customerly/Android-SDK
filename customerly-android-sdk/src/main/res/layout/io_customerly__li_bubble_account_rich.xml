@@ -69,6 +69,7 @@
         <TextView android:id="@id/io_customerly__content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="@dimen/io_customerly__bubble_max_minus40dp"
             android:textColor="@color/io_customerly__bubble_account_textcolor"
             android:textSize="15sp"
             android:fontFamily="sans-serif"

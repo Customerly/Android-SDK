@@ -87,8 +87,6 @@ object Customerly {
         Customerly.configured = true
 
         Customerly.ping()
-
-        Customerly.getAccountDetails()
     }
 
 
@@ -458,7 +456,7 @@ object Customerly {
 
     internal val clySocket = ClySocket()
 
-    internal var adminsFullDetails: Array<ClyAdminFull>? = null
+    private var adminsFullDetails: Array<ClyAdminFull>? = null
 
     internal var isAttachmentsAvailable: Boolean = true
 
@@ -625,8 +623,10 @@ object Customerly {
         }
     }
 
-    private fun getAccountDetails() {
-        Customerly.checkConfigured(ok = {
+    internal fun getAccountDetails(callback: (Array<ClyAdminFull>?)->Unit) {
+        Customerly.adminsFullDetails?.apply {
+            callback(this)
+        } ?: Customerly.checkConfigured(ok = {
             ClyApiRequest(
                     endpoint = ENDPOINT_ACCOUNT_DETAILS,
                     requireToken = true,
@@ -637,8 +637,11 @@ object Customerly {
                         when(it) {
                             is ClyApiResponse.Success -> {
                                 Customerly.adminsFullDetails = it.result
+                                callback(it.result)
                             }
-                            is ClyApiResponse.Failure -> { }
+                            is ClyApiResponse.Failure -> {
+                                callback(null)
+                            }
                         }
                     })
                     .start()

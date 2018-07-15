@@ -85,6 +85,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"
             android:autoLink="all"
+            android:maxWidth="@dimen/io_customerly__bubble_max_width"
             android:fontFamily="sans-serif"
             tools:ignore="UnusedAttribute"
             android:drawablePadding="5dp" />

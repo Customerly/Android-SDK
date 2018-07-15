@@ -142,11 +142,11 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                                             llm.scrollToPosition(scrollToLastUnread)
                                                         }
                                                     }
-                                                    activity.io_customerly__recycler_view.adapter?.let { adapter ->
+                                                    (activity.io_customerly__recycler_view.adapter as? ClyChatAdapter)?.let { adapter ->
                                                         if (previousSize != 0) {
-                                                            adapter.notifyItemChanged(previousSize - 1)
+                                                            adapter.notifyItemChanged(adapter.listIndex2position(previousSize - 1))
                                                         }
-                                                        adapter.notifyItemRangeInserted(previousSize, addedMessagesCount)
+                                                        adapter.notifyItemRangeInserted(adapter.listIndex2position(previousSize), adapter.listIndex2position(addedMessagesCount))
                                                     }
                                                 }
 
@@ -509,7 +509,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     internal fun tryLoadForm() {
         if(this.chatList.asSequence().none { it is ClyMessage.BotProfilingForm && !it.form.answerConfirmed}) {
-            Customerly.lastPing.tryProfilingForm()?.also { form ->
+            Customerly.lastPing.nextFormDetails?.also { form ->
                 this.conversationId?.also { conversationId ->
                     this.addMessageAt0(message = ClyMessage.BotProfilingForm(conversationId = conversationId, form = form))
                 }
@@ -532,12 +532,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     @UiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {
-        val newChatList = ArrayList(this.chatList)
-        messages
-                .asSequence()
-                .filter { it.conversationId == this.conversationId && !newChatList.contains(it) }
-                .forEach { newChatList.add(it) }
-
         messages
                 .asSequence()
                 .lastOrNull { it.conversationId != this.conversationId}
@@ -546,6 +540,12 @@ internal class ClyChatActivity : ClyIInputActivity() {
                         this.showClyAlertMessage(message = otherConversationMessage)
                     } catch (exception : WindowManager.BadTokenException) { }
                 }
+
+        val newChatList = ArrayList(this.chatList)
+        messages
+                .asSequence()
+                .filter { it.conversationId == this.conversationId && !newChatList.contains(it) }
+                .forEach { newChatList.add(it) }
 
         newChatList.sortByDescending { it.id }//Sorting by conversation_message_id DESC
 
@@ -567,19 +567,27 @@ internal class ClyChatActivity : ClyIInputActivity() {
     /**
      * Returns true if the account card need a redraw
      */
-    private fun setNewChatList(newChatList: ArrayList<ClyMessage>): Boolean {
+    private fun setNewChatList(newChatList: ArrayList<ClyMessage>) {
         this.chatList = newChatList
-        return if(this.conversationFullAdmin == null) {
+        if(this.conversationFullAdmin == null) {
             newChatList.firstOrNull { it.writer.isAccount }?.writer?.id?.let { lastAccountId ->
-                Customerly.adminsFullDetails?.firstOrNull { it.accountId == lastAccountId }
-            }?.let { conversationFullAdmin ->
-                this.conversationFullAdmin = conversationFullAdmin
-                true
-            }.also {
-                this.updateActivityTitleBar(accountInfos = true)
-            } ?: false
-        } else {
-            false
+
+                Customerly.getAccountDetails { adminsFullDetails ->
+                    val notifyRedrawAccountCard: Boolean = adminsFullDetails?.firstOrNull { it.accountId == lastAccountId }?.let {
+                        this.conversationFullAdmin = it
+                        true
+                    } ?: false
+
+                    this.updateActivityTitleBar(accountInfos = true)
+
+                    if (notifyRedrawAccountCard) {
+                        (this.io_customerly__recycler_view.adapter as? ClyChatAdapter)?.also { adapter ->
+                            adapter.notifyItemChanged(adapter.itemCount - 1)
+                        }
+                    }
+
+                }
+            }
         }
     }
 
@@ -629,7 +637,11 @@ internal class ClyChatActivity : ClyIInputActivity() {
     }
 
     fun notifyItemChangedInList(message: ClyMessage) {
-        this.chatList.indexOf(message).takeIf { it != -1 }?.also { this.io_customerly__recycler_view.adapter?.notifyItemChanged(it) }
+        this.chatList.indexOf(message).takeIf { it != -1 }?.also { listIndex ->
+            (this.io_customerly__recycler_view.adapter as? ClyChatAdapter)?.also { adapter ->
+                adapter.notifyItemChanged(adapter.listIndex2position(listIndex))
+            }
+        }
     }
 
 }

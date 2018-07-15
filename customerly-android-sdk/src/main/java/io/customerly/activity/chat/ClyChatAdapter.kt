@@ -33,9 +33,14 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
 
     private val weakChatActivity = chatActivity.weak()
 
-    private fun position2listIndex(position: Int) = when {
+    internal fun position2listIndex(position: Int) = when {
         this.weakChatActivity.get()?.typingAccountId != TYPING_NO_ONE -> position - 1
         else -> position
+    }
+
+    internal fun listIndex2position(listIndex: Int) = when {
+        this.weakChatActivity.get()?.typingAccountId != TYPING_NO_ONE -> listIndex + 1
+        else -> listIndex
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -117,4 +122,6 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
             = 1 + (this.weakChatActivity.get()?.let { it.chatList.size + if (it.typingAccountId == TYPING_NO_ONE) { 0 } else { 1 } } ?: 0)
 
     override fun onViewDetachedFromWindow(holder: ClyChatViewHolder) { holder.itemView.clearAnimation() }
+
+
 }
