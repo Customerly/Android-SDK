@@ -117,8 +117,8 @@
 
     </FrameLayout>
 
-    <include layout="@layout/io_customerly__layout_input_layout" />
-
     <include layout="@layout/io_customerly__layout_powered_by" />
+
+    <include layout="@layout/io_customerly__layout_input_layout" />
 
 </LinearLayout>

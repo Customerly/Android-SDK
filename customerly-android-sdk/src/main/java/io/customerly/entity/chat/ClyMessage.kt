@@ -50,11 +50,14 @@ import kotlin.collections.ArrayList
 private val TIME_FORMATTER = SimpleDateFormat("HH:mm", Locale.getDefault())
 private val DATE_FORMATTER = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG)
 
+internal const val MESSAGE_CONVERSATIONID_UNKNOWN = -1L
+
 private const val CSTATE_COMPLETED = 1
 private const val CSTATE_SENDING = 0
 private const val CSTATE_FAILED = -1
+private const val CSTATE_PENDING = -2
 
-@IntDef(CSTATE_COMPLETED, CSTATE_FAILED, CSTATE_SENDING)
+@IntDef(CSTATE_COMPLETED, CSTATE_FAILED, CSTATE_SENDING, CSTATE_PENDING)
 @Retention(AnnotationRetention.SOURCE)
 private annotation class CState
 
@@ -65,7 +68,7 @@ internal fun JSONObject.parseMessage() : ClyMessage {
             writerAccountId = this.optTyped(name = "account_id", fallback = 0L),
             writerAccountName = this.optTyped<JSONObject>(name = "account")?.optTyped(name = "name"),
             id = this.optTyped(name = "conversation_message_id", fallback = 0L),
-            conversationId = this.optTyped(name = "conversation_id", fallback = 0L),
+            conversationId = this.optTyped(name = "conversation_id", fallback = MESSAGE_CONVERSATIONID_UNKNOWN),
             content = this.optTyped(name = "content", fallback = ""),
             attachments = this.optSequenceOpt<JSONObject>(name = "attachments")
                     ?.map { it?.nullOnException { it.parseAttachment() } }
@@ -78,8 +81,9 @@ internal fun JSONObject.parseMessage() : ClyMessage {
                 null
             } else {
                 this.optTyped<String>(name = "rich_mail_link")
-            },
-            cState = CSTATE_COMPLETED)
+            }).apply {
+        this.setStateCompleted()
+    }
 }
 
 internal fun JSONObject.parseMessagesList() : ArrayList<ClyMessage> {
@@ -103,28 +107,37 @@ internal sealed class ClyMessage(
         @CState private var cState : Int = CSTATE_SENDING) {
 
     internal open class Bot(
+            messageId: Long,
             conversationId: Long,
             content: String
     ): ClyMessage(
             writer = ClyWriter.Bot,
             content = content,
-            id = - Math.abs(content.hashCode()).toLong(),
+            id = messageId,
             conversationId = conversationId,
             cState = CSTATE_COMPLETED
     )
 
     internal class BotProfilingForm(
+            messageId: Long,
             conversationId: Long,
             internal val form: ClyFormDetails
     ): Bot(
+            messageId = messageId,
             content = form.label.takeIf { it.isNotEmpty() } ?: form.hint ?: "",
             conversationId = conversationId
     )
 
-    internal class Real(
-            writerUserid : Long = 0,
-            writerAccountId : Long = 0,
-            writerAccountName : String? = null,
+    internal class BotAskEmailForm(
+            messageId: Long,
+            val pendingMessage: ClyMessage.RealUserPending): Bot(
+            messageId = messageId,
+            content = "",
+            conversationId = pendingMessage.conversationId
+    )
+
+    internal open class Real(
+            writer: ClyWriter,
             id : Long = 0,
             conversationId : Long,
             content : String,
@@ -136,10 +149,9 @@ internal sealed class ClyMessage(
             },
             @STimestamp sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
             @STimestamp seenDate : Long = sentDatetime,
-            richMailLink : String? = null,
-            @CState cState : Int = CSTATE_SENDING
+            richMailLink : String? = null
     ): ClyMessage(
-            writer = ClyWriter.Real.from(userId = writerUserid, accountId = writerAccountId, name = writerAccountName),
+            writer = writer,
             id = id,
             conversationId = conversationId,
             content = content,
@@ -148,8 +160,48 @@ internal sealed class ClyMessage(
             sentDatetime = sentDatetime,
             seenDate = seenDate,
             richMailLink = richMailLink,
-            cState = cState
-    )
+            cState = CSTATE_SENDING
+    ) {
+        constructor(writerUserid : Long = 0,
+                    writerAccountId : Long = 0,
+                    writerAccountName : String? = null,
+                    id : Long = 0,
+                    conversationId : Long,
+                    content : String,
+                    attachments : Array<ClyAttachment>,
+                    contentAbstract : Spanned = when {
+                        content.isNotEmpty() -> fromHtml(message = content)
+                        attachments.isNotEmpty() -> SpannedString("[Attachment]")
+                        else -> SpannedString("")
+                    },
+                    @STimestamp sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
+                    @STimestamp seenDate : Long = sentDatetime,
+                    richMailLink : String? = null) : this(
+                writer = ClyWriter.Real.from(userId = writerUserid, accountId = writerAccountId, name = writerAccountName),
+                id = id,
+                conversationId = conversationId,
+                content = content,
+                attachments = attachments,
+                contentAbstract = contentAbstract,
+                sentDatetime = sentDatetime,
+                seenDate = seenDate,
+                richMailLink = richMailLink)
+    }
+
+    internal class RealUserPending(
+            conversationId : Long,
+            content : String,
+            attachments : Array<ClyAttachment>)
+        : ClyMessage.Real(
+            writer = ClyWriter.Real.User(userId = -1, name = null),
+            conversationId = conversationId,
+            content = content,
+            attachments = attachments
+    ) {
+        init {
+            this.setStatePending()
+        }
+    }
 
     internal val dateString: String = DATE_FORMATTER.format(Date(this.sentDatetime.secondsAsMs))
     internal val timeString: String = TIME_FORMATTER.format(Date(this.sentDatetime.secondsAsMs))
@@ -161,6 +213,8 @@ internal sealed class ClyMessage(
 
     internal val isStateSending: Boolean
         get() = this.cState == CSTATE_SENDING
+    internal val isStatePending: Boolean
+        get() = this.cState == CSTATE_PENDING
     internal val isStateFailed: Boolean
         get() = this.cState == CSTATE_FAILED
     internal fun setStateSending() {
@@ -168,6 +222,12 @@ internal sealed class ClyMessage(
     }
     internal fun setStateFailed() {
         this.cState = CSTATE_FAILED
+    }
+    internal fun setStateCompleted() {
+        this.cState = CSTATE_COMPLETED
+    }
+    internal fun setStatePending() {
+        this.cState = CSTATE_PENDING
     }
 
     internal fun isSentSameDay(of : ClyMessage) : Boolean

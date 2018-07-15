@@ -106,7 +106,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             }
 
             this.io_customerly__new_conversation_button.setOnClickListener {
-                (it.activity as? ClyConversationsActivity)?.startClyChatActivity(conversationId = 0, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+                (it.activity as? ClyConversationsActivity)?.startClyChatActivity(conversationId = MESSAGE_CONVERSATIONID_UNKNOWN, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
             }
 
             this.io_customerly__recycler_view_swipe_refresh.setOnRefreshListener(this.onRefreshListener)
@@ -253,7 +253,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
         if(Customerly.jwtToken?.isAnonymous != false) {
-            this.startClyChatActivity(conversationId = 0, messageContent = content, attachments = attachments.toList().toArrayList(), mustShowBack = false, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+            this.startClyChatActivity(conversationId = MESSAGE_CONVERSATIONID_UNKNOWN, messageContent = content, attachments = attachments.toList().toArrayList(), mustShowBack = false, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
             this.finish()
         } else {
             this.doLeadUserSendMessage(content = content, attachments = attachments)

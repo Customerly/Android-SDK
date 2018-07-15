@@ -44,7 +44,7 @@
         android:layout_alignWithParentIfMissing="true"
         tools:src="@drawable/io_customerly__ic_bot_50dp" />
 
-    <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
+    <ProgressBar android:id="@id/io_customerly__content_sending_progressspinner"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
         android:layout_height="@dimen/io_customerly__chat_li_icon_size"
         android:layout_alignParentLeft="true"
@@ -76,147 +76,77 @@
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true" >
 
-        <TextView android:id="@id/io_customerly__content"
+        <TextView android:id="@id/io_customerly__title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/io_customerly__bubble_account_textcolor"
-            android:textSize="15sp"
+            android:textSize="20sp"
             android:fontFamily="sans-serif"
-            android:textColorLink="@color/io_customerly__blue_malibu"
-            android:textIsSelectable="true"
-            android:autoLink="all"
             android:maxWidth="@dimen/io_customerly__bubble_max_width"
-            tools:text="Example messageeeeeeeeeeeeeeeeee"
+            android:textStyle="bold"
+            android:text="@string/io_customerly__botaskemail_title"
             tools:ignore="UnusedAttribute" />
 
-        <LinearLayout android:id="@id/io_customerly__profilingform_container_truefalse"
+        <TextView android:id="@id/io_customerly__content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/io_customerly__grey_99"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:maxWidth="@dimen/io_customerly__bubble_max_width"
+            android:text="@string/io_customerly__botaskemail_content"
+            tools:ignore="UnusedAttribute" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/io_customerly__border_03dp"
             android:orientation="horizontal"
-            android:visibility="gone"
-            android:layout_gravity="center_horizontal"
-            tools:visibility="visible" >
+            android:layout_gravity="center_horizontal" >
 
-            <ImageButton android:id="@id/io_customerly__profilingform_button_true"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="40dp"
-                android:maxWidth="@dimen/io_customerly__bubble_max_width_half"
-                android:background="@drawable/io_customerly__form_button_bkg_true"
-                android:foreground="?attr/selectableItemBackground"
-                android:src="@drawable/io_customerly__ic_check_grey_24dp"
-                android:tint="@color/io_customerly__colorgrey_selectedwhite"
-                android:contentDescription="true"
-                tools:ignore="HardcodedText" />
-
-            <View
-                android:layout_width="0.3dp"
-                android:layout_height="match_parent"
-                android:background="#ffcccccc" />
-
-            <ImageButton android:id="@id/io_customerly__profilingform_button_false"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="40dp"
-                android:maxWidth="@dimen/io_customerly__bubble_max_width_half"
-                android:background="@drawable/io_customerly__form_button_bkg_false"
-                android:foreground="?attr/selectableItemBackground"
-                android:src="@drawable/io_customerly__ic_clear_black_24dp"
-                android:tint="@color/io_customerly__colorgrey_selectedwhite"
-                android:contentDescription="false"
-                tools:ignore="HardcodedText" />
-
-        </LinearLayout>
-
-        <LinearLayout android:id="@id/io_customerly__profilingform_container_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/io_customerly__border_03dp"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone"
-            tools:visibility="visible" >
-
-            <EditText android:id="@id/io_customerly__profilingform_input"
+            <EditText android:id="@id/io_customerly__askemail_input"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="40dp"
                 android:maxWidth="@dimen/io_customerly__bubble_max_minus40dp"
                 android:background="@drawable/io_customerly__whitebkg_leftcorners"
                 android:padding="5dp"
-                tools:text="Esempio testo"
+                android:hint="@string/io_customerly__insert_your_email"
                 android:textSize="15sp"
                 android:src="@drawable/io_customerly__ic_check_grey_24dp"
                 android:tint="#ff999999"
-                android:gravity="center"
-                android:contentDescription="true"
+                android:gravity="left|start|center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:inputType="textEmailAddress"
                 tools:ignore="HardcodedText,LabelFor,TextFields"
-                android:importantForAutofill="no"
+                android:autofillHints="emailAddress"
                 tools:targetApi="o" />
 
-            <ImageButton android:id="@id/io_customerly__profilingform_button_submit_input"
+            <ImageButton android:id="@id/io_customerly__askemail_submit"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/io_customerly__colormalibu_enabledgreyeddisabled"
+                android:background="@drawable/io_customerly__colorgreen_enabledgreyeddisabled"
                 android:foreground="?attr/selectableItemBackground"
-                android:src="@drawable/io_customerly__ic_check_grey_24dp"
+                android:src="@drawable/io_customerly__ic_send"
                 android:tint="#ffffffff"
                 android:contentDescription="false"
                 tools:ignore="HardcodedText" />
 
         </LinearLayout>
 
-        <LinearLayout android:id="@id/io_customerly__profilingform_container_date"
+        <TextView android:id="@+id/io_customerly__askemail_privacy_policy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="12sp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/io_customerly__border_03dp"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:text="@string/io_customerly__i_accept_the_privacy_policy"
+            tools:text="By proceding you accept our Privacy Policy"
             android:visibility="gone"
-            tools:visibility="visible" >
-
-            <TextView android:id="@id/io_customerly__profilingform_date"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="40dp"
-                android:src="@drawable/io_customerly__ic_check_grey_24dp"
-                android:background="@drawable/io_customerly__whitebkg_leftcorners"
-                android:tint="#ff999999"
-                android:gravity="center"
-                android:hint="--/--/----"
-                android:maxWidth="@dimen/io_customerly__bubble_max_minus40dp"
-                tools:ignore="HardcodedText,LabelFor,TextFields"
-                android:importantForAutofill="no"
-                tools:targetApi="o" />
-
-            <ImageButton android:id="@id/io_customerly__profilingform_button_submit_date"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/io_customerly__colormalibu_enabledgreyeddisabled"
-                android:foreground="?attr/selectableItemBackground"
-                android:src="@drawable/io_customerly__ic_check_grey_24dp"
-                android:tint="#ffffffff"
-                android:contentDescription="false"
-                tools:ignore="HardcodedText" />
-
-        </LinearLayout>
-
-        <TextView android:id="@id/io_customerly__time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|end"
-
-            android:paddingTop="10dp"
-            android:textColor="@color/io_customerly__chat_date_accounttime"
-            android:textSize="11sp"
-            android:textStyle="italic"
-            android:fontFamily="sans-serif"
-            tools:text="16:25"
-            tools:ignore="SmallSp,UnusedAttribute" />
+            tools:visibility="visible" />
 
     </LinearLayout>
 

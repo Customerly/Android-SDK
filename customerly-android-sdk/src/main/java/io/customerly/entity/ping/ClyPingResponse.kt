@@ -54,13 +54,13 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     }
                 } ?: COLORINT_BLUE_MALIBU
 
-            val nextFormDetails: ClyFormDetails?
-            if(appConfig.optTyped(name = "user_profiling_form_enabled", fallback = 0) == 1) {
+            val formsDetails: ArrayList<ClyFormDetails>?
+            if(Customerly.jwtToken?.isUser == false && appConfig.optTyped(name = "user_profiling_form_enabled", fallback = 0) == 1) {
 
                 val appStates:JSONObject? = this.optTyped<JSONObject>("app_states")
                 val userDataAttributes = this.optTyped<JSONObject>("user")?.parseUserDataAttributes()
 
-                nextFormDetails = this.optArray<JSONObject, ClyProfilingForm>(name = "user_profiling_forms", map = { it.parseProfilingForm() })
+                formsDetails = this.optArray<JSONObject, ClyProfilingForm>(name = "user_profiling_forms", map = { it.parseProfilingForm() })
                         ?.apply { this.sortBy { it.id } }
                         ?.asSequence()
                         ?.mapNotNull { form ->
@@ -69,9 +69,9 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                             } else {
                                 null
                             }
-                        }?.firstOrNull()
+                        }?.toList()?.toArrayList()
             } else {
-                nextFormDetails = null
+                formsDetails = null
             }
 
             ClyPingResponse(
@@ -82,7 +82,7 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     poweredBy = appConfig.optTyped(name = "powered_by", fallback = 0L) == 1L,
                     welcomeMessageUsers = appConfig.optTyped(name = "welcome_message_users"),
                     welcomeMessageVisitors = appConfig.optTyped(name = "welcome_message_visitors"),
-                    nextFormDetails = nextFormDetails,
+                    formsDetails = formsDetails,
                     officeHours = appConfig.optArray<JSONObject, ClyOfficeHours>(name = "office_hours", map = { it.parseOfficeHours() }),
                     replyTime = appConfig.optTyped(name = "reply_time", fallback = 0).toClyReplyTime,
                     activeAdmins = activeAdmins,
@@ -141,7 +141,7 @@ internal class ClyPingResponse(
         internal val activeAdmins: Array<ClyAdmin>? = null,
         internal val lastSurveys: Array<ClySurvey>? = null,
         internal val lastMessages: Array<ClyMessage>? = null,
-        internal val nextFormDetails: ClyFormDetails? = null,
+        private val formsDetails: ArrayList<ClyFormDetails>? = null,
         internal val officeHours: Array<ClyOfficeHours>? = null,
         internal val replyTime: ClyReplyTime? = null) {
 
@@ -149,6 +149,11 @@ internal class ClyPingResponse(
         Customerly.preferences?.lastPingStore(lastPing = this)
     }
 
+    internal val nextFormDetails: ClyFormDetails? get() = this.formsDetails?.firstOrNull()
+
+    internal fun setFormAnswered(form: ClyFormDetails) {
+        this.formsDetails?.remove(form)
+    }
 
     internal fun tryShowSurvey(): Boolean {
         return if(Customerly.isSurveyEnabled) {

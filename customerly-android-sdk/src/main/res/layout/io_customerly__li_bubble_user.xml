@@ -28,7 +28,9 @@
         android:padding="7.5dp"
         android:fontFamily="sans-serif"
         tools:ignore="UnusedAttribute"
-        android:visibility="gone"/>
+
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
@@ -43,7 +45,7 @@
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true"  />
 
-    <ProgressBar android:id="@id/io_customerly__content_sending__only_user_li"
+    <ProgressBar android:id="@id/io_customerly__content_sending_progressspinner"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
         android:layout_height="@dimen/io_customerly__chat_li_icon_size"
         android:layout_alignParentRight="true"
@@ -55,7 +57,8 @@
         android:paddingRight="5dp"
         android:paddingLeft="5dp"
 
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <LinearLayout android:id="@+id/bubble"
         android:layout_alignParentEnd="true"
@@ -110,5 +113,22 @@
             tools:ignore="SmallSp,UnusedAttribute" />
 
     </LinearLayout>
+
+    <TextView android:id="@id/io_customerly__pending_message_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/io_customerly__chat_date_accounttime"
+        android:layout_below="@id/bubble"
+        android:layout_alignEnd="@id/bubble"
+        android:layout_alignRight="@id/bubble"
+        android:layout_marginBottom="3dp"
+        android:textStyle="italic"
+
+        android:fontFamily="sans-serif"
+        tools:ignore="UnusedAttribute"
+        android:text="@string/io_customerly__botaskemail_pending_send"
+
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </RelativeLayout>

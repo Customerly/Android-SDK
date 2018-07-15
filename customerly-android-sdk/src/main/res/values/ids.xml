@@ -48,11 +48,14 @@
     <item type="id" name="io_customerly__profilingform_container_input" />
     <item type="id" name="io_customerly__profilingform_container_date" />
     <item type="id" name="io_customerly__profilingform_input" />
+    <item type="id" name="io_customerly__askemail_input" />
+    <item type="id" name="io_customerly__askemail_submit" />
     <item type="id" name="io_customerly__profilingform_date" />
     <item type="id" name="io_customerly__profilingform_button_submit_input" />
     <item type="id" name="io_customerly__profilingform_button_submit_date" />
     <item type="id" name="io_customerly__attachment_layout" />
-    <item type="id" name="io_customerly__content_sending__only_user_li" />
+    <item type="id" name="io_customerly__pending_message_label" />
+    <item type="id" name="io_customerly__content_sending_progressspinner" />
     <item type="id" name="io_customerly__menu__download" />
     <item type="id" name="io_customerly__menu__open_in_browser" />
     <item type="id" name="io_customerly__back" />

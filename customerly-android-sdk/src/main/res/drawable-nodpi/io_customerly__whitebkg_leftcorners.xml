@@ -17,6 +17,8 @@
     android:shape="rectangle" >
 
     <solid android:color="#ffffffff" />
-    <corners android:radius="@dimen/io_customerly__form_corners" />
+    <corners
+        android:bottomLeftRadius="@dimen/io_customerly__form_corners"
+        android:topLeftRadius="@dimen/io_customerly__form_corners" />
 
 </shape>

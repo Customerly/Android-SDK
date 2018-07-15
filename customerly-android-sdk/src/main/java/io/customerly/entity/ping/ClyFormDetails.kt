@@ -52,9 +52,8 @@ internal data class ClyFormDetails(
                     endpoint = ENDPOINT_FORM_ATTRIBUTE,
                     requireToken = true,
                     callback = {
-                        Customerly.ping(trySurvey = false, tryLastMessage = false, success = {
-                            weakChatActivity.get()?.tryLoadForm()
-                        })
+                        Customerly.lastPing.setFormAnswered(form = this)
+                        weakChatActivity.get()?.tryLoadForm()
                         callback()
                     })
                     .p(key = "name", value = this.attributeName)

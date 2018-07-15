@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2017 Customerly
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="top">
+
+    <TextView android:id="@id/io_customerly__date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/io_customerly__chat_date_accounttime"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="sans-serif"
+        tools:ignore="UnusedAttribute"
+        android:padding="7.5dp"
+        tools:text="19-06-2018"
+        tools:visibility="visible"
+        android:visibility="gone"/>
+
+    <ImageView android:id="@id/io_customerly__icon"
+        android:layout_width="@dimen/io_customerly__chat_li_icon_size"
+        android:layout_height="@dimen/io_customerly__chat_li_icon_size"
+        android:scaleType="fitCenter"
+        android:layout_marginStart="@dimen/io_customerly__chat_li_margin_icon_screen_border"
+        android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_icon_screen_border"
+        android:contentDescription="@string/io_customerly__icon"
+        android:layout_below="@id/io_customerly__date"
+        android:layout_alignWithParentIfMissing="true"
+        tools:src="@drawable/io_customerly__ic_bot_50dp" />
+
+    <ProgressBar android:id="@id/io_customerly__content_sending_progressspinner"
+        android:layout_width="@dimen/io_customerly__chat_li_icon_size"
+        android:layout_height="@dimen/io_customerly__chat_li_icon_size"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@id/io_customerly__bubble"
+        android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_icon_screen_border"
+        android:layout_marginStart="@dimen/io_customerly__chat_li_margin_icon_screen_border"
+        android:layout_marginTop="5dp"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <LinearLayout android:id="@+id/io_customerly__bubble"
+        android:layout_marginRight="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
+        android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
+        android:layout_marginStart="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
+        android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="left|start"
+        tools:ignore="RtlHardcoded"
+        android:elevation="1dp"
+        android:background="@drawable/io_customerly__bkg_bubble_account_rounded"
+        tools:targetApi="lollipop"
+        android:layout_marginBottom="3dp"
+        android:layout_below="@id/io_customerly__date"
+        android:layout_alignWithParentIfMissing="true" >
+
+        <TextView android:id="@id/io_customerly__content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/io_customerly__bubble_account_textcolor"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:textColorLink="@color/io_customerly__blue_malibu"
+            android:textIsSelectable="true"
+            android:autoLink="all"
+            android:maxWidth="@dimen/io_customerly__bubble_max_width"
+            tools:text="Example messageeeeeeeeeeeeeeeeee"
+            tools:ignore="UnusedAttribute" />
+
+        <LinearLayout android:id="@id/io_customerly__profilingform_container_truefalse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/io_customerly__border_03dp"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal"
+            tools:visibility="visible" >
+
+            <ImageButton android:id="@id/io_customerly__profilingform_button_true"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:maxWidth="@dimen/io_customerly__bubble_max_width_half"
+                android:background="@drawable/io_customerly__form_button_bkg_true"
+                android:foreground="?attr/selectableItemBackground"
+                android:src="@drawable/io_customerly__ic_check_grey_24dp"
+                android:tint="@color/io_customerly__colorgrey_selectedwhite"
+                android:contentDescription="true"
+                tools:ignore="HardcodedText" />
+
+            <View
+                android:layout_width="0.3dp"
+                android:layout_height="match_parent"
+                android:background="#ffcccccc" />
+
+            <ImageButton android:id="@id/io_customerly__profilingform_button_false"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:maxWidth="@dimen/io_customerly__bubble_max_width_half"
+                android:background="@drawable/io_customerly__form_button_bkg_false"
+                android:foreground="?attr/selectableItemBackground"
+                android:src="@drawable/io_customerly__ic_clear_black_24dp"
+                android:tint="@color/io_customerly__colorgrey_selectedwhite"
+                android:contentDescription="false"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@id/io_customerly__profilingform_container_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/io_customerly__border_03dp"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            tools:visibility="visible" >
+
+            <EditText android:id="@id/io_customerly__profilingform_input"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:maxWidth="@dimen/io_customerly__bubble_max_minus40dp"
+                android:background="@drawable/io_customerly__whitebkg_leftcorners"
+                android:padding="5dp"
+                tools:text="Esempio testo"
+                android:textSize="15sp"
+                android:src="@drawable/io_customerly__ic_check_grey_24dp"
+                android:tint="#ff999999"
+                android:gravity="left|start|center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:contentDescription="true"
+                tools:ignore="HardcodedText,LabelFor,TextFields"
+                android:importantForAutofill="no"
+                tools:targetApi="o" />
+
+            <ImageButton android:id="@id/io_customerly__profilingform_button_submit_input"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/io_customerly__colormalibu_enabledgreyeddisabled"
+                android:foreground="?attr/selectableItemBackground"
+                android:src="@drawable/io_customerly__ic_check_grey_24dp"
+                android:tint="#ffffffff"
+                android:contentDescription="false"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@id/io_customerly__profilingform_container_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/io_customerly__border_03dp"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            tools:visibility="visible" >
+
+            <TextView android:id="@id/io_customerly__profilingform_date"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:src="@drawable/io_customerly__ic_check_grey_24dp"
+                android:background="@drawable/io_customerly__whitebkg_leftcorners"
+                android:tint="#ff999999"
+                android:gravity="left|start|center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:hint="--/--/----"
+                android:maxWidth="@dimen/io_customerly__bubble_max_minus40dp"
+                tools:ignore="HardcodedText,LabelFor,TextFields"
+                android:importantForAutofill="no"
+                tools:targetApi="o" />
+
+            <ImageButton android:id="@id/io_customerly__profilingform_button_submit_date"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/io_customerly__colormalibu_enabledgreyeddisabled"
+                android:foreground="?attr/selectableItemBackground"
+                android:src="@drawable/io_customerly__ic_check_grey_24dp"
+                android:tint="#ffffffff"
+                android:contentDescription="false"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

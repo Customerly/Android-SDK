@@ -106,5 +106,8 @@
     <string name="io_customerly__replytime_minutes">Team usually replies in some minutes.</string>
     <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string>
     <string name="io_customerly__replytime_day">Team usually replies in a day.</string>
+    <string name="io_customerly__botaskemail_title">Insert your email to send</string>
+    <string name="io_customerly__botaskemail_content">Help us to reply by email if we are not ready to support you now.</string>
+    <string name="io_customerly__botaskemail_pending_send">Pending send…</string>
 
 </resources>

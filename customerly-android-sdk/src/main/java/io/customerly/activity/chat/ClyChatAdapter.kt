@@ -57,7 +57,10 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
                         when {
                             message == null -> R.layout.io_customerly__li_bubble_account_rich
                             message.writer.isUser -> R.layout.io_customerly__li_bubble_user
-                            message.writer.isBot -> R.layout.io_customerly__li_bubble_bot
+                            message.writer.isBot -> when(message) {
+                                is ClyMessage.BotAskEmailForm -> R.layout.io_customerly__li_bubble_bot_askemail
+                                else -> R.layout.io_customerly__li_bubble_bot_form
+                            }
                             message.richMailLink == null -> R.layout.io_customerly__li_bubble_account
                             else -> R.layout.io_customerly__li_bubble_account_rich
                         }
@@ -73,7 +76,8 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
             R.layout.io_customerly__li_bubble_account_typing -> ClyChatViewHolder.Bubble.Typing(recyclerView = recyclerView)
             R.layout.io_customerly__li_bubble_user -> ClyChatViewHolder.Bubble.Message.User(recyclerView = recyclerView)
             R.layout.io_customerly__li_bubble_account -> ClyChatViewHolder.Bubble.Message.Account(recyclerView = recyclerView)
-            R.layout.io_customerly__li_bubble_bot -> ClyChatViewHolder.Bubble.Message.Bot(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_bot_form -> ClyChatViewHolder.Bubble.Message.BotForm(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_bot_askemail -> ClyChatViewHolder.Bubble.Message.BotAskEmail(recyclerView = recyclerView)
             R.layout.io_customerly__li_bubble_account_infos -> ClyChatViewHolder.AccountInfos(recyclerView = recyclerView)
             else/* R.layout.io_customerly__li_message_account_rich */ -> ClyChatViewHolder.Bubble.Message.AccountRich(recyclerView = recyclerView)
         }

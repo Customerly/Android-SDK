@@ -32,7 +32,7 @@ import io.customerly.utils.download.imagehandler.ClyImageRequest
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
-internal sealed class ClyWriter(@WriterType private val type : Int, internal val id : Long, private val name : String?) {
+internal sealed class ClyWriter(@WriterType private val type : Int, internal var id : Long, private val name : String?) {
 
     val isUser : Boolean get() = this.type == WRITER_TYPE__USER
     val isAccount : Boolean get() = this.type == WRITER_TYPE__ACCOUNT
