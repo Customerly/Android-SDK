@@ -193,7 +193,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
             this.io_customerly__recycler_view.also { recyclerView ->
                 recyclerView.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
                     llm.reverseLayout = true
-                    llm.stackFromEnd = true
                     RvProgressiveScrollListener(llm = llm, onBottomReached = this.onBottomReachedListener).also {
                         this.progressiveScrollListener = it
                         recyclerView.addOnScrollListener(it)
@@ -573,7 +572,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
                             }
                         }
                     }
-                    //TODO fare fun
                 } else {
                     this.io_customerly__icon.visibility = View.GONE
                     this.io_customerly__name.apply {
