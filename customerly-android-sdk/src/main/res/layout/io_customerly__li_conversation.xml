@@ -22,18 +22,20 @@
     android:gravity="center_vertical"
     android:background="@drawable/io_customerly__li_conversation_bkg"
     android:foreground="?attr/selectableItemBackground"
-    android:paddingTop="15dp"
-    android:paddingBottom="15dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
     android:paddingLeft="15dp"
     android:paddingRight="10dp"
     tools:ignore="RtlHardcoded">
 
     <ImageView android:id="@id/io_customerly__icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:scaleType="fitCenter"
+        android:padding="3dp"
         android:layout_marginRight="15dp"
         android:layout_marginEnd="15dp"
+        android:background="@drawable/io_customerly__conversation_icon_bkg"
         android:contentDescription="@string/io_customerly__icon" />
 
     <ImageView android:id="@id/io_customerly__arrow"
@@ -76,7 +78,8 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:textStyle="bold"
-        android:textColor="@color/io_customerly__li_conversation_name"
+        android:textColor="@color/io_customerly__text_color_conversation_name"
+        android:duplicateParentState="true"
         android:textSize="15sp"
         android:fontFamily="sans-serif"
         tools:ignore="Deprecated,UnusedAttribute" />
@@ -93,7 +96,7 @@
         android:lines="1"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="@color/io_customerly__text_color_conversation_alertmessage"
+        android:textColor="@color/io_customerly__text_color_conversation_content"
         android:textSize="14sp"
         android:fontFamily="sans-serif"
         tools:ignore="Deprecated,UnusedAttribute"

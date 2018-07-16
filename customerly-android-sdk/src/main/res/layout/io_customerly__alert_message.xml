@@ -24,11 +24,13 @@
     android:duplicateParentState="true" >
 
     <ImageView android:id="@id/io_customerly__icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:scaleType="fitCenter"
         android:layout_marginRight="15dp"
         android:layout_marginEnd="15dp"
+        android:padding="3dp"
+        android:background="@drawable/io_customerly__circle_malibu"
         android:contentDescription="@string/io_customerly__icon" />
 
     <LinearLayout
@@ -58,7 +60,7 @@
             android:minLines="1"
             android:maxLines="2"
             android:ellipsize="end"
-            android:textColor="@color/io_customerly__text_color_conversation_alertmessage"
+            android:textColor="@color/io_customerly__li_conversation_content"
             android:textSize="14sp"
             android:fontFamily="sans-serif"
             tools:ignore="Deprecated,UnusedAttribute"

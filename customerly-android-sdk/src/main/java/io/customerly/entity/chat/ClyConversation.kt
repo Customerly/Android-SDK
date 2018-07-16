@@ -38,8 +38,8 @@ internal fun JSONObject.parseConversation() : ClyConversation {
             lastMessageAbstract = fromHtml(message = this.getTyped("last_message_abstract")),
             lastMessageDate = this.getTyped("last_message_date"),
             writer = ClyWriter.Real.from(
-                    type = this.getTyped("last_message_writer"),
-                    id = this.getTyped("last_message_writer_type"),
+                    type = this.getTyped("last_message_writer_type"),
+                    id = this.getTyped("last_message_writer"),
                     name = this.optTyped<JSONObject>("last_account")?.optTyped(name = "name")),
             unread = this.optTyped("unread", 0) == 1)
 }

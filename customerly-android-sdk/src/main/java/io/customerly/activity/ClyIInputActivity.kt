@@ -45,10 +45,7 @@ import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.getContrastBW
-import io.customerly.utils.ggkext.activity
-import io.customerly.utils.ggkext.checkConnection
-import io.customerly.utils.ggkext.getFileSize
-import io.customerly.utils.ggkext.weak
+import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.spannedFromHtml
 import java.lang.ref.WeakReference
 import java.util.*
@@ -220,6 +217,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                             inputActivity.inputInput?.text = null
                             inputActivity.attachments.clear()
                             inputActivity.inputAttachments?.removeAllViews()
+                            btn.dismissKeyboard()
                             inputActivity.onSendMessage(content = content, attachments = attachmentsArray)
                         }
                     }
@@ -236,7 +234,6 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                     .centerCrop()
                     .into(imageView = themeIV)
                     .start()
-            themeIV.visibility = View.VISIBLE
             this.activityThemed = true
         }
 

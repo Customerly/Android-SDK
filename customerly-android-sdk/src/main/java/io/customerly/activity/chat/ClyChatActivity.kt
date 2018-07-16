@@ -95,7 +95,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
     internal var typingAccountId = TYPING_NO_ONE
     internal var chatList = ArrayList<ClyMessage>(0)
     internal var conversationFullAdmin: ClyAdminFull? = null
-    internal var conversationFullAdminFromMessagesAccountId: Long? = null
+    private var conversationFullAdminFromMessagesAccountId: Long? = null
     private val onBottomReachedListener = object : Function1<RvProgressiveScrollListener,Unit> {
         private val wActivity : WeakReference<ClyChatActivity> = this@ClyChatActivity.weak()
         override fun invoke(scrollListener: RvProgressiveScrollListener) {
@@ -132,10 +132,9 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                                 val addedMessagesCount = newChatList.size - previousSize
 
                                                 activity.io_customerly__progress_view.visibility = View.GONE
-                                                activity.io_customerly__recycler_view.visibility = View.VISIBLE
 
                                                 if (addedMessagesCount > 0) {
-                                                    activity.setNewChatList(newChatList = newChatList)
+                                                    activity.chatList = newChatList
                                                     (activity.io_customerly__recycler_view.layoutManager as? LinearLayoutManager)?.let { llm ->
                                                         if (llm.findFirstCompletelyVisibleItemPosition() == 0) {
                                                             llm.scrollToPosition(0)
@@ -149,6 +148,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                                         }
                                                         adapter.notifyItemRangeInserted(adapter.listIndex2position(previousSize), adapter.listIndex2position(addedMessagesCount))
                                                     }
+                                                    activity.updateAccountInfos()
                                                 }
 
                                                 response.result.firstOrNull()?.takeIf { it.isNotSeen }?.let { activity.sendSeen(messageId = it.id) }
@@ -188,6 +188,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
         if (this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
 
+            this.io_customerly__actionlayout.setBackgroundColor(Customerly.lastPing.widgetColor)
             this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Customerly.lastPing.widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
             this.io_customerly__recycler_view.also { recyclerView ->
                 recyclerView.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
@@ -203,14 +204,12 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 recyclerView.adapter = ClyChatAdapter(chatActivity = this)
             }
 
-            this.updateActivityTitleBar(accountInfos = false)
-
-            val conversationId: Long = this.intent.getLongExtra(EXTRA_CONVERSATION_ID, 0)
-            if(conversationId != 0L) {
+            val conversationId: Long = this.intent.getLongExtra(EXTRA_CONVERSATION_ID, MESSAGE_CONVERSATIONID_UNKNOWN)
+            if(conversationId != MESSAGE_CONVERSATIONID_UNKNOWN) {
                 this.onConversationId(conversationId = conversationId)
+                this.updateAccountInfos(fallbackUserOnLastActive = false)
             } else {
                 this.io_customerly__progress_view.visibility = View.GONE
-                this.io_customerly__recycler_view.visibility = View.VISIBLE
                 val messageContent:String? = this.intent.getStringExtra(EXTRA_MESSAGE_CONTENT)
                 if(messageContent != null) {
                     this.onSendMessage(
@@ -218,6 +217,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
                             attachments = this.intent.getParcelableArrayListExtra<ClyAttachment>(EXTRA_MESSAGE_ATTACHMENTS)?.toTypedArray()
                                     ?: kotlin.emptyArray())
                 }
+
+                this.updateAccountInfos(fallbackUserOnLastActive = false)
             }
         }
     }
@@ -275,33 +276,35 @@ internal class ClyChatActivity : ClyIInputActivity() {
         this.io_customerly__recycler_view.postDelayed( {
             val now = Calendar.getInstance()
 
-            val nearestOfficeHours = Customerly.lastPing.officeHours?.map { it to it.getNearestFactor(now = now) }?.minBy { (_,factor) -> factor }
-            if(nearestOfficeHours == null || nearestOfficeHours.second == 0L) {
-                Customerly.lastPing.replyTime?.stringResId?.also { replyTimeStringResId ->
-                    weakActivity.reference { activity ->
-                        if(activity.chatList.count { it.writer.isAccount } == 0) {
-                            activity.addMessageAt0(message = ClyMessage.Bot(
-                                    messageId = activity.chatList.optAt(0)?.id ?: -System.currentTimeMillis(),
-                                    conversationId = conversationId,
-                                    content = activity.getString(replyTimeStringResId)))
-                        }
-                    }
-                }
-            } else {
+            Customerly.lastPing.replyTime?.stringResId?.also { replyTimeStringResId ->
                 weakActivity.reference { activity ->
                     if(activity.chatList.count { it.writer.isAccount } == 0) {
-                        nearestOfficeHours.first.getBotMessage(context = activity, now = now)?.apply {
+                        val nearestOfficeHours = Customerly.lastPing.officeHours?.map { it to it.getNearestFactor(now = now) }?.minBy { (_, factor) -> factor }
+                        if (nearestOfficeHours == null || nearestOfficeHours.second == 0L) {
                             activity.addMessageAt0(message = ClyMessage.Bot(
-                                    messageId = activity.chatList.optAt(0)?.id ?: -System.currentTimeMillis(),
+                                    messageId = activity.chatList.optAt(0)?.id
+                                            ?: -System.currentTimeMillis(),
                                     conversationId = conversationId,
-                                    content = this))
+                                    content = activity.getString(replyTimeStringResId)))
+                        } else {
+                            nearestOfficeHours.first.getBotMessage(context = activity, now = now)?.apply {
+                                activity.addMessageAt0(message = ClyMessage.Bot(
+                                        messageId = activity.chatList.optAt(0)?.id
+                                                ?: -System.currentTimeMillis(),
+                                        conversationId = conversationId,
+                                        content = this))
+                            }
                         }
                     }
                 }
             }
         }, 3000)
         this.io_customerly__recycler_view.postDelayed( {
-            weakActivity.get()?.tryLoadForm()
+            weakActivity.reference { activity ->
+                if (activity.chatList.count { it.writer.isAccount } == 0) {
+                    activity.tryLoadForm()
+                }
+            }
         }, 4000)
     }
 
@@ -412,6 +415,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                 Toast.makeText(activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
                             }
                         }
+                        activity.updateAccountInfos(true)
                     }
                 }).apply {
                     if(message.conversationId != MESSAGE_CONVERSATIONID_UNKNOWN) {
@@ -436,21 +440,18 @@ internal class ClyChatActivity : ClyIInputActivity() {
     @UiThread
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
         val userID = Customerly.jwtToken?.userID
+        val conversationId = this.conversationId
         if(userID != null) {
-            this.conversationId.takeIf { it != MESSAGE_CONVERSATIONID_UNKNOWN }?.also { conversationId ->
-                ClyMessage.Real(writerUserid = userID, conversationId = conversationId, content = content, attachments = attachments).also { message ->
-                    this.addMessageAt0(message = message)
-                    this.startSendMessageRequest(message = message)
-                }
+            ClyMessage.Real(writerUserid = userID, conversationId = conversationId, content = content, attachments = attachments).also { message ->
+                this.addMessageAt0(message = message)
+                this.startSendMessageRequest(message = message)
             }
         } else {
             this.inputLayout?.visibility = View.GONE
-            val pendingMessage = ClyMessage.RealUserPending(conversationId = this.conversationId ?: MESSAGE_CONVERSATIONID_UNKNOWN, content = content, attachments = attachments).also { message ->
-                this.addMessageAt0(message = message)
+            ClyMessage.RealUserPending(conversationId = conversationId, content = content, attachments = attachments).also { pendingMessage ->
+                this.addMessageAt0(message = pendingMessage)
+                this.addMessageAt0(message = ClyMessage.BotAskEmailForm(messageId = 1, pendingMessage = pendingMessage))
             }
-            this.addMessageAt0(message = ClyMessage.BotAskEmailForm(
-                    messageId = 1,
-                    pendingMessage = pendingMessage))
         }
     }
 
@@ -496,7 +497,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
         newChatList.sortByDescending { it.id }//Sorting by conversation_message_id DESC
 
-        this.setNewChatList(newChatList = newChatList)
+        this.chatList = newChatList
 
         this.io_customerly__recycler_view?.let {
             val wRv = it.weak()
@@ -507,82 +508,79 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 }
             }
         }
+        this.updateAccountInfos()
 
         newChatList.firstOrNull()?.takeIf { it.isNotSeen }?.also { this.sendSeen(messageId = it.id) }
     }
 
-    /**
-     * Returns true if the account card need a redraw
-     */
-    private fun setNewChatList(newChatList: ArrayList<ClyMessage>) {
-        this.chatList = newChatList
+    private fun updateAccountInfos(fallbackUserOnLastActive: Boolean = true) {
+        val lastAccountId = this.chatList.firstOrNull { it.writer.isAccount }?.writer?.id
 
-        val lastAccountId = newChatList.firstOrNull { it.writer.isAccount }?.writer?.id
-
-        if(this.conversationFullAdminFromMessagesAccountId == null || this.conversationFullAdminFromMessagesAccountId != lastAccountId) {
-
+        if(this.conversationFullAdmin == null || this.conversationFullAdminFromMessagesAccountId != lastAccountId) {
             Customerly.getAccountDetails { adminsFullDetails ->
 
-                val notifyRedrawAccountCard: Boolean =
-                        (adminsFullDetails?.firstOrNull { it.accountId == lastAccountId }?.also { this.conversationFullAdminFromMessagesAccountId != lastAccountId }
-                                ?: adminsFullDetails?.maxBy { it.lastActive })?.let {
-                            this.conversationFullAdmin = it
-                            true
-                        } ?: false
-
-                this.updateActivityTitleBar(accountInfos = true)
-
-                if (notifyRedrawAccountCard) {
-                    (this.io_customerly__recycler_view.adapter as? ClyChatAdapter)?.also { adapter ->
-                        adapter.notifyItemChanged(adapter.itemCount - 1)
-                    }
+                val fullAdmin = when {
+                    lastAccountId != null -> adminsFullDetails?.firstOrNull { it.accountId == lastAccountId }
+                    fallbackUserOnLastActive -> adminsFullDetails?.maxBy { it.lastActive }
+                    else -> null
                 }
-            }
 
-        }
-    }
+                @ColorInt val titleTextColorInt = Customerly.lastPing.widgetColor.getContrastBW()
+                if(fullAdmin != null) {
+                    this.conversationFullAdmin = fullAdmin
+                    this.conversationFullAdminFromMessagesAccountId = lastAccountId
 
-    private fun updateActivityTitleBar(accountInfos: Boolean) {
-        this.io_customerly__actionlayout.setBackgroundColor(Customerly.lastPing.widgetColor)
-        @ColorInt val titleTextColorInt = Customerly.lastPing.widgetColor.getContrastBW()
-        if(accountInfos) {
-            (
-                    this.conversationFullAdmin?.also { clyAdminFull ->
-                        clyAdminFull.jobTitle?.also { jobTitle ->
-                            this.io_customerly__job.apply {
-                                this.text = jobTitle
-                                this.setTextColor(titleTextColorInt)
-                                this.visibility = View.VISIBLE
+                    fullAdmin.jobTitle?.also { jobTitle ->
+                        this.io_customerly__job.apply {
+                            this.text = jobTitle
+                            this.setTextColor(titleTextColorInt)
+                            this.visibility = View.VISIBLE
+                        }
+                    }
+                    this.io_customerly__title.setOnClickListener {
+                        (it.activity as? ClyChatActivity)?.also { chatActivity ->
+                            chatActivity.io_customerly__recycler_view?.layoutManager?.also { llm ->
+                                this.progressiveScrollListener?.skipNextBottom()
+                                llm.scrollToPosition(llm.itemCount - 1)
                             }
                         }
-                        this.io_customerly__title.setOnClickListener {
-                            (it.activity as? ClyChatActivity)?.also { chatActivity ->
-                                chatActivity.io_customerly__recycler_view?.layoutManager?.also { llm ->
-                                    this.progressiveScrollListener?.skipNextBottom()
-                                    llm.scrollToPosition(llm.itemCount - 1)
+                    }
+
+                    this.io_customerly__icon.visibility = View.VISIBLE
+                    ClyImageRequest(context = this, url = fullAdmin.getImageUrl(sizePx = 48.dp2px))
+                            .fitCenter()
+                            .transformCircle()
+                            .resize(width = 48.dp2px)
+                            .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
+                            .into(imageView = this.io_customerly__icon)
+                            .start()
+                    this.io_customerly__name.apply {
+                        this.text = fullAdmin.name
+                        this.setTextColor(titleTextColorInt)
+                    }
+
+                    this.io_customerly__recycler_view.apply {
+                        (this.adapter as? ClyChatAdapter)?.also { adapter ->
+                            val llm = this.layoutManager as? LinearLayoutManager
+                            this.post {
+                                val scrollTo0 = llm?.findFirstCompletelyVisibleItemPosition() == 0
+
+                                adapter.notifyAccountCardChanged()
+
+                                if (scrollTo0) {
+                                    llm?.scrollToPosition(0)
                                 }
                             }
                         }
-                    } ?: Customerly.lastPing.activeAdmins?.asSequence()?.maxBy { it.lastActive }
-                    )?.also { admin ->
-                this.io_customerly__icon.visibility = View.VISIBLE
-                ClyImageRequest(context = this, url = admin.getImageUrl(sizePx = 48.dp2px))
-                        .fitCenter()
-                        .transformCircle()
-                        .resize(width = 48.dp2px)
-                        .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
-                        .into(imageView = this.io_customerly__icon)
-                        .start()
-                this.io_customerly__name.apply {
-                    this.text = admin.name
-                    this.setTextColor(titleTextColorInt)
+                    }
+                    //TODO fare fun
+                } else {
+                    this.io_customerly__icon.visibility = View.GONE
+                    this.io_customerly__name.apply {
+                        this.setText(R.string.io_customerly__activity_title_chat)
+                        this.setTextColor(titleTextColorInt)
+                    }
                 }
-            }
-        } else {
-            this.io_customerly__icon.visibility = View.GONE
-            this.io_customerly__name.apply {
-                this.setText(R.string.io_customerly__activity_title_chat)
-                this.setTextColor(titleTextColorInt)
             }
         }
     }

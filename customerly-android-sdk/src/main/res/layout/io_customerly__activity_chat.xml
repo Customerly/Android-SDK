@@ -96,13 +96,13 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:contentDescription="@string/io_customerly__background"
-            android:visibility="gone" />
+            tools:src="@drawable/io_customerly__pic_placeholder_fullscreen" />
 
         <android.support.v7.widget.RecyclerView android:id="@id/io_customerly__recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="never"
-            android:visibility="gone" />
+            tools:itemCount="0" />
 
         <FrameLayout
             android:layout_gravity="bottom"

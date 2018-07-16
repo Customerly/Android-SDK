@@ -14,6 +14,6 @@
     limitations under the License.
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true" android:color="@color/io_customerly__dark_text" />
-    <item android:color="@color/io_customerly__li_conversation_content" />
+    <item android:state_selected="true" android:color="@color/io_customerly__blue_malibu" />
+    <item android:color="@color/io_customerly__li_conversation_name" />
 </selector>

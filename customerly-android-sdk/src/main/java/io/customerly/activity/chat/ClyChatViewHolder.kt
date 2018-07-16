@@ -46,6 +46,7 @@ import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_PING
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.ping.ClyFormCast
+import io.customerly.entity.ping.ClyFormDetails
 import io.customerly.entity.urlImageAccount
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
@@ -69,6 +70,8 @@ internal sealed class ClyChatViewHolder (
     : RecyclerView.ViewHolder(recyclerView.activity!!.inflater().inflate(layoutRes, recyclerView, false)) {
 
     val icon: ImageView? = this.itemView.findViewById(iconResId)
+
+    internal open fun onViewRecycled() {}
 
     internal sealed class Bubble(recyclerView: RecyclerView, @LayoutRes layoutRes: Int,
                                  @IntRange(from = 1, to = Long.MAX_VALUE) contentResId: Int = R.id.io_customerly__content
@@ -381,99 +384,99 @@ internal sealed class ClyChatViewHolder (
                     layoutRes = R.layout.io_customerly__li_bubble_bot_form,
                     iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
 
+                private val containerInput: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_input)
+                private val formInputInput: EditText = this.containerInput.findViewById(R.id.io_customerly__profilingform_input)
+                private val formInputSubmit: ImageButton = this.containerInput.findViewById(R.id.io_customerly__profilingform_button_submit_input)
+
+                private val containerTruefalse: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_truefalse)
+                private val containerDate: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_date)
+                private val sendingSpinner: View = this.itemView.findViewById(R.id.io_customerly__content_sending_progressspinner)
+
+
                 init {
                     this.itemView.findViewById<View>(R.id.io_customerly__bubble).apply {
                         this.layoutParams = this.layoutParams.apply {
                             this.width = RelativeLayout.LayoutParams.MATCH_PARENT
                         }
                     }
+                    this.formInputInput.apply {
+                        this.addTextChangedListener(object : TextWatcher {
+                            val weakBotVH = this@BotForm.weak()
+                            override fun afterTextChanged(s: Editable?) {
+                                this.weakBotVH.get()?.currentForm?.apply {
+                                    this.answer = when (this.cast) {
+                                        ClyFormCast.NUMERIC -> s?.toString()?.toDoubleOrNull()
+                                        ClyFormCast.STRING -> s?.toString()
+                                        else -> null
+                                    }
+                                }
+                            }
+                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
+                        })
+                    }
+
+                    val weakBotForm = this.weak()
+                    this.formInputSubmit.setOnClickListener { btnSendInput ->
+                        weakBotForm.reference { vh ->
+                            val form = vh.currentForm
+                            if (form?.answer != null && ((form.answer as? String)?.isEmpty() != true)) {
+                                btnSendInput.dismissKeyboard()
+                                btnSendInput.isEnabled = false
+                                vh.formInputInput.isEnabled = false
+                                form.answerConfirmed = true
+                                vh.sendingSpinner.visibility = View.VISIBLE
+                                form.sendAnswer(chatActivity = btnSendInput.activity as? ClyChatActivity) {
+                                    weakBotForm.get()?.sendingSpinner?.visibility = View.GONE
+                                }
+                            }
+                        }
+                    }
                 }
-                private val containerTruefalse: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_truefalse)
-                private val containerInput: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_input)
-                private val containerDate: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_date)
-                private val sendingSpinner: View = this.itemView.findViewById(R.id.io_customerly__content_sending_progressspinner)
+
+                private var currentForm: ClyFormDetails? = null
 
                 override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
                     super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
 
                     if(message is ClyMessage.BotProfilingForm) {
-                        when(message.form.cast) {
+                        val form = message.form
+                        this.currentForm = form
+                        when (form.cast) {
                             ClyFormCast.STRING, ClyFormCast.NUMERIC -> {
                                 this.containerTruefalse.visibility = View.GONE
                                 this.containerDate.visibility = View.GONE
                                 this.containerInput.visibility = View.VISIBLE
-                                if(!message.form.answerConfirmed) {
-                                    this.containerInput.findViewById<EditText>(R.id.io_customerly__profilingform_input).apply {
-                                        this.hint = message.form.hint
-                                        val textWatcher = object : TextWatcher {
-                                            override fun afterTextChanged(s: Editable?) {  }
-                                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
-                                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                                                when (message.form.cast) {
-                                                    ClyFormCast.NUMERIC ->  message.form.answer = s?.toString()?.toDoubleOrNull()
-                                                    ClyFormCast.STRING ->  message.form.answer = s?.toString()
-                                                    else -> message.form.answer = null
-                                                }
-                                            }
+                                this.formInputInput.also { inputEditText ->
+                                    when (form.cast) {
+                                        ClyFormCast.NUMERIC -> {
+                                            inputEditText.inputType = InputType.TYPE_CLASS_NUMBER
+                                            inputEditText.setText((form.answer as? Double)?.let {
+                                                DecimalFormat("#################.################").format(it)
+                                            })
                                         }
-
-                                        (this.tag as? TextWatcher)?.also { this.removeTextChangedListener(it) }
-                                        this.tag = textWatcher
-                                        this.addTextChangedListener(textWatcher)
-
-                                        when (message.form.cast) {
-                                            ClyFormCast.NUMERIC -> {
-                                                this.inputType = InputType.TYPE_CLASS_NUMBER
-                                                this.setText((message.form.answer as? Double)?.let {
-                                                    DecimalFormat("####.###########").format(it)
-                                                })
-                                            }
-                                            ClyFormCast.STRING -> {
-                                                this.inputType = InputType.TYPE_CLASS_TEXT
-                                                this.setText(message.form.answer as? String)
-                                            }
-                                            else -> {
-                                                this.inputType = InputType.TYPE_CLASS_TEXT
-                                                this.setText(message.form.answer as? String)
-                                            }
+                                        else /* ClyFormCast.STRING */ -> {
+                                            inputEditText.inputType = InputType.TYPE_CLASS_TEXT
+                                            inputEditText.setText(form.answer as? String)
                                         }
                                     }
-
-                                    this.containerInput.findViewById<View>(R.id.io_customerly__profilingform_button_submit_input).apply {
-                                        val weakSendingSpinner = sendingSpinner.weak()
-                                        this.setOnClickListener { btnSendInput ->
-                                            if(message.form.answer != null && ((message.form.answer as? String)?.isEmpty() != true) ) {
-                                                btnSendInput.isEnabled = false
-                                                (btnSendInput.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_input)?.isEnabled = false
-                                                message.form.answerConfirmed = true
-                                                weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                                message.form.sendAnswer(chatActivity = btnSendInput.activity as? ClyChatActivity) {
-                                                    weakSendingSpinner.get()?.visibility = View.GONE
-                                                }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    this.containerInput.findViewById<EditText>(R.id.io_customerly__profilingform_input).apply {
-                                        this.hint = message.form.hint
-                                        this.setText(message.form.answer?.toString())
-                                        this.isEnabled = false
-                                    }
-                                    this.containerInput.findViewById<View>(R.id.io_customerly__profilingform_button_submit_input).isEnabled = false
+                                    inputEditText.hint = form.hint
+                                    inputEditText.isEnabled = !form.answerConfirmed
+                                    this.formInputSubmit.isEnabled = !form.answerConfirmed
                                 }
                             }
                             ClyFormCast.DATE -> {
                                 this.containerTruefalse.visibility = View.GONE
                                 this.containerInput.visibility = View.GONE
                                 this.containerDate.visibility = View.VISIBLE
-                                if(!message.form.answerConfirmed) {
+                                if (!form.answerConfirmed) {
                                     this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
-                                        this.hint = message.form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
-                                        this.text = (message.form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                        this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
+                                        this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
                                         this.setOnClickListener {
 
                                             val now = Calendar.getInstance().apply {
-                                                (message.form.answer as? Long)?.also {
+                                                (form.answer as? Long)?.also {
                                                     this.timeInMillis = it
                                                 }
                                             }
@@ -486,7 +489,7 @@ internal sealed class ClyChatViewHolder (
                                                                 this.set(Calendar.MONTH, month)
                                                                 this.set(Calendar.DAY_OF_MONTH, day)
                                                             }.time.let {
-                                                                message.form.answer = it.time
+                                                                form.answer = it.time
                                                                 it.nullOnException { shortDateFomatter.format(it) }
                                                             }
                                                         }
@@ -501,13 +504,13 @@ internal sealed class ClyChatViewHolder (
                                         this.isEnabled = true
                                         val weakSendingSpinner = sendingSpinner.weak()
                                         this.setOnClickListener { submitDate ->
-                                            if(message.form.answer != null) {
+                                            if (form.answer != null) {
                                                 (submitDate.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
                                                     this.isEnabled = false
                                                     submitDate.isEnabled = false
-                                                    message.form.answerConfirmed = true
+                                                    form.answerConfirmed = true
                                                     weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                                    message.form.sendAnswer(chatActivity = this.activity as? ClyChatActivity) {
+                                                    form.sendAnswer(chatActivity = this.activity as? ClyChatActivity) {
                                                         weakSendingSpinner.get()?.visibility = View.GONE
                                                     }
                                                 }
@@ -516,9 +519,9 @@ internal sealed class ClyChatViewHolder (
                                     }
                                 } else {
                                     this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
-                                        this.hint = message.form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
+                                        this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
                                         this.isEnabled = false
-                                        this.text = (message.form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                        this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
                                     }
                                     this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).isEnabled = false
                                 }
@@ -528,32 +531,37 @@ internal sealed class ClyChatViewHolder (
                                 this.containerInput.visibility = View.GONE
                                 this.containerTruefalse.visibility = View.VISIBLE
 
-                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).isSelected = message.form.answer == true
-                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).isSelected = message.form.answer == false
+                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).isSelected = form.answer == true
+                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).isSelected = form.answer == false
 
                                 val weakSendingSpinner = this.sendingSpinner.weak()
                                 this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).setOnClickListener { btnTrue ->
                                     btnTrue.isSelected = true
                                     (btnTrue.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_button_false)?.isSelected = false
-                                    message.form.answer = true
-                                    message.form.answerConfirmed = true
+                                    form.answer = true
+                                    form.answerConfirmed = true
                                     weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                    message.form.sendAnswer(chatActivity = btnTrue.activity as? ClyChatActivity) {
+                                    form.sendAnswer(chatActivity = btnTrue.activity as? ClyChatActivity) {
                                         weakSendingSpinner.get()?.visibility = View.GONE
                                     }
                                 }
                                 this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).setOnClickListener { btnFalse ->
                                     btnFalse.isSelected = true
                                     (btnFalse.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_button_true)?.isSelected = false
-                                    message.form.answer = false
-                                    message.form.answerConfirmed = true
+                                    form.answer = false
+                                    form.answerConfirmed = true
                                     weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                    message.form.sendAnswer(chatActivity = btnFalse.activity as? ClyChatActivity) {
+                                    form.sendAnswer(chatActivity = btnFalse.activity as? ClyChatActivity) {
                                         weakSendingSpinner.get()?.visibility = View.GONE
                                     }
                                 }
                             }
                         }
+                    } else {
+                        this.currentForm = null
+                        this.containerTruefalse.visibility = View.GONE
+                        this.containerDate.visibility = View.GONE
+                        this.containerInput.visibility = View.GONE
                     }
                 }
             }
@@ -578,15 +586,16 @@ internal sealed class ClyChatViewHolder (
                     }
                     val weakInput = this.input.weak()
                     val weakSendingSpinner = this.sendingSpinner.weak()
-                    this.submit.setOnClickListener {
-                        val weakActivity = it.activity?.weak()
-                        val weakSubmit = it.weak()
+                    this.submit.setOnClickListener { btn ->
+                        val weakActivity = btn.activity?.weak()
+                        val weakSubmit = btn.weak()
                         weakInput.get()?.let { input ->
                             val email = input.text.toString().trim().toLowerCase(Locale.ITALY)
                             if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                btn.dismissKeyboard()
                                 weakSendingSpinner.get()?.visibility = View.VISIBLE
                                 ClyApiRequest(
-                                        context = it.context,
+                                        context = input.context,
                                         endpoint = ENDPOINT_PING,
                                         jsonObjectConverter = { Unit },
                                         callback = { response ->
@@ -685,80 +694,76 @@ internal sealed class ClyChatViewHolder (
     internal class AccountInfos(recyclerView: RecyclerView) : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_infos) {
 
         fun apply(chatActivity: ClyChatActivity) {
-            (
-                    chatActivity.conversationFullAdmin?.also { clyAdminFull ->
 
-                        this.itemView.io_customerly__cardaccount_job.apply {
-                            this.visibility = clyAdminFull.jobTitle?.let { jobTitle ->
-                                this.text = jobTitle
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+            val clyAdminFull = chatActivity.conversationFullAdmin
 
-                        this.itemView.io_customerly__cardaccount_motto.apply {
-                            this.visibility = clyAdminFull.description?.let { description ->
-                                this.text = description
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+            if(clyAdminFull != null) {
 
-                        this.itemView.io_customerly__cardaccount_location_layout.apply {
-                            this.visibility = clyAdminFull.location?.let { location ->
-                                this.io_customerly__cardaccount_location.text = location
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+                this.itemView.io_customerly__cardaccount_job.apply {
+                    this.visibility = clyAdminFull.jobTitle?.let { jobTitle ->
+                        this.text = jobTitle
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
 
-                        this.itemView.io_customerly__cardaccount_fb.apply {
-                            this.visibility = clyAdminFull.socialProfileFacebook?.let { fbUrl ->
-                                this.setOnClickListener { it.activity?.startUrl(url = fbUrl) }
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+                this.itemView.io_customerly__cardaccount_motto.apply {
+                    this.visibility = clyAdminFull.description?.let { description ->
+                        this.text = description
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
 
-                        this.itemView.io_customerly__cardaccount_twitter.apply {
-                            this.visibility = clyAdminFull.socialProfileTwitter?.let { twitterUrl ->
-                                this.setOnClickListener { it.activity?.startUrl(url = twitterUrl) }
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+                this.itemView.io_customerly__cardaccount_location_layout.apply {
+                    this.visibility = clyAdminFull.location?.let { location ->
+                        this.io_customerly__cardaccount_location.text = location
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
 
-                        this.itemView.io_customerly__cardaccount_linkedin.apply {
-                            this.visibility = clyAdminFull.socialProfileLinkedin?.let { linkedinUrl ->
-                                this.setOnClickListener { it.activity?.startUrl(url = linkedinUrl) }
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+                this.itemView.io_customerly__cardaccount_fb.apply {
+                    this.visibility = clyAdminFull.socialProfileFacebook?.let { fbUrl ->
+                        this.setOnClickListener { it.activity?.startUrl(url = fbUrl) }
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
 
-                        this.itemView.io_customerly__cardaccount_instagram.apply {
-                            this.visibility = clyAdminFull.socialProfileInstagram?.let { instagramUrl ->
-                                this.setOnClickListener { it.activity?.startUrl(url = instagramUrl) }
-                                View.VISIBLE
-                            } ?: View.GONE
-                        }
+                this.itemView.io_customerly__cardaccount_twitter.apply {
+                    this.visibility = clyAdminFull.socialProfileTwitter?.let { twitterUrl ->
+                        this.setOnClickListener { it.activity?.startUrl(url = twitterUrl) }
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
 
-                    } ?: {
-                        this.itemView.io_customerly__cardaccount_job.visibility = View.GONE
-                        this.itemView.io_customerly__cardaccount_motto.visibility = View.GONE
-                        this.itemView.io_customerly__cardaccount_location_layout.visibility = View.GONE
-                        this.itemView.io_customerly__cardaccount_fb.visibility = View.GONE
-                        this.itemView.io_customerly__cardaccount_twitter.visibility = View.GONE
-                        this.itemView.io_customerly__cardaccount_linkedin.visibility = View.GONE
-                        this.itemView.io_customerly__cardaccount_instagram.visibility = View.GONE
-                        Customerly.lastPing.activeAdmins?.asSequence()?.maxBy { it.lastActive }
-                    }()
-                        )?.also { admin ->
-                        ClyImageRequest(context = chatActivity, url = admin.getImageUrl(sizePx = 80.dp2px))
-                                .fitCenter()
-                                .transformCircle()
-                                .resize(width = 80.dp2px)
-                                .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
-                                .into(imageView = this.itemView.io_customerly__icon)
-                                .start()
-                        this.itemView.io_customerly__cardaccount_name.apply {
-                            this.text = admin.name
-                        }
-                    }
+                this.itemView.io_customerly__cardaccount_linkedin.apply {
+                    this.visibility = clyAdminFull.socialProfileLinkedin?.let { linkedinUrl ->
+                        this.setOnClickListener { it.activity?.startUrl(url = linkedinUrl) }
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
+
+                this.itemView.io_customerly__cardaccount_instagram.apply {
+                    this.visibility = clyAdminFull.socialProfileInstagram?.let { instagramUrl ->
+                        this.setOnClickListener { it.activity?.startUrl(url = instagramUrl) }
+                        View.VISIBLE
+                    } ?: View.GONE
+                }
+
+                ClyImageRequest(context = chatActivity, url = clyAdminFull.getImageUrl(sizePx = 80.dp2px))
+                        .fitCenter()
+                        .transformCircle()
+                        .resize(width = 80.dp2px)
+                        .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
+                        .into(imageView = this.itemView.io_customerly__icon)
+                        .start()
+                this.itemView.io_customerly__cardaccount_name.apply {
+                    this.text = clyAdminFull.name
+                }
+
+                this.itemView.io_customerly__cardaccount_cardlayout.visibility = View.VISIBLE
+
+            } else {
+                this.itemView.io_customerly__cardaccount_cardlayout.visibility = View.GONE
+            }
 
         }
     }

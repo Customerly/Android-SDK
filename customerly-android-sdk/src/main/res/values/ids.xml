@@ -75,4 +75,5 @@
     <item type="id" name="io_customerly__cardaccount_twitter" />
     <item type="id" name="io_customerly__cardaccount_linkedin" />
     <item type="id" name="io_customerly__cardaccount_instagram" />
+    <item type="id" name="io_customerly__cardaccount_cardlayout" />
 </resources>

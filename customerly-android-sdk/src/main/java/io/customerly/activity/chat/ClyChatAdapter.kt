@@ -33,7 +33,7 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
 
     private val weakChatActivity = chatActivity.weak()
 
-    internal fun position2listIndex(position: Int) = when {
+    private fun position2listIndex(position: Int) = when {
         this.weakChatActivity.get()?.typingAccountId != TYPING_NO_ONE -> position - 1
         else -> position
     }
@@ -126,6 +126,10 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
             = 1 + (this.weakChatActivity.get()?.let { it.chatList.size + if (it.typingAccountId == TYPING_NO_ONE) { 0 } else { 1 } } ?: 0)
 
     override fun onViewDetachedFromWindow(holder: ClyChatViewHolder) { holder.itemView.clearAnimation() }
+
+    fun notifyAccountCardChanged() {
+        this.notifyItemChanged(this.itemCount - 1)
+    }
 
 
 }

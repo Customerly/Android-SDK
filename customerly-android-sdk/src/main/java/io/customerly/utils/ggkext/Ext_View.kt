@@ -19,6 +19,7 @@
 package io.customerly.utils.ggkext
 
 import android.app.Activity
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.support.annotation.ColorInt
@@ -28,6 +29,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.widget.SwitchCompat
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.PopupWindow
 import java.lang.ref.WeakReference
 
@@ -126,4 +128,8 @@ internal fun overrideValueAnimatorDurationScale(durationScale : Float = 1f) {
             }
          */
     } catch (justInCase_es_methodNameRefactoring: Throwable) { }
+}
+
+internal fun View.dismissKeyboard() {
+    (this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)?.hideSoftInputFromWindow(this.windowToken, 0)
 }

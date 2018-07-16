@@ -27,8 +27,8 @@ import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_MESSAGE_NEWS
-import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.ClySocketParams
+import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.chat.parseMessagesList
 import io.customerly.entity.parseSocketParams
 import io.customerly.utils.CUSTOMERLY_DEV_MODE
@@ -63,6 +63,8 @@ internal class ClySocket {
 
     internal var typingListener: ((conversationId: Long, accountId: Long, isTyping: Boolean)->Unit)? = null
 
+
+
     internal fun connect(newParams: JSONObject? = null) {
 
         val params = newParams?.takeIf { Customerly.isSdkAvailable && !Customerly.appInsolvent }?.parseSocketParams() ?: this.activeParams
@@ -71,12 +73,13 @@ internal class ClySocket {
             this.shouldBeConnected = true
             Customerly.checkConfigured {
                 if(params != null) {
-                    if(this.socket?.connected() != true || this.activeParams?.equals(params) != true) {
+                    val currentSocket = this.socket
+                    if(currentSocket?.connected() != true || this.activeParams?.equals(params) != true) {
                         //if socket is null or disconnected or connected with different params
-                        this.disconnect(reconnecting = true)
+                        this.disconnect(reconnecting = true, socket = currentSocket)
 
                         try {
-                            this.socket = IO.socket(params.uri, IO.Options().apply {
+                            val newSocket = IO.socket(params.uri, IO.Options().apply {
                                 this.secure = true
                                 this.forceNew = true
                                 this.reconnection = false
@@ -136,19 +139,48 @@ internal class ClySocket {
                                 }
 
                                 val connectTime = System.currentTimeMillis()
-                                socket.on(Socket.EVENT_DISCONNECT, {
+                                socket.on(Socket.EVENT_DISCONNECT) {
                                     if (System.currentTimeMillis() > connectTime + 15000L) {
                                         //Trick to avoid reconnection loop caused by disconnection after connection
                                         this.check()
                                     }
-                                })
+                                }
 
                                 this.activeParams = params
                             }.connect()
+
+                            setCurrentSocket(newSocket = newSocket)
                         } catch (ignored: Exception) { }
                     }
                 }
             }
+        }
+    }
+
+    private val LOCK = arrayOfNulls<Any>(0)
+    private fun setCurrentSocket(newSocket: Socket) {
+        synchronized(this.LOCK) {
+            this.disposeSocketCallUnderLOCK(socket = this.socket)
+            this.socket = newSocket
+        }
+    }
+    private fun disposeSocketCallUnderLOCK(socket: Socket?) {
+        if (socket != null) {
+            if (this.socket == socket) {
+                this.socket = null
+                this.activeParams = null
+            }
+            socket.off()
+            socket.disconnect()
+        }
+    }
+
+    internal fun disconnect(reconnecting: Boolean = false, socket: Socket? = this.socket) {
+        if(!reconnecting) {
+            this.shouldBeConnected = false
+        }
+        synchronized(this.LOCK) {
+            this.disposeSocketCallUnderLOCK(socket = socket)
         }
     }
 
@@ -188,19 +220,6 @@ internal class ClySocket {
                     }
                 }
             }
-        }
-    }
-
-    internal fun disconnect(reconnecting: Boolean = false) {
-        if(!reconnecting) {
-            this.shouldBeConnected = false
-        }
-        val socket = this.socket
-        if (socket != null) {
-            this.socket = null
-            this.activeParams = null
-            socket.off()
-            socket.disconnect()
         }
     }
 

@@ -17,7 +17,6 @@ package io.customerly.activity.conversations
  */
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -41,7 +40,6 @@ import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_CONVERSATION_RETRIEVE
-import io.customerly.api.ENDPOINT_MESSAGE_SEND
 import io.customerly.entity.ClyAdmin
 import io.customerly.entity.chat.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
@@ -124,14 +122,18 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                             .mapNotNull { (conversationId,messages) ->
                                 //Get list of most recent message groupedBy conversationId
                                 messages.maxBy { it.id }?.let { lastMessage ->
-                                    this.find { it.id == conversationId }?.let { existingConversation ->
+                                    val existingConversation = this.find { it.id == conversationId }
+                                    if(existingConversation != null) {
                                         //if the message belongs to a conversation already in list, the conversation item is updated and discarded from this sequence
                                         existingConversation.onNewMessage(message = lastMessage)
                                         null
-                                    } ?: lastMessage.toConversation() //message of a new conversation: a new Conversation instance is created
+                                    } else {
+                                        //message of a new conversation: a new Conversation instance is created
+                                        lastMessage.toConversation()
+                                    }
                                 }
                             }.toArrayList())
-            this.sortBy { it.lastMessage.date }
+            this.sortByDescending { it.lastMessage.date }
         }
         this.displayInterface(conversationsList = newConversationList)
 
@@ -252,59 +254,16 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     }
 
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
+        this.startClyChatActivity(
+                conversationId = MESSAGE_CONVERSATIONID_UNKNOWN,
+                messageContent = content,
+                attachments = attachments.toList().toArrayList(),
+                mustShowBack = Customerly.jwtToken?.isAnonymous == false,
+                requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
         if(Customerly.jwtToken?.isAnonymous != false) {
-            this.startClyChatActivity(conversationId = MESSAGE_CONVERSATIONID_UNKNOWN, messageContent = content, attachments = attachments.toList().toArrayList(), mustShowBack = false, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
             this.finish()
-        } else {
-            this.doLeadUserSendMessage(content = content, attachments = attachments)
         }
     }
-
-    private fun doLeadUserSendMessage(
-            //TODO Replace deprecated ProgressDialog
-            progressDialog: ProgressDialog = ProgressDialog.show(
-                    this,
-                    this.getString(R.string.io_customerly__new_conversation),
-                    this.getString(R.string.io_customerly__sending_message),
-                    true,
-                    false),
-            content: String,
-            attachments: Array<ClyAttachment>) {
-
-        val weakActivity = this.weak()
-        ClyApiRequest(
-                context = this,
-                endpoint = ENDPOINT_MESSAGE_SEND,
-                requireToken = true,
-                trials = 2,
-                jsonObjectConverter = { data ->
-                    data
-                            .takeIf { data.has("conversation") }
-                            ?.optJSONObject("message")
-                            ?.also { Customerly.clySocket.sendMessage(timestamp = data.optLong("timestamp", -1L)) }
-                            ?.optLong("conversation_id", -1L)
-                            ?: -1L
-                },
-                callback = { response ->
-                    progressDialog.ignoreException { it.dismiss() }
-                    weakActivity.get()?.also { activity ->
-                        when {
-                            response is ClyApiResponse.Success && response.result != -1L -> {
-                                activity.openConversationById(conversationId = response.result)
-                            }
-                            else/* response is ClyApiResponse.Success && response.result == -1L || response is ClyApiResponse.Failure */ -> {
-                                activity.inputInput?.setText(content)
-                                attachments.forEach { it.addAttachmentToInput(inputActivity = activity) }
-                                Toast.makeText(activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                })
-                .p(key = "message", value = content)
-                .p(key = "attachments", value = attachments.toJSON(context = this))
-                .start()
-    }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
