@@ -9,7 +9,7 @@ import io.customerly.R
  * Project: DemoCustomerly
  */
 internal fun Context.playNotifSound() {
-    MediaPlayer.create(this, R.raw.notif_2).apply {
+    MediaPlayer.create(this, R.raw.io_customerly__notif_2).apply {
         this.setOnCompletionListener { mp ->
             mp.reset()
             mp.release()

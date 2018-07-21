@@ -113,7 +113,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename).takeIf { it.exists() }?.let { file ->
                                     (context.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
                                             ?.notify(downloadId.toInt(), NotificationCompat.Builder(context, CHANNEL_ID_DOWNLOAD)
-                                            .setSmallIcon(R.drawable.ic_file_download)
+                                            .setSmallIcon(R.drawable.io_customerly__ic_file_download)
                                             .setContentTitle(context.getString(R.string.io_customerly__download_complete))
                                             .setContentText(filename)
                                             .setAutoCancel(true)
