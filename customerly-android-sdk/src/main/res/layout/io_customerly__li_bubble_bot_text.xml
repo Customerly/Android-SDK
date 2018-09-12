@@ -25,11 +25,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/io_customerly__chat_date_accounttime"
+        android:layout_centerHorizontal="true"
         android:fontFamily="sans-serif"
         tools:ignore="UnusedAttribute"
-        android:layout_centerHorizontal="true"
         android:padding="7.5dp"
-        android:visibility="gone" />
+        tools:text="19-06-2018"
+        tools:visibility="visible"
+        android:visibility="gone"/>
 
     <ImageView android:id="@id/io_customerly__icon"
         android:layout_width="@dimen/io_customerly__chat_li_icon_size"
@@ -39,14 +41,15 @@
         android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_icon_screen_border"
         android:contentDescription="@string/io_customerly__icon"
         android:layout_below="@id/io_customerly__date"
-        android:layout_alignWithParentIfMissing="true" />
+        android:layout_alignWithParentIfMissing="true"
+        tools:src="@drawable/io_customerly__ic_bot_50dp" />
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/io_customerly__bubble"
         android:layout_marginRight="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginStart="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="left|start"
@@ -58,42 +61,18 @@
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true" >
 
-        <ImageView
-            android:contentDescription="@string/io_customerly__image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="15dp"
-            android:src="@drawable/io_customerly__ic_email_grey_32dp" />
-
         <TextView android:id="@id/io_customerly__content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="@dimen/io_customerly__bubble_max_minus40dp"
             android:textColor="@color/io_customerly__bubble_account_textcolor"
             android:textSize="15sp"
             android:fontFamily="sans-serif"
-            tools:ignore="UnusedAttribute"
-            tools:text="@string/io_customerly__rich_message_text_via_email"
-            android:paddingTop="5dp" />
-
-        <LinearLayout android:id="@id/io_customerly__attachment_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            android:orientation="vertical" />
-
-        <TextView android:id="@id/io_customerly__time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|end"
-
-            android:paddingTop="10dp"
-            android:textColor="@color/io_customerly__chat_date_accounttime"
-            android:textSize="11sp"
-            android:textStyle="italic"
-            android:fontFamily="sans-serif"
-            tools:ignore="SmallSp,UnusedAttribute" />
+            android:textColorLink="@color/io_customerly__blue_malibu"
+            android:textIsSelectable="true"
+            android:autoLink="all"
+            android:maxWidth="@dimen/io_customerly__bubble_max_width"
+            tools:text="Example messageeeeeeeeeeeeeeeeee"
+            tools:ignore="UnusedAttribute" />
 
     </LinearLayout>
 

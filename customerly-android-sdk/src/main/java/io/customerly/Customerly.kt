@@ -214,7 +214,7 @@ object Customerly {
     fun setCompany(company: HashMap<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
         company.assertValidCompanyMap()
 
-        if(Customerly.jwtToken?.isUser == true) {
+        if(Customerly.iamUser()) {
             Customerly.tryClyTask(failure = failure) {
                 Customerly.ping(trySurvey = false, tryLastMessage = false, company = company,
                         success = success, successLog = "setCompany task completed successfully",
@@ -269,7 +269,7 @@ object Customerly {
         attributes?.assertValidAttributesMap()
         company?.assertValidCompanyMap()
 
-        Customerly.currentUser.updateUser(email = email, userId = userId?.takeIf { it.isNotBlank() })
+        Customerly.currentUser.updateUser(email = email, userId = userId?.takeIf { it.isNotBlank() }, name = name)
 
         Customerly.tryClyTask(failure = failure) {
             Customerly.ping(trySurvey = false, tryLastMessage = true,
@@ -317,7 +317,7 @@ object Customerly {
     fun trackEvent(eventName: String) {
         if(eventName.isNotEmpty()) {
             Customerly.tryClyTask {
-                if(Customerly.jwtToken?.isAnonymous == false) {
+                if(Customerly.iamLead() || Customerly.iamUser()) {
                     ClyApiRequest(
                             endpoint = ENDPOINT_EVENT_TRACKING,
                             trials = 2,
@@ -428,7 +428,7 @@ object Customerly {
                 }
             }
 
-    internal var currentUser: ClyCurrentUser = ClyCurrentUser()
+    internal val currentUser: ClyCurrentUser = ClyCurrentUser()
 
     internal var lastPing: ClyPingResponse by DefaultInitializerDelegate(constructor = { Customerly.preferences?.lastPingRestore() ?: ClyPingResponse() })
 
@@ -444,11 +444,10 @@ object Customerly {
 
     internal var appId: String? by TryOnceDelegate(attempt = { Customerly.preferences?.safeString(key = PREF_KEY_APP_ID) })
 
-    internal val welcomeMessage: Spanned? get() = fromHtml(message = if(this.jwtToken?.isUser == true) {
-                this.lastPing.welcomeMessageUsers
-            } else {
-                this.lastPing.welcomeMessageVisitors
-            })
+    internal val welcomeMessage: Spanned? get() = fromHtml(message = when {
+        Customerly.iamUser()    ->  this.lastPing.welcomeMessageUsers
+        else    ->  this.lastPing.welcomeMessageVisitors
+    })
 
     private lateinit var disabledActivities: ArrayList<String>
 
@@ -575,7 +574,7 @@ object Customerly {
     @Throws(IllegalArgumentException::class)
     private fun setJsonAttributes(attributes: HashMap<String, Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
         attributes.assertValidAttributesMap()
-        if(Customerly.jwtToken?.isUser == true) {
+        if(Customerly.iamUser()) {
             Customerly.tryClyTask(failure = failure) {
                 Customerly.ping(trySurvey = false, tryLastMessage = false, attributes = attributes,
                         success = success, successLog = "setAttributes task completed successfully",
@@ -630,8 +629,8 @@ object Customerly {
             ClyApiRequest(
                     endpoint = ENDPOINT_ACCOUNT_DETAILS,
                     requireToken = true,
-                    jsonArrayConverter = {
-                        it.asSequenceOptNotNullMapped<JSONObject,ClyAdminFull> { it.nullOnException { it.parseAdminFull() } }.toList().toTypedArray()
+                    jsonArrayConverter = { ja ->
+                        ja.asSequenceOptNotNullMapped<JSONObject,ClyAdminFull> { jo -> jo.nullOnException { jobj -> jobj.parseAdminFull() } }.toList().toTypedArray()
                     },
                     callback = {
                         when(it) {

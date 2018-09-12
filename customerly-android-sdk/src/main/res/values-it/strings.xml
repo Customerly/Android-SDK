@@ -64,8 +64,10 @@
     <string name="io_customerly__hint_insert_a_number">Inserisci un numero</string>
     <string name="io_customerly__hint_insert_a_text">Inserisci un testo</string>
     <string name="io_customerly__image">Immagine</string>
-    <string name="io_customerly__rich_message_text">Questo messaggio è stato inviato via email.\nTocca qui per leggerlo.</string>
-    <string name="io_customerly__rich_message_text__condensed_for_alert">Messaggio inviato via email.\nTocca per leggerlo.</string>
+    <string name="io_customerly__rich_message_text_via_email">Questo messaggio è stato inviato via email.\nTocca qui per leggerlo.</string>
+    <string name="io_customerly__rich_message_text_no_email">Tocca qui per visualizzare il contenuto di questo messaggio.</string>
+    <string name="io_customerly__rich_message_text__condensed_for_alert_via_email">Messaggio inviato via email.\nTocca per leggerlo.</string>
+    <string name="io_customerly__rich_message_text__condensed_for_alert_no_email">Tocca qui per visualizzare il contenuto di questo messaggio.</string>
     <string name="io_customerly__support">Supporto</string>
     <string name="io_customerly__open_conversation">Apri conversazione</string>
     <string name="io_customerly__cant_access_external_memory">Impossibile accedere alla memoria esterna</string>

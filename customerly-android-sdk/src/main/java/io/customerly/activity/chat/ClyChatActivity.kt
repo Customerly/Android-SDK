@@ -42,6 +42,7 @@ import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.*
 import io.customerly.entity.ClyAdminFull
 import io.customerly.entity.chat.*
+import io.customerly.entity.iamLead
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
 import io.customerly.utils.getContrastBW
@@ -66,7 +67,7 @@ private const val PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE = 4321
 
 internal fun Activity.startClyChatActivity(conversationId: Long, messageContent:String? = null, attachments: ArrayList<ClyAttachment>? = null, mustShowBack: Boolean = true, requestCode: Int = -1) {
     val intent = Intent(this, ClyChatActivity::class.java)
-    if (conversationId != MESSAGE_CONVERSATIONID_UNKNOWN) {
+    if (conversationId != CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
         intent.putExtra(EXTRA_CONVERSATION_ID, conversationId)
     }
     if (messageContent != null) {
@@ -91,8 +92,9 @@ internal fun Activity.startClyChatActivity(conversationId: Long, messageContent:
 
 internal class ClyChatActivity : ClyIInputActivity() {
 
-    private var conversationId: Long = MESSAGE_CONVERSATIONID_UNKNOWN
+    private var conversationId: Long = CONVERSATIONID_UNKNOWN_FOR_MESSAGE
     internal var typingAccountId = TYPING_NO_ONE
+    internal var typingAccountName: String? = null
     internal var chatList = ArrayList<ClyMessage>(0)
     internal var conversationFullAdmin: ClyAdminFull? = null
     private var conversationFullAdminFromMessagesAccountId: Long? = null
@@ -101,7 +103,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         override fun invoke(scrollListener: RvProgressiveScrollListener) {
             this.wActivity.get()?.let { activity ->
                 Customerly.checkConfigured {
-                    activity.conversationId.takeIf { it != MESSAGE_CONVERSATIONID_UNKNOWN }?.also { conversationId ->
+                    activity.conversationId.takeIf { it != CONVERSATIONID_UNKNOWN_FOR_MESSAGE }?.also { conversationId ->
                         ClyApiRequest(
                                 context = this.wActivity.get(),
                                 endpoint = ENDPOINT_MESSAGE_RETRIEVE,
@@ -172,7 +174,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                 }).also {
                             it.p(key = "conversation_id", value = conversationId)
                             it.p(key = "per_page", value = MESSAGES_PER_PAGE)
-                            it.p(key = "messages_before_id", value = activity.chatList.mapNotNull { if(it.id > 0) it.id else null }.min() ?: Long.MAX_VALUE)
+                            it.p(key = "messages_before_id", value = activity.chatList.mapNotNull { msg -> if(msg.id > 0) msg.id else null }.min() ?: Long.MAX_VALUE)
                         }.start()
                     }
                 }
@@ -203,8 +205,8 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 recyclerView.adapter = ClyChatAdapter(chatActivity = this)
             }
 
-            val conversationId: Long = this.intent.getLongExtra(EXTRA_CONVERSATION_ID, MESSAGE_CONVERSATIONID_UNKNOWN)
-            if(conversationId != MESSAGE_CONVERSATIONID_UNKNOWN) {
+            val conversationId: Long = this.intent.getLongExtra(EXTRA_CONVERSATION_ID, CONVERSATIONID_UNKNOWN_FOR_MESSAGE)
+            if(conversationId != CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
                 this.onConversationId(conversationId = conversationId)
                 this.updateAccountInfos(fallbackUserOnLastActive = false)
             } else {
@@ -227,7 +229,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         this.inputLayout?.visibility = View.VISIBLE
         val weakRv = this.io_customerly__recycler_view.weak()
 
-        Customerly.clySocket.typingListener = { pConversationId, accountId, pTyping ->
+        Customerly.clySocket.typingListener = { pConversationId, accountId, accountName, pTyping ->
             if((pTyping && typingAccountId != accountId)
                     ||
                     (!pTyping && typingAccountId != TYPING_NO_ONE)) {
@@ -237,6 +239,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                             true -> when(this.typingAccountId) {
                                 TYPING_NO_ONE -> {
                                     this.typingAccountId = accountId
+                                    this.typingAccountName = accountName
                                     weakRv.get()?.also { recyclerView ->
                                         recyclerView.adapter?.notifyItemInserted(0)
                                         (recyclerView.layoutManager as? LinearLayoutManager)?.takeIf {
@@ -246,11 +249,13 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                 }
                                 else -> {
                                     this.typingAccountId = accountId
+                                    this.typingAccountName = accountName
                                     weakRv.get()?.adapter?.notifyItemChanged(0)
                                 }
                             }
                             false -> {
                                 this.typingAccountId = TYPING_NO_ONE
+                                this.typingAccountName = null
                                 weakRv.get()?.adapter?.notifyItemRemoved(0)
                             }
                         }
@@ -280,14 +285,14 @@ internal class ClyChatActivity : ClyIInputActivity() {
                     if(activity.chatList.count { it.writer.isAccount } == 0) {
                         val nearestOfficeHours = Customerly.lastPing.officeHours?.map { it to it.getNearestFactor(now = now) }?.minBy { (_, factor) -> factor }
                         if (nearestOfficeHours == null || nearestOfficeHours.second == 0L) {
-                            activity.addMessageAt0(message = ClyMessage.Bot(
+                            activity.addMessageAt0(message = ClyMessage.Bot.Text(
                                     messageId = activity.chatList.optAt(0)?.id
                                             ?: -System.currentTimeMillis(),
                                     conversationId = conversationId,
                                     content = activity.getString(replyTimeStringResId)))
                         } else {
                             nearestOfficeHours.first.getBotMessage(context = activity, now = now)?.apply {
-                                activity.addMessageAt0(message = ClyMessage.Bot(
+                                activity.addMessageAt0(message = ClyMessage.Bot.Text(
                                         messageId = activity.chatList.optAt(0)?.id
                                                 ?: -System.currentTimeMillis(),
                                         conversationId = conversationId,
@@ -300,9 +305,23 @@ internal class ClyChatActivity : ClyIInputActivity() {
         }, 3000)
         this.io_customerly__recycler_view.postDelayed( {
             weakActivity.reference { activity ->
-                if (activity.chatList.count { it.writer.isAccount } == 0) {
+
+                if(Customerly.currentUser.email == null) {
+
+                    activity.addMessageAt0(message = ClyMessage.Bot.Text(
+                            messageId = activity.chatList.optAt(0)?.id
+                                    ?: -System.currentTimeMillis(),
+                            conversationId = conversationId,
+                            content = activity.getString(R.string.io_customerly__give_them_a_way_to_reach_you)))
+
+                    activity.io_customerly__recycler_view.postDelayed( {
+                        weakActivity.get()?.addMessageAt0(message = ClyMessage.Bot.Form.AskEmail(conversationId = conversationId, messageId = 1))
+                    }, 1000)
+
+                } else if (activity.chatList.count { it.writer.isAccount } == 0) {
                     activity.tryLoadForm()
                 }
+                null
             }
         }, 4000)
     }
@@ -314,7 +333,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     override fun onDestroy() {
         Customerly.clySocket.typingListener = null
-        this.conversationId.takeIf { it != MESSAGE_CONVERSATIONID_UNKNOWN }?.apply { Customerly.clySocket.sendStopTyping(conversationId = this) }
+        this.conversationId.takeIf { it != CONVERSATIONID_UNKNOWN_FOR_MESSAGE }?.apply { Customerly.clySocket.sendStopTyping(conversationId = this) }
         super.onDestroy()
     }
 
@@ -367,9 +386,9 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     private fun sendSeen(messageId: Long) {
         val wContext = this.weak()
-        ClySntpClient.getNtpTimeAsync(context = this) {
+        ClySntpClient.getNtpTimeAsync(context = this) { time ->
 
-            val utc = (it ?: System.currentTimeMillis()).msAsSeconds
+            val utc = (time ?: System.currentTimeMillis()).msAsSeconds
 
             Customerly.clySocket.sendSeen(messageId = messageId, seenTimestamp = utc)
 
@@ -403,7 +422,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                 chatList.indexOf(message).takeIf { it != -1 }?.also {
                                     chatList[it] = response.result
                                     activity.notifyItemChangedInList(message = response.result)
-                                    if(activity.conversationId == MESSAGE_CONVERSATIONID_UNKNOWN) {
+                                    if(activity.conversationId == CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
                                         activity.onConversationId(conversationId = response.result.conversationId)
                                     }
                                 }
@@ -417,7 +436,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                         activity.updateAccountInfos(true)
                     }
                 }).apply {
-                    if(message.conversationId != MESSAGE_CONVERSATIONID_UNKNOWN) {
+                    if(message.conversationId != CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
                         this.p(key = "conversation_id", value = message.conversationId)
                     }
                 }
@@ -438,27 +457,55 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     @UiThread
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
-        val userID = Customerly.jwtToken?.userID
+        val userId = Customerly.jwtToken?.userID
         val conversationId = this.conversationId
-        if(userID != null) {
-            ClyMessage.Real(writerUserid = userID, conversationId = conversationId, content = content, attachments = attachments).also { message ->
+        when {
+            userId != null -> ClyMessage.Human.UserLocal(userId = userId, conversationId = conversationId, content = content, attachments = attachments).also { message ->
                 this.addMessageAt0(message = message)
                 this.startSendMessageRequest(message = message)
             }
-        } else {
-            this.inputLayout?.visibility = View.GONE
-            ClyMessage.RealUserPending(conversationId = conversationId, content = content, attachments = attachments).also { pendingMessage ->
+            Customerly.lastPing.allowAnonymousChat -> {
+                val pendingMessage = ClyMessage.Human.UserLocal(conversationId = conversationId, content = content, attachments = attachments)
                 this.addMessageAt0(message = pendingMessage)
-                this.addMessageAt0(message = ClyMessage.BotAskEmailForm(messageId = 1, pendingMessage = pendingMessage))
+                val weakActivity = this.weak()
+                ClyApiRequest(
+                        context = this.applicationContext,
+                        endpoint = ENDPOINT_PING,
+                        jsonObjectConverter = { Unit },
+                        callback = { response ->
+                            Customerly.jwtToken?.userID?.apply { pendingMessage.writer.id = this }
+                            weakActivity.reference { clyChatActivity ->
+                                when (response) {
+                                    is ClyApiResponse.Success -> {
+                                        pendingMessage.setStateSending()
+                                        clyChatActivity.notifyItemChangedInList(message = pendingMessage)
+                                        clyChatActivity.startSendMessageRequest(message = pendingMessage)
+                                    }
+                                    is ClyApiResponse.Failure -> {
+                                        pendingMessage.setStateFailed()
+                                        clyChatActivity.notifyItemChangedInList(message = pendingMessage)
+                                    }
+                                }
+                            }
+                        })
+                        .p(key = "force_lead", value = true)
+                        .start()
+            }
+            else -> {
+                this.inputLayout?.visibility = View.GONE
+                ClyMessage.Human.UserLocal(conversationId = conversationId, content = content, attachments = attachments).also { pendingMessage ->
+                    this.addMessageAt0(message = pendingMessage)
+                    this.addMessageAt0(message = ClyMessage.Bot.Form.AskEmail(conversationId = pendingMessage.conversationId, messageId = 1, pendingMessage = pendingMessage))
+                }
             }
         }
     }
 
     internal fun tryLoadForm() {
-        if(Customerly.jwtToken?.isUser == false && this.chatList.asSequence().none { it is ClyMessage.BotProfilingForm && !it.form.answerConfirmed}) {
+        if(Customerly.iamLead() && this.chatList.asSequence().none { it is ClyMessage.Bot.Form.Profiling && !it.form.answerConfirmed}) {
             Customerly.lastPing.nextFormDetails?.also { form ->
-                this.conversationId.takeIf { it != MESSAGE_CONVERSATIONID_UNKNOWN }?.also { conversationId ->
-                    this.addMessageAt0(message = ClyMessage.BotProfilingForm(
+                this.conversationId.takeIf { it != CONVERSATIONID_UNKNOWN_FOR_MESSAGE }?.also { conversationId ->
+                    this.addMessageAt0(message = ClyMessage.Bot.Form.Profiling(
                             messageId = this.chatList.optAt(0)?.id ?: -System.currentTimeMillis(),
                             conversationId = conversationId,
                             form = form))
@@ -473,7 +520,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
             (it.adapter as? ClyChatAdapter)?.apply {
                 this.notifyItemInserted(this.listIndex2position(listIndex = 0))
             }
-            (it.layoutManager as? LinearLayoutManager)?.takeIf { it.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
+            (it.layoutManager as? LinearLayoutManager)?.takeIf { llm -> llm.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
         }
     }
 
@@ -501,9 +548,9 @@ internal class ClyChatActivity : ClyIInputActivity() {
         this.io_customerly__recycler_view?.let {
             val wRv = it.weak()
             it.post {
-                wRv.get()?.let {
-                    it.adapter?.notifyDataSetChanged()
-                    (it.layoutManager as? LinearLayoutManager)?.takeIf { it.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
+                wRv.get()?.let { rv ->
+                    rv.adapter?.notifyDataSetChanged()
+                    (rv.layoutManager as? LinearLayoutManager)?.takeIf { llm -> llm.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
                 }
             }
         }

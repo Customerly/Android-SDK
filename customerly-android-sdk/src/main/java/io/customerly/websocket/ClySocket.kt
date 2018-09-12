@@ -50,8 +50,10 @@ import org.json.JSONObject
 private const val SOCKET_EVENT__TYPING = "typing"
 private const val SOCKET_EVENT__SEEN = "seen"
 private const val SOCKET_EVENT__MESSAGE = "message"
+private const val SOCKET_EVENT__ATTRIBUTE_SET = "attribute:set"
+private const val SOCKET_EVENT__USER_CHANGED = "user:changed"
 
-@StringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE)
+@StringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE, SOCKET_EVENT__ATTRIBUTE_SET, SOCKET_EVENT__USER_CHANGED)
 @Retention(AnnotationRetention.SOURCE)
 private annotation class SocketEvent
 
@@ -61,9 +63,7 @@ internal class ClySocket {
     private var socket: Socket? = null
     private var activeParams: ClySocketParams? = null
 
-    internal var typingListener: ((conversationId: Long, accountId: Long, isTyping: Boolean)->Unit)? = null
-
-
+    internal var typingListener: ((conversationId: Long, accountId: Long, accountName: String?, isTyping: Boolean)->Unit)? = null
 
     internal fun connect(newParams: JSONObject? = null) {
 
@@ -93,7 +93,9 @@ internal class ClySocket {
                                                 "is_typing":"y",
                                                 "client":{"account_id":82,"name":"Gianni"}
                                             }   */
-                                        val accountId = payloadJson.optTyped<JSONObject>(name = "client")?.optTyped<Long>(name = "account_id")
+                                        val (accountId, accountName) = payloadJson.optTyped<JSONObject>(name = "client")?.let { client ->
+                                            client.optTyped<Long>(name = "account_id") to client.optTyped<String>(name = "name")
+                                        } ?: null to null
                                         if(accountId != null) {
                                             this.logSocket(event = SOCKET_EVENT__TYPING, payloadJson = payloadJson)
 
@@ -101,7 +103,7 @@ internal class ClySocket {
                                                 if(Customerly.jwtToken?.userID == conversation.optTyped(name = "user_id", fallback = -1L)
                                                         && !conversation.optTyped(name = "is_note", fallback = false)) {
                                                     conversation.optTyped<Long>(name = "conversation_id")?.let {  conversationId ->
-                                                        this.typingListener?.invoke(conversationId, accountId, "y" == payloadJson.optTyped<String>("is_typing"))
+                                                        this.typingListener?.invoke(conversationId, accountId, accountName, "y" == payloadJson.optTyped<String>("is_typing"))
                                                     }
                                                 }
                                             }
@@ -157,6 +159,7 @@ internal class ClySocket {
         }
     }
 
+    @Suppress("PrivatePropertyName")
     private val LOCK = arrayOfNulls<Any>(0)
     private fun setCurrentSocket(newSocket: Socket) {
         synchronized(this.LOCK) {
@@ -286,5 +289,20 @@ internal class ClySocket {
                                         .put("is_note", false)))
             }
         }
+    }
+
+    internal fun sendAttributeSet(name: String, value: Any) {
+        Customerly.jwtToken?.userID?.ignoreException { userId ->
+            this.send(
+                    event = SOCKET_EVENT__ATTRIBUTE_SET,
+                    payloadJson = JSONObject()
+                            .put("user_id", userId)
+                            .put("name", name)
+                            .put("value", value))
+        }
+    }
+
+    internal fun sendUserChanged(user: JSONObject) {
+        this.send(event = SOCKET_EVENT__USER_CHANGED, payloadJson = user)
     }
 }

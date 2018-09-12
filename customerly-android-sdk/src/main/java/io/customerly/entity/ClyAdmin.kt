@@ -36,5 +36,5 @@ internal open class ClyAdmin
     val name: String = adminJson.optTyped(name = "name", fallback = "")
     val lastActive: Long = adminJson.optTyped(name = "last_active", fallback = 0L)
 
-    internal fun getImageUrl(@Px sizePx: Int) : String = urlImageAccount(accountId = this.accountId, sizePX = sizePx)
+    internal fun getImageUrl(@Px sizePx: Int) : String = urlImageAccount(accountId = this.accountId, sizePX = sizePx, name = this.name)
 }

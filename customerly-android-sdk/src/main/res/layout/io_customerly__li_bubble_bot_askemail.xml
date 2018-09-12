@@ -64,7 +64,8 @@
         android:layout_marginEnd="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginStart="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
         android:layout_marginLeft="@dimen/io_customerly__chat_li_margin_bubble_screen_border"
-        android:layout_width="wrap_content"
+        android:layout_marginBottom="3dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="left|start"
@@ -72,7 +73,6 @@
         android:elevation="1dp"
         android:background="@drawable/io_customerly__bkg_bubble_account_rounded"
         tools:targetApi="lollipop"
-        android:layout_marginBottom="3dp"
         android:layout_below="@id/io_customerly__date"
         android:layout_alignWithParentIfMissing="true" >
 
@@ -136,7 +136,7 @@
 
         </LinearLayout>
 
-        <TextView android:id="@+id/io_customerly__askemail_privacy_policy"
+        <TextView android:id="@+id/io_customerly__botform_privacy_policy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"

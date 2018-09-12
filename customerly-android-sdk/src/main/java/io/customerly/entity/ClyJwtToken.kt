@@ -51,6 +51,10 @@ internal fun JSONObject.parseJwtToken() {
     Customerly.jwtToken = this.optTyped<String>(name = "token")?.nullOnException { ClyJwtToken(encodedJwt = it) }
 }
 
+fun Customerly.iamUser() = this.jwtToken?.isUser == true
+fun Customerly.iamLead() = this.jwtToken?.isLead == true
+fun Customerly.iamAnonymous() = this.jwtToken?.isAnonymous == true
+
 internal class ClyJwtToken @Throws(IllegalArgumentException::class)
     constructor(
         @org.intellij.lang.annotations.Pattern(JWT_VALIDATOR_MATCHER)
@@ -61,9 +65,9 @@ internal class ClyJwtToken @Throws(IllegalArgumentException::class)
 
     @UserType
     private val userType: Int
-    internal val isUser: Boolean get() = USER_TYPE__USER and this.userType != 0
-    internal val isLead: Boolean get() = USER_TYPE__LEAD and this.userType != 0
-    internal val isAnonymous: Boolean get() = USER_TYPE__ANONYMOUS and this.userType != 0
+    internal val isUser: Boolean
+    internal val isLead: Boolean
+    internal val isAnonymous: Boolean
 
     init {
         if (!this.encodedJwt.matches(JWT_VALIDATOR_MATCHER.toRegex())) {
@@ -79,9 +83,15 @@ internal class ClyJwtToken @Throws(IllegalArgumentException::class)
         if (payloadJson != null) {
             this.userID = payloadJson.optTyped("id", -1L).takeUnless { it == -1L }
             this.userType = payloadJson.optTyped("type", USER_TYPE__ANONYMOUS)
+            this.isUser = USER_TYPE__USER and this.userType != 0
+            this.isLead = USER_TYPE__LEAD and this.userType != 0
+            this.isAnonymous = USER_TYPE__ANONYMOUS and this.userType != 0
         } else {
             this.userID = null
             this.userType = USER_TYPE__ANONYMOUS
+            this.isUser = false
+            this.isLead = false
+            this.isAnonymous = true
         }
 
         Customerly.preferences?.edit()?.putString(PREFS_JWT_KEY, this.encodedJwt)?.apply()

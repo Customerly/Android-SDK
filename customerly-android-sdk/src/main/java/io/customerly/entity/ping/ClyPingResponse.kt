@@ -37,7 +37,16 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
         val minVersion = this.optTyped(name = "min-version-android", fallback = "0.0.0")
         val activeAdmins = this.optArray<JSONObject, ClyAdmin>(name = "active_admins", map = { it.parseAdmin() })
         val lastSurveys = this.optArray<JSONObject, ClySurvey>(name = "last_surveys", map = { it.parseSurvey() })
-        val lastMessages = this.optArray<JSONObject, ClyMessage>(name = "last_messages", map = { it.nullOnException { it.parseMessage() } })
+        val lastMessages = this.optArray<JSONObject, ClyMessage>(name = "last_messages", map = { it.nullOnException { json -> json.parseMessage() } })
+
+        this.optTyped<JSONObject>(name = "user")?.optTyped<JSONObject>(name = "data")?.also { userData ->
+            userData.optTyped<String>(name = "email")?.also { userEmail ->
+                Customerly.currentUser.updateUser(
+                        email = userEmail,
+                        userId = userData.optTyped<String>(name = "user_id")?.takeIf { it.isNotBlank() },
+                        name = userData.optTyped<String>(name = "name")?.takeIf { it.isNotBlank() })
+            }
+        }
 
         this.optTyped<JSONObject>(name = "app_config")?.let { appConfig ->
             @ColorInt val widgetColor: Int = Customerly.widgetColorHardcoded ?: appConfig.optTyped<String>(name = "widget_color")?.takeIf { it.isNotEmpty() }?.let {
@@ -55,7 +64,7 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                 } ?: COLORINT_BLUE_MALIBU
 
             val formsDetails: ArrayList<ClyFormDetails>?
-            if(Customerly.jwtToken?.isUser == false && appConfig.optTyped(name = "user_profiling_form_enabled", fallback = 0) == 1) {
+            if(Customerly.iamLead() && appConfig.optTyped(name = "user_profiling_form_enabled", fallback = 0) == 1) {
 
                 val appStates:JSONObject? = this.optTyped<JSONObject>("app_states")
                 val userDataAttributes = this.optTyped<JSONObject>("user")?.parseUserDataAttributes()
@@ -87,7 +96,8 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     replyTime = appConfig.optTyped(name = "reply_time", fallback = 0).toClyReplyTime,
                     activeAdmins = activeAdmins,
                     lastSurveys = lastSurveys,
-                    lastMessages = lastMessages)
+                    lastMessages = lastMessages,
+                    allowAnonymousChat = appConfig.optTyped(name = "allow_anonymous_chat", fallback = 0) == 1)
 
         } ?: ClyPingResponse(
                 minVersion = minVersion,
@@ -106,6 +116,7 @@ private const val PREFS_KEY_PRIVACY_URL             = "CUSTOMERLY_LASTPING_PRIVA
 private const val PREFS_KEY_POWERED_BY              = "CUSTOMERLY_LASTPING_POWERED_BY"
 private const val PREFS_KEY_WELCOME_USERS           = "CUSTOMERLY_LASTPING_WELCOME_USERS"
 private const val PREFS_KEY_WELCOME_VISITORS        = "CUSTOMERLY_LASTPING_WELCOME_VISITORS"
+private const val PREFS_KEY_ALLOW_ANONYMOUS_CHAT    = "CUSTOMERLY_LASTPING_ALLOW_ANONYMOUS_CHAT"
 
 internal fun SharedPreferences.lastPingRestore() : ClyPingResponse {
     return ClyPingResponse(
@@ -115,7 +126,8 @@ internal fun SharedPreferences.lastPingRestore() : ClyPingResponse {
             privacyUrl = this.safeString(io.customerly.entity.ping.PREFS_KEY_PRIVACY_URL),
             poweredBy = this.safeBoolean(io.customerly.entity.ping.PREFS_KEY_POWERED_BY, true),
             welcomeMessageUsers = this.safeString(io.customerly.entity.ping.PREFS_KEY_WELCOME_USERS),
-            welcomeMessageVisitors = this.safeString(io.customerly.entity.ping.PREFS_KEY_WELCOME_VISITORS))
+            welcomeMessageVisitors = this.safeString(io.customerly.entity.ping.PREFS_KEY_WELCOME_VISITORS),
+            allowAnonymousChat = this.safeBoolean(io.customerly.entity.ping.PREFS_KEY_ALLOW_ANONYMOUS_CHAT, false))
 }
 
 private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
@@ -127,6 +139,7 @@ private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
             ?.putBoolean(PREFS_KEY_POWERED_BY, lastPing.poweredBy)
             ?.putString(PREFS_KEY_WELCOME_USERS, lastPing.welcomeMessageUsers)
             ?.putString(PREFS_KEY_WELCOME_VISITORS, lastPing.welcomeMessageVisitors)
+            ?.putBoolean(PREFS_KEY_ALLOW_ANONYMOUS_CHAT, lastPing.allowAnonymousChat)
         ?.apply()
 }
 
@@ -143,7 +156,8 @@ internal class ClyPingResponse(
         internal val lastMessages: Array<ClyMessage>? = null,
         private val formsDetails: ArrayList<ClyFormDetails>? = null,
         internal val officeHours: Array<ClyOfficeHours>? = null,
-        internal val replyTime: ClyReplyTime? = null) {
+        internal val replyTime: ClyReplyTime? = null,
+        internal val allowAnonymousChat: Boolean = false) {
 
     init {
         Customerly.preferences?.lastPingStore(lastPing = this)
@@ -172,7 +186,7 @@ internal class ClyPingResponse(
 
     internal fun tryShowLastMessage(): Boolean {
         return if(Customerly.isSupportEnabled) {
-            val lastMessage = this.lastMessages?.firstOrNull()
+            val lastMessage = this.lastMessages?.firstOrNull { !it.discarded }
             if(lastMessage != null) {
                 lastMessage.postDisplay()
                 true

@@ -39,15 +39,20 @@ import io.customerly.activity.ClyIInputActivity
 import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
+import io.customerly.api.ENDPOINT_CONVERSATION_DISCARD
 import io.customerly.api.ENDPOINT_CONVERSATION_RETRIEVE
 import io.customerly.entity.ClyAdmin
 import io.customerly.entity.chat.*
+import io.customerly.entity.iamAnonymous
+import io.customerly.entity.iamLead
+import io.customerly.entity.iamUser
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.playNotifSound
 import io.customerly.utils.ui.RVDIVIDER_V_BOTTOM
 import io.customerly.utils.ui.RvDividerDecoration
 import kotlinx.android.synthetic.main.io_customerly__activity_list.*
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -68,7 +73,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         private val weakActivity = this@ClyConversationsActivity.weak()
         override fun onRefresh() {
             weakActivity.get()?.also { activity ->
-                if (Customerly.jwtToken?.isAnonymous != true) {
+                if (Customerly.iamLead() || Customerly.iamUser()) {
                     ClyApiRequest(
                             context = activity,
                             endpoint = ENDPOINT_CONVERSATION_RETRIEVE,
@@ -104,7 +109,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             }
 
             this.io_customerly__new_conversation_button.setOnClickListener {
-                (it.activity as? ClyConversationsActivity)?.startClyChatActivity(conversationId = MESSAGE_CONVERSATIONID_UNKNOWN, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+                (it.activity as? ClyConversationsActivity)?.startClyChatActivity(conversationId = CONVERSATIONID_UNKNOWN_FOR_MESSAGE, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
             }
 
             this.io_customerly__recycler_view_swipe_refresh.setOnRefreshListener(this.onRefreshListener)
@@ -168,6 +173,21 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     private fun displayInterface(conversationsList: ArrayList<ClyConversation>?) {
         if(conversationsList?.isNotEmpty() == true) {
             this.io_customerly__first_contact_swipe_refresh.visibility = View.GONE
+            ClyApiRequest<Any>(
+                    context = this,
+                    endpoint = ENDPOINT_CONVERSATION_DISCARD,
+                    requireToken = true,
+                    jsonObjectConverter = { it })
+                    .p(
+                            key = "conversation_ids",
+                            value = conversationsList
+                                    .asSequence()
+                                    .filter { it.unread && !it.lastMessage.discarded }
+                                    .fold(JSONArray()) { ja, c ->
+                                        c.lastMessage.discarded = true
+                                        ja.put(c.id)
+                                    })
+                    .start()
             this.conversationsList = conversationsList
             this.io_customerly__recycler_view.adapter.notifyDataSetChanged()
             this.inputLayout?.visibility = View.GONE
@@ -227,14 +247,14 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
             admins?.asSequence()?.mapNotNull { it.lastActive }?.max()?.let { lastActiveAdmin ->
                 showWelcomeCard = true
-                this.io_customerly__layout_first_contact__last_activity.also {
-                    it.text = lastActiveAdmin.formatByTimeAgo(
+                this.io_customerly__layout_first_contact__last_activity.also { tv ->
+                    tv.text = lastActiveAdmin.formatByTimeAgo(
                             seconds = { this.getString(R.string.io_customerly__last_activity_now) },
                             minutes = { this.resources.getQuantityString(R.plurals.io_customerly__last_activity_XXm_ago, it.toInt(), it) },
                             hours   = { this.resources.getQuantityString(R.plurals.io_customerly__last_activity_XXh_ago, it.toInt(), it) },
                             days    = { this.resources.getQuantityString(R.plurals.io_customerly__last_activity_XXd_ago, it.toInt(), it) })
 
-                    it.visibility = View.VISIBLE
+                    tv.visibility = View.VISIBLE
                 }
             }
 
@@ -255,12 +275,12 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
         this.startClyChatActivity(
-                conversationId = MESSAGE_CONVERSATIONID_UNKNOWN,
+                conversationId = CONVERSATIONID_UNKNOWN_FOR_MESSAGE,
                 messageContent = content,
                 attachments = attachments.toList().toArrayList(),
-                mustShowBack = Customerly.jwtToken?.isAnonymous == false,
+                mustShowBack = Customerly.iamLead() || Customerly.iamUser(),
                 requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
-        if(Customerly.jwtToken?.isAnonymous != false) {
+        if(Customerly.iamAnonymous()) {
             this.finish()
         }
     }

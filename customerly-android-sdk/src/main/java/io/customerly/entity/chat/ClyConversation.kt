@@ -37,6 +37,7 @@ internal fun JSONObject.parseConversation() : ClyConversation {
             id = this.getTyped("conversation_id"),
             lastMessageAbstract = fromHtml(message = this.getTyped("last_message_abstract")),
             lastMessageDate = this.getTyped("last_message_date"),
+            lastMessageDiscarded = this.getTyped<Int>("last_message_discarded") == 1,
             writer = ClyWriter.Real.from(
                     type = this.getTyped("last_message_writer_type"),
                     id = this.getTyped("last_message_writer"),
@@ -55,15 +56,15 @@ internal class ClyConversation (
     internal constructor(id : Long,
                          lastMessageAbstract : Spanned,
                          lastMessageDate : Long,
+                         lastMessageDiscarded : Boolean,
                          writer: ClyWriter,
-                         unread : Boolean = true
-
-        ) : this(
+                         unread : Boolean = true) : this(
                 id = id,
                 lastMessage = ClyConvLastMessage(
                         message = lastMessageAbstract,
                         date = lastMessageDate,
-                        writer = writer),
+                        writer = writer,
+                        discarded = lastMessageDiscarded),
                 unread = unread)
 
     internal fun onNewMessage(message : ClyMessage) {

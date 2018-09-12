@@ -3,6 +3,7 @@ package io.customerly.entity.ping
 import io.customerly.Customerly
 import io.customerly.activity.chat.ClyChatActivity
 import io.customerly.api.ClyApiRequest
+import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_FORM_ATTRIBUTE
 import io.customerly.utils.ggkext.*
 import org.json.JSONObject
@@ -46,47 +47,51 @@ internal data class ClyFormDetails(
 ) {
     fun sendAnswer(chatActivity: ClyChatActivity?, callback:()->Unit) {
         if(chatActivity != null) {
-            val weakChatActivity = chatActivity.weak()
-            val request = ClyApiRequest<Any>(
-                    context = chatActivity,
-                    endpoint = ENDPOINT_FORM_ATTRIBUTE,
-                    requireToken = true,
-                    callback = {
-                        Customerly.lastPing.setFormAnswered(form = this)
-                        weakChatActivity.get()?.tryLoadForm()
-                        callback()
-                    })
-                    .p(key = "name", value = this.attributeName)
-            when (this.cast) {
-                ClyFormCast.NUMERIC -> {
-                    (this.answer as? Double)?.also { answer ->
-                        if(answer - answer.toInt() == 0.0) {
-                            request.p(key = "value", value = answer.toInt()).start()
-                        } else {
-                            request.p(key = "value", value = answer).start()
-                        }
-                    } ?: callback()
-                }
-                ClyFormCast.STRING -> {
-                    (this.answer as? String)?.also { answer ->
-                        request.p(key = "value", value = answer).start()
-                    } ?: callback()
-                }
-                ClyFormCast.DATE -> {
-                    (this.answer as? Long)?.msAsSeconds?.also { answer ->
-                        request.p(key = "value", value = answer).start()
-                    } ?: callback()
-                }
-                ClyFormCast.BOOL -> {
-                    when (this.answer) {
-                        true -> Integer.valueOf(1)
-                        false -> Integer.valueOf(0)
-                        else -> null
-                    }?.also { answer ->
-                        request.p(key = "value", value = answer).start()
-                    } ?: callback()
-                }
+            this.normalizedAnswer?.also { answer ->
+                val weakChatActivity = chatActivity.weak()
+                ClyApiRequest(
+                        context = chatActivity,
+                        endpoint = ENDPOINT_FORM_ATTRIBUTE,
+                        jsonObjectConverter = { jo -> jo },
+                        requireToken = true,
+                        callback = { response ->
+                            when (response) {
+                                is ClyApiResponse.Success -> {
+                                    Customerly.lastPing.setFormAnswered(form = this)
+                                    Customerly.clySocket.sendAttributeSet(name = this.attributeName, value = answer)
+                                    Customerly.clySocket.sendUserChanged(user = response.result)
+                                    response.result.optJSONObject("data")?.also { data ->
+                                        data.optString("email")?.also { email ->
+                                            Customerly.currentUser.updateUser(email = email, userId = data.optString("user_id"), name = data.optString("name"))
+                                        }
+                                    }
+                                    callback()
+                                }
+                            }
+                            weakChatActivity.get()?.tryLoadForm()
+                        })
+                        .p(key = "name", value = this.attributeName)
+                        .p(key = "value", value = answer).start()
+            } ?: callback()
+        }
+    }
+
+    private val normalizedAnswer: Any? get() = when (this.cast) {
+        ClyFormCast.NUMERIC -> (this.answer as? Double)?.let { answer ->
+            if(answer - answer.toInt() == 0.0) {
+                @Suppress("IMPLICIT_CAST_TO_ANY")
+                answer.toInt()
+            } else {
+                @Suppress("IMPLICIT_CAST_TO_ANY")
+                answer
             }
+        }
+        ClyFormCast.STRING -> this.answer as? String
+        ClyFormCast.DATE -> (this.answer as? Long)?.msAsSeconds
+        ClyFormCast.BOOL -> when (this.answer) {
+            true -> Integer.valueOf(1)
+            false -> Integer.valueOf(0)
+            else -> null
         }
     }
 

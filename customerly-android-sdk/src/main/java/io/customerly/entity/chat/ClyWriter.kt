@@ -42,19 +42,23 @@ internal sealed class ClyWriter(@WriterType private val type : Int, internal var
         return this.name ?: context.getString(R.string.io_customerly__you)
     }
 
-    internal fun loadUrl(into: ImageView, @Px size: Int): ClyImageRequest? {
+    private fun getImageUrl(@Px sizePx: Int) : String {
+        return when {
+            this.isUser -> urlImageUser(userID = this.id, sizePX = sizePx)
+            this.isAccount -> urlImageAccount(accountId = this.id, sizePX = sizePx, name = this.name)
+            else -> ""
+        }
+    }
+
+    internal fun loadUrl(into: ImageView, @Px sizePx: Int): ClyImageRequest? {
         return when {
             this.isUser || this.isAccount -> {
                 ClyImageRequest(
                         context = into.context,
-                        url = when {
-                            this.isUser -> urlImageUser(userID = this.id, sizePX = size)
-                            this.isAccount -> urlImageAccount(accountId = this.id, sizePX = size)
-                            else -> ""
-                        })
+                        url = this.getImageUrl(sizePx = sizePx))
                         .fitCenter()
                         .transformCircle()
-                        .resize(width = size)
+                        .resize(width = sizePx)
                         .placeholder(placeholder = R.drawable.io_customerly__ic_default_admin)
                         .into(imageView = into)
                         .start()

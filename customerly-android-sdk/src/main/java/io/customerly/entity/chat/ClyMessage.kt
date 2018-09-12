@@ -18,6 +18,7 @@ package io.customerly.entity.chat
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.IntDef
@@ -29,12 +30,15 @@ import android.widget.TextView
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
+import io.customerly.api.ClyApiRequest
+import io.customerly.api.ENDPOINT_CONVERSATION_DISCARD
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.clySendError
 import io.customerly.entity.ping.ClyFormDetails
 import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.fromHtml
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -50,7 +54,7 @@ import kotlin.collections.ArrayList
 private val TIME_FORMATTER = SimpleDateFormat("HH:mm", Locale.getDefault())
 private val DATE_FORMATTER = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG)
 
-internal const val MESSAGE_CONVERSATIONID_UNKNOWN = -1L
+internal const val CONVERSATIONID_UNKNOWN_FOR_MESSAGE = -1L
 
 private const val CSTATE_COMPLETED = 1
 private const val CSTATE_SENDING = 0
@@ -63,15 +67,15 @@ private annotation class CState
 
 @Throws(JSONException::class)
 internal fun JSONObject.parseMessage() : ClyMessage {
-    return ClyMessage.Real(
+    return ClyMessage.Human.Server(
             writerUserid = this.optTyped(name = "user_id", fallback = 0L),
             writerAccountId = this.optTyped(name = "account_id", fallback = 0L),
             writerAccountName = this.optTyped<JSONObject>(name = "account")?.optTyped(name = "name"),
             id = this.optTyped(name = "conversation_message_id", fallback = 0L),
-            conversationId = this.optTyped(name = "conversation_id", fallback = MESSAGE_CONVERSATIONID_UNKNOWN),
+            conversationId = this.optTyped(name = "conversation_id", fallback = CONVERSATIONID_UNKNOWN_FOR_MESSAGE),
             content = this.optTyped(name = "content", fallback = ""),
             attachments = this.optSequenceOpt<JSONObject>(name = "attachments")
-                    ?.map { it?.nullOnException { it.parseAttachment() } }
+                    ?.map { it?.nullOnException { json -> json.parseAttachment() } }
                     ?.requireNoNulls()
                     ?.toList()?.toTypedArray() ?: emptyArray(),
             contentAbstract = fromHtml(this.optTyped(name = "abstract", fallback = "")),
@@ -81,9 +85,9 @@ internal fun JSONObject.parseMessage() : ClyMessage {
                 null
             } else {
                 this.optTyped<String>(name = "rich_mail_link")
-            }).apply {
-        this.setStateCompleted()
-    }
+            },
+            discarded = this.optTyped("discarded", 0) == 1,
+            cState = CSTATE_COMPLETED)
 }
 
 internal fun JSONObject.parseMessagesList() : ArrayList<ClyMessage> {
@@ -104,39 +108,27 @@ internal sealed class ClyMessage(
         @STimestamp internal val sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
         @STimestamp private val seenDate : Long = sentDatetime,
         internal val richMailLink : String? = null,
-        @CState private var cState : Int = CSTATE_SENDING) {
+        @CState private var cState : Int = CSTATE_SENDING,
+        internal var discarded: Boolean = false) {
 
-    internal open class Bot(
-            messageId: Long,
-            conversationId: Long,
-            content: String
-    ): ClyMessage(
-            writer = ClyWriter.Bot,
-            content = content,
-            id = messageId,
-            conversationId = conversationId,
-            cState = CSTATE_COMPLETED
-    )
+    internal sealed class Bot(messageId: Long, conversationId: Long, content: String)
+        : ClyMessage(writer = ClyWriter.Bot, conversationId = conversationId, id = messageId, content = content, cState = CSTATE_COMPLETED) {
 
-    internal class BotProfilingForm(
-            messageId: Long,
-            conversationId: Long,
-            internal val form: ClyFormDetails
-    ): Bot(
-            messageId = messageId,
-            content = form.label.takeIf { it.isNotEmpty() } ?: form.hint ?: "",
-            conversationId = conversationId
-    )
+        internal class Text(conversationId: Long, messageId: Long, content: String)
+            : ClyMessage.Bot(conversationId = conversationId, messageId = messageId, content = content)
 
-    internal class BotAskEmailForm(
-            messageId: Long,
-            val pendingMessage: ClyMessage.RealUserPending): Bot(
-            messageId = messageId,
-            content = "",
-            conversationId = pendingMessage.conversationId
-    )
+        internal sealed class Form(conversationId: Long, messageId: Long, content: String)
+            : ClyMessage.Bot(conversationId = conversationId, messageId = messageId, content = content) {
 
-    internal open class Real(
+            internal class Profiling(conversationId: Long, messageId: Long, internal val form: ClyFormDetails)
+                : Bot.Form(conversationId = conversationId, messageId = messageId, content = form.label.takeIf { it.isNotEmpty() } ?: form.hint ?: "")
+
+            internal class AskEmail(conversationId: Long, messageId: Long, val pendingMessage: ClyMessage.Human.UserLocal? = null)
+                : Bot.Form(messageId = messageId, content = "", conversationId = conversationId)
+        }
+    }
+
+    internal sealed class Human(
             writer: ClyWriter,
             id : Long = 0,
             conversationId : Long,
@@ -149,7 +141,9 @@ internal sealed class ClyMessage(
             },
             @STimestamp sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
             @STimestamp seenDate : Long = sentDatetime,
-            richMailLink : String? = null
+            richMailLink : String? = null,
+            @CState cState : Int,
+            discarded: Boolean = false
     ): ClyMessage(
             writer = writer,
             id = id,
@@ -160,23 +154,27 @@ internal sealed class ClyMessage(
             sentDatetime = sentDatetime,
             seenDate = seenDate,
             richMailLink = richMailLink,
-            cState = CSTATE_SENDING
+            cState = cState,
+            discarded = discarded
     ) {
-        constructor(writerUserid : Long = 0,
-                    writerAccountId : Long = 0,
-                    writerAccountName : String? = null,
-                    id : Long = 0,
-                    conversationId : Long,
-                    content : String,
-                    attachments : Array<ClyAttachment>,
-                    contentAbstract : Spanned = when {
-                        content.isNotEmpty() -> fromHtml(message = content)
-                        attachments.isNotEmpty() -> SpannedString("[Attachment]")
-                        else -> SpannedString("")
-                    },
-                    @STimestamp sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
-                    @STimestamp seenDate : Long = sentDatetime,
-                    richMailLink : String? = null) : this(
+
+        internal class Server(writerUserid : Long = 0,
+                              writerAccountId : Long = 0,
+                              writerAccountName : String? = null,
+                              id : Long = 0,
+                              conversationId : Long,
+                              content : String,
+                              attachments : Array<ClyAttachment>,
+                              contentAbstract : Spanned = when {
+                                 content.isNotEmpty() -> fromHtml(message = content)
+                                 attachments.isNotEmpty() -> SpannedString("[Attachment]")
+                                 else -> SpannedString("")
+                             },
+                              @STimestamp sentDatetime : Long = System.currentTimeMillis().msAsSeconds,
+                              @STimestamp seenDate : Long = sentDatetime,
+                              richMailLink : String? = null,
+                              discarded: Boolean = false,
+                              @CState cState : Int) : Human(
                 writer = ClyWriter.Real.from(userId = writerUserid, accountId = writerAccountId, name = writerAccountName),
                 id = id,
                 conversationId = conversationId,
@@ -185,22 +183,24 @@ internal sealed class ClyMessage(
                 contentAbstract = contentAbstract,
                 sentDatetime = sentDatetime,
                 seenDate = seenDate,
-                richMailLink = richMailLink)
-    }
+                richMailLink = richMailLink,
+                discarded = discarded,
+                cState = cState)
 
-    internal class RealUserPending(
-            conversationId : Long,
-            content : String,
-            attachments : Array<ClyAttachment>)
-        : ClyMessage.Real(
-            writer = ClyWriter.Real.User(userId = -1, name = null),
-            conversationId = conversationId,
-            content = content,
-            attachments = attachments
-    ) {
-        init {
-            this.setStatePending()
-        }
+        internal class UserLocal(
+                userId : Long = -1,
+                conversationId : Long,
+                content : String,
+                attachments : Array<ClyAttachment>)
+            : ClyMessage.Human(
+                writer = ClyWriter.Real.User(userId = userId, name = null),
+                conversationId = conversationId,
+                content = content,
+                attachments = attachments,
+                cState = when(userId) {
+                    -1L -> CSTATE_PENDING
+                    else -> CSTATE_SENDING
+                })
     }
 
     internal val dateString: String = DATE_FORMATTER.format(Date(this.sentDatetime.secondsAsMs))
@@ -223,12 +223,6 @@ internal sealed class ClyMessage(
     internal fun setStateFailed() {
         this.cState = CSTATE_FAILED
     }
-    internal fun setStateCompleted() {
-        this.cState = CSTATE_COMPLETED
-    }
-    internal fun setStatePending() {
-        this.cState = CSTATE_PENDING
-    }
 
     internal fun isSentSameDay(of : ClyMessage) : Boolean
             = this.sentDatetime / (/*1000**/60 * 60 * 24) == of.sentDatetime / (/*1000**/60 * 60 * 24)
@@ -247,7 +241,7 @@ internal sealed class ClyMessage(
     }
 
     fun toConvLastMessage() : ClyConvLastMessage {
-        return ClyConvLastMessage(message = this.contentAbstract, date = this.sentDatetime, writer = this.writer)
+        return ClyConvLastMessage(message = this.contentAbstract, date = this.sentDatetime, writer = this.writer, discarded = this.discarded)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -296,5 +290,16 @@ internal sealed class ClyMessage(
             Customerly.log(message = "A generic error occurred Customerly while displaying a last message alert")
             clySendError(errorCode = ERROR_CODE__GENERIC, description = "Generic error in Customerly while displaying a last message alert", throwable = exception)
         }
+    }
+
+    internal fun discard(context: Context) {
+        ClyApiRequest<Any>(
+                context = context,
+                endpoint = ENDPOINT_CONVERSATION_DISCARD,
+                requireToken = true,
+                jsonObjectConverter = { it })
+                .p(key = "conversation_ids", value = JSONArray().also { ja -> ja.put(this.conversationId) })
+                .start()
+        this.discarded = true
     }
 }

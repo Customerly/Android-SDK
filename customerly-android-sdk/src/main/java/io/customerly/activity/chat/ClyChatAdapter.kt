@@ -50,19 +50,22 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
             else -> {
                 when (position) {
                     this.itemCount - 1 -> {
-                        R.layout.io_customerly__li_bubble_account_infos
+                        R.layout.io_customerly__li_bubble_accountinfos
                     }
                     else -> {
                         val message = this.weakChatActivity.get()?.chatList?.get(index = listIndex)
-                        when {
-                            message == null -> R.layout.io_customerly__li_bubble_account_rich
-                            message.writer.isUser -> R.layout.io_customerly__li_bubble_user
-                            message.writer.isBot -> when(message) {
-                                is ClyMessage.BotAskEmailForm -> R.layout.io_customerly__li_bubble_bot_askemail
-                                else -> R.layout.io_customerly__li_bubble_bot_form
+                        when(message) {
+                            null -> R.layout.io_customerly__li_bubble_account_rich
+                            is ClyMessage.Human -> when {
+                                message.writer.isUser -> R.layout.io_customerly__li_bubble_user
+                                message.richMailLink == null -> R.layout.io_customerly__li_bubble_account_text
+                                else -> R.layout.io_customerly__li_bubble_account_rich
                             }
-                            message.richMailLink == null -> R.layout.io_customerly__li_bubble_account
-                            else -> R.layout.io_customerly__li_bubble_account_rich
+                            is ClyMessage.Bot -> when(message) {
+                                is ClyMessage.Bot.Text -> R.layout.io_customerly__li_bubble_bot_text
+                                is ClyMessage.Bot.Form.AskEmail -> R.layout.io_customerly__li_bubble_bot_askemail
+                                is ClyMessage.Bot.Form.Profiling -> R.layout.io_customerly__li_bubble_bot_profilingform
+                            }
                         }
                     }
                 }
@@ -73,13 +76,14 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClyChatViewHolder {
         val recyclerView: RecyclerView = (parent as? RecyclerView) ?: (parent.activity as ClyChatActivity).io_customerly__recycler_view
         return when (viewType) {
-            R.layout.io_customerly__li_bubble_account_typing -> ClyChatViewHolder.Bubble.Typing(recyclerView = recyclerView)
-            R.layout.io_customerly__li_bubble_user -> ClyChatViewHolder.Bubble.Message.User(recyclerView = recyclerView)
-            R.layout.io_customerly__li_bubble_account -> ClyChatViewHolder.Bubble.Message.Account(recyclerView = recyclerView)
-            R.layout.io_customerly__li_bubble_bot_form -> ClyChatViewHolder.Bubble.Message.BotForm(recyclerView = recyclerView)
-            R.layout.io_customerly__li_bubble_bot_askemail -> ClyChatViewHolder.Bubble.Message.BotAskEmail(recyclerView = recyclerView)
-            R.layout.io_customerly__li_bubble_account_infos -> ClyChatViewHolder.AccountInfos(recyclerView = recyclerView)
-            else/* R.layout.io_customerly__li_message_account_rich */ -> ClyChatViewHolder.Bubble.Message.AccountRich(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_user ->                       ClyChatViewHolder.Bubble.Message.User(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_account_text ->               ClyChatViewHolder.Bubble.Message.Account.Text(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_account_rich ->               ClyChatViewHolder.Bubble.Message.Account.Rich(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_bot_text ->                   ClyChatViewHolder.Bubble.Message.Bot.Text(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_bot_profilingform ->          ClyChatViewHolder.Bubble.Message.Bot.Form.Profiling(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_bot_askemail ->               ClyChatViewHolder.Bubble.Message.Bot.Form.AskEmail(recyclerView = recyclerView)
+            R.layout.io_customerly__li_bubble_accountinfos ->               ClyChatViewHolder.AccountInfos(recyclerView = recyclerView)
+            else/* R.layout.io_customerly__li_bubble_account_typing */ ->   ClyChatViewHolder.Bubble.Typing(recyclerView = recyclerView)
         }
     }
 

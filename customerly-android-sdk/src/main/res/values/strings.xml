@@ -56,11 +56,13 @@
         <item quantity="other">Last activity %1$d days ago</item>
     </plurals>
 
-    <string name="io_customerly__outofoffice_dayx_atx" translatable="false">We are out of office at the moment. We will be back %s at %s</string>
-    <string name="io_customerly__outofoffice_tomorrow_atx" translatable="false">We are out of office at the moment. We will be back tomorrow at %s</string>
-    <string name="io_customerly__outofoffice_nextweekday_atx" translatable="false">We are out of office at the moment. We will be back next monday at %s</string>
-    <string name="io_customerly__outofoffice_nextweekend_atx" translatable="false">We are out of office at the moment. We will be back next saturday at %s</string>
-    <string name="io_customerly__outofoffice_today_atx" translatable="false">We are out of office at the moment. We will be back today at %s</string>
+    <string name="io_customerly__outofoffice_dayx_atx" translatable="false">We are out of office at the moment. We will be back %s at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_tomorrow_atx" translatable="false">We are out of office at the moment. We will be back tomorrow at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_nextweekday_atx" translatable="false">We are out of office at the moment. We will be back next monday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_nextweekend_atx" translatable="false">We are out of office at the moment. We will be back next saturday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_today_atx" translatable="false">We are out of office at the moment. We will be back today at %s</string><!-- TODO loc it,es -->
+
+    <string name="io_customerly__give_them_a_way_to_reach_you" translatable="false">Give them a way to reach you:</string>
 
     <!-- Localized -->
     <string name="io_customerly__write_your_question">Ask your question…</string>
@@ -97,8 +99,10 @@
     <string name="io_customerly__hint_insert_a_number">Insert a number</string>
     <string name="io_customerly__hint_insert_a_text">Insert a text</string>
     <string name="io_customerly__image">Image</string>
-    <string name="io_customerly__rich_message_text">This message was sent by email.\nTap to read.</string>
-    <string name="io_customerly__rich_message_text__condensed_for_alert">Message sent by email.\nTap to read.</string>
+    <string name="io_customerly__rich_message_text_via_email">This message was sent by email.\nTap to read.</string>
+    <string name="io_customerly__rich_message_text_no_email">Tap here to display the content of this message.</string>
+    <string name="io_customerly__rich_message_text__condensed_for_alert_via_email">Message sent by email.\nTap to read.</string>
+    <string name="io_customerly__rich_message_text__condensed_for_alert_no_email">Tap here to display the content of this message.</string>
     <string name="io_customerly__support">Support</string>
     <string name="io_customerly__open_conversation">Open conversation</string>
     <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>

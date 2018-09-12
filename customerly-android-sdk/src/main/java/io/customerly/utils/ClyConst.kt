@@ -25,9 +25,10 @@ import io.customerly.Customerly
  * Project: Customerly-KAndroid-SDK
  */
 
-const val USER_TYPE__ANONYMOUS = 1 //hex 0x01 dec: 1
-const val USER_TYPE__LEAD = 2 //hex 0x02 dec: 2
-const val USER_TYPE__USER = 4 //hex 0x04 dec: 4
+const val USER_TYPE__ANONYMOUS = 1 //hex 0x01 bin: 0001
+const val USER_TYPE__LEAD = 2 //hex 0x02 dec: 0010
+//const val USER_TYPE__MAILLESS_LEAD = 8 //hex 0x08 bin: 1000 //but a maillessLead is 10dec, 0x0a, 1010b because needs to match LEAD MASK
+const val USER_TYPE__USER = 4 //hex 0x04 bin: 0100
 
 @IntDef(USER_TYPE__ANONYMOUS, USER_TYPE__LEAD, USER_TYPE__USER)
 @Retention(value = AnnotationRetention.SOURCE)

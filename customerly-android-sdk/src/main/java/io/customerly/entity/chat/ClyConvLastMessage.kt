@@ -33,11 +33,12 @@ import io.customerly.utils.ggkext.formatByTimeAgo
 internal class ClyConvLastMessage(
         internal val message : Spanned,
         @STimestamp internal val date : Long,
-        internal val writer : ClyWriter
+        internal val writer : ClyWriter,
+        internal var discarded : Boolean
 ) {
 
     internal fun loadUrl(into: ImageView, @Px size: Int): ClyImageRequest?
-            = this.writer.loadUrl(into = into, size = size)
+            = this.writer.loadUrl(into = into, sizePx = size)
 
     internal fun getWriterName(context : Context) : String = this.writer.getName(context = context)
 

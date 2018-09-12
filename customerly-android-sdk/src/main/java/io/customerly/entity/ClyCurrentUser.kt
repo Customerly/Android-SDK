@@ -27,11 +27,14 @@ import org.json.JSONObject
  */
 private const val CUSTOMERLY_LOGGED_EMAIL = "CUSTOMERLY_LOGGED_EMAIL"
 private const val CUSTOMERLY_LOGGED_USERID = "CUSTOMERLY_LOGGED_USERID"
+private const val CUSTOMERLY_LOGGED_NAME = "CUSTOMERLY_LOGGED_NAME"
 private const val CUSTOMERLY_LOGGED_COMPANYINFO = "CUSTOMERLY_LOGGED_COMPANYINFO"
 internal class ClyCurrentUser {
     internal var email: String? = null
         private set
     internal var userId: String? = null
+            private set
+    internal var name: String? = null
             private set
     internal var company: HashMap<String,Any>? = null
             private set
@@ -39,6 +42,7 @@ internal class ClyCurrentUser {
     fun restore() {
         this.email = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_EMAIL, null)
         this.userId = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_USERID, null)
+        this.name = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_NAME, null)
         this.company = try {
             val json = JSONObject(Customerly.preferences?.getString(CUSTOMERLY_LOGGED_COMPANYINFO, null))
             val map = HashMap<String,Any>()
@@ -56,8 +60,9 @@ internal class ClyCurrentUser {
     fun logout() {
         this.email = null
         this.userId = null
+        this.name = null
         this.company = null
-        Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_EMAIL)?.remove(CUSTOMERLY_LOGGED_USERID)?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
+        Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_EMAIL)?.remove(CUSTOMERLY_LOGGED_USERID)?.remove(CUSTOMERLY_LOGGED_NAME)?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
     }
 
     fun removeCompany() {
@@ -65,8 +70,9 @@ internal class ClyCurrentUser {
         Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
     }
 
-    fun updateUser(email: String, userId: String?) {
+    fun updateUser(email: String, userId: String?, name: String?) {
         this.email = email
+        this.name = name
         this.userId = userId
         Customerly.preferences?.edit()
                 ?.putString(CUSTOMERLY_LOGGED_EMAIL, email)
@@ -84,5 +90,9 @@ internal class ClyCurrentUser {
                     ?.putString(CUSTOMERLY_LOGGED_COMPANYINFO, newCompany.toString())
                     ?.apply()
         }
+    }
+
+    fun privacyPolicyAlreadyChecked(): Boolean {
+        return this.email != null
     }
 }

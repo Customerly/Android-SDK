@@ -59,8 +59,10 @@
   <string name="io_customerly__hint_insert_a_number">Escribe un número</string>
   <string name="io_customerly__hint_insert_a_text">Escribe un texto</string>
   <string name="io_customerly__image">Imagen</string>
-  <string name="io_customerly__rich_message_text">Este mensaje ha sido enviado por correo electrónico.\nToca para leerlo.</string>
-  <string name="io_customerly__rich_message_text__condensed_for_alert">Mensaje enviado por correo electrónico.\nToca para leerlo.</string>
+  <string name="io_customerly__rich_message_text_via_email">Este mensaje ha sido enviado por correo electrónico.\nToca para leerlo.</string>
+  <string name="io_customerly__rich_message_text_no_email">Toca para ver el contenido de este mensaje.</string>
+  <string name="io_customerly__rich_message_text__condensed_for_alert_via_email">Mensaje enviado por correo electrónico.\nToca para leerlo.</string>
+  <string name="io_customerly__rich_message_text__condensed_for_alert_no_email">Toca para ver el contenido de este mensaje.</string>
   <string name="io_customerly__support">Asistencia</string>
   <string name="io_customerly__open_conversation">Abrir una conversación</string>
   <string name="io_customerly__cant_access_external_memory">No se puede acceder a la memoria externa</string>

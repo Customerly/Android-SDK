@@ -31,18 +31,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.Toast
-import io.customerly.utils.ggkext.start
-import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyAppCompatActivity
-import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.ERROR_CODE__GLIDE_ERROR
+import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.clySendError
+import io.customerly.entity.iamAnonymous
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
 import io.customerly.utils.getContrastBW
+import io.customerly.utils.ggkext.start
+import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.utils.htmlformatter.spannedFromHtml
 import java.util.*
 
@@ -119,7 +120,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (Customerly.jwtToken?.isAnonymous != false) {
+        if(Customerly.iamAnonymous()) {
             this.onLogoutUser()
         }
     }

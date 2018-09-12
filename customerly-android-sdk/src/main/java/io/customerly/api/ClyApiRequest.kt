@@ -175,9 +175,9 @@ internal class ClyApiRequest<RESPONSE: Any>
 
                 if (this is HttpsURLConnection) {
                     try {
-                        this.sslSocketFactory = SSLContext.getInstance("TLS").let {
-                            it.init(null, null, SecureRandom())
-                            it.socketFactory
+                        this.sslSocketFactory = SSLContext.getInstance("TLS").let { ssl ->
+                            ssl.init(null, null, SecureRandom())
+                            ssl.socketFactory
                         }
                     } catch (e: NoSuchAlgorithmException) {
                         e.printStackTrace()
@@ -202,9 +202,9 @@ internal class ClyApiRequest<RESPONSE: Any>
                                     "\n+ Accept-Language: " + connection.getRequestProperty("Accept-Language") +
                                     "\nJSON BODY:\n")
                     (requestBody
-                            .nullOnException { it.toString(4) } ?: "Malformed JSON")
+                            .nullOnException { jo -> jo.toString(4) } ?: "Malformed JSON")
                             .chunkedSequence(size = 500)
-                            .forEach { Log.e(CUSTOMERLY_SDK_NAME, it) }
+                            .forEach { row -> Log.e(CUSTOMERLY_SDK_NAME, row) }
                     Log.e(CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                 }
             }
@@ -219,9 +219,9 @@ internal class ClyApiRequest<RESPONSE: Any>
                                         conn.inputStream
                                     } else {
                                         conn.errorStream
-                                    })).use { it.lineSequence().joinToString { it } }
+                                    })).use { br -> br.lineSequence().joinToString { line -> line } }
 
-                    nullOnException { JSONObject(responseString) }?.let { responseJO -> //JSONObject Response
+                    nullOnException { _ -> JSONObject(responseString) }?.let { responseJO -> //JSONObject Response
                         @Suppress("ConstantConditionIf")
                         if (CUSTOMERLY_DEV_MODE) {
                             Log.e(CUSTOMERLY_SDK_NAME,
@@ -230,9 +230,9 @@ internal class ClyApiRequest<RESPONSE: Any>
                                             "\n+ Endpoint:        " + endpoint +
                                             "\nJSON BODY:\n")
                             (responseJO
-                                    .nullOnException { it.toString(4) } ?: "Malformed JSON")
+                                    .nullOnException { jo -> jo.toString(4) } ?: "Malformed JSON")
                                     .chunkedSequence(size = 500)
-                                    .forEach { Log.e(CUSTOMERLY_SDK_NAME, it) }
+                                    .forEach { row -> Log.e(CUSTOMERLY_SDK_NAME, row) }
                             Log.e(CUSTOMERLY_SDK_NAME, "\n-----------------------------------------------------------")
                         }
 
@@ -260,7 +260,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                                 }
                             }
                         }
-                    } ?: nullOnException { JSONArray(responseString) }?.let { responseJA -> //JSONArray response
+                    } ?: nullOnException { _ -> JSONArray(responseString) }?.let { responseJA -> //JSONArray response
                         ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResultJsonArray = responseJA)
                     } ?: ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
                 }

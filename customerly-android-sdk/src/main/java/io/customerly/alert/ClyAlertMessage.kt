@@ -25,6 +25,7 @@ import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.PopupWindow
+import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
@@ -78,6 +79,8 @@ internal fun Activity.showClyAlertMessage(message: ClyMessage) {
             this.playNotifSound()
         }
     }
+
+    message.discard(context = this.applicationContext)
 }
 
 internal class ClyAlertMessage
@@ -173,14 +176,15 @@ internal class ClyAlertMessage
         this.message = message
         val icon = this.contentView.findViewById<View>(R.id.io_customerly__icon) as ImageView
 
-        message.writer.loadUrl(into = icon, size = 50.dp2px)
+        message.writer.loadUrl(into = icon, sizePx = 50.dp2px)
 
         this.contentView.io_customerly__name.text = message.writer.getName(context = this.contentView.context)
 
         if (message.richMailLink == null) {
             this.contentView.io_customerly__content.text = message.contentAbstract
         } else {
-            this.contentView.io_customerly__content.setText(R.string.io_customerly__rich_message_text__condensed_for_alert)
+            this.contentView.io_customerly__content.setText(
+                    Customerly.currentUser.email?.let { R.string.io_customerly__rich_message_text__condensed_for_alert_via_email } ?: R.string.io_customerly__rich_message_text__condensed_for_alert_no_email)
         }
     }
 

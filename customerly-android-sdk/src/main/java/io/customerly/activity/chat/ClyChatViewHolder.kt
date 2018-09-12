@@ -43,8 +43,10 @@ import io.customerly.activity.fullscreen.startClyFullScreenImageActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
+import io.customerly.api.ENDPOINT_FORM_ATTRIBUTE
 import io.customerly.api.ENDPOINT_PING
 import io.customerly.entity.chat.ClyMessage
+import io.customerly.entity.iamAnonymous
 import io.customerly.entity.ping.ClyFormCast
 import io.customerly.entity.ping.ClyFormDetails
 import io.customerly.entity.urlImageAccount
@@ -52,7 +54,7 @@ import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.spannedFromHtml
 import io.customerly.utils.shortDateFomatter
-import kotlinx.android.synthetic.main.io_customerly__li_bubble_account_infos.view.*
+import kotlinx.android.synthetic.main.io_customerly__li_bubble_accountinfos.view.*
 import java.text.DecimalFormat
 import java.util.*
 
@@ -111,7 +113,7 @@ internal sealed class ClyChatViewHolder (
                 this.content.text = ".    "
                 this.icon?.also { icon ->
                     icon.visibility = if (isFirstMessageOfSender && typingAccountID != TYPING_NO_ONE) {
-                        ClyImageRequest(context = chatActivity, url = urlImageAccount(accountId = typingAccountID, sizePX = this.iconSize))
+                        ClyImageRequest(context = chatActivity, url = urlImageAccount(accountId = typingAccountID, sizePX = this.iconSize, name = chatActivity.typingAccountName))
                                 .fitCenter()
                                 .transformCircle()
                                 .resize(width = this.iconSize)
@@ -206,7 +208,7 @@ internal sealed class ClyChatViewHolder (
 
                 this.icon?.also { icon ->
                     icon.visibility = if (isFirstMessageOfSender) {
-                        message.writer.loadUrl(into = icon, size = this.iconSize)
+                        message.writer.loadUrl(into = icon, sizePx = this.iconSize)
                         View.VISIBLE
                     } else {
                         View.INVISIBLE
@@ -335,355 +337,418 @@ internal sealed class ClyChatViewHolder (
                 }
             }
 
-            internal class User(recyclerView: RecyclerView) : Message(
-                    recyclerView = recyclerView,
-                    layoutRes = R.layout.io_customerly__li_bubble_user,
-                    sendingProgressBarResId = R.id.io_customerly__content_sending_progressspinner,
-                    pendingMessageResId = R.id.io_customerly__pending_message_label,
-                    iconAttachment = R.drawable.io_customerly__ic_attach_user) {
+            internal class User(recyclerView: RecyclerView)
+                : Message(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_user, sendingProgressBarResId = R.id.io_customerly__content_sending_progressspinner,
+                    pendingMessageResId = R.id.io_customerly__pending_message_label, iconAttachment = R.drawable.io_customerly__ic_attach_user) {
                 init {
                     (this.itemView.findViewById<View>(R.id.bubble).background as? GradientDrawable)?.setColor(Customerly.lastPing.widgetColor)
                 }
             }
 
-            internal class Account(recyclerView: RecyclerView) : Message(
-                    recyclerView = recyclerView,
-                    layoutRes = R.layout.io_customerly__li_bubble_account,
-                    iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
+            internal sealed class Account(recyclerView: RecyclerView, @LayoutRes layoutRes: Int)
+                : Message(recyclerView = recyclerView, layoutRes = layoutRes, iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
 
-                private val accountName: TextView = this.itemView.findViewById(R.id.io_customerly__name)
+                internal class Text(recyclerView: RecyclerView) : Account(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_text) {
 
-                override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
-                    super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
-                    this.accountName.visibility = message?.takeIf { isFirstMessageOfSender }?.writer?.getName(context = chatActivity)?.takeIf { it.isNotEmpty() }?.let {
-                        this.accountName.text = it
-                        View.VISIBLE
-                    } ?: View.GONE
-                }
-            }
+                    private val accountName: TextView = this.itemView.findViewById(R.id.io_customerly__name)
 
-            internal class AccountRich(recyclerView: RecyclerView) : Message(
-                    recyclerView = recyclerView,
-                    layoutRes = R.layout.io_customerly__li_bubble_account_rich,
-                    iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
-
-                override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
-                    super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
-                    ({ v : View -> message?.richMailLink?.let { v.activity?.startClyWebViewActivity(targetUrl = it) } ?: Unit }
-                            ).also {
-                        this.content.setOnClickListener(it)
-                        this.itemView.setOnClickListener(it)
+                    override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
+                        super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
+                        this.accountName.visibility = message?.takeIf { isFirstMessageOfSender }?.writer?.getName(context = chatActivity)?.takeIf { it.isNotEmpty() }?.let {
+                            this.accountName.text = it
+                            View.VISIBLE
+                        } ?: View.GONE
                     }
                 }
 
-                override fun onEmptyContent() {}
-            }
+                internal class Rich(recyclerView: RecyclerView) : Account(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_rich) {
 
-            internal class BotForm(recyclerView: RecyclerView) : Message(
-                    recyclerView = recyclerView,
-                    layoutRes = R.layout.io_customerly__li_bubble_bot_form,
-                    iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
-
-                private val containerInput: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_input)
-                private val formInputInput: EditText = this.containerInput.findViewById(R.id.io_customerly__profilingform_input)
-                private val formInputSubmit: ImageButton = this.containerInput.findViewById(R.id.io_customerly__profilingform_button_submit_input)
-
-                private val containerTruefalse: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_truefalse)
-                private val containerDate: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_date)
-                private val sendingSpinner: View = this.itemView.findViewById(R.id.io_customerly__content_sending_progressspinner)
-
-
-                init {
-                    this.itemView.findViewById<View>(R.id.io_customerly__bubble).apply {
-                        this.layoutParams = this.layoutParams.apply {
-                            this.width = RelativeLayout.LayoutParams.MATCH_PARENT
+                    override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
+                        super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
+                        this.content.setText(Customerly.currentUser.email?.let { R.string.io_customerly__rich_message_text_via_email } ?: R.string.io_customerly__rich_message_text_no_email)
+                        ({ v : View -> message?.richMailLink?.let { v.activity?.startClyWebViewActivity(targetUrl = it) } ?: Unit }
+                                ).also {
+                            this.content.setOnClickListener(it)
+                            this.itemView.setOnClickListener(it)
                         }
                     }
-                    this.formInputInput.apply {
-                        this.addTextChangedListener(object : TextWatcher {
-                            val weakBotVH = this@BotForm.weak()
-                            override fun afterTextChanged(s: Editable?) {
-                                this.weakBotVH.get()?.currentForm?.apply {
-                                    this.answer = when (this.cast) {
-                                        ClyFormCast.NUMERIC -> s?.toString()?.toDoubleOrNull()
-                                        ClyFormCast.STRING -> s?.toString()
-                                        else -> null
-                                    }
-                                }
-                            }
-                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
-                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
-                        })
-                    }
 
-                    val weakBotForm = this.weak()
-                    this.formInputSubmit.setOnClickListener { btnSendInput ->
-                        weakBotForm.reference { vh ->
-                            val form = vh.currentForm
-                            if (form?.answer != null && ((form.answer as? String)?.isEmpty() != true)) {
-                                btnSendInput.dismissKeyboard()
-                                btnSendInput.isEnabled = false
-                                vh.formInputInput.isEnabled = false
-                                form.answerConfirmed = true
-                                vh.sendingSpinner.visibility = View.VISIBLE
-                                form.sendAnswer(chatActivity = btnSendInput.activity as? ClyChatActivity) {
-                                    weakBotForm.get()?.sendingSpinner?.visibility = View.GONE
-                                }
-                            }
-                        }
-                    }
+                    override fun onEmptyContent() {}
                 }
 
-                private var currentForm: ClyFormDetails? = null
+            }
+
+            internal sealed class Bot(recyclerView: RecyclerView, @LayoutRes layoutRes: Int)
+                : Message(recyclerView = recyclerView, layoutRes = layoutRes, iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
 
                 override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
                     super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
+                }
 
-                    if(message is ClyMessage.BotProfilingForm) {
-                        val form = message.form
-                        this.currentForm = form
-                        when (form.cast) {
-                            ClyFormCast.STRING, ClyFormCast.NUMERIC -> {
-                                this.containerTruefalse.visibility = View.GONE
-                                this.containerDate.visibility = View.GONE
-                                this.containerInput.visibility = View.VISIBLE
-                                this.formInputInput.also { inputEditText ->
-                                    when (form.cast) {
-                                        ClyFormCast.NUMERIC -> {
-                                            inputEditText.inputType = InputType.TYPE_CLASS_NUMBER
-                                            inputEditText.setText((form.answer as? Double)?.let {
-                                                DecimalFormat("#################.################").format(it)
-                                            })
-                                        }
-                                        else /* ClyFormCast.STRING */ -> {
-                                            inputEditText.inputType = InputType.TYPE_CLASS_TEXT
-                                            inputEditText.setText(form.answer as? String)
+                internal class Text(recyclerView: RecyclerView)
+                    : Bot(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_bot_text)
+
+                internal sealed class Form(recyclerView: RecyclerView, @LayoutRes layoutRes: Int, @IntRange(from = 1, to = Long.MAX_VALUE) privacyPolicyResId: Int = R.id.io_customerly__botform_privacy_policy)
+                    : Bot(recyclerView = recyclerView, layoutRes = layoutRes) {
+
+                    private val privacyPolicy: TextView = this.itemView.findViewById(privacyPolicyResId)
+
+                    override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
+                        super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
+
+                        val privacyUrl = Customerly.lastPing.privacyUrl
+                        if(privacyUrl?.isNotEmpty() == true && !Customerly.currentUser.privacyPolicyAlreadyChecked()) {
+                            this.privacyPolicy.also { policy ->
+                                policy.setOnClickListener {
+                                    it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
+                                }
+                                policy.text = spannedFromHtml(source = policy.context.getString(R.string.io_customerly__i_accept_the_privacy_policy))
+                                policy.visibility = View.VISIBLE
+                            }
+                        } else {
+                            this.privacyPolicy.visibility = View.GONE
+                        }
+                    }
+
+                    internal class Profiling(recyclerView: RecyclerView)
+                        : Bot.Form(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_bot_profilingform) {
+
+                        private val containerInput: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_input)
+                        private val formInputInput: EditText = this.containerInput.findViewById(R.id.io_customerly__profilingform_input)
+                        private val formInputSubmit: ImageButton = this.containerInput.findViewById(R.id.io_customerly__profilingform_button_submit_input)
+
+                        private val containerTruefalse: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_truefalse)
+                        private val containerDate: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_date)
+                        private val sendingSpinner: View = this.itemView.findViewById(R.id.io_customerly__content_sending_progressspinner)
+
+                        init {
+                            this.formInputInput.apply {
+                                this.addTextChangedListener(object : TextWatcher {
+                                    val weakBotVH = this@Profiling.weak()
+                                    override fun afterTextChanged(s: Editable?) {
+                                        this.weakBotVH.get()?.currentForm?.apply {
+                                            this.answer = when (this.cast) {
+                                                ClyFormCast.NUMERIC -> s?.toString()?.toDoubleOrNull()
+                                                ClyFormCast.STRING -> s?.toString()
+                                                else -> null
+                                            }
                                         }
                                     }
-                                    inputEditText.hint = form.hint
-                                    inputEditText.isEnabled = !form.answerConfirmed
-                                    this.formInputSubmit.isEnabled = !form.answerConfirmed
+                                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+                                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
+                                })
+                            }
+
+                            val weakBotForm = this.weak()
+                            this.formInputSubmit.setOnClickListener { btnSendInput ->
+                                weakBotForm.reference { vh ->
+                                    val form = vh.currentForm
+                                    if (form?.answer != null && ((form.answer as? String)?.isEmpty() != true)) {
+                                        btnSendInput.dismissKeyboard()
+                                        btnSendInput.isEnabled = false
+                                        vh.formInputInput.apply {
+                                            this.isEnabled = false
+                                            this.isFocusable = false
+                                            this.isFocusableInTouchMode = false
+                                            this.clearFocus()
+                                        }
+                                        form.answerConfirmed = true
+                                        vh.sendingSpinner.visibility = View.VISIBLE
+                                        form.sendAnswer(chatActivity = btnSendInput.activity as? ClyChatActivity) {
+                                            weakBotForm.get()?.sendingSpinner?.visibility = View.GONE
+                                        }
+                                    }
                                 }
                             }
-                            ClyFormCast.DATE -> {
-                                this.containerTruefalse.visibility = View.GONE
-                                this.containerInput.visibility = View.GONE
-                                this.containerDate.visibility = View.VISIBLE
-                                if (!form.answerConfirmed) {
-                                    this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
-                                        this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
-                                        this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
-                                        this.setOnClickListener {
+                        }
 
-                                            val now = Calendar.getInstance().apply {
-                                                (form.answer as? Long)?.also {
-                                                    this.timeInMillis = it
+                        private var currentForm: ClyFormDetails? = null
+
+                        override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
+                            super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
+
+                            if(message is ClyMessage.Bot.Form.Profiling) {
+                                val form = message.form
+                                this.currentForm = form
+                                when (form.cast) {
+                                    ClyFormCast.STRING, ClyFormCast.NUMERIC -> {
+                                        this.containerTruefalse.visibility = View.GONE
+                                        this.containerDate.visibility = View.GONE
+                                        this.containerInput.visibility = View.VISIBLE
+                                        this.formInputInput.also { inputEditText ->
+                                            when (form.cast) {
+                                                ClyFormCast.NUMERIC -> {
+                                                    inputEditText.inputType = InputType.TYPE_CLASS_NUMBER
+                                                    inputEditText.setText((form.answer as? Double)?.let {
+                                                        DecimalFormat("#################.################").format(it)
+                                                    })
+                                                }
+                                                else /* ClyFormCast.STRING */ -> {
+                                                    inputEditText.inputType = InputType.TYPE_CLASS_TEXT
+                                                    inputEditText.setText(form.answer as? String)
                                                 }
                                             }
+                                            inputEditText.hint = form.hint
+                                            inputEditText.isEnabled = !form.answerConfirmed
+                                            inputEditText.requestFocus()
+                                            this.formInputSubmit.isEnabled = !form.answerConfirmed
+                                        }
+                                    }
+                                    ClyFormCast.DATE -> {
+                                        this.containerTruefalse.visibility = View.GONE
+                                        this.containerInput.visibility = View.GONE
+                                        this.containerDate.visibility = View.VISIBLE
+                                        if (!form.answerConfirmed) {
+                                            this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
+                                                this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
+                                                this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                                this.requestFocus()
+                                                this.setOnClickListener {
 
-                                            DatePickerDialog(it.context,
-                                                    android.app.DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                                                        (it.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
-                                                            this.text = Calendar.getInstance().apply {
-                                                                this.set(Calendar.YEAR, year)
-                                                                this.set(Calendar.MONTH, month)
-                                                                this.set(Calendar.DAY_OF_MONTH, day)
-                                                            }.time.let {
-                                                                form.answer = it.time
-                                                                it.nullOnException { shortDateFomatter.format(it) }
+                                                    val now = Calendar.getInstance().apply {
+                                                        (form.answer as? Long)?.also { answer ->
+                                                            this.timeInMillis = answer
+                                                        }
+                                                    }
+
+                                                    DatePickerDialog(it.context,
+                                                            android.app.DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                                                                (it.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
+                                                                    this.text = Calendar.getInstance().apply {
+                                                                        this.set(Calendar.YEAR, year)
+                                                                        this.set(Calendar.MONTH, month)
+                                                                        this.set(Calendar.DAY_OF_MONTH, day)
+                                                                    }.time.nullOnException { date ->
+                                                                        form.answer = date.time
+                                                                        shortDateFomatter.format(date)
+                                                                    }
+                                                                }
+                                                            },
+                                                            now.get(Calendar.YEAR),
+                                                            now.get(Calendar.MONTH),
+                                                            now.get(Calendar.DAY_OF_MONTH)).show()
+                                                }
+
+                                            }
+                                            this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).apply {
+                                                this.isEnabled = true
+                                                this.requestFocus()
+                                                val weakSendingSpinner = sendingSpinner.weak()
+                                                this.setOnClickListener { submitDate ->
+                                                    if (form.answer != null) {
+                                                        (submitDate.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
+                                                            this.isEnabled = false
+                                                            submitDate.isEnabled = false
+                                                            form.answerConfirmed = true
+                                                            weakSendingSpinner.get()?.visibility = View.VISIBLE
+                                                            form.sendAnswer(chatActivity = this.activity as? ClyChatActivity) {
+                                                                weakSendingSpinner.get()?.visibility = View.GONE
                                                             }
                                                         }
-                                                    },
-                                                    now.get(Calendar.YEAR),
-                                                    now.get(Calendar.MONTH),
-                                                    now.get(Calendar.DAY_OF_MONTH)).show()
-                                        }
-
-                                    }
-                                    this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).apply {
-                                        this.isEnabled = true
-                                        val weakSendingSpinner = sendingSpinner.weak()
-                                        this.setOnClickListener { submitDate ->
-                                            if (form.answer != null) {
-                                                (submitDate.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
-                                                    this.isEnabled = false
-                                                    submitDate.isEnabled = false
-                                                    form.answerConfirmed = true
-                                                    weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                                    form.sendAnswer(chatActivity = this.activity as? ClyChatActivity) {
-                                                        weakSendingSpinner.get()?.visibility = View.GONE
                                                     }
                                                 }
                                             }
+                                        } else {
+                                            this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
+                                                this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
+                                                this.isEnabled = false
+                                                this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                            }
+                                            this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).isEnabled = false
                                         }
                                     }
-                                } else {
-                                    this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
-                                        this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
-                                        this.isEnabled = false
-                                        this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                    ClyFormCast.BOOL -> {
+                                        this.containerDate.visibility = View.GONE
+                                        this.containerInput.visibility = View.GONE
+                                        this.containerTruefalse.visibility = View.VISIBLE
+
+                                        this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).isSelected = form.answer == true
+                                        this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).isSelected = form.answer == false
+
+                                        val weakSendingSpinner = this.sendingSpinner.weak()
+                                        this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).setOnClickListener { btnTrue ->
+                                            btnTrue.isSelected = true
+                                            (btnTrue.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_button_false)?.isSelected = false
+                                            form.answer = true
+                                            form.answerConfirmed = true
+                                            weakSendingSpinner.get()?.visibility = View.VISIBLE
+                                            form.sendAnswer(chatActivity = btnTrue.activity as? ClyChatActivity) {
+                                                weakSendingSpinner.get()?.visibility = View.GONE
+                                            }
+                                        }
+                                        this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).setOnClickListener { btnFalse ->
+                                            btnFalse.isSelected = true
+                                            (btnFalse.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_button_true)?.isSelected = false
+                                            form.answer = false
+                                            form.answerConfirmed = true
+                                            weakSendingSpinner.get()?.visibility = View.VISIBLE
+                                            form.sendAnswer(chatActivity = btnFalse.activity as? ClyChatActivity) {
+                                                weakSendingSpinner.get()?.visibility = View.GONE
+                                            }
+                                        }
                                     }
-                                    this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).isEnabled = false
                                 }
-                            }
-                            ClyFormCast.BOOL -> {
+                            } else {
+                                this.currentForm = null
+                                this.containerTruefalse.visibility = View.GONE
                                 this.containerDate.visibility = View.GONE
                                 this.containerInput.visibility = View.GONE
-                                this.containerTruefalse.visibility = View.VISIBLE
-
-                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).isSelected = form.answer == true
-                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).isSelected = form.answer == false
-
-                                val weakSendingSpinner = this.sendingSpinner.weak()
-                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).setOnClickListener { btnTrue ->
-                                    btnTrue.isSelected = true
-                                    (btnTrue.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_button_false)?.isSelected = false
-                                    form.answer = true
-                                    form.answerConfirmed = true
-                                    weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                    form.sendAnswer(chatActivity = btnTrue.activity as? ClyChatActivity) {
-                                        weakSendingSpinner.get()?.visibility = View.GONE
-                                    }
-                                }
-                                this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_false).setOnClickListener { btnFalse ->
-                                    btnFalse.isSelected = true
-                                    (btnFalse.parent as? View)?.findViewById<View>(R.id.io_customerly__profilingform_button_true)?.isSelected = false
-                                    form.answer = false
-                                    form.answerConfirmed = true
-                                    weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                    form.sendAnswer(chatActivity = btnFalse.activity as? ClyChatActivity) {
-                                        weakSendingSpinner.get()?.visibility = View.GONE
-                                    }
-                                }
                             }
                         }
-                    } else {
-                        this.currentForm = null
-                        this.containerTruefalse.visibility = View.GONE
-                        this.containerDate.visibility = View.GONE
-                        this.containerInput.visibility = View.GONE
                     }
-                }
-            }
 
-            internal class BotAskEmail(recyclerView: RecyclerView) : Message(
-                    recyclerView = recyclerView,
-                    layoutRes = R.layout.io_customerly__li_bubble_bot_askemail,
-                    iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
+                    internal class AskEmail(recyclerView: RecyclerView)
+                        : Bot.Form(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_bot_askemail) {
 
-                private val input: EditText = this.itemView.findViewById(R.id.io_customerly__askemail_input)
-                private val submit: View = this.itemView.findViewById(R.id.io_customerly__askemail_submit)
-                private val privacyPolicy: TextView = this.itemView.findViewById(R.id.io_customerly__askemail_privacy_policy)
-                private val sendingSpinner: View = this.itemView.findViewById(R.id.io_customerly__content_sending_progressspinner)
+                        private val input: EditText = this.itemView.findViewById(R.id.io_customerly__askemail_input)
+                        private val submit: View = this.itemView.findViewById(R.id.io_customerly__askemail_submit)
+                        private val sendingSpinner: View = this.itemView.findViewById(R.id.io_customerly__content_sending_progressspinner)
 
-                private var pendingMessage: ClyMessage.RealUserPending? = null
+                        private var pendingMessage: ClyMessage.Human.UserLocal? = null
 
-                init {
-                    this.itemView.findViewById<View>(R.id.io_customerly__bubble).apply {
-                        this.layoutParams = this.layoutParams.apply {
-                            this.width = RelativeLayout.LayoutParams.MATCH_PARENT
-                        }
-                    }
-                    val weakInput = this.input.weak()
-                    val weakSendingSpinner = this.sendingSpinner.weak()
-                    this.submit.setOnClickListener { btn ->
-                        val weakActivity = btn.activity?.weak()
-                        val weakSubmit = btn.weak()
-                        weakInput.get()?.let { input ->
-                            val email = input.text.toString().trim().toLowerCase(Locale.ITALY)
-                            if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                btn.dismissKeyboard()
-                                weakSendingSpinner.get()?.visibility = View.VISIBLE
-                                ClyApiRequest(
-                                        context = input.context,
-                                        endpoint = ENDPOINT_PING,
-                                        jsonObjectConverter = { Unit },
-                                        callback = { response ->
-                                            weakSendingSpinner.get()?.visibility = View.GONE
-                                            weakInput.get()?.isEnabled = false
-                                            weakSubmit.get()?.isEnabled = false
+                        init {
+                            val weakInput = this.input.weak()
+                            val weakSendingSpinner = this.sendingSpinner.weak()
+                            this.submit.setOnClickListener { btn ->
+                                val weakActivity = btn.activity?.weak()
+                                val weakSubmit = btn.weak()
+                                weakInput.get()?.let { input ->
+                                    val email = input.text.toString().trim().toLowerCase(Locale.ITALY)
+                                    if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                        btn.dismissKeyboard()
+                                        weakSendingSpinner.get()?.visibility = View.VISIBLE
 
-                                            this.pendingMessage?.also { pendingMessage ->
-                                                Customerly.jwtToken?.userID?.apply { pendingMessage.writer.id = this }
-                                                pendingMessage.setStateSending()
-                                                (weakActivity?.get() as? ClyChatActivity)?.notifyItemChangedInList(message = pendingMessage)
+                                        if(Customerly.iamAnonymous()) {
+                                            ClyApiRequest(
+                                                    context = input.context,
+                                                    endpoint = ENDPOINT_PING,
+                                                    jsonObjectConverter = { Unit },
+                                                    callback = { response ->
+                                                        weakSendingSpinner.get()?.visibility = View.GONE
+                                                        weakInput.get()?.apply {
+                                                            this.isEnabled = false
+                                                            this.isFocusable = false
+                                                            this.isFocusableInTouchMode = false
+                                                            this.clearFocus()
+                                                        }
+                                                        weakSubmit.get()?.isEnabled = false
 
-                                                when (response) {
-                                                    is ClyApiResponse.Success -> {
-                                                        (weakActivity?.get() as? ClyChatActivity)?.startSendMessageRequest(message = pendingMessage)
-                                                    }
-                                                    is ClyApiResponse.Failure -> {
-                                                        weakInput.reference { input ->
-                                                            if (input.tag == null) {
-                                                                input.tag = Unit
-                                                                val originalColor = input.textColors.defaultColor
-                                                                input.setTextColor(Color.RED)
-                                                                input.addTextChangedListener(object : TextWatcher {
-                                                                    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                                                                    override fun afterTextChanged(s: Editable) {}
-                                                                    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                                                                        weakInput.reference {
-                                                                            it.setTextColor(originalColor)
-                                                                            it.removeTextChangedListener(this)
-                                                                            it.tag = null
+                                                        this.pendingMessage?.also { pendingMessage ->
+                                                            Customerly.jwtToken?.userID?.apply { pendingMessage.writer.id = this }
+                                                            pendingMessage.setStateSending()
+                                                            (weakActivity?.get() as? ClyChatActivity)?.notifyItemChangedInList(message = pendingMessage)
+
+                                                            when (response) {
+                                                                is ClyApiResponse.Success -> {
+                                                                    (weakActivity?.get() as? ClyChatActivity)?.startSendMessageRequest(message = pendingMessage)
+                                                                }
+                                                                is ClyApiResponse.Failure -> {
+                                                                    weakInput.reference { input ->
+                                                                        if (input.tag == null) {
+                                                                            input.tag = Unit
+                                                                            val originalColor = input.textColors.defaultColor
+                                                                            input.setTextColor(Color.RED)
+                                                                            input.addTextChangedListener(object : TextWatcher {
+                                                                                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                                                                                override fun afterTextChanged(s: Editable) {}
+                                                                                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                                                                                    weakInput.reference {
+                                                                                        it.setTextColor(originalColor)
+                                                                                        it.removeTextChangedListener(this)
+                                                                                        it.tag = null
+                                                                                    }
+                                                                                }
+                                                                            })
                                                                         }
                                                                     }
-                                                                })
+                                                                }
                                                             }
                                                         }
+                                                    })
+                                                    .p(key = "lead_email", value = email)
+                                                    .start()
+                                        } else {
+                                            ClyApiRequest(
+                                                    context = input.context,
+                                                    endpoint = ENDPOINT_FORM_ATTRIBUTE,
+                                                    jsonObjectConverter = { jo -> jo },
+                                                    callback = { response ->
+                                                        weakSendingSpinner.get()?.visibility = View.GONE
+                                                        weakInput.get()?.apply {
+                                                            this.isEnabled = false
+                                                            this.isFocusable = false
+                                                            this.isFocusableInTouchMode = false
+                                                            this.clearFocus()
+                                                        }
+                                                        weakSubmit.get()?.isEnabled = false
+                                                        when (response) {
+                                                            is ClyApiResponse.Success -> {
+                                                                Customerly.clySocket.sendAttributeSet(name = "email", value = email)
+                                                                Customerly.clySocket.sendUserChanged(user = response.result)
+                                                                Customerly.currentUser.updateUser(
+                                                                        email = email,
+                                                                        userId = response.result.optJSONObject("data")?.optString("user_id"),
+                                                                        name = response.result.optJSONObject("data")?.optString("name"))
+                                                                (weakActivity?.get() as? ClyChatActivity)?.tryLoadForm()
+                                                            }
+                                                            is ClyApiResponse.Failure -> {
+                                                                weakInput.reference { input ->
+                                                                    if (input.tag == null) {
+                                                                        input.tag = Unit
+                                                                        val originalColor = input.textColors.defaultColor
+                                                                        input.setTextColor(Color.RED)
+                                                                        input.addTextChangedListener(object : TextWatcher {
+                                                                            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                                                                            override fun afterTextChanged(s: Editable) {}
+                                                                            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                                                                                weakInput.reference {
+                                                                                    it.setTextColor(originalColor)
+                                                                                    it.removeTextChangedListener(this)
+                                                                                    it.tag = null
+                                                                                }
+                                                                            }
+                                                                        })
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    })
+                                                    .p(key = "name", value = "email")
+                                                    .p(key = "value", value = email)
+                                                    .start()
+                                        }
+                                    } else {
+                                        if (input.tag == null) {
+                                            input.tag = Unit
+                                            val originalColor = input.textColors.defaultColor
+                                            input.setTextColor(Color.RED)
+                                            input.addTextChangedListener(object : TextWatcher {
+                                                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                                                override fun afterTextChanged(s: Editable) {}
+                                                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                                                    weakInput.reference {
+                                                        it.setTextColor(originalColor)
+                                                        it.removeTextChangedListener(this)
+                                                        it.tag = null
                                                     }
                                                 }
-                                            }
-                                        })
-                                        .p(key = "lead_email", value = email)
-                                        .start()
-                            } else {
-                                if (input.tag == null) {
-                                    input.tag = Unit
-                                    val originalColor = input.textColors.defaultColor
-                                    input.setTextColor(Color.RED)
-                                    input.addTextChangedListener(object : TextWatcher {
-                                        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-                                        override fun afterTextChanged(s: Editable) {}
-                                        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                                            weakInput.reference {
-                                                it.setTextColor(originalColor)
-                                                it.removeTextChangedListener(this)
-                                                it.tag = null
-                                            }
+                                            })
                                         }
-                                    })
+                                    }
                                 }
                             }
                         }
-                    }
-                }
 
-                override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
-                    super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
-
-                    this.pendingMessage = (message as? ClyMessage.BotAskEmailForm)?.pendingMessage
-                    val privacyUrl = Customerly.lastPing.privacyUrl
-                    if(privacyUrl?.isNotEmpty() == true) {
-                        this.privacyPolicy.also { policy ->
-                            policy.setOnClickListener {
-                                it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
-                            }
-                            policy.text = spannedFromHtml(source = policy.context.getString(R.string.io_customerly__i_accept_the_privacy_policy))
-                            policy.visibility = View.VISIBLE
+                        override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
+                            super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
+                            this.pendingMessage = (message as? ClyMessage.Bot.Form.AskEmail)?.pendingMessage
+                            ( Customerly.currentUser.email?.let { it to false } ?: null to true )
+                                    .also { (email,formEnabled) ->
+                                        this.input.isEnabled = formEnabled
+                                        this.submit.isEnabled = formEnabled
+                                        this.input.setText(email)
+                                    }
                         }
-                    } else {
-                        this.privacyPolicy.visibility = View.GONE
-                    }
-
-                    if(Customerly.jwtToken?.isAnonymous != false) {
-                        this.input.isEnabled = true
-                        this.submit.isEnabled = true
-                        this.input.text = null
-                    } else {
-                        this.input.isEnabled = false
-                        this.submit.isEnabled = false
-                        this.input.setText(Customerly.currentUser.email)
                     }
                 }
             }
@@ -691,7 +756,8 @@ internal sealed class ClyChatViewHolder (
 
     }
 
-    internal class AccountInfos(recyclerView: RecyclerView) : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_infos) {
+    internal class AccountInfos(recyclerView: RecyclerView)
+        : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_accountinfos) {
 
         fun apply(chatActivity: ClyChatActivity) {
 
