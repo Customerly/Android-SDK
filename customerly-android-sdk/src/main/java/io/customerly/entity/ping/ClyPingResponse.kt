@@ -40,11 +40,12 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
         val lastMessages = this.optArray<JSONObject, ClyMessage>(name = "last_messages", map = { it.nullOnException { json -> json.parseMessage() } })
 
         this.optTyped<JSONObject>(name = "user")?.optTyped<JSONObject>(name = "data")?.also { userData ->
-            userData.optTyped<String>(name = "email")?.also { userEmail ->
-                Customerly.currentUser.updateUser(
-                        email = userEmail,
-                        userId = userData.optTyped<String>(name = "user_id")?.takeIf { it.isNotBlank() },
-                        name = userData.optTyped<String>(name = "name")?.takeIf { it.isNotBlank() })
+            userData.optTyped<String>(name = "email")?.also { contactEmail ->
+                    Customerly.currentUser.updateUser(
+                            isUser = userData.optTyped<Int>(name = "is_user") == 1,
+                            contactEmail = contactEmail,
+                            userId = userData.optTyped<String>(name = "user_id")?.takeIf { it.isNotBlank() },
+                            contactName = userData.optTyped<String>(name = "name")?.takeIf { it.isNotBlank() })
             }
         }
 

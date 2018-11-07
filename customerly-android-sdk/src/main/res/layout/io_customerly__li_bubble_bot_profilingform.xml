@@ -216,7 +216,6 @@
             android:layout_marginTop="10dp"
             android:textColor="#666666"
             android:gravity="center"
-            android:text="@string/io_customerly__i_accept_the_privacy_policy"
             tools:text="By proceding you accept our Privacy Policy"
             android:visibility="gone"
             tools:visibility="visible" />

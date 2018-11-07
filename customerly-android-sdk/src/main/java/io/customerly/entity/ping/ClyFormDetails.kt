@@ -5,6 +5,7 @@ import io.customerly.activity.chat.ClyChatActivity
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_FORM_ATTRIBUTE
+import io.customerly.entity.iamUser
 import io.customerly.utils.ggkext.*
 import org.json.JSONObject
 
@@ -13,17 +14,11 @@ import org.json.JSONObject
  * Project: Customerly-KAndroid-SDK
  */
 
-internal enum class ClyFormCast {
-    STRING, NUMERIC, DATE, BOOL
+internal enum class ClyFormCast(val intValue: Int) {
+    STRING(intValue = 0), NUMERIC(intValue = 1), DATE(intValue = 2), BOOL(intValue = 3)
 }
 
-internal val Int.toClyFormCast: ClyFormCast get() = when(this) {
-    0 -> ClyFormCast.STRING
-    1 -> ClyFormCast.NUMERIC
-    2 -> ClyFormCast.DATE
-    3 -> ClyFormCast.BOOL
-    else -> throw Exception()
-}
+internal val Int.toClyFormCast: ClyFormCast get() = ClyFormCast.values().first { it.intValue == this }
 
 internal fun JSONObject.parseAppState(): ClyFormDetails? {
     return nullOnException {
@@ -58,11 +53,14 @@ internal data class ClyFormDetails(
                             when (response) {
                                 is ClyApiResponse.Success -> {
                                     Customerly.lastPing.setFormAnswered(form = this)
-                                    Customerly.clySocket.sendAttributeSet(name = this.attributeName, value = answer)
-                                    Customerly.clySocket.sendUserChanged(user = response.result)
+                                    Customerly.clySocket.sendAttributeSet(name = this.attributeName, value = answer, cast = this.cast, userData = response.result)
                                     response.result.optJSONObject("data")?.also { data ->
-                                        data.optString("email")?.also { email ->
-                                            Customerly.currentUser.updateUser(email = email, userId = data.optString("user_id"), name = data.optString("name"))
+                                        data.optTyped<String>(name = "email")?.also { email ->
+                                            Customerly.currentUser.updateUser(
+                                                    isUser = Customerly.iamUser(),
+                                                    contactEmail = email,
+                                                    contactName = data.optTyped<String>(name = "name"),
+                                                    userId = data.optTyped<String>(name = "user_id"))
                                         }
                                     }
                                     callback()

@@ -269,11 +269,10 @@ object Customerly {
         attributes?.assertValidAttributesMap()
         company?.assertValidCompanyMap()
 
-        Customerly.currentUser.updateUser(email = email, userId = userId?.takeIf { it.isNotBlank() }, name = name)
-
         Customerly.tryClyTask(failure = failure) {
             Customerly.ping(trySurvey = false, tryLastMessage = true,
-                    name = name?.takeIf { it.isNotBlank() }, attributes = attributes, company = company,
+                    registerEmail = email, registerUserId = userId?.takeIf { it.isNotBlank() }, registerName = name?.takeIf { it.isNotBlank() },
+                    attributes = attributes, company = company,
                     success = success, successLog = "registerUser task completed successfully",
                     failure = failure, failureLog = "A generic error occurred in registerUser")
         }
@@ -522,7 +521,8 @@ object Customerly {
     }
 
     internal inline fun ping(trySurvey: Boolean = true, tryLastMessage: Boolean = true,
-                             name: String? = null, attributes: HashMap<String, Any>? = null, company: HashMap<String,Any>? = null,
+                             registerEmail: String? = null, registerUserId: String? = null, registerName: String? = null,
+                             attributes: HashMap<String, Any>? = null, company: HashMap<String,Any>? = null,
                              crossinline success: ()->Unit = {}, successLog: String? = null,
                              crossinline failure: ()->Unit = {}, failureLog: String? = null) {
         Customerly.checkConfigured(ok = {
@@ -551,9 +551,11 @@ object Customerly {
                             }
                         }
                     })
-                    .p(key = "name", value = name)
+                    .p(key = "email", value = registerEmail ?: Customerly.currentUser.userEmail)
+                    .p(key = "user_id", value = registerUserId ?: Customerly.currentUser.userId)
+                    .p(key = "name", value = registerName)
                     .p(key = "attributes", value = attributes)
-                    .fillParamsWithCurrentUser(overrideCompany = company)
+                    .p(key = "company", value = company?.also { Customerly.currentUser.removeCompany() } ?: Customerly.currentUser.company)
                     .start()
         }, not = failure)
     }
@@ -626,24 +628,26 @@ object Customerly {
         Customerly.adminsFullDetails?.apply {
             callback(this)
         } ?: Customerly.checkConfigured(ok = {
-            ClyApiRequest(
-                    endpoint = ENDPOINT_ACCOUNT_DETAILS,
-                    requireToken = true,
-                    jsonArrayConverter = { ja ->
-                        ja.asSequenceOptNotNullMapped<JSONObject,ClyAdminFull> { jo -> jo.nullOnException { jobj -> jobj.parseAdminFull() } }.toList().toTypedArray()
-                    },
-                    callback = {
-                        when(it) {
-                            is ClyApiResponse.Success -> {
-                                Customerly.adminsFullDetails = it.result
-                                callback(it.result)
+            if(iamLead() || iamUser()) {
+                ClyApiRequest(
+                        endpoint = ENDPOINT_ACCOUNT_DETAILS,
+                        requireToken = true,
+                        jsonArrayConverter = { ja ->
+                            ja.asSequenceOptNotNullMapped<JSONObject, ClyAdminFull> { jo -> jo.nullOnException { jobj -> jobj.parseAdminFull() } }.toList().toTypedArray()
+                        },
+                        callback = {
+                            when (it) {
+                                is ClyApiResponse.Success -> {
+                                    Customerly.adminsFullDetails = it.result
+                                    callback(it.result)
+                                }
+                                is ClyApiResponse.Failure -> {
+                                    callback(null)
+                                }
                             }
-                            is ClyApiResponse.Failure -> {
-                                callback(null)
-                            }
-                        }
-                    })
-                    .start()
+                        })
+                        .start()
+            }
         })
     }
 }

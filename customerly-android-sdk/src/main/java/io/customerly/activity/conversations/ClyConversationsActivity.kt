@@ -173,21 +173,25 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     private fun displayInterface(conversationsList: ArrayList<ClyConversation>?) {
         if(conversationsList?.isNotEmpty() == true) {
             this.io_customerly__first_contact_swipe_refresh.visibility = View.GONE
-            ClyApiRequest<Any>(
-                    context = this,
-                    endpoint = ENDPOINT_CONVERSATION_DISCARD,
-                    requireToken = true,
-                    jsonObjectConverter = { it })
-                    .p(
-                            key = "conversation_ids",
-                            value = conversationsList
-                                    .asSequence()
-                                    .filter { it.unread && !it.lastMessage.discarded }
-                                    .fold(JSONArray()) { ja, c ->
-                                        c.lastMessage.discarded = true
-                                        ja.put(c.id)
-                                    })
-                    .start()
+
+            conversationsList
+                    .asSequence()
+                    .filter { it.unread && !it.lastMessage.discarded }
+                    .fold(JSONArray()) { ja, c ->
+                        c.lastMessage.discarded = true
+                        ja.put(c.id)
+                    }.takeIf {
+                        it.length() != 0
+                    }?.also { conversation_ids ->
+                        ClyApiRequest<Any>(
+                                context = this,
+                                endpoint = ENDPOINT_CONVERSATION_DISCARD,
+                                requireToken = true,
+                                jsonObjectConverter = { it })
+                                .p(key = "conversation_ids", value = conversation_ids)
+                                .start()
+                    }
+
             this.conversationsList = conversationsList
             this.io_customerly__recycler_view.adapter.notifyDataSetChanged()
             this.inputLayout?.visibility = View.GONE

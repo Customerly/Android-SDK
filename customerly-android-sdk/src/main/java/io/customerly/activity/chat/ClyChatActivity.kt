@@ -502,7 +502,14 @@ internal class ClyChatActivity : ClyIInputActivity() {
     }
 
     internal fun tryLoadForm() {
-        if(Customerly.iamLead() && this.chatList.asSequence().none { it is ClyMessage.Bot.Form.Profiling && !it.form.answerConfirmed}) {
+        if(Customerly.iamLead()
+                && this.chatList.asSequence().none {
+                    when (it) {
+                        is ClyMessage.Bot.Form.Profiling -> !it.form.answerConfirmed
+                        is ClyMessage.Bot.Form.AskEmail -> Customerly.currentUser.email != null
+                        else -> false
+                    }
+                }) {
             Customerly.lastPing.nextFormDetails?.also { form ->
                 this.conversationId.takeIf { it != CONVERSATIONID_UNKNOWN_FOR_MESSAGE }?.also { conversationId ->
                     this.addMessageAt0(message = ClyMessage.Bot.Form.Profiling(

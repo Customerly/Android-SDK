@@ -31,6 +31,7 @@ import io.customerly.entity.ClySocketParams
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.chat.parseMessagesList
 import io.customerly.entity.parseSocketParams
+import io.customerly.entity.ping.ClyFormCast
 import io.customerly.utils.CUSTOMERLY_DEV_MODE
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ClyActivityLifecycleCallback
@@ -51,9 +52,8 @@ private const val SOCKET_EVENT__TYPING = "typing"
 private const val SOCKET_EVENT__SEEN = "seen"
 private const val SOCKET_EVENT__MESSAGE = "message"
 private const val SOCKET_EVENT__ATTRIBUTE_SET = "attribute:set"
-private const val SOCKET_EVENT__USER_CHANGED = "user:changed"
 
-@StringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE, SOCKET_EVENT__ATTRIBUTE_SET, SOCKET_EVENT__USER_CHANGED)
+@StringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE, SOCKET_EVENT__ATTRIBUTE_SET)
 @Retention(AnnotationRetention.SOURCE)
 private annotation class SocketEvent
 
@@ -291,18 +291,17 @@ internal class ClySocket {
         }
     }
 
-    internal fun sendAttributeSet(name: String, value: Any) {
+    internal fun sendAttributeSet(name: String, value: Any, cast: ClyFormCast, userData: JSONObject) {
         Customerly.jwtToken?.userID?.ignoreException { userId ->
             this.send(
                     event = SOCKET_EVENT__ATTRIBUTE_SET,
                     payloadJson = JSONObject()
+                            .put("changed_by_user", true)
                             .put("user_id", userId)
-                            .put("name", name)
-                            .put("value", value))
+                            .put("attribute_name", name)
+                            .put("attribute_value", value)
+                            .put("attribute_cast", cast.intValue)
+                            .put("user_data", userData))
         }
-    }
-
-    internal fun sendUserChanged(user: JSONObject) {
-        this.send(event = SOCKET_EVENT__USER_CHANGED, payloadJson = user)
     }
 }

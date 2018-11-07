@@ -21,7 +21,8 @@
     <string name="io_customerly__activity_title_chat" translatable="false">Chat</string>
     <string name="io_customerly__background" translatable="false">background</string>
     <string name="io_customerly__webview_act_label" translatable="false">Customerly web</string>
-    <string name="io_customerly__i_accept_the_privacy_policy" translatable="false"><![CDATA[By proceding you accept our <font fgcolor=\'#FF65A9E7\'>Privacy Policy</font>]]></string>
+    <string name="io_customerly__i_accept_the_" translatable="false">By proceding you accept our&#160;</string>
+    <string name="io_customerly__privacy_policy" translatable="false">Privacy Policy</string>
 
     <string name="io_customerly__XX_sec_ago" translatable="false">%1$ds ago</string>
     <string name="io_customerly__XX_min_ago" translatable="false">%1$dm ago</string>

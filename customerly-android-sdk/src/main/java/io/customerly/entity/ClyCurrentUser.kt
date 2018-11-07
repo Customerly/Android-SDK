@@ -25,12 +25,15 @@ import org.json.JSONObject
  * Created by Gianni on 11/09/16.
  * Project: Customerly Android SDK
  */
+private const val CUSTOMERLY_LEAD_EMAIL = "CUSTOMERLY_LEAD_EMAIL"
 private const val CUSTOMERLY_LOGGED_EMAIL = "CUSTOMERLY_LOGGED_EMAIL"
 private const val CUSTOMERLY_LOGGED_USERID = "CUSTOMERLY_LOGGED_USERID"
 private const val CUSTOMERLY_LOGGED_NAME = "CUSTOMERLY_LOGGED_NAME"
 private const val CUSTOMERLY_LOGGED_COMPANYINFO = "CUSTOMERLY_LOGGED_COMPANYINFO"
 internal class ClyCurrentUser {
-    internal var email: String? = null
+    internal val email: String? get() = this.userEmail ?: this.leadEmail
+    private var leadEmail: String? = null
+    internal var userEmail: String? = null
         private set
     internal var userId: String? = null
             private set
@@ -40,7 +43,8 @@ internal class ClyCurrentUser {
             private set
 
     fun restore() {
-        this.email = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_EMAIL, null)
+        this.leadEmail = Customerly.preferences?.getString(CUSTOMERLY_LEAD_EMAIL, null)
+        this.userEmail = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_EMAIL, null)
         this.userId = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_USERID, null)
         this.name = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_NAME, null)
         this.company = try {
@@ -58,11 +62,19 @@ internal class ClyCurrentUser {
     }
 
     fun logout() {
-        this.email = null
+        this.leadEmail = null
+        this.userEmail = null
         this.userId = null
         this.name = null
         this.company = null
-        Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_EMAIL)?.remove(CUSTOMERLY_LOGGED_USERID)?.remove(CUSTOMERLY_LOGGED_NAME)?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
+        Customerly.preferences
+                ?.edit()
+                ?.remove(CUSTOMERLY_LEAD_EMAIL)
+                ?.remove(CUSTOMERLY_LOGGED_EMAIL)
+                ?.remove(CUSTOMERLY_LOGGED_USERID)
+                ?.remove(CUSTOMERLY_LOGGED_NAME)
+                ?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)
+                ?.apply()
     }
 
     fun removeCompany() {
@@ -70,13 +82,30 @@ internal class ClyCurrentUser {
         Customerly.preferences?.edit()?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)?.apply()
     }
 
-    fun updateUser(email: String, userId: String?, name: String?) {
-        this.email = email
-        this.name = name
-        this.userId = userId
-        Customerly.preferences?.edit()
-                ?.putString(CUSTOMERLY_LOGGED_EMAIL, email)
-                ?.putString(CUSTOMERLY_LOGGED_USERID, userId)
+    fun updateUser(isUser: Boolean, contactEmail: String, contactName: String?, userId: String?) {
+        val prefsEdit = Customerly.preferences?.edit()
+        when(isUser) {
+            true -> {
+                this.leadEmail = null
+                this.userEmail = contactEmail
+                this.userId = userId
+                prefsEdit
+                        ?.remove(CUSTOMERLY_LEAD_EMAIL)
+                        ?.putString(CUSTOMERLY_LOGGED_EMAIL, contactEmail)
+                        ?.putString(CUSTOMERLY_LOGGED_USERID, userId)
+            }
+            false -> {
+                this.leadEmail = contactEmail
+                this.userEmail = null
+                this.userId = null
+                prefsEdit
+                        ?.putString(CUSTOMERLY_LEAD_EMAIL, contactEmail)
+                        ?.remove(CUSTOMERLY_LOGGED_EMAIL)
+                        ?.remove(CUSTOMERLY_LOGGED_USERID)
+            }
+        }
+        prefsEdit
+                ?.putString(CUSTOMERLY_LOGGED_NAME, contactName)
                 ?.apply()
     }
 
@@ -92,7 +121,5 @@ internal class ClyCurrentUser {
         }
     }
 
-    fun privacyPolicyAlreadyChecked(): Boolean {
-        return this.email != null
-    }
+    fun privacyPolicyAlreadyChecked() = this.email != null
 }

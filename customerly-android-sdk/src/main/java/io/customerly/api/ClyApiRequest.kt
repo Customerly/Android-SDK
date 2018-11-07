@@ -279,16 +279,6 @@ internal class ClyApiRequest<RESPONSE: Any>
                     .skipException { it.put("app_id", appId)}
                     .skipException { it.put("device", DeviceJson.json) }
     }
-
-    internal fun fillParamsWithCurrentUser(overrideCompany: HashMap<String,Any>? = null): ClyApiRequest<RESPONSE> {
-        if(overrideCompany != null) {
-            Customerly.currentUser.removeCompany()
-        }
-        return this
-                .p(key = "email", value = Customerly.currentUser.email)
-                .p(key = "user_id", value = Customerly.currentUser.userId)
-                .p(key = "company", value = overrideCompany ?: Customerly.currentUser.company)
-    }
 }
 
 private data class ClyApiInternalResponse(@ClyResponseState val responseState: Int, val responseResultJsonObject: JSONObject? = null, val responseResultJsonArray: JSONArray? = null)

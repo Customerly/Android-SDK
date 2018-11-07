@@ -26,11 +26,9 @@ import android.support.annotation.LayoutRes
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
-import android.text.Editable
-import android.text.InputType
-import android.text.TextUtils
-import android.text.TextWatcher
+import android.text.*
 import android.text.method.LinkMovementMethod
+import android.text.style.ForegroundColorSpan
 import android.util.Base64
 import android.util.Patterns
 import android.view.Gravity
@@ -47,12 +45,12 @@ import io.customerly.api.ENDPOINT_FORM_ATTRIBUTE
 import io.customerly.api.ENDPOINT_PING
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.iamAnonymous
+import io.customerly.entity.iamUser
 import io.customerly.entity.ping.ClyFormCast
 import io.customerly.entity.ping.ClyFormDetails
 import io.customerly.entity.urlImageAccount
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
-import io.customerly.utils.htmlformatter.spannedFromHtml
 import io.customerly.utils.shortDateFomatter
 import kotlinx.android.synthetic.main.io_customerly__li_bubble_accountinfos.view.*
 import java.text.DecimalFormat
@@ -402,7 +400,16 @@ internal sealed class ClyChatViewHolder (
                                 policy.setOnClickListener {
                                     it.activity?.startClyWebViewActivity(targetUrl = privacyUrl, showClearInsteadOfBack = true)
                                 }
-                                policy.text = spannedFromHtml(source = policy.context.getString(R.string.io_customerly__i_accept_the_privacy_policy))
+
+                                val textIAccept = policy.context.getString(R.string.io_customerly__i_accept_the_)
+                                val textPrivacyPolicy = policy.context.getString(R.string.io_customerly__privacy_policy)
+                                policy.text = SpannableString(textIAccept + textPrivacyPolicy).apply {
+                                    this.setSpan(
+                                            ForegroundColorSpan(Color.parseColor("#38b9ff")),
+                                            textIAccept.length,
+                                            textIAccept.length + textPrivacyPolicy.length,
+                                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                }
                                 policy.visibility = View.VISIBLE
                             }
                         } else {
@@ -490,19 +497,25 @@ internal sealed class ClyChatViewHolder (
                                             }
                                             inputEditText.hint = form.hint
                                             inputEditText.isEnabled = !form.answerConfirmed
-                                            inputEditText.requestFocus()
+                                            inputEditText.isFocusable = !form.answerConfirmed
+                                            inputEditText.isFocusableInTouchMode = !form.answerConfirmed
                                             this.formInputSubmit.isEnabled = !form.answerConfirmed
                                         }
                                     }
                                     ClyFormCast.DATE -> {
                                         this.containerTruefalse.visibility = View.GONE
                                         this.containerInput.visibility = View.GONE
+                                        this.formInputInput.also { inputEditText ->
+                                            inputEditText.isEnabled = false
+                                            inputEditText.isFocusable = false
+                                            inputEditText.isFocusableInTouchMode = false
+                                            inputEditText.clearFocus()
+                                        }
                                         this.containerDate.visibility = View.VISIBLE
                                         if (!form.answerConfirmed) {
                                             this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
                                                 this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
                                                 this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
-                                                this.requestFocus()
                                                 this.setOnClickListener {
 
                                                     val now = Calendar.getInstance().apply {
@@ -532,7 +545,6 @@ internal sealed class ClyChatViewHolder (
                                             }
                                             this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).apply {
                                                 this.isEnabled = true
-                                                this.requestFocus()
                                                 val weakSendingSpinner = sendingSpinner.weak()
                                                 this.setOnClickListener { submitDate ->
                                                     if (form.answer != null) {
@@ -560,6 +572,12 @@ internal sealed class ClyChatViewHolder (
                                     ClyFormCast.BOOL -> {
                                         this.containerDate.visibility = View.GONE
                                         this.containerInput.visibility = View.GONE
+                                        this.formInputInput.also { inputEditText ->
+                                            inputEditText.isEnabled = false
+                                            inputEditText.isFocusable = false
+                                            inputEditText.isFocusableInTouchMode = false
+                                            inputEditText.clearFocus()
+                                        }
                                         this.containerTruefalse.visibility = View.VISIBLE
 
                                         this.containerTruefalse.findViewById<View>(R.id.io_customerly__profilingform_button_true).isSelected = form.answer == true
@@ -683,12 +701,12 @@ internal sealed class ClyChatViewHolder (
                                                         weakSubmit.get()?.isEnabled = false
                                                         when (response) {
                                                             is ClyApiResponse.Success -> {
-                                                                Customerly.clySocket.sendAttributeSet(name = "email", value = email)
-                                                                Customerly.clySocket.sendUserChanged(user = response.result)
+                                                                Customerly.clySocket.sendAttributeSet(name = "email", value = email, cast = ClyFormCast.STRING, userData = response.result)
                                                                 Customerly.currentUser.updateUser(
-                                                                        email = email,
-                                                                        userId = response.result.optJSONObject("data")?.optString("user_id"),
-                                                                        name = response.result.optJSONObject("data")?.optString("name"))
+                                                                        isUser = Customerly.iamUser(),
+                                                                        contactEmail = email,
+                                                                        contactName = response.result.optJSONObject("data")?.optTyped<String>(name = "name"),
+                                                                        userId = response.result.optJSONObject("data")?.optTyped<String>(name = "user_id"))
                                                                 (weakActivity?.get() as? ClyChatActivity)?.tryLoadForm()
                                                             }
                                                             is ClyApiResponse.Failure -> {
@@ -745,6 +763,8 @@ internal sealed class ClyChatViewHolder (
                             ( Customerly.currentUser.email?.let { it to false } ?: null to true )
                                     .also { (email,formEnabled) ->
                                         this.input.isEnabled = formEnabled
+                                        this.input.isFocusable = formEnabled
+                                        this.input.isFocusableInTouchMode = formEnabled
                                         this.submit.isEnabled = formEnabled
                                         this.input.setText(email)
                                     }
