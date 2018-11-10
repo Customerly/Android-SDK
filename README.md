@@ -1,6 +1,6 @@
 <p align="left">
 <a href="http://www.customerly.io">
-  <img src="https://customerly.github.io/logo.svg" height="50" alt="Live Chat ios Android Help Desk"></a>
+  <img src="https://avatars1.githubusercontent.com/u/23583405?s=200&v=4" height="100" alt="Live Chat ios Android Help Desk"></a>
 </p>
 <h1>Live Chat Android SDK from Customerly</h1>
 <h2> The Best-in-Class Live Chat for your mobile apps. Integrate painlessly the Live Chat for your customer support inside any Android App with <a href="http://www.customerly.io/go/live-chat?utm_source=github&utm_medium=readme&utm_campaign=androidsdk">Customerly Live Chat </a> SDK </h2>
