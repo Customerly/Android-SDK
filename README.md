@@ -1,9 +1,9 @@
-<p align="center">
+<p align="left">
 <a href="http://www.customerly.io">
-<img src="https://customerly.github.io/logo.svg">
-</a>
+  <img src="https://avatars1.githubusercontent.com/u/23583405?s=200&v=4" height="100" alt="Live Chat ios Android Help Desk"></a>
 </p>
-
+<h1>Live Chat Android SDK from Customerly</h1>
+<h2> The Best-in-Class Live Chat for your mobile apps. Integrate painlessly the Live Chat for your customer support inside any Android App with <a href="http://www.customerly.io/go/live-chat?utm_source=github&utm_medium=readme&utm_campaign=androidsdk">Customerly Live Chat </a> SDK </h2>
 
   [![Android API14+](https://img.shields.io/badge/Android-API_14+-green.svg)]()
   [![Java 6+](https://img.shields.io/badge/Java-6+-red.svg)]()
@@ -12,16 +12,18 @@
 <p align="center">
   <img src="https://cdn.worldvectorlogo.com/logos/kotlin-1.svg" width=25 alt="Icon"/> <b>Kotlin oriented</b> (Java fully supported)
 </p>
+  
+**Customerly** is the most complete <strong>Live Chat</strong> solution with Help Desk for your mobile apps. Help them where they are with the customer support widget. Easy to integrate Live Chat, once integrated you can track user data and gather user feedback. 
 
-**Customerly.io** is the perfect tool to getting closer to your customers. Help them where they are with the customer support widget. Manage your audience based on their behaviours, build campaigns and automations.
+Run Surveys directly into your mobile apps and get the responses in one place. 
 
-Deliver Surveys directly into your app and get the responses in one place. Study your Net Promote Score and Skyrocket your Online Business right now.
-
-The Customerly Android SDK is really simple to integrate in your apps, and allow your users to contact you via chat.
+The Customerly Live Chat Android SDK is really simple to integrate in your apps, and allow your users to contact you via chat.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/android/resources/chat-preview.jpg?raw=true" width=500 alt="Icon"/>
+  <img src="https://raw.githubusercontent.com/customerly/customerly.github.io/master/ios/resources/chat-preview.png" width=500 alt="Live Chat Help Desk Android SDK "/>
 </p>
+
+
 
 ## Features
 
