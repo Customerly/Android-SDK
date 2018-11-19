@@ -16,7 +16,7 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import android.support.annotation.IntDef
+import androidx.annotation.IntDef
 import io.customerly.Customerly
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ENDPOINT_REPORT_CRASH
@@ -45,9 +45,9 @@ internal fun clySendUnconfiguredError() {
 
 internal fun clySendError(@ErrorCode errorCode : Int, description : String, throwable : Throwable? = null) {
     val stacktraceDump = (throwable?.stackTrace ?: Thread.currentThread().stackTrace)
-            .fold(StringBuilder(), { sb, ste ->
+            .fold(StringBuilder()) { sb, ste ->
                 sb.append(ste.toString()).append('\n')
-            }).also {
+            }.also {
                 it.setLength(it.length - 1)
             }.toString()
 

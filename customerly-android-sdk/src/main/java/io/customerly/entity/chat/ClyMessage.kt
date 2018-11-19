@@ -21,12 +21,12 @@ import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.IntDef
-import android.support.annotation.UiThread
 import android.text.Spanned
 import android.text.SpannedString
 import android.view.WindowManager
 import android.widget.TextView
+import androidx.annotation.IntDef
+import androidx.annotation.UiThread
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage

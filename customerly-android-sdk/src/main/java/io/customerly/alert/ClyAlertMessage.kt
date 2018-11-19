@@ -19,12 +19,12 @@ package io.customerly.alert
 import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.support.annotation.UiThread
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.PopupWindow
+import androidx.annotation.UiThread
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.chat.startClyChatActivity
@@ -65,7 +65,7 @@ internal fun Activity.showClyAlertMessage(message: ClyMessage) {
     if(true != currentClyAlertMessage?.onNewMessage(activity = this, newMessage = message)) {
         currentClyAlertMessage = null
 
-        this.window.decorView?.let { activityDecorView ->
+        this.window.decorView.let { activityDecorView ->
             val clyAlertMessage = ClyAlertMessage(activity = this, message = message)
             val topOffsetFix = (activityDecorView as? ViewGroup)
                     ?.takeIf { it.childCount == 1 }

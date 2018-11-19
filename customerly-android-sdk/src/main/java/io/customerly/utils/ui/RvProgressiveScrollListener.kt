@@ -16,8 +16,8 @@ package io.customerly.utils.ui
  * limitations under the License.
  */
 
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.customerly.utils.MyMutableBoolean
 
 /**
@@ -31,7 +31,7 @@ internal class RvProgressiveScrollListener(
     private var loading: MyMutableBoolean = MyMutableBoolean()
     private var skipNext: MyMutableBoolean = MyMutableBoolean()
 
-    override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
 
         if (this.llm.itemCount <= this.llm.findLastVisibleItemPosition() + 1) {

@@ -16,8 +16,8 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import android.support.annotation.Size
 import android.util.Base64
+import androidx.annotation.Size
 import io.customerly.Customerly
 import io.customerly.utils.USER_TYPE__ANONYMOUS
 import io.customerly.utils.USER_TYPE__LEAD

@@ -23,16 +23,17 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.net.ConnectivityManager
-import android.support.annotation.DrawableRes
-import android.support.annotation.RequiresPermission
 import android.view.LayoutInflater
+import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresPermission
 
 /**
  * Created by Gianni on 11/08/17.
  */
 internal fun Context.inflater() : LayoutInflater = LayoutInflater.from(this)
 
-@DrawableRes internal fun Context.getDrawableId(drawableName :String) : Int =
+@DrawableRes
+internal fun Context.getDrawableId(drawableName :String) : Int =
         this.resources.getIdentifier(drawableName, "drawable", this.packageName)
 
 @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)

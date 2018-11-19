@@ -21,19 +21,19 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.annotation.UiThread
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.ColorInt
+import androidx.annotation.UiThread
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
@@ -189,7 +189,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
         super.onCreate(savedInstanceState)
 
         if (this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
-
             this.io_customerly__actionlayout.setBackgroundColor(Customerly.lastPing.widgetColor)
             this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Customerly.lastPing.widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
             this.io_customerly__recycler_view.also { recyclerView ->
@@ -204,7 +203,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 recyclerView.setHasFixedSize(true)
                 recyclerView.adapter = ClyChatAdapter(chatActivity = this)
             }
-
             val conversationId: Long = this.intent.getLongExtra(EXTRA_CONVERSATION_ID, CONVERSATIONID_UNKNOWN_FOR_MESSAGE)
             if(conversationId != CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
                 this.onConversationId(conversationId = conversationId)

@@ -16,8 +16,8 @@ package io.customerly.api
  * limitations under the License.
  */
 
-import android.support.annotation.IntDef
-import android.support.annotation.StringDef
+import androidx.annotation.IntDef
+import androidx.annotation.StringDef
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.utils.CUSTOMERLY_API_ENDPOINT_BASEURL
 import io.customerly.utils.CUSTOMERLY_API_VERSION

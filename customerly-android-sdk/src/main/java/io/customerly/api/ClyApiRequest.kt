@@ -20,9 +20,9 @@ package io.customerly.api
 
 import android.Manifest
 import android.content.Context
-import android.support.annotation.IntRange
-import android.support.annotation.RequiresPermission
 import android.util.Log
+import androidx.annotation.IntRange
+import androidx.annotation.RequiresPermission
 import io.customerly.Customerly
 import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
@@ -221,7 +221,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                                         conn.errorStream
                                     })).use { br -> br.lineSequence().joinToString { line -> line } }
 
-                    nullOnException { _ -> JSONObject(responseString) }?.let { responseJO -> //JSONObject Response
+                    nullOnException { JSONObject(responseString) }?.let { responseJO -> //JSONObject Response
                         @Suppress("ConstantConditionIf")
                         if (CUSTOMERLY_DEV_MODE) {
                             Log.e(CUSTOMERLY_SDK_NAME,
@@ -260,7 +260,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                                 }
                             }
                         }
-                    } ?: nullOnException { _ -> JSONArray(responseString) }?.let { responseJA -> //JSONArray response
+                    } ?: nullOnException { JSONArray(responseString) }?.let { responseJA -> //JSONArray response
                         ClyApiInternalResponse(responseState = RESPONSE_STATE__OK, responseResultJsonArray = responseJA)
                     } ?: ClyApiInternalResponse(responseState = RESPONSE_STATE__ERROR_NETWORK)
                 }

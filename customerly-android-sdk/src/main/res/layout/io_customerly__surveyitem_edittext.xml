@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<android.support.v7.widget.AppCompatEditText xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.AppCompatEditText xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:theme="@style/io_customerly__EditText_ViewsAccent"
     android:layout_width="match_parent"

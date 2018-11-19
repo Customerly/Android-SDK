@@ -26,10 +26,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
-import android.support.annotation.ColorInt
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
+import androidx.annotation.ColorInt
 import com.github.zafarkhaja.semver.Version
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.activity.conversations.startClyConversationsActivity

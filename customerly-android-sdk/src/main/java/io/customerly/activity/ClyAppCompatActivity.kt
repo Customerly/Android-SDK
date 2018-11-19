@@ -16,8 +16,8 @@ package io.customerly.activity
  * limitations under the License.
  */
 
-import android.support.annotation.UiThread
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.UiThread
+import androidx.appcompat.app.AppCompatActivity
 import io.customerly.entity.chat.ClyMessage
 import java.util.*
 

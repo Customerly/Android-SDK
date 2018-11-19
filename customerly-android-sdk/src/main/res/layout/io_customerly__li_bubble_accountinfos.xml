@@ -13,15 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!--<FrameLayout-->
-    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:orientation="horizontal"-->
-    <!--android:gravity="top">-->
-
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -167,6 +159,4 @@
 
     </LinearLayout>
 
-</android.support.v7.widget.CardView>
-
-<!--</FrameLayout>-->
+</androidx.cardview.widget.CardView >

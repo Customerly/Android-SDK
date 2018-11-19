@@ -16,9 +16,9 @@ package io.customerly.entity.chat
  * limitations under the License.
  */
 
-import android.support.annotation.Px
 import android.text.Spanned
 import android.widget.ImageView
+import androidx.annotation.Px
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.getTyped
 import io.customerly.utils.ggkext.optTyped

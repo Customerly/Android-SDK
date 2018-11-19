@@ -1,7 +1,7 @@
 package io.customerly.demoapp
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import io.customerly.Customerly
 import kotlinx.android.synthetic.main.activity_main.*
 

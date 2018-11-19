@@ -34,7 +34,7 @@
             android:scaleType="centerCrop"
             android:contentDescription="@string/io_customerly__background" />
 
-        <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__first_contact_swipe_refresh"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/io_customerly__first_contact_swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" >
@@ -93,20 +93,20 @@
 
             </ScrollView>
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <android.support.v4.widget.SwipeRefreshLayout android:id="@id/io_customerly__recycler_view_swipe_refresh"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/io_customerly__recycler_view_swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
-            <android.support.v7.widget.RecyclerView android:id="@id/io_customerly__recycler_view"
+            <androidx.recyclerview.widget.RecyclerView android:id="@id/io_customerly__recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:overScrollMode="never"
                 android:clipToPadding="false"
                 android:paddingBottom="68dp" />
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <FrameLayout
             android:layout_width="match_parent"

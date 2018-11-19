@@ -1,6 +1,6 @@
 package io.customerly.entity.ping
 
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import io.customerly.R
 
 /**

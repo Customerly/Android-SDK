@@ -18,7 +18,7 @@ package io.customerly.entity.ping
 
 import android.content.SharedPreferences
 import android.graphics.Color
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import io.customerly.Customerly
 import io.customerly.entity.*
 import io.customerly.entity.chat.ClyMessage

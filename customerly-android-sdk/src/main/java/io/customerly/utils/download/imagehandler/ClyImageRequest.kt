@@ -18,10 +18,10 @@ package io.customerly.utils.download.imagehandler
 
 import android.content.Context
 import android.graphics.*
-import android.support.annotation.DrawableRes
-import android.support.annotation.IntRange
-import android.support.annotation.UiThread
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
+import androidx.annotation.UiThread
+import androidx.annotation.IntRange
 import io.customerly.R
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ggkext.weak
@@ -46,7 +46,8 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @DrawableRes private var placeholder: Int = 0
+    @DrawableRes
+    private var placeholder: Int = 0
     private var onPlaceholder: ((Int)->Unit)? = null
 
     @DrawableRes private var error: Int = 0

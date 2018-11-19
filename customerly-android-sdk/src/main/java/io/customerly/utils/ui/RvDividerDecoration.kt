@@ -19,11 +19,11 @@ package io.customerly.utils.ui
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.support.annotation.ColorInt
-import android.support.annotation.ColorRes
-import android.support.annotation.IntDef
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.IntDef
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import io.customerly.R
 import io.customerly.utils.ggkext.dp2px
 
@@ -71,7 +71,7 @@ internal sealed class RvDividerDecoration(@ColorInt colorInt: Int) : RecyclerVie
                 @RvDividerVertical where : Int = RVDIVIDER_V_CENTER
         ): this(colorInt = ContextCompat.getColor(context, colorRes), where = where)
 
-        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             val left = parent.paddingLeft
             val right = parent.width - parent.paddingRight
             (0 until if (this.where == RVDIVIDER_V_CENTER) {

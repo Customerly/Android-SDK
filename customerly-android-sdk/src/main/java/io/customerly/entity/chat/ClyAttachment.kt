@@ -21,18 +21,19 @@ import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Parcelable
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.util.Base64
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
 import io.customerly.utils.getContrastBW
+import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.getFileName
 import io.customerly.utils.ggkext.getTyped
@@ -43,6 +44,7 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.lang.ref.WeakReference
 
 /**
  * Created by Gianni on 04/04/18.
@@ -138,17 +140,22 @@ internal class ClyAttachment internal constructor(
         tv.ellipsize = TextUtils.TruncateAt.MIDDLE
         tv.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
         tv.text = this.name
-        tv.setOnClickListener { _ ->
-            AlertDialog.Builder(inputActivity)
-                    .setTitle(R.string.io_customerly__choose_a_file_to_attach)
-                    .setMessage(inputActivity.getString(R.string.io_customerly__cancel_attachment, tv.text))
-                    .setNegativeButton(R.string.io_customerly__cancel, null)
-                    .setPositiveButton(R.string.io_customerly__remove) { _, _ ->
-                        (tv.parent as? ViewGroup)?.removeView(tv)
-                        inputActivity.attachments.remove(this)
-                    }
-                    .setCancelable(true)
-                    .show()
+        tv.setOnClickListener { tvClicked ->
+            val weakTv = WeakReference(tvClicked)
+            tvClicked.activity?.also { activity ->
+                AlertDialog.Builder(activity)
+                        .setTitle(R.string.io_customerly__choose_a_file_to_attach)
+                        .setMessage(activity.getString(R.string.io_customerly__cancel_attachment, tv.text))
+                        .setNegativeButton(R.string.io_customerly__cancel, null)
+                        .setPositiveButton(R.string.io_customerly__remove) { _, _ ->
+                            weakTv.get()?.apply {
+                                (this.parent as? ViewGroup)?.removeView(this)
+                            }
+                            inputActivity.attachments.remove(this)
+                        }
+                        .setCancelable(true)
+                        .show()
+            }
         }
         inputActivity.inputAttachments?.addView(tv)
     }

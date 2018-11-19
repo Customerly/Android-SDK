@@ -17,8 +17,8 @@ package io.customerly.entity.chat
  */
 
 import android.content.Context
-import android.support.annotation.Px
 import android.widget.ImageView
+import androidx.annotation.Px
 import io.customerly.R
 import io.customerly.entity.urlImageAccount
 import io.customerly.entity.urlImageUser

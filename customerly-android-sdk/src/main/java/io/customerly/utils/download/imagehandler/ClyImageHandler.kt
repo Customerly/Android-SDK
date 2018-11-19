@@ -20,9 +20,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.UiThread
 import android.util.LruCache
 import android.util.SparseArray
+import androidx.annotation.UiThread
 import io.customerly.utils.ggkext.resolveBitmapUrl
 import io.customerly.utils.ggkext.useSkipExeption
 import java.io.File

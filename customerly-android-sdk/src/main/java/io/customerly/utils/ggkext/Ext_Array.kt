@@ -19,8 +19,8 @@ package io.customerly.utils.ggkext
  */
 
 import android.os.Build
-import android.support.annotation.RequiresApi
 import android.util.LongSparseArray
+import androidx.annotation.RequiresApi
 import org.intellij.lang.annotations.Pattern
 import org.intellij.lang.annotations.RegExp
 

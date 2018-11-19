@@ -17,10 +17,10 @@ package io.customerly.websocket
  */
 
 import android.app.Activity
-import android.support.annotation.StringDef
-import android.support.annotation.UiThread
 import android.util.Log
 import android.view.WindowManager
+import androidx.annotation.StringDef
+import androidx.annotation.UiThread
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
@@ -82,7 +82,7 @@ internal class ClySocket {
                             val newSocket = IO.socket(params.uri, IO.Options().apply {
                                 this.secure = true
                                 this.forceNew = true
-                                this.reconnection = false
+                                this.reconnection = true
                                 //this.reconnectionDelay = 15000;
                                 //this.reconnectionDelayMax = 60000;
                                 this.query = params.query

@@ -27,15 +27,15 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
-import android.support.annotation.LayoutRes
-import android.support.annotation.UiThread
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.widget.ImageViewCompat
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.annotation.LayoutRes
+import androidx.annotation.UiThread
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
+import com.google.android.material.snackbar.Snackbar
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
@@ -90,7 +90,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         if (this.attachments.size >= 10) {
             if(btn != null) {
                 Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                        .setAction(android.R.string.ok) { }.setActionTextColor(Customerly.lastPing.widgetColor).show()
             }
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
@@ -138,7 +138,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     internal fun onCreateLayout(@LayoutRes pLayoutRes: Int): Boolean {
         super.setContentView(pLayoutRes)
 
-        this.findViewById<android.support.v7.widget.Toolbar>(R.id.io_customerly__toolbar)?.also { this.setSupportActionBar(it) }
+        this.findViewById<androidx.appcompat.widget.Toolbar>(R.id.io_customerly__toolbar)?.also { this.setSupportActionBar(it) }
         val actionBar = this.supportActionBar
         val poweredBy = this.findViewById<TextView>(R.id.io_customerly__powered_by)
         this.inputInput = this.findViewById(R.id.io_customerly__input_edit_text)
@@ -280,7 +280,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                             if (fileUri == att.uri) {
                                 this.inputInput?.let {
                                     Snackbar.make(it, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
-                                            .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                                            .setAction(android.R.string.ok) { }.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                     it.requestFocus()
                                 }
                                 return
@@ -289,7 +289,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                         if (fileUri.getFileSize(context = this) > 5000000) {
                             this.inputInput?.let {
                                 Snackbar.make(it, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
-                                        .setAction(android.R.string.ok) { _ -> }.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                                        .setAction(android.R.string.ok) { }.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                 it.requestFocus()
                             }
                             return

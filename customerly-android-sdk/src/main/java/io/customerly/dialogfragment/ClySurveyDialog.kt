@@ -17,15 +17,16 @@ package io.customerly.dialogfragment
  */
 
 import android.app.Activity
-import android.app.DialogFragment
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v7.widget.*
 import android.text.InputType
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import androidx.appcompat.widget.*
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.startClyWebViewActivity
@@ -49,22 +50,38 @@ private const val SURVEY_ARGUMENT_KEY = "ClySurveyDialog"
 
 @Throws(WindowManager.BadTokenException::class)
 internal fun Activity.showClySurveyDialog(survey: ClySurvey) {
-    val fm = this.fragmentManager
-    if((fm.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? ClySurveyDialog)?.dialog?.isShowing != true) {
+    synchronized(ClySurveyDialog.lock) {
+        if(ClySurveyDialog.displayed) {
+            return
+        } else {
+            ClySurveyDialog.displayed = true
+        }
+    }
+    val fm = (this as? FragmentActivity)?.supportFragmentManager
+    if (fm != null && (fm.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? ClySurveyDialog)?.dialog?.isShowing != true) {
         val transaction = fm.beginTransaction().addToBackStack(null)
         ClySurveyDialog().apply {
             this.arguments = Bundle().apply {
                 this.putParcelable(SURVEY_ARGUMENT_KEY, survey)
             }
         }.show(transaction, SURVEY_FRAGMENT_TAG)
+    } else {
+        synchronized(ClySurveyDialog.lock) {
+            ClySurveyDialog.displayed = false
+        }
     }
 }
 
 internal fun Activity.dismissClySurveyDialog() {
-    (this.fragmentManager.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? DialogFragment)?.dismissAllowingStateLoss()
+    ((this as? FragmentActivity)?.supportFragmentManager?.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? DialogFragment)?.dismissAllowingStateLoss()
 }
 
 internal class ClySurveyDialog : DialogFragment() {
+
+    companion object {
+        val lock: Array<Any> = emptyArray()
+        var displayed: Boolean = false
+    }
 
     private var currentSurvey: ClySurvey? = null
     private var surveyCompleted = false
@@ -124,7 +141,9 @@ internal class ClySurveyDialog : DialogFragment() {
                                                         dialog.applySurvey(survey = it.result)
                                                     }
                                                     is ClyApiResponse.Failure -> {
-                                                        Toast.makeText(dialog.activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                                                        dialog.activity?.applicationContext?.also { applicationContext ->
+                                                            Toast.makeText(applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                                                        }
                                                         dialog.applySurvey(survey = null)
                                                     }
                                                 }
@@ -136,8 +155,8 @@ internal class ClySurveyDialog : DialogFragment() {
             }
 
             view.io_customerly__close.setOnClickListener {
-                weakDialog.get()?.takeIf { it.io_customerly__progress_view.visibility == View.GONE }?.also { dialog ->
-                    dialog.takeUnless { it.surveyCompleted }?.let { dialog.currentSurvey }?.let { currentSurvey ->
+                weakDialog.get()?.takeIf { dlg -> dlg.io_customerly__progress_view.visibility == View.GONE }?.also { dialog ->
+                    dialog.takeUnless { dlg -> dlg.surveyCompleted }?.let { dialog.currentSurvey }?.let { currentSurvey ->
                         currentSurvey.isRejectedOrConcluded = true
                         ClyApiRequest(
                                 context = dialog.activity,
@@ -162,6 +181,13 @@ internal class ClySurveyDialog : DialogFragment() {
             this.applySurvey(survey = survey, rootView = view)
             view
         }
+    }
+
+    override fun onDestroyView() {
+        synchronized(ClySurveyDialog.lock) {
+            ClySurveyDialog.displayed = false
+        }
+        super.onDestroyView()
     }
 
     private fun applySurvey(survey: ClySurvey?, rootView: View? = this.view) {
@@ -462,7 +488,9 @@ internal class ClySurveyDialog : DialogFragment() {
                                     dialog.applySurvey(survey = it.result)
                                 }
                                 is ClyApiResponse.Failure -> {
-                                    Toast.makeText(dialog.activity.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                                    dialog.activity?.applicationContext?.also { applicationContext ->
+                                        Toast.makeText(applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
+                                    }
                                     dialog.applySurvey(survey = null)
                                 }
                             }

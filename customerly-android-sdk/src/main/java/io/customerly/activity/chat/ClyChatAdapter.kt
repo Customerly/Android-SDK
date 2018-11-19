@@ -16,8 +16,8 @@ package io.customerly.activity.chat
  * limitations under the License.
  */
 
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import io.customerly.R
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.utils.ggkext.activity

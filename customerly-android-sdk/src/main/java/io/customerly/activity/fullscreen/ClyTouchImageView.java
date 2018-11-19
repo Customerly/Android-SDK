@@ -46,8 +46,10 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.OverScroller;
 
+import androidx.appcompat.widget.AppCompatImageView;
+
 @SuppressWarnings("unused")
-class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
+class ClyTouchImageView extends AppCompatImageView {
 
 	private static final String DEBUG = "DEBUG";
 
@@ -399,7 +401,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
     		setScaleType(scaleType);
     	}
     	resetZoom();
-    	scaleImage(scale, viewWidth / 2, viewHeight / 2, true);
+    	scaleImage(scale, viewWidth / 2f, viewHeight / 2f, true);
     	matrix.getValues(m);
     	m[Matrix.MTRANS_X] = -((focusX * getImageWidth()) - (viewWidth * 0.5f));
     	m[Matrix.MTRANS_Y] = -((focusY * getImageHeight()) - (viewHeight * 0.5f));
@@ -433,7 +435,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
     	int drawableWidth = drawable.getIntrinsicWidth();
         int drawableHeight = drawable.getIntrinsicHeight();
         
-        PointF point = transformCoordTouchToBitmap(viewWidth / 2, viewHeight / 2, true);
+        PointF point = transformCoordTouchToBitmap(viewWidth / 2f, viewHeight / 2f, true);
         point.x /= drawableWidth;
         point.y /= drawableHeight;
         return point;
@@ -929,7 +931,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
         	}
         	
         	if (animateToZoomBoundary) {
-	        	DoubleTapZoom doubleTap = new DoubleTapZoom(targetZoom, viewWidth / 2, viewHeight / 2, true);
+	        	DoubleTapZoom doubleTap = new DoubleTapZoom(targetZoom, viewWidth / 2f, viewHeight / 2f, true);
 	        	compatPostOnAnimation(doubleTap);
         	}
         }
@@ -992,7 +994,7 @@ class ClyTouchImageView extends android.support.v7.widget.AppCompatImageView {
     		// Used for translating image during scaling
     		//
     		startTouch = transformCoordBitmapToTouch(bitmapX, bitmapY);
-    		endTouch = new PointF(viewWidth / 2, viewHeight / 2);
+    		endTouch = new PointF(viewWidth / 2f, viewHeight / 2f);
     	}
 
 		@Override

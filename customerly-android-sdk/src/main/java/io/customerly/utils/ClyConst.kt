@@ -16,8 +16,8 @@ package io.customerly.utils
  * limitations under the License.
  */
 
-import android.support.annotation.ColorInt
-import android.support.annotation.IntDef
+import androidx.annotation.ColorInt
+import androidx.annotation.IntDef
 import io.customerly.Customerly
 
 /**
@@ -42,7 +42,8 @@ const val WRITER_TYPE__USER = 1
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class WriterType
 
-@ColorInt internal const val COLORINT_BLUE_MALIBU = -0x9a5619//Blue Malibu
+@ColorInt
+internal const val COLORINT_BLUE_MALIBU = -0x9a5619//Blue Malibu
 
 internal const val JSON_COMPANY_KEY_ID = "company_id"
 internal const val JSON_COMPANY_KEY_NAME = "name"

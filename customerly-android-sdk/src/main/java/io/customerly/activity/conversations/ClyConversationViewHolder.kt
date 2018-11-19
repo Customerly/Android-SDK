@@ -16,9 +16,9 @@ package io.customerly.activity.conversations
  * limitations under the License.
  */
 
-import android.support.v7.widget.RecyclerView
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import io.customerly.R
 import io.customerly.entity.chat.ClyConversation
 import io.customerly.utils.download.imagehandler.ClyImageRequest

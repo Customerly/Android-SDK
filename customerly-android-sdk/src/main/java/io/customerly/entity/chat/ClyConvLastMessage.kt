@@ -17,9 +17,9 @@ package io.customerly.entity.chat
  */
 
 import android.content.Context
-import android.support.annotation.Px
 import android.text.Spanned
 import android.widget.ImageView
+import androidx.annotation.Px
 import io.customerly.R
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.STimestamp

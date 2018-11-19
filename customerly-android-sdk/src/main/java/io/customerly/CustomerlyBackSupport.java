@@ -18,14 +18,14 @@ package io.customerly;
 
 import android.app.Activity;
 import android.app.Application;
-import android.support.annotation.CheckResult;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
 
+import androidx.annotation.CheckResult;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
@@ -34,7 +34,8 @@ import kotlin.jvm.functions.Function0;
 public class CustomerlyBackSupport {
 
     @SuppressWarnings("deprecation")
-    @NonNull private static final CustomerlyBackSupport INSTANCE = new CustomerlyBackSupport();
+    @NonNull
+    private static final CustomerlyBackSupport INSTANCE = new CustomerlyBackSupport();
 
     private CustomerlyBackSupport() { }
 
@@ -96,7 +97,8 @@ public class CustomerlyBackSupport {
          * @param successCallback To receive success async response
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull Task successCallback(@Nullable Callback successCallback);
+        @CheckResult
+        @NonNull Task successCallback(@Nullable Callback successCallback);
         /**
          * @param failureCallback To receive failure async response
          * @return The Task itself for method chaining

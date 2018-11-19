@@ -20,8 +20,8 @@ import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
-import android.support.annotation.IntDef
 import android.view.WindowManager
+import androidx.annotation.IntDef
 import io.customerly.Customerly
 import io.customerly.dialogfragment.showClySurveyDialog
 import io.customerly.utils.ClyActivityLifecycleCallback

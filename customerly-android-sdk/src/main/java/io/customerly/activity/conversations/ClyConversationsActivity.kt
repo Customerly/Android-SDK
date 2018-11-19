@@ -20,10 +20,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.annotation.UiThread
-import android.support.v4.content.ContextCompat
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
 import android.text.Spanned
 import android.util.TypedValue
 import android.view.Gravity
@@ -33,6 +29,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.UiThread
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
@@ -193,7 +193,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                     }
 
             this.conversationsList = conversationsList
-            this.io_customerly__recycler_view.adapter.notifyDataSetChanged()
+            this.io_customerly__recycler_view.adapter?.notifyDataSetChanged()
             this.inputLayout?.visibility = View.GONE
             this.io_customerly__new_conversation_layout.visibility = View.VISIBLE
             this.io_customerly__recycler_view_swipe_refresh.visibility = View.VISIBLE

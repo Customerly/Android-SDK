@@ -22,15 +22,15 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.support.annotation.ColorInt
-import android.support.annotation.UiThread
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.annotation.ColorInt
+import androidx.annotation.UiThread
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyAppCompatActivity
@@ -99,7 +99,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                             R.drawable.io_customerly__ic_arrow_back_white_24dp to "#ffffff"
                         }.let { (homeIndicator, titleFontColor) ->
                             sActionBar.setHomeAsUpIndicator(homeIndicator)
-                            "<font color='$titleFontColor'>${actionBar.title}</font>"
+                            "<font color='$titleFontColor'>${actionBar?.title}</font>"
                         }.let { title ->
                             sActionBar.setTitle(spannedFromHtml(source = title))
                         }

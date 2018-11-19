@@ -16,7 +16,7 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import android.support.annotation.Px
+import androidx.annotation.Px
 import io.customerly.Customerly
 import io.customerly.utils.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL
 

@@ -16,8 +16,8 @@ package io.customerly.activity.conversations
  * limitations under the License.
  */
 
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.weak
 import kotlinx.android.synthetic.main.io_customerly__activity_list.*
