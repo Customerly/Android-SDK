@@ -17,3 +17,5 @@
 -keepclasseswithmembers class android.animation.ValueAnimator {
     public static void setDurationScale(float);
 }
+
+-keep public class io.customerly.utils.download.ClyFileProvider

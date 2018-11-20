@@ -15,12 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import androidx.annotation.Keep
 import androidx.core.content.FileProvider
 
 /**
  * Created by Gianni on 21/02/17.
  * Project: CustomerlyAndroidSDK
  */
-@Keep
 class ClyFileProvider : FileProvider()

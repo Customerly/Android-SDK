@@ -101,7 +101,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                             sActionBar.setHomeAsUpIndicator(homeIndicator)
                             "<font color='$titleFontColor'>${actionBar?.title}</font>"
                         }.let { title ->
-                            sActionBar.setTitle(spannedFromHtml(source = title))
+                            sActionBar.title = spannedFromHtml(source = title)
                         }
                     }
                     sActionBar.setDisplayHomeAsUpEnabled(true)
