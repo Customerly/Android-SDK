@@ -90,6 +90,14 @@ We suggest to avoid manually integration of the SDK in your project, by the way 
 
 We recommend to use only the public methods of the class Customerly.
 
+### Using support libraries?
+
+Since version 2.2.0 the customerly sdk has replaced its support libraries dependencies with the androidx corresponding.
+If your project is still using support libraries dependencies i suggest to migrate to androidx as suggested by google (Check here for infos: https://developer.android.com/jetpack/androidx/).
+A project using support libraries can't depend from libraries with androidx dependencies.
+But if you can't or don't want or don't have time now, please don't worry:
+A variant version of customerly sdk with support libraries dependencies is available, just use `customerly-android-sdk-supportlibraries` instead of `customerly-android-sdk` as the artifact name.
+
 ### Configuration (Mandatory)
 
 **1)** Create a new AndroidStudio project or open an existing one

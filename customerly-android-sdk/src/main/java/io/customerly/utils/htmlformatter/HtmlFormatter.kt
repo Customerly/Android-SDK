@@ -135,7 +135,7 @@ internal fun fromHtml(
         } else {
             Html.ImageGetter { source ->
                 val drawable = URLDrawable(tv.resources)
-                pImageDownloader.invoke(tv.context, source, { resource ->
+                pImageDownloader.invoke(tv.context, source) { resource ->
                     var width = 250.dp2px
                     var height = (250f / resource.intrinsicWidth * resource.intrinsicHeight).toInt().dp2px
                     if (height > 250.dp2px) {//Maxheight 250dp
@@ -146,7 +146,7 @@ internal fun fromHtml(
                     resource.setBounds(0, 0, width, height)
                     drawable.setDrawable(resource)
                     tv.text = tv.text
-                })
+                }
                 drawable
             }
         }
@@ -162,8 +162,7 @@ internal fun fromHtml(
                         val emojiUnicode: CharSequence?
                         try {
                             emojiUnicode = object : CharSequence {
-                                internal var chars = Character.toChars(Integer.decode("0x" + output.subSequence(startEmojiIndex, output.length).toString().trim { it <= ' ' }))
-
+                                private var chars = Character.toChars(Integer.decode("0x" + output.subSequence(startEmojiIndex, output.length).toString().trim { it <= ' ' }))
                                 override val length: Int get() = this.chars.size
                                 override fun get(index: Int): Char = this.chars[index]
                                 override fun subSequence(startIndex: Int, endIndex: Int) = String(this.chars, startIndex, endIndex)
@@ -196,12 +195,15 @@ internal fun fromHtml(
             for (imageSpan in imageSpans) {
                 if (imageSpan.source != null) {
                     ssb.setSpan(object : ClickableSpan() {
-                        internal var lastClickedAt = 0L
+                        private var lastClickedAt = 0L
                         override fun onClick(widget: View) {
                             val now = System.currentTimeMillis()
                             if (now - this.lastClickedAt > 100) {//Trick because the onClick is fired twice
                                 this.lastClickedAt = now
-                                widget.activity?.also { pImageClickableSpan.invoke(it, imageSpan.source) }
+                                val imageSpanSource: String? = imageSpan.source
+                                if(imageSpanSource != null) {
+                                    widget.activity?.also { pImageClickableSpan.invoke(it, imageSpanSource) }
+                                }
                             }
                         }
                     }, ssb.getSpanStart(imageSpan), ssb.getSpanEnd(imageSpan), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
