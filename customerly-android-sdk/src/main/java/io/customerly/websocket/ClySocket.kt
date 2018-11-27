@@ -19,8 +19,7 @@ package io.customerly.websocket
 import android.app.Activity
 import android.util.Log
 import android.view.WindowManager
-import androidx.annotation.StringDef
-import androidx.annotation.UiThread
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
@@ -32,6 +31,7 @@ import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.chat.parseMessagesList
 import io.customerly.entity.parseSocketParams
 import io.customerly.entity.ping.ClyFormCast
+import io.customerly.sxdependencies.annotations.SXStringDef
 import io.customerly.utils.CUSTOMERLY_DEV_MODE
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ClyActivityLifecycleCallback
@@ -53,7 +53,7 @@ private const val SOCKET_EVENT__SEEN = "seen"
 private const val SOCKET_EVENT__MESSAGE = "message"
 private const val SOCKET_EVENT__ATTRIBUTE_SET = "attribute:set"
 
-@StringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE, SOCKET_EVENT__ATTRIBUTE_SET)
+@SXStringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE, SOCKET_EVENT__ATTRIBUTE_SET)
 @Retention(AnnotationRetention.SOURCE)
 private annotation class SocketEvent
 
@@ -187,7 +187,7 @@ internal class ClySocket {
         }
     }
 
-    @UiThread
+    @SXUiThread
     private fun onMessageNewsCallbackWithRetry(messages: ArrayList<ClyMessage>, retryOnBadTokenException: Boolean = true) {
         if(messages.isNotEmpty()) {
             val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()

@@ -18,9 +18,10 @@ package io.customerly.activity.conversations
 
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import io.customerly.R
 import io.customerly.entity.chat.ClyConversation
+import io.customerly.sxdependencies.SXRecyclerView
+import io.customerly.sxdependencies.SXRecyclerViewViewHolder
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
@@ -29,8 +30,8 @@ import io.customerly.utils.ggkext.dp2px
  * Created by Gianni on 27/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-internal class ClyConversationViewHolder(recyclerView: RecyclerView)
-    : RecyclerView.ViewHolder(recyclerView.activity!!.layoutInflater.inflate(R.layout.io_customerly__li_conversation, recyclerView, false)) {
+internal class ClyConversationViewHolder(recyclerView: SXRecyclerView)
+    : SXRecyclerViewViewHolder(recyclerView.activity!!.layoutInflater.inflate(R.layout.io_customerly__li_conversation, recyclerView, false)) {
 
     private var conversationId = 0L
 

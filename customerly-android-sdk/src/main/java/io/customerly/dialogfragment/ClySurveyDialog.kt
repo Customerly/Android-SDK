@@ -24,14 +24,12 @@ import android.text.InputType
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
-import androidx.appcompat.widget.*
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentActivity
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.api.*
 import io.customerly.entity.*
+import io.customerly.sxdependencies.*
 import io.customerly.utils.CUSTOMERLY_SURVEY_SITE
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
@@ -57,14 +55,14 @@ internal fun Activity.showClySurveyDialog(survey: ClySurvey) {
             ClySurveyDialog.displayed = true
         }
     }
-    val fm = (this as? FragmentActivity)?.supportFragmentManager
-    if (fm != null && (fm.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? ClySurveyDialog)?.dialog?.isShowing != true) {
-        val transaction = fm.beginTransaction().addToBackStack(null)
+
+    val fm: SXFragmentManager? = (this as? SXFragmentActivity)?.supportFragmentManager
+    if (fm != null && (fm.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? SXDialogFragment)?.dialog?.isShowing != true) {
         ClySurveyDialog().apply {
             this.arguments = Bundle().apply {
                 this.putParcelable(SURVEY_ARGUMENT_KEY, survey)
             }
-        }.show(transaction, SURVEY_FRAGMENT_TAG)
+        }.show(fm.beginTransaction().addToBackStack(null), SURVEY_FRAGMENT_TAG)
     } else {
         synchronized(ClySurveyDialog.lock) {
             ClySurveyDialog.displayed = false
@@ -73,10 +71,10 @@ internal fun Activity.showClySurveyDialog(survey: ClySurvey) {
 }
 
 internal fun Activity.dismissClySurveyDialog() {
-    ((this as? FragmentActivity)?.supportFragmentManager?.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? DialogFragment)?.dismissAllowingStateLoss()
+    ((this as? SXFragmentActivity)?.supportFragmentManager?.findFragmentByTag(SURVEY_FRAGMENT_TAG) as? SXDialogFragment)?.dismissAllowingStateLoss()
 }
 
-internal class ClySurveyDialog : DialogFragment() {
+internal class ClySurveyDialog : SXDialogFragment() {
 
     companion object {
         val lock: Array<Any> = emptyArray()
@@ -88,7 +86,7 @@ internal class ClySurveyDialog : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.setStyle(DialogFragment.STYLE_NO_TITLE, R.style.io_customerly__SurveyFragment)
+        this.setStyle(SXDialogFragment.STYLE_NO_TITLE, R.style.io_customerly__SurveyFragment)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -253,7 +251,7 @@ internal class ClySurveyDialog : DialogFragment() {
                         val inflater = context.layoutInflater
                         survey.choices?.forEach { (choiceId, choiceValue) ->
                             rootView.io_customerly__input_layout.addView(
-                                (inflater.inflate(R.layout.io_customerly__surveyitem_radio, rootView.io_customerly__input_layout, false) as AppCompatRadioButton).apply {
+                                (inflater.inflate(R.layout.io_customerly__surveyitem_radio, rootView.io_customerly__input_layout, false) as SXAppCompatRadioButton).apply {
                                     this.text = choiceValue
                                     this.setOnClickListener { weakDialog.get()?.nextSurvey(survey = survey, choiceId = choiceId) }
                                 })
@@ -262,7 +260,7 @@ internal class ClySurveyDialog : DialogFragment() {
                     TSURVEY_LIST -> {
                         survey.choices?.let { choices ->
                             rootView.io_customerly__input_layout.addView(
-                                AppCompatSpinner(context).apply {
+                                SXAppCompatSpinner(context).apply {
                                     this.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 40.dp2px).apply {
                                         this.topMargin = 15.dp2px
                                         this.bottomMargin = 15.dp2px
@@ -360,7 +358,7 @@ internal class ClySurveyDialog : DialogFragment() {
                                         })
 
                                         val weakConfirmButton = confirm.weak()
-                                        /* SeekBar */this.addView((LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, this, false) as AppCompatSeekBar).apply {
+                                        /* SeekBar */this.addView((LayoutInflater.from(context).inflate(R.layout.io_customerly__surveyitem_scaleseekbar, this, false) as SXAppCompatSeekBar).apply {
                                             this.max = survey.limitTo - survey.limitFrom
                                             this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                                                 private val surveySeekLimitFrom = survey.limitFrom
@@ -392,8 +390,11 @@ internal class ClySurveyDialog : DialogFragment() {
                     }
                     TSURVEY_STAR -> {
                         rootView.io_customerly__input_layout.addView(
-                                (context.layoutInflater.inflate(R.layout.io_customerly__surveyitem_ratingbar, rootView.io_customerly__input_layout, false) as AppCompatRatingBar).apply {
-                                    this.setOnRatingBarChangeListener { _, rating, _ -> weakDialog.get()?.nextSurvey(survey = survey, answer = rating.toString()) }
+                                (context.layoutInflater.inflate(R.layout.io_customerly__surveyitem_ratingbar, rootView.io_customerly__input_layout, false) as SXAppCompatRatingBar).apply {
+                                    this.onRatingBarChangeListener = RatingBar.OnRatingBarChangeListener {
+                                        _, rating, _ ->
+                                            weakDialog.get()?.nextSurvey(survey = survey, answer = rating.toString())
+                                        }
                                 })
                     }
                     TSURVEY_NUMBER, TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA -> {
@@ -403,7 +404,7 @@ internal class ClySurveyDialog : DialogFragment() {
                                     this.orientation = LinearLayout.VERTICAL
                                     this.gravity = Gravity.CENTER_HORIZONTAL
 
-                                    val editText = (context.layoutInflater.inflate(R.layout.io_customerly__surveyitem_edittext, this, false) as AppCompatEditText).apply {
+                                    val editText = (context.layoutInflater.inflate(R.layout.io_customerly__surveyitem_edittext, this, false) as SXAppCompatEditText).apply {
                                         when (survey.type) {
                                             TSURVEY_NUMBER -> {
                                                 this.inputType = InputType.TYPE_CLASS_NUMBER
@@ -464,7 +465,7 @@ internal class ClySurveyDialog : DialogFragment() {
         if((survey.requireAnswerByChoice && choiceId != null) || (survey.requireAnswerByString && answer != null)) {
             val weakDialog = this.weak()
             ClyApiRequest(
-                    context = this.activity,
+                    context = this.activity?.applicationContext,
                     endpoint = ENDPOINT_SURVEY_SUBMIT,
                     requireToken = true,
                     trials = 2,

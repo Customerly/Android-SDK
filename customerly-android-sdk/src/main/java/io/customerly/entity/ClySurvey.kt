@@ -21,9 +21,9 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
 import android.view.WindowManager
-import androidx.annotation.IntDef
 import io.customerly.Customerly
 import io.customerly.dialogfragment.showClySurveyDialog
+import io.customerly.sxdependencies.annotations.SXIntDef
 import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.ggkext.MSTimestamp
 import io.customerly.utils.ggkext.getTyped
@@ -52,7 +52,7 @@ internal const val TSURVEY_TEXT_AREA = 7
 private const val TSURVEY_LAST = TSURVEY_TEXT_AREA
 
 
-@IntDef(TSURVEY_END_SURVEY, TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST, TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER, TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA)
+@SXIntDef(TSURVEY_END_SURVEY, TSURVEY_BUTTON, TSURVEY_RADIO, TSURVEY_LIST, TSURVEY_SCALE, TSURVEY_STAR, TSURVEY_NUMBER, TSURVEY_TEXT_BOX, TSURVEY_TEXT_AREA)
 @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
 internal annotation class TSurvey
 

@@ -21,19 +21,12 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.annotation.ColorInt
-import androidx.annotation.UiThread
-import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
@@ -43,6 +36,9 @@ import io.customerly.api.*
 import io.customerly.entity.ClyAdminFull
 import io.customerly.entity.chat.*
 import io.customerly.entity.iamLead
+import io.customerly.sxdependencies.annotations.SXColorInt
+import io.customerly.sxdependencies.annotations.SXUiThread
+import io.customerly.sxdependencies.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
 import io.customerly.utils.getContrastBW
@@ -137,7 +133,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
                                                 if (addedMessagesCount > 0) {
                                                     activity.chatList = newChatList
-                                                    (activity.io_customerly__recycler_view.layoutManager as? LinearLayoutManager)?.let { llm ->
+                                                    (activity.io_customerly__recycler_view.layoutManager as? SXLinearLayoutManager)?.let { llm ->
                                                         if (llm.findFirstCompletelyVisibleItemPosition() == 0) {
                                                             llm.scrollToPosition(0)
                                                         } else if (previousSize == 0 && scrollToLastUnread != -1) {
@@ -192,14 +188,14 @@ internal class ClyChatActivity : ClyIInputActivity() {
             this.io_customerly__actionlayout.setBackgroundColor(Customerly.lastPing.widgetColor)
             this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Customerly.lastPing.widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
             this.io_customerly__recycler_view.also { recyclerView ->
-                recyclerView.layoutManager = LinearLayoutManager(this.applicationContext).also { llm ->
+                recyclerView.layoutManager = SXLinearLayoutManager(this.applicationContext).also { llm ->
                     llm.reverseLayout = true
                     RvProgressiveScrollListener(llm = llm, onBottomReached = this.onBottomReachedListener).also {
                         this.progressiveScrollListener = it
                         recyclerView.addOnScrollListener(it)
                     }
                 }
-                recyclerView.itemAnimator = DefaultItemAnimator()
+                recyclerView.itemAnimator = SXDefaultItemAnimator()
                 recyclerView.setHasFixedSize(true)
                 recyclerView.adapter = ClyChatAdapter(chatActivity = this)
             }
@@ -240,7 +236,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                     this.typingAccountName = accountName
                                     weakRv.get()?.also { recyclerView ->
                                         recyclerView.adapter?.notifyItemInserted(0)
-                                        (recyclerView.layoutManager as? LinearLayoutManager)?.takeIf {
+                                        (recyclerView.layoutManager as? SXLinearLayoutManager)?.takeIf {
                                             it.findFirstCompletelyVisibleItemPosition() == 0
                                         }?.scrollToPosition(0)
                                     }
@@ -344,19 +340,19 @@ internal class ClyChatActivity : ClyIInputActivity() {
     }
 
     internal fun startAttachmentDownload(filename: String, fullPath: String) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (SXContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             startFileDownload(context = this, filename = filename, fullPath = fullPath)
         } else {
             this.permissionRequestPendingFileName = filename
             this.permissionRequestPendingPath = fullPath
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                AlertDialog.Builder(this)
+            if (SXActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                SXAlertDialogBuilder(this)
                         .setTitle(R.string.io_customerly__permission_request)
                         .setMessage(R.string.io_customerly__permission_request_explanation_write)
-                        .setPositiveButton(android.R.string.ok) { _, _ -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE) }
+                        .setPositiveButton(android.R.string.ok) { _, _ -> SXActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE) }
                         .show()
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE)
+                SXActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE)
             }
         }
     }
@@ -453,7 +449,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
         }
     }
 
-    @UiThread
+    @SXUiThread
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
         val userId = Customerly.jwtToken?.userID
         val conversationId = this.conversationId
@@ -525,11 +521,11 @@ internal class ClyChatActivity : ClyIInputActivity() {
             (it.adapter as? ClyChatAdapter)?.apply {
                 this.notifyItemInserted(this.listIndex2position(listIndex = 0))
             }
-            (it.layoutManager as? LinearLayoutManager)?.takeIf { llm -> llm.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
+            (it.layoutManager as? SXLinearLayoutManager)?.takeIf { llm -> llm.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
         }
     }
 
-    @UiThread
+    @SXUiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {
         messages
                 .asSequence()
@@ -555,7 +551,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
             it.post {
                 wRv.get()?.let { rv ->
                     rv.adapter?.notifyDataSetChanged()
-                    (rv.layoutManager as? LinearLayoutManager)?.takeIf { llm -> llm.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
+                    (rv.layoutManager as? SXLinearLayoutManager)?.takeIf { llm -> llm.findFirstCompletelyVisibleItemPosition() == 0 }?.scrollToPosition(0)
                 }
             }
         }
@@ -576,7 +572,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                     else -> null
                 }
 
-                @ColorInt val titleTextColorInt = Customerly.lastPing.widgetColor.getContrastBW()
+                @SXColorInt val titleTextColorInt = Customerly.lastPing.widgetColor.getContrastBW()
                 if(fullAdmin != null) {
                     this.conversationFullAdmin = fullAdmin
                     this.conversationFullAdminFromMessagesAccountId = lastAccountId
@@ -612,7 +608,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
                     this.io_customerly__recycler_view.apply {
                         (this.adapter as? ClyChatAdapter)?.also { adapter ->
-                            val llm = this.layoutManager as? LinearLayoutManager
+                            val llm = this.layoutManager as? SXLinearLayoutManager
                             this.post {
                                 val scrollTo0 = llm?.findFirstCompletelyVisibleItemPosition() == 0
 

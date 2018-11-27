@@ -18,7 +18,7 @@ package io.customerly.entity.chat
 
 import android.text.Spanned
 import android.widget.ImageView
-import androidx.annotation.Px
+import io.customerly.sxdependencies.annotations.SXPx
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.getTyped
 import io.customerly.utils.ggkext.optTyped
@@ -72,6 +72,6 @@ internal class ClyConversation (
         this.unread = true
     }
 
-    internal fun loadUrl(into: ImageView, @Px size: Int): ClyImageRequest?
+    internal fun loadUrl(into: ImageView, @SXPx size: Int): ClyImageRequest?
             = this.lastMessage.loadUrl(into = into, size = size)
 }

@@ -30,17 +30,18 @@ import android.os.Build
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import androidx.annotation.LayoutRes
-import androidx.annotation.UiThread
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.widget.ImageViewCompat
-import com.google.android.material.snackbar.Snackbar
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
 import io.customerly.entity.chat.ClyAttachment
 import io.customerly.entity.clySendError
+import io.customerly.sxdependencies.SXActivityCompat
+import io.customerly.sxdependencies.SXToolbar
+import io.customerly.sxdependencies.annotations.SXLayoutRes
+import io.customerly.sxdependencies.annotations.SXUiThread
+import io.customerly.sxdependencies.SXContextCompat
+import io.customerly.sxdependencies.SXImageViewCompat
+import io.customerly.sxdependencies.SXSnackbar
 import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
@@ -89,12 +90,12 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     private val attachButtonListener : (View?)->Unit = { btn ->
         if (this.attachments.size >= 10) {
             if(btn != null) {
-                Snackbar.make(btn, R.string.io_customerly__attachments_max_count_error, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok) { }.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                SXSnackbar.make(btn, R.string.io_customerly__attachments_max_count_error, SXSnackbar.LENGTH_INDEFINITE)
+                        .setAction(android.R.string.ok) {}.setActionTextColor(Customerly.lastPing.widgetColor).show()
             }
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
-                    || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    || SXContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
                     this.startActivityForResult(
                             Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
@@ -104,14 +105,14 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                 }
 
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (SXActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     AlertDialog.Builder(this)
                             .setTitle(R.string.io_customerly__permission_request)
                             .setMessage(R.string.io_customerly__permission_request_explanation_read)
-                            .setPositiveButton(android.R.string.ok) { _, _ -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST__READ_EXTERNAL_STORAGE) }
+                            .setPositiveButton(android.R.string.ok) { _, _ -> SXActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST__READ_EXTERNAL_STORAGE) }
                             .show()
                 } else {
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST__READ_EXTERNAL_STORAGE)
+                    SXActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST__READ_EXTERNAL_STORAGE)
                 }
             }
         }
@@ -135,10 +136,10 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
      * @param pLayoutRes The layout resID
      * @return true if the SDK is configured or false otherwise anc finish is called
      */
-    internal fun onCreateLayout(@LayoutRes pLayoutRes: Int): Boolean {
+    internal fun onCreateLayout(@SXLayoutRes pLayoutRes: Int): Boolean {
         super.setContentView(pLayoutRes)
 
-        this.findViewById<androidx.appcompat.widget.Toolbar>(R.id.io_customerly__toolbar)?.also { this.setSupportActionBar(it) }
+        this.findViewById<SXToolbar>(R.id.io_customerly__toolbar)?.also { this.setSupportActionBar(it) }
         val actionBar = this.supportActionBar
         val poweredBy = this.findViewById<TextView>(R.id.io_customerly__powered_by)
         this.inputInput = this.findViewById(R.id.io_customerly__input_edit_text)
@@ -195,8 +196,8 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
 
         this.findViewById<ImageView>(R.id.io_customerly__input_button_attach).also {
-            ImageViewCompat.setImageTintMode(it, PorterDuff.Mode.SRC_ATOP)
-            ImageViewCompat.setImageTintList(it, ColorStateList.valueOf(tintColor))
+            SXImageViewCompat.setImageTintMode(it, PorterDuff.Mode.SRC_ATOP)
+            SXImageViewCompat.setImageTintList(it, ColorStateList.valueOf(tintColor))
             if (Customerly.isAttachmentsAvailable) {
                 it.setOnClickListener(this.attachButtonListener)
             } else {
@@ -205,8 +206,8 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
 
         this.findViewById<ImageView>(R.id.io_customerly__input_button_send).apply {
-            ImageViewCompat.setImageTintMode(this, PorterDuff.Mode.SRC_ATOP)
-            ImageViewCompat.setImageTintList(this, ColorStateList.valueOf(tintColor))
+            SXImageViewCompat.setImageTintMode(this, PorterDuff.Mode.SRC_ATOP)
+            SXImageViewCompat.setImageTintList(this, ColorStateList.valueOf(tintColor))
             this.setOnClickListener { btn ->
                 if (btn.context.checkConnection()) {
                     (btn.activity as? ClyIInputActivity)?.let { inputActivity ->
@@ -257,7 +258,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
     }
 
-    @UiThread
+    @SXUiThread
     protected abstract fun onSendMessage(content: String, attachments: Array<ClyAttachment>)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -279,8 +280,8 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                         for (att in this.attachments) {
                             if (fileUri == att.uri) {
                                 this.inputInput?.let {
-                                    Snackbar.make(it, R.string.io_customerly__attachments_already_attached_error, Snackbar.LENGTH_INDEFINITE)
-                                            .setAction(android.R.string.ok) { }.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                                    SXSnackbar.make(it, R.string.io_customerly__attachments_already_attached_error, SXSnackbar.LENGTH_INDEFINITE)
+                                            .setAction(android.R.string.ok) {}.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                     it.requestFocus()
                                 }
                                 return
@@ -288,8 +289,8 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                         }
                         if (fileUri.getFileSize(context = this) > 5000000) {
                             this.inputInput?.let {
-                                Snackbar.make(it, R.string.io_customerly__attachments_max_size_error, Snackbar.LENGTH_INDEFINITE)
-                                        .setAction(android.R.string.ok) { }.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                                SXSnackbar.make(it, R.string.io_customerly__attachments_max_size_error, SXSnackbar.LENGTH_INDEFINITE)
+                                        .setAction(android.R.string.ok) {}.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                 it.requestFocus()
                             }
                             return

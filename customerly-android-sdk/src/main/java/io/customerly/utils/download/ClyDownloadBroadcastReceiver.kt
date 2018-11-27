@@ -27,12 +27,12 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
-import androidx.core.app.NotificationCompat
-import androidx.core.content.FileProvider
 import android.view.Gravity
 import android.widget.Toast
 import io.customerly.R
 import io.customerly.activity.ClyOpenDownloadedFileActivity
+import io.customerly.sxdependencies.SXFileProvider
+import io.customerly.sxdependencies.SXNotificationCompatBuilder
 import java.io.File
 
 /**
@@ -112,7 +112,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                             File(Uri.parse(c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))).path).name.takeIf { it.isNotEmpty() }?.let { filename ->
                                 File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename).takeIf { it.exists() }?.let { file ->
                                     (context.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
-                                            ?.notify(downloadId.toInt(), NotificationCompat.Builder(context, CHANNEL_ID_DOWNLOAD)
+                                            ?.notify(downloadId.toInt(), SXNotificationCompatBuilder(context, CHANNEL_ID_DOWNLOAD)
                                             .setSmallIcon(R.drawable.io_customerly__ic_file_download)
                                             .setContentTitle(context.getString(R.string.io_customerly__download_complete))
                                             .setContentText(filename)
@@ -122,7 +122,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                                                             context,
                                                             0,
                                                             Intent(context, ClyOpenDownloadedFileActivity::class.java)
-                                                                    .setData(FileProvider.getUriForFile(context, "io.customerly.provider.${context.packageName}", file)),
+                                                                    .setData(SXFileProvider.getUriForFile(context, "io.customerly.provider.${context.packageName}", file)),
                                                             PendingIntent.FLAG_UPDATE_CURRENT
                                                     )).build())
                                     val toast = Toast.makeText(context, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT)
@@ -134,9 +134,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
                     }
                 } catch (ignored: Exception) {
                 } finally {
-                    if (c != null) {
-                        c.close()
-                    }
+                    c?.close()
                 }
             }
         }

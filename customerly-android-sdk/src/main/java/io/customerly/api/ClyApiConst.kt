@@ -16,9 +16,9 @@ package io.customerly.api
  * limitations under the License.
  */
 
-import androidx.annotation.IntDef
-import androidx.annotation.StringDef
 import io.customerly.entity.ERROR_CODE__GENERIC
+import io.customerly.sxdependencies.annotations.SXIntDef
+import io.customerly.sxdependencies.annotations.SXStringDef
 import io.customerly.utils.CUSTOMERLY_API_ENDPOINT_BASEURL
 import io.customerly.utils.CUSTOMERLY_API_VERSION
 
@@ -26,7 +26,7 @@ import io.customerly.utils.CUSTOMERLY_API_VERSION
  * Created by Gianni on 19/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-@StringDef(ENDPOINT_PING, ENDPOINT_CONVERSATION_RETRIEVE, ENDPOINT_MESSAGE_SEEN,
+@SXStringDef(ENDPOINT_PING, ENDPOINT_CONVERSATION_RETRIEVE, ENDPOINT_MESSAGE_SEEN,
         ENDPOINT_MESSAGE_NEWS, ENDPOINT_MESSAGE_RETRIEVE, ENDPOINT_MESSAGE_SEND,
         ENDPOINT_CONVERSATION_DISCARD, ENDPOINT_EVENT_TRACKING, ENDPOINT_REPORT_CRASH,
         ENDPOINT_SURVEY_SUBMIT, ENDPOINT_SURVEY_SEEN, ENDPOINT_SURVEY_BACK,
@@ -34,7 +34,7 @@ import io.customerly.utils.CUSTOMERLY_API_VERSION
 @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
 internal annotation class ClyEndpoint
 
-@IntDef(RESPONSE_STATE__PREPARING, RESPONSE_STATE__PENDING, RESPONSE_STATE__OK,
+@SXIntDef(RESPONSE_STATE__PREPARING, RESPONSE_STATE__PENDING, RESPONSE_STATE__OK,
         RESPONSE_STATE__ERROR_NO_CONNECTION, RESPONSE_STATE__ERROR_BAD_REQUEST,
         RESPONSE_STATE__ERROR_NETWORK, RESPONSE_STATE__ERROR_BAD_RESPONSE,
         RESPONSE_STATE__SERVERERROR_USER_NOT_AUTHENTICATED, RESPONSE_STATE__NO_TOKEN_AVAILABLE,

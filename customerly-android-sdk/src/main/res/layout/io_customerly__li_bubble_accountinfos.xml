@@ -13,15 +13,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<io.customerly.sxdependencies.SXCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardBackgroundColor="#ffffff"
-    app:cardCornerRadius="5dp"
     android:layout_margin="10dp"
-    app:cardElevation="5dp" >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
 
     <LinearLayout
         android:id="@id/io_customerly__cardaccount_cardlayout"
@@ -159,4 +156,4 @@
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView >
+</io.customerly.sxdependencies.SXCardView >

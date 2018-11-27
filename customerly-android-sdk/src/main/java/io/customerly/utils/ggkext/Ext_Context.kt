@@ -24,19 +24,19 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.net.ConnectivityManager
 import android.view.LayoutInflater
-import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresPermission
+import io.customerly.sxdependencies.annotations.SXDrawableRes
+import io.customerly.sxdependencies.annotations.SXRequiresPermission
 
 /**
  * Created by Gianni on 11/08/17.
  */
 internal fun Context.inflater() : LayoutInflater = LayoutInflater.from(this)
 
-@DrawableRes
+@SXDrawableRes
 internal fun Context.getDrawableId(drawableName :String) : Int =
         this.resources.getIdentifier(drawableName, "drawable", this.packageName)
 
-@RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+@SXRequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
 internal fun Context.checkConnection(): Boolean =
         (this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager).activeNetworkInfo?.isConnectedOrConnecting ?: false
 

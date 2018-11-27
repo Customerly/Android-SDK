@@ -29,7 +29,7 @@ import android.os.Build
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
-import androidx.annotation.ColorInt
+import io.customerly.sxdependencies.annotations.SXColorInt
 import com.github.zafarkhaja.semver.Version
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.activity.conversations.startClyConversationsActivity
@@ -74,7 +74,7 @@ object Customerly {
      */
     @JvmStatic
     @JvmOverloads
-    fun configure(application: Application, customerlyAppId: String, @ColorInt widgetColorInt: Int? = null) {
+    fun configure(application: Application, customerlyAppId: String, @SXColorInt widgetColorInt: Int? = null) {
         Customerly.initialize(context = application.applicationContext)
         Customerly.preferences?.edit()
                 ?.putString(PREF_KEY_APP_ID, customerlyAppId)
@@ -419,8 +419,8 @@ object Customerly {
     internal var preferences: SharedPreferences? = null
             private set
 
-    internal val widgetColorFallback: Int @ColorInt get() = this.widgetColorHardcoded ?: COLORINT_BLUE_MALIBU
-    @ColorInt internal var widgetColorHardcoded: Int? = null
+    internal val widgetColorFallback: Int @SXColorInt get() = this.widgetColorHardcoded ?: COLORINT_BLUE_MALIBU
+    @SXColorInt internal var widgetColorHardcoded: Int? = null
             set(value) {
                 if(value != 0) {
                     field = value

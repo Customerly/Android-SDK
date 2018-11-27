@@ -19,10 +19,10 @@ package io.customerly.utils.download.imagehandler
 import android.content.Context
 import android.graphics.*
 import android.widget.ImageView
-import androidx.annotation.DrawableRes
-import androidx.annotation.UiThread
-import androidx.annotation.IntRange
 import io.customerly.R
+import io.customerly.sxdependencies.annotations.SXDrawableRes
+import io.customerly.sxdependencies.annotations.SXIntRange
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ggkext.weak
 import java.io.File
@@ -46,16 +46,17 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @DrawableRes
+    @SXDrawableRes
     private var placeholder: Int = 0
     private var onPlaceholder: ((Int)->Unit)? = null
 
-    @DrawableRes private var error: Int = 0
+    @SXDrawableRes
+    private var error: Int = 0
     private var onError: ((Int)->Unit)? = null
 
-    @IntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE)
+    @SXIntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE)
     private var resizeWidth: Int = IMAGE_REQUEST_DONT_RESIZE
-    @IntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE)
+    @SXIntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE)
     private var resizeHeight: Int = IMAGE_REQUEST_DONT_RESIZE
 
     private var applyCircleTransformation: Boolean = false
@@ -72,17 +73,17 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         this.scaleType = ImageView.ScaleType.CENTER_CROP
     }
 
-    internal fun placeholder(@DrawableRes placeholder : Int, onPlaceholder: ((Int)->Unit)? = null) = this.apply {
+    internal fun placeholder(@SXDrawableRes placeholder : Int, onPlaceholder: ((Int)->Unit)? = null) = this.apply {
         this.placeholder = placeholder
         this.onPlaceholder = onPlaceholder
     }
 
-    internal fun error(@DrawableRes error : Int, onError: ((Int)->Unit)? = null) = this.apply {
+    internal fun error(@SXDrawableRes error : Int, onError: ((Int)->Unit)? = null) = this.apply {
         this.error = error
         this.onError = onError
     }
 
-    internal fun resize(@IntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE) width : Int, @IntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE) height: Int = width ) = this.apply {
+    internal fun resize(@SXIntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE) width : Int, @SXIntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE) height: Int = width ) = this.apply {
         this.resizeWidth = Math.max(width, IMAGE_REQUEST_DONT_RESIZE)
         this.resizeHeight = Math.max(height, IMAGE_REQUEST_DONT_RESIZE)
     }
@@ -149,7 +150,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
 
     internal fun handlerValidateRequest() = this.intoGenericTarget ?: this.intoImageView != null
 
-    @UiThread
+    @SXUiThread
     internal fun handlerOnResponse(bmp : Bitmap) {
         if(!this.isCancelled) {
             this.intoGenericTarget?.invoke(bmp)
@@ -162,7 +163,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @UiThread
+    @SXUiThread
     internal fun handlerLoadPlaceholder() {
         if(!this.isCancelled) {
             val placeholder = this.placeholder
@@ -176,7 +177,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
         }
     }
 
-    @UiThread
+    @SXUiThread
     internal fun handlerLoadError() {
         if(!this.isCancelled) {
             val error = this.error

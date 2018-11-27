@@ -26,11 +26,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.annotation.ColorInt
-import androidx.annotation.UiThread
-import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyAppCompatActivity
@@ -38,6 +33,11 @@ import io.customerly.entity.ERROR_CODE__GLIDE_ERROR
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.clySendError
 import io.customerly.entity.iamAnonymous
+import io.customerly.sxdependencies.annotations.SXColorInt
+import io.customerly.sxdependencies.annotations.SXUiThread
+import io.customerly.sxdependencies.SXAlertDialogBuilder
+import io.customerly.sxdependencies.SXActivityCompat
+import io.customerly.sxdependencies.SXContextCompat
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
@@ -87,7 +87,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                 super.setContentView(imageView)
 
                 this.supportActionBar?.let { sActionBar ->
-                    @ColorInt val widgetColor = Customerly.lastPing.widgetColor
+                    @SXColorInt val widgetColor = Customerly.lastPing.widgetColor
                     if (widgetColor != 0) {
                         sActionBar.setBackgroundDrawable(ColorDrawable(widgetColor))
 
@@ -145,7 +145,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
     }
 
     private fun startAttachmentDownload() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (SXContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             this.sourceUrl?.let { url ->
                 val lastSlashIndex = url.lastIndexOf('/')
                 val lastBackslashIndex = url.lastIndexOf('\\')
@@ -160,14 +160,14 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
                         fullPath = url)
             }
         } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                AlertDialog.Builder(this)
+            if (SXActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                SXAlertDialogBuilder(this)
                         .setTitle(R.string.io_customerly__permission_request)
                         .setMessage(R.string.io_customerly__permission_request_explanation_write)
-                        .setPositiveButton(android.R.string.ok) { _, _ -> ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE) }
+                        .setPositiveButton(android.R.string.ok) { _, _ -> SXActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE) }
                         .show()
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE)
+                SXActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE)
             }
         }
     }
@@ -187,7 +187,7 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
         }
     }
 
-    @UiThread
+    @SXUiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {}
 
     //    private void saveImageToGallery() {

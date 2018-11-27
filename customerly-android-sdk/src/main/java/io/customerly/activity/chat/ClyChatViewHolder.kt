@@ -17,11 +17,11 @@ package io.customerly.activity.chat
  */
 
 import android.app.DatePickerDialog
+import android.content.DialogInterface
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import androidx.core.content.ContextCompat
 import android.text.*
 import android.text.method.LinkMovementMethod
 import android.text.style.ForegroundColorSpan
@@ -31,10 +31,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.annotation.LayoutRes
-import androidx.annotation.IntRange
-import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.RecyclerView
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.fullscreen.startClyFullScreenImageActivity
@@ -49,6 +45,9 @@ import io.customerly.entity.iamUser
 import io.customerly.entity.ping.ClyFormCast
 import io.customerly.entity.ping.ClyFormDetails
 import io.customerly.entity.urlImageAccount
+import io.customerly.sxdependencies.*
+import io.customerly.sxdependencies.annotations.SXIntRange
+import io.customerly.sxdependencies.annotations.SXLayoutRes
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.shortDateFomatter
@@ -64,17 +63,17 @@ import java.util.*
 @MSTimestamp private const val TYPING_DOTS_SPEED = 500L
 
 internal sealed class ClyChatViewHolder (
-        recyclerView: RecyclerView,
-        @LayoutRes layoutRes: Int,
-        @IntRange(from = 1, to = Long.MAX_VALUE) iconResId: Int = R.id.io_customerly__icon)
-    : RecyclerView.ViewHolder(recyclerView.activity!!.inflater().inflate(layoutRes, recyclerView, false)) {
+        recyclerView: SXRecyclerView,
+        @SXLayoutRes layoutRes: Int,
+        @SXIntRange(from = 1, to = Long.MAX_VALUE) iconResId: Int = R.id.io_customerly__icon)
+    : SXRecyclerViewViewHolder(recyclerView.activity!!.inflater().inflate(layoutRes, recyclerView, false)) {
 
     val icon: ImageView? = this.itemView.findViewById(iconResId)
 
     internal open fun onViewRecycled() {}
 
-    internal sealed class Bubble(recyclerView: RecyclerView, @LayoutRes layoutRes: Int,
-                                 @IntRange(from = 1, to = Long.MAX_VALUE) contentResId: Int = R.id.io_customerly__content
+    internal sealed class Bubble(recyclerView: SXRecyclerView, @SXLayoutRes layoutRes: Int,
+                                 @SXIntRange(from = 1, to = Long.MAX_VALUE) contentResId: Int = R.id.io_customerly__content
     ) : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = layoutRes) {
 
         val content: TextView = this.itemView.findViewById<TextView>(contentResId).apply { this.movementMethod = LinkMovementMethod.getInstance() }
@@ -88,7 +87,7 @@ internal sealed class ClyChatViewHolder (
 
         abstract fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean)
 
-        internal class Typing(recyclerView: RecyclerView): ClyChatViewHolder.Bubble(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_typing) {
+        internal class Typing(recyclerView: SXRecyclerView): ClyChatViewHolder.Bubble(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_typing) {
             init {
                 val weakContentTv = this.content.weak()
                 object : Runnable {
@@ -127,14 +126,14 @@ internal sealed class ClyChatViewHolder (
         }
 
         internal sealed class Message(
-                recyclerView: RecyclerView,
-                @LayoutRes layoutRes: Int,
+                recyclerView: SXRecyclerView,
+                @SXLayoutRes layoutRes: Int,
                 val sendingProgressBarResId: Int = 0,
                 val pendingMessageResId: Int = 0,
-                @IntRange(from = 1, to = Long.MAX_VALUE) attachmentLayoutResId: Int = R.id.io_customerly__attachment_layout,
-                @IntRange(from = 1, to = Long.MAX_VALUE) dateResId: Int = R.id.io_customerly__date,
-                @IntRange(from = 1, to = Long.MAX_VALUE) timeResId: Int = R.id.io_customerly__time,
-                @IntRange(from = 1, to = Long.MAX_VALUE) val iconAttachment: Int
+                @SXIntRange(from = 1, to = Long.MAX_VALUE) attachmentLayoutResId: Int = R.id.io_customerly__attachment_layout,
+                @SXIntRange(from = 1, to = Long.MAX_VALUE) dateResId: Int = R.id.io_customerly__date,
+                @SXIntRange(from = 1, to = Long.MAX_VALUE) timeResId: Int = R.id.io_customerly__time,
+                @SXIntRange(from = 1, to = Long.MAX_VALUE) val iconAttachment: Int
         ) : ClyChatViewHolder.Bubble(recyclerView = recyclerView, layoutRes = layoutRes) {
 
             private val attachmentLayout: LinearLayout? = this.itemView.findViewById(attachmentLayoutResId)
@@ -251,7 +250,7 @@ internal sealed class ClyChatViewHolder (
                         message.attachments.forEach { attachment ->
 
                             val ll = LinearLayout(chatActivity).apply {
-                                layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                layoutParams = SXRecyclerViewLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                                 orientation = LinearLayout.VERTICAL
                                 gravity = Gravity.CENTER_HORIZONTAL
                                 minimumWidth = 150.dp2px
@@ -292,7 +291,7 @@ internal sealed class ClyChatViewHolder (
                                     val weakChatActivity = chatActivity.weak()
                                     if(path?.isNotEmpty() == true) {
                                         ll.setOnClickListener {
-                                            AlertDialog.Builder(chatActivity)
+                                            SXAlertDialogBuilder(chatActivity)
                                                     .setTitle(R.string.io_customerly__download)
                                                     .setMessage(R.string.io_customerly__download_the_file_)
                                                     .setPositiveButton(android.R.string.ok) { _, _ -> weakChatActivity.get()?.startAttachmentDownload(name, path) }
@@ -306,7 +305,7 @@ internal sealed class ClyChatViewHolder (
 
                             val tv = TextView(chatActivity).apply {
                                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                                setTextColor(ContextCompat.getColorStateList(chatActivity, if (message.writer.isUser) R.color.io_customerly__textcolor_white_grey else R.color.io_customerly__textcolor_malibu_grey))
+                                setTextColor(SXContextCompat.getColorStateList(chatActivity, if (message.writer.isUser) R.color.io_customerly__textcolor_white_grey else R.color.io_customerly__textcolor_malibu_grey))
                                 setLines(1)
                                 setSingleLine()
                                 ellipsize = TextUtils.TruncateAt.MIDDLE
@@ -335,7 +334,7 @@ internal sealed class ClyChatViewHolder (
                 }
             }
 
-            internal class User(recyclerView: RecyclerView)
+            internal class User(recyclerView: SXRecyclerView)
                 : Message(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_user, sendingProgressBarResId = R.id.io_customerly__content_sending_progressspinner,
                     pendingMessageResId = R.id.io_customerly__pending_message_label, iconAttachment = R.drawable.io_customerly__ic_attach_user) {
                 init {
@@ -343,10 +342,10 @@ internal sealed class ClyChatViewHolder (
                 }
             }
 
-            internal sealed class Account(recyclerView: RecyclerView, @LayoutRes layoutRes: Int)
+            internal sealed class Account(recyclerView: SXRecyclerView, @SXLayoutRes layoutRes: Int)
                 : Message(recyclerView = recyclerView, layoutRes = layoutRes, iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
 
-                internal class Text(recyclerView: RecyclerView) : Account(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_text) {
+                internal class Text(recyclerView: SXRecyclerView) : Account(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_text) {
 
                     private val accountName: TextView = this.itemView.findViewById(R.id.io_customerly__name)
 
@@ -359,7 +358,7 @@ internal sealed class ClyChatViewHolder (
                     }
                 }
 
-                internal class Rich(recyclerView: RecyclerView) : Account(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_rich) {
+                internal class Rich(recyclerView: SXRecyclerView) : Account(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_account_rich) {
 
                     override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
                         super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = isFirstMessageOfSender)
@@ -376,17 +375,17 @@ internal sealed class ClyChatViewHolder (
 
             }
 
-            internal sealed class Bot(recyclerView: RecyclerView, @LayoutRes layoutRes: Int)
+            internal sealed class Bot(recyclerView: SXRecyclerView, @SXLayoutRes layoutRes: Int)
                 : Message(recyclerView = recyclerView, layoutRes = layoutRes, iconAttachment = R.drawable.io_customerly__ic_attach_account_40dp) {
 
                 override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
                     super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
                 }
 
-                internal class Text(recyclerView: RecyclerView)
+                internal class Text(recyclerView: SXRecyclerView)
                     : Bot(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_bot_text)
 
-                internal sealed class Form(recyclerView: RecyclerView, @LayoutRes layoutRes: Int, @IntRange(from = 1, to = Long.MAX_VALUE) privacyPolicyResId: Int = R.id.io_customerly__botform_privacy_policy)
+                internal sealed class Form(recyclerView: SXRecyclerView, @SXLayoutRes layoutRes: Int, @SXIntRange(from = 1, to = Long.MAX_VALUE) privacyPolicyResId: Int = R.id.io_customerly__botform_privacy_policy)
                     : Bot(recyclerView = recyclerView, layoutRes = layoutRes) {
 
                     private val privacyPolicy: TextView = this.itemView.findViewById(privacyPolicyResId)
@@ -417,7 +416,7 @@ internal sealed class ClyChatViewHolder (
                         }
                     }
 
-                    internal class Profiling(recyclerView: RecyclerView)
+                    internal class Profiling(recyclerView: SXRecyclerView)
                         : Bot.Form(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_bot_profilingform) {
 
                         private val containerInput: LinearLayout = this.itemView.findViewById(R.id.io_customerly__profilingform_container_input)
@@ -515,7 +514,7 @@ internal sealed class ClyChatViewHolder (
                                         if (!form.answerConfirmed) {
                                             this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
                                                 this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
-                                                this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                                this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter?.format(it.asDate) }
                                                 this.setOnClickListener {
 
                                                     val now = Calendar.getInstance().apply {
@@ -533,7 +532,7 @@ internal sealed class ClyChatViewHolder (
                                                                         this.set(Calendar.DAY_OF_MONTH, day)
                                                                     }.time.nullOnException { date ->
                                                                         form.answer = date.time
-                                                                        shortDateFomatter.format(date)
+                                                                        shortDateFomatter?.format(date)
                                                                     }
                                                                 }
                                                             },
@@ -564,7 +563,7 @@ internal sealed class ClyChatViewHolder (
                                             this.containerDate.findViewById<TextView>(R.id.io_customerly__profilingform_date).apply {
                                                 this.hint = form.hint?.takeIf { it.isNotEmpty() } ?: "--/--/----"
                                                 this.isEnabled = false
-                                                this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter.format(it.asDate) }
+                                                this.text = (form.answer as? Long)?.nullOnException { shortDateFomatter?.format(it.asDate) }
                                             }
                                             this.containerDate.findViewById<View>(R.id.io_customerly__profilingform_button_submit_date).isEnabled = false
                                         }
@@ -615,7 +614,7 @@ internal sealed class ClyChatViewHolder (
                         }
                     }
 
-                    internal class AskEmail(recyclerView: RecyclerView)
+                    internal class AskEmail(recyclerView: SXRecyclerView)
                         : Bot.Form(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_bot_askemail) {
 
                         private val input: EditText = this.itemView.findViewById(R.id.io_customerly__askemail_input)
@@ -776,8 +775,16 @@ internal sealed class ClyChatViewHolder (
 
     }
 
-    internal class AccountInfos(recyclerView: RecyclerView)
+    internal class AccountInfos(recyclerView: SXRecyclerView)
         : ClyChatViewHolder(recyclerView = recyclerView, layoutRes = R.layout.io_customerly__li_bubble_accountinfos) {
+
+        init {
+            (this.itemView as? SXCardView)?.apply {
+                this.setCardBackgroundColor(Color.WHITE)
+                this.radius = 5f.dp2px
+                this.cardElevation = 5f.dp2px
+            }
+        }
 
         fun apply(chatActivity: ClyChatActivity) {
 

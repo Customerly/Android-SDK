@@ -18,7 +18,7 @@ package io.customerly.entity.ping
 
 import android.content.SharedPreferences
 import android.graphics.Color
-import androidx.annotation.ColorInt
+import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.Customerly
 import io.customerly.entity.*
 import io.customerly.entity.chat.ClyMessage
@@ -50,7 +50,7 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
         }
 
         this.optTyped<JSONObject>(name = "app_config")?.let { appConfig ->
-            @ColorInt val widgetColor: Int = Customerly.widgetColorHardcoded ?: appConfig.optTyped<String>(name = "widget_color")?.takeIf { it.isNotEmpty() }?.let {
+            @SXColorInt val widgetColor: Int = Customerly.widgetColorHardcoded ?: appConfig.optTyped<String>(name = "widget_color")?.takeIf { it.isNotEmpty() }?.let {
                     when {
                         it.firstOrNull() != '#' -> "#$it"
                         else -> it
@@ -146,7 +146,7 @@ private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
 
 internal class ClyPingResponse(
         internal val minVersion: String = "0.0.0",
-        @ColorInt internal val widgetColor: Int = Customerly.widgetColorFallback,
+        @SXColorInt internal val widgetColor: Int = Customerly.widgetColorFallback,
         internal val widgetBackgroundUrl: String? = null,
         internal val privacyUrl: String? = null,
         internal val poweredBy: Boolean = true,

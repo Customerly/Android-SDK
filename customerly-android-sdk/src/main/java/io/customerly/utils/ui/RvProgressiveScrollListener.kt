@@ -16,8 +16,9 @@ package io.customerly.utils.ui
  * limitations under the License.
  */
 
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import io.customerly.sxdependencies.SXLinearLayoutManager
+import io.customerly.sxdependencies.SXRecyclerView
+import io.customerly.sxdependencies.SXRecyclerViewOnScrollListener
 import io.customerly.utils.MyMutableBoolean
 
 /**
@@ -25,15 +26,13 @@ import io.customerly.utils.MyMutableBoolean
  * Project: Customerly Android SDK
  */
 internal class RvProgressiveScrollListener(
-        private val llm: LinearLayoutManager,
-        private val onBottomReached: (RvProgressiveScrollListener)->Unit) : RecyclerView.OnScrollListener() {
+        private val llm: SXLinearLayoutManager,
+        private val onBottomReached: (RvProgressiveScrollListener)->Unit) : SXRecyclerViewOnScrollListener() {
 
     private var loading: MyMutableBoolean = MyMutableBoolean()
     private var skipNext: MyMutableBoolean = MyMutableBoolean()
 
-    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-        super.onScrolled(recyclerView, dx, dy)
-
+    override fun onScrolled(recyclerView: SXRecyclerView, dx: Int, dy: Int) {
         if (this.llm.itemCount <= this.llm.findLastVisibleItemPosition() + 1) {
             synchronized(this.skipNext) {
                 if (this.skipNext.value) {

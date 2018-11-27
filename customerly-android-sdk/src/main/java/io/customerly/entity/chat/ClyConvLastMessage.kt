@@ -19,7 +19,7 @@ package io.customerly.entity.chat
 import android.content.Context
 import android.text.Spanned
 import android.widget.ImageView
-import androidx.annotation.Px
+import io.customerly.sxdependencies.annotations.SXPx
 import io.customerly.R
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.STimestamp
@@ -37,7 +37,7 @@ internal class ClyConvLastMessage(
         internal var discarded : Boolean
 ) {
 
-    internal fun loadUrl(into: ImageView, @Px size: Int): ClyImageRequest?
+    internal fun loadUrl(into: ImageView, @SXPx size: Int): ClyImageRequest?
             = this.writer.loadUrl(into = into, sizePx = size)
 
     internal fun getWriterName(context : Context) : String = this.writer.getName(context = context)

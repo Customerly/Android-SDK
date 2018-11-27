@@ -31,15 +31,15 @@ import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.annotation.ColorInt
-import androidx.appcompat.app.AppCompatActivity
-import io.customerly.utils.ggkext.startUrl
-import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.Customerly
 import io.customerly.R
+import io.customerly.sxdependencies.annotations.SXColorInt
+import io.customerly.sxdependencies.SXAppCompatActivity
 import io.customerly.utils.alterColor
 import io.customerly.utils.getContrastBW
 import io.customerly.utils.ggkext.activity
+import io.customerly.utils.ggkext.startUrl
+import io.customerly.utils.ggkext.statusBarColorInt
 import io.customerly.utils.ggkext.weak
 import io.customerly.utils.htmlformatter.spannedFromHtml
 import kotlinx.android.synthetic.main.io_customerly__activity_webview.*
@@ -58,7 +58,7 @@ internal fun Activity.startClyWebViewActivity(targetUrl: String, showClearInstea
             .putExtra(EXTRA_HOME_INDICATOR_CLEAR, showClearInsteadOfBack))
 }
 
-internal class ClyWebViewActivity : AppCompatActivity() {
+internal class ClyWebViewActivity: SXAppCompatActivity() {
 
     private var currentUrl: String? = null
 
@@ -69,7 +69,7 @@ internal class ClyWebViewActivity : AppCompatActivity() {
             this.currentUrl = targetUrl
             super.setContentView(R.layout.io_customerly__activity_webview)
             val actionBar = this.supportActionBar
-            @ColorInt val widgetColor = Customerly.lastPing.widgetColor
+            @SXColorInt val widgetColor = Customerly.lastPing.widgetColor
             if (actionBar != null) {
                 if (widgetColor != 0) {
 

@@ -16,7 +16,7 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import androidx.annotation.IntDef
+import io.customerly.sxdependencies.annotations.SXIntDef
 import io.customerly.Customerly
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ENDPOINT_REPORT_CRASH
@@ -35,7 +35,7 @@ import io.customerly.utils.CUSTOMERLY_SDK_NAME
 @ErrorCode const val ERROR_CODE__ATTACHMENT_ERROR = 6
 @ErrorCode const val ERROR_CODE__GENERIC = 7
 
-@IntDef(ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, ERROR_CODE__IO_ERROR, ERROR_CODE__HTTP_REQUEST_ERROR, ERROR_CODE__HTTP_RESPONSE_ERROR, ERROR_CODE__GLIDE_ERROR, ERROR_CODE__ATTACHMENT_ERROR, ERROR_CODE__GENERIC)
+@SXIntDef(ERROR_CODE__CUSTOMERLY_NOT_CONFIGURED, ERROR_CODE__IO_ERROR, ERROR_CODE__HTTP_REQUEST_ERROR, ERROR_CODE__HTTP_RESPONSE_ERROR, ERROR_CODE__GLIDE_ERROR, ERROR_CODE__ATTACHMENT_ERROR, ERROR_CODE__GENERIC)
 @Retention(AnnotationRetention.SOURCE)
 internal annotation class ErrorCode
 

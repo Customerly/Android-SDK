@@ -25,8 +25,8 @@ import android.text.Spanned
 import android.text.SpannedString
 import android.view.WindowManager
 import android.widget.TextView
-import androidx.annotation.IntDef
-import androidx.annotation.UiThread
+import io.customerly.sxdependencies.annotations.SXIntDef
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
@@ -61,7 +61,7 @@ private const val CSTATE_SENDING = 0
 private const val CSTATE_FAILED = -1
 private const val CSTATE_PENDING = -2
 
-@IntDef(CSTATE_COMPLETED, CSTATE_FAILED, CSTATE_SENDING, CSTATE_PENDING)
+@SXIntDef(CSTATE_COMPLETED, CSTATE_FAILED, CSTATE_SENDING, CSTATE_PENDING)
 @Retention(AnnotationRetention.SOURCE)
 private annotation class CState
 
@@ -266,7 +266,7 @@ internal sealed class ClyMessage(
         }
     }
 
-    @UiThread
+    @SXUiThread
     private fun displayNow(activity: Activity, retryOnFailure: Boolean = true) {
         try {
             when (activity) {

@@ -16,17 +16,17 @@ package io.customerly.activity
  * limitations under the License.
  */
 
-import androidx.annotation.UiThread
-import androidx.appcompat.app.AppCompatActivity
 import io.customerly.entity.chat.ClyMessage
+import io.customerly.sxdependencies.annotations.SXUiThread
+import io.customerly.sxdependencies.SXAppCompatActivity
 import java.util.*
 
 /**
  * Created by Gianni on 16/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-internal abstract class ClyAppCompatActivity : AppCompatActivity() {
-    @UiThread
+internal abstract class ClyAppCompatActivity : SXAppCompatActivity() {
+    @SXUiThread
     internal abstract fun onNewSocketMessages(messages: ArrayList<ClyMessage>)
     internal abstract fun onLogoutUser()
 }

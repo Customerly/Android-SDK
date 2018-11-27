@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.Window
-import androidx.annotation.ColorInt
+import io.customerly.sxdependencies.annotations.SXColorInt
 import kotlin.reflect.KClass
 
 /*
@@ -50,12 +50,12 @@ internal fun Activity.startUrl(url : String) {
     } catch (ignored : Exception) { }
 }
 
-fun Window.statusBarColorInt(@ColorInt colorInt : Int) {
+fun Window.statusBarColorInt(@SXColorInt colorInt : Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         this.statusBarColor = colorInt
     }
 }
 
-fun Activity.statusBarColorInt(@ColorInt colorInt : Int) {
+fun Activity.statusBarColorInt(@SXColorInt colorInt : Int) {
     this.window.statusBarColorInt(colorInt)
 }

@@ -17,9 +17,10 @@ package io.customerly.activity.chat
  */
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import io.customerly.R
 import io.customerly.entity.chat.ClyMessage
+import io.customerly.sxdependencies.SXRecyclerView
+import io.customerly.sxdependencies.SXRecyclerViewAdapter
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
@@ -29,7 +30,7 @@ import kotlinx.android.synthetic.main.io_customerly__activity_chat.*
  * Created by Gianni on 27/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Adapter<ClyChatViewHolder>() {
+internal class ClyChatAdapter(chatActivity : ClyChatActivity) : SXRecyclerViewAdapter<ClyChatViewHolder>() {
 
     private val weakChatActivity = chatActivity.weak()
 
@@ -74,7 +75,7 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : RecyclerView.Ada
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClyChatViewHolder {
-        val recyclerView: RecyclerView = (parent as? RecyclerView) ?: (parent.activity as ClyChatActivity).io_customerly__recycler_view
+        val recyclerView: SXRecyclerView = (parent as? SXRecyclerView) ?: (parent.activity as ClyChatActivity).io_customerly__recycler_view
         return when (viewType) {
             R.layout.io_customerly__li_bubble_user ->                       ClyChatViewHolder.Bubble.Message.User(recyclerView = recyclerView)
             R.layout.io_customerly__li_bubble_account_text ->               ClyChatViewHolder.Bubble.Message.Account.Text(recyclerView = recyclerView)

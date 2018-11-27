@@ -20,17 +20,10 @@ package io.customerly.utils.ggkext
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Color
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.PopupWindow
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.IntDef
-import androidx.appcompat.widget.SwitchCompat
+import io.customerly.sxdependencies.annotations.SXIntDef
 import java.lang.ref.WeakReference
 
 /**
@@ -64,7 +57,7 @@ internal fun View.visibleIfNotVisible() {
     }
 }
 
-@IntDef(View.VISIBLE, View.INVISIBLE, View.GONE)
+@SXIntDef(View.VISIBLE, View.INVISIBLE, View.GONE)
 @Retention(AnnotationRetention.SOURCE)
 internal annotation class ViewVisibility
 
@@ -90,26 +83,6 @@ internal fun <R1, VIEW : View> VIEW.setOnClickListenerWithWeak(r1 : R1, onClick 
         @Suppress("UNCHECKED_CAST")
         onClick(it as VIEW,w1.get())
     }
-}
-
-internal fun SwitchCompat.tintColorRes(@ColorRes thumbColor: Int) {
-    this.tintColorInt(ContextCompat.getColor(this.context, thumbColor))
-}
-
-internal fun SwitchCompat.tintColorInt(@ColorInt thumbColor: Int) {
-    val states = arrayOf(
-            intArrayOf(android.R.attr.state_checked),
-            intArrayOf()
-    )
-    DrawableCompat.setTintList(this.trackDrawable, ColorStateList(
-            states,
-            intArrayOf(Color.argb(77, Color.red(thumbColor), Color.green(thumbColor), Color.blue(thumbColor)), Color.GRAY)
-    ))
-
-    DrawableCompat.setTintList(this.thumbDrawable, ColorStateList(
-            states,
-            intArrayOf(thumbColor, Color.LTGRAY)
-    ))
 }
 
 @ViewVisibility internal val Boolean.toViewVisibility : Int

@@ -16,8 +16,8 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import androidx.annotation.Px
 import io.customerly.Customerly
+import io.customerly.sxdependencies.annotations.SXPx
 import io.customerly.utils.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL
 
 /**
@@ -25,8 +25,8 @@ import io.customerly.utils.CUSTOMERLY_PICTURE_ENDPOINT_BASEURL
  * Project: Customerly-KAndroid-SDK
  */
 
-fun urlImageAccount(accountId: Long, @Px sizePX: Int, name: String?): String
+fun urlImageAccount(accountId: Long, @SXPx sizePX: Int, name: String?): String
         = "${CUSTOMERLY_PICTURE_ENDPOINT_BASEURL}accounts/$accountId/$sizePX?name=${name ?: ""}"
 
-fun urlImageUser(userID: Long, @Px sizePX: Int, name: String? = Customerly.currentUser.name): String
+fun urlImageUser(userID: Long, @SXPx sizePX: Int, name: String? = Customerly.currentUser.name): String
         = "${CUSTOMERLY_PICTURE_ENDPOINT_BASEURL}users/$userID/$sizePX?name=${name ?: ""}"

@@ -24,12 +24,12 @@ import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.PopupWindow
-import androidx.annotation.UiThread
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.chat.startClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.chat.ClyMessage
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.ClySemaphore
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
@@ -59,7 +59,7 @@ internal fun dismissAlertMessageOnUserLogout() {
     currentClyAlertMessage?.dismissAllowingStateLoss()
 }
 
-@UiThread
+@SXUiThread
 @Throws(WindowManager.BadTokenException::class)
 internal fun Activity.showClyAlertMessage(message: ClyMessage) {
     if(true != currentClyAlertMessage?.onNewMessage(activity = this, newMessage = message)) {

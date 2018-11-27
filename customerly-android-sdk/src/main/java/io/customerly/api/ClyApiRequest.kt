@@ -21,14 +21,14 @@ package io.customerly.api
 import android.Manifest
 import android.content.Context
 import android.util.Log
-import androidx.annotation.IntRange
-import androidx.annotation.RequiresPermission
 import io.customerly.Customerly
 import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.JWT_KEY
 import io.customerly.entity.parseJwtToken
 import io.customerly.entity.ping.parsePing
+import io.customerly.sxdependencies.annotations.SXIntRange
+import io.customerly.sxdependencies.annotations.SXRequiresPermission
 import io.customerly.utils.*
 import io.customerly.utils.ggkext.*
 import org.json.JSONArray
@@ -51,12 +51,12 @@ import javax.net.ssl.SSLContext
  * Project: Customerly-KAndroid-SDK
  */
 internal class ClyApiRequest<RESPONSE: Any>
-    @RequiresPermission(Manifest.permission.INTERNET)
+    @SXRequiresPermission(Manifest.permission.INTERNET)
     internal constructor(
             context: Context? = null,
             @ClyEndpoint private val endpoint: String,
             private val requireToken: Boolean = false,
-            @IntRange(from=1, to=5) private val trials: Int = 1,
+            @SXIntRange(from=1, to=5) private val trials: Int = 1,
             private val onPreExecute: ((Context?)->Unit)? = null,
             private val jsonObjectConverter: ((JSONObject)->RESPONSE?)? = null,
             private val jsonArrayConverter: ((JSONArray)->RESPONSE?)? = null,

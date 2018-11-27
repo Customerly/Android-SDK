@@ -16,7 +16,7 @@ package io.customerly.entity
  * limitations under the License.
  */
 
-import androidx.annotation.Px
+import io.customerly.sxdependencies.annotations.SXPx
 import io.customerly.utils.ggkext.optTyped
 import org.json.JSONException
 import org.json.JSONObject
@@ -36,5 +36,5 @@ internal open class ClyAdmin
     val name: String = adminJson.optTyped(name = "name", fallback = "")
     val lastActive: Long = adminJson.optTyped(name = "last_active", fallback = 0L)
 
-    internal fun getImageUrl(@Px sizePx: Int) : String = urlImageAccount(accountId = this.accountId, sizePX = sizePx, name = this.name)
+    internal fun getImageUrl(@SXPx sizePx: Int) : String = urlImageAccount(accountId = this.accountId, sizePX = sizePx, name = this.name)
 }

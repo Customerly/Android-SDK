@@ -1,0 +1,53 @@
+AndroidX version:
+
+- Rename module to: customerly-android-sdk
+
+- In customerly-android-sdk/build.gradle:
+    + Replace support libraries dependencies with the following:
+        api 'com.google.android.material:material:1.1.0-alpha01'
+        api 'androidx.cardview:cardview:1.0.0'
+        api 'androidx.recyclerview:recyclerview:1.0.0'
+        api 'androidx.appcompat:appcompat:1.0.2'
+        api 'androidx.legacy:legacy-support-v13:1.0.0'
+        api 'androidx.annotation:annotation:1.0.0'
+
+    + In ext {} valorize the following attributes:
+        bintrayName = 'customerly-android-sdk'
+        artifact = 'customerly-android-sdk'
+        libraryName = 'Customerly-Android-SDK'
+        libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
+
+- In project/gradle.properties uncomment the following lines:
+    android.enableJetifier=true
+    android.useAndroidX=true
+
+- Check library version name
+
+
+
+
+
+Support libraries version:
+
+- Rename module to: customerly-android-sdk-supportlibraries
+
+- In customerly-android-sdk/build.gradle:
+    + Replace androidx libraries dependencies with the following:
+        api 'com.android.support:design:28.0.0'
+        api 'com.android.support:cardview-v7:28.0.0'
+        api 'com.android.support:recyclerview-v7:28.0.0'
+        api 'com.android.support:appcompat-v7:28.0.0'
+        api 'com.android.support:support-v13:28.0.0'
+        api 'com.android.support:support-annotations:28.0.0'
+
+    + In ext {} valorize the following attributes:
+        bintrayName = 'customerly-android-sdk-supportlibraries'
+        artifact = 'customerly-android-sdk-supportlibraries'
+        libraryName = 'Customerly-Android-SDK-SupportLibraries'
+        libraryDescription = 'Customerly Android SDK for integration in android app that depend from support libraries. See more at: https://www.customerly.io/'
+
+- In project/gradle.properties comment the following lines:
+    #android.enableJetifier=true
+    #android.useAndroidX=true
+
+- Check library version name

@@ -20,7 +20,7 @@ package io.customerly.utils.ggkext
 
 import android.os.Build
 import android.util.LongSparseArray
-import androidx.annotation.RequiresApi
+import io.customerly.sxdependencies.annotations.SXRequiresApi
 import org.intellij.lang.annotations.Pattern
 import org.intellij.lang.annotations.RegExp
 
@@ -139,46 +139,52 @@ internal infix fun <K,V> K.entry(that: V): Map.Entry<K, V> = MyMapEntry(this, th
 
 private data class MyMapEntry<out K, out V>(override val key: K, override val value: V) : Map.Entry<K,V>
 
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+@SXRequiresApi(Build.VERSION_CODES.JELLY_BEAN)
 internal inline fun <E> LongSparseArray<E>.forEach(filterNotNullValues : Boolean = false, action: (E) -> Unit) {
-    (0 until this.size())
-            .asSequence()
-            .let { sequence ->
-                if(filterNotNullValues) {
-                    sequence.filter { this.valueAt(it) != null }
-                } else {
-                    sequence
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        (0 until this.size())
+                .asSequence()
+                .let { sequence ->
+                    if(filterNotNullValues) {
+                        sequence.filter { this.valueAt(it) != null }
+                    } else {
+                        sequence
+                    }
                 }
-            }
-            .forEach { action(this.valueAt(it)) }
+                .forEach { action(this.valueAt(it)) }
+    }
 }
 
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+@SXRequiresApi(Build.VERSION_CODES.JELLY_BEAN)
 internal inline fun <E> LongSparseArray<E>.forEachIndex(filterNotNullValues : Boolean = false, action: (Long) -> Unit) {
-    (0 until this.size())
-            .asSequence()
-            .let { sequence ->
-                if(filterNotNullValues) {
-                    sequence.filter { this.valueAt(it) != null }
-                } else {
-                    sequence
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        (0 until this.size())
+                .asSequence()
+                .let { sequence ->
+                    if (filterNotNullValues) {
+                        sequence.filter { this.valueAt(it) != null }
+                    } else {
+                        sequence
+                    }
                 }
-            }
-            .forEach { action(this.keyAt(it)) }
+                .forEach { action(this.keyAt(it)) }
+    }
 }
 
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+@SXRequiresApi(Build.VERSION_CODES.JELLY_BEAN)
 internal inline fun <E> LongSparseArray<E>.forEachIndexed(filterNotNullValues : Boolean = false, action: (Long, E) -> Unit) {
-    (0 until this.size())
-            .asSequence()
-            .let { sequence ->
-                if(filterNotNullValues) {
-                    sequence.filter { this.valueAt(it) != null }
-                } else {
-                    sequence
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        (0 until this.size())
+                .asSequence()
+                .let { sequence ->
+                    if (filterNotNullValues) {
+                        sequence.filter { this.valueAt(it) != null }
+                    } else {
+                        sequence
+                    }
                 }
-            }
-            .forEach { action(this.keyAt(it), this.valueAt(it)) }
+                .forEach { action(this.keyAt(it), this.valueAt(it)) }
+    }
 }
 
 internal fun <T> Collection<T>.random()  = this.takeIf(Collection<T>::isNotEmpty)?.elementAtOrNull((0 until this.size).random())

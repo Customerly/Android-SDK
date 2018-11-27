@@ -15,10 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import androidx.core.content.FileProvider
+import io.customerly.sxdependencies.SXFileProvider
 
 /**
  * Created by Gianni on 21/02/17.
  * Project: CustomerlyAndroidSDK
  */
-class ClyFileProvider : FileProvider()
+class ClyFileProvider : SXFileProvider()

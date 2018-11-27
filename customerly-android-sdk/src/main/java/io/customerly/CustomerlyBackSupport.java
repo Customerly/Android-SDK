@@ -22,10 +22,10 @@ import android.app.Application;
 import java.util.Collection;
 import java.util.HashMap;
 
-import androidx.annotation.CheckResult;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import io.customerly.sxdependencies.annotations.SXCheckResult;
+import io.customerly.sxdependencies.annotations.SXColorInt;
+import io.customerly.sxdependencies.annotations.SXNonNull;
+import io.customerly.sxdependencies.annotations.SXNullable;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
@@ -34,7 +34,7 @@ import kotlin.jvm.functions.Function0;
 public class CustomerlyBackSupport {
 
     @SuppressWarnings("deprecation")
-    @NonNull
+    @SXNonNull
     private static final CustomerlyBackSupport INSTANCE = new CustomerlyBackSupport();
 
     private CustomerlyBackSupport() { }
@@ -45,7 +45,8 @@ public class CustomerlyBackSupport {
      */
     @Deprecated
     @SuppressWarnings("deprecation")
-    @NonNull public static CustomerlyBackSupport get() {
+    @SXNonNull
+    public static CustomerlyBackSupport get() {
         return CustomerlyBackSupport.INSTANCE;
     }
 
@@ -56,7 +57,7 @@ public class CustomerlyBackSupport {
      * @param pCustomerlyAppID The Customerly App ID found in your Customerly console
      */
     @Deprecated
-    public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID) {
+    public static void configure(@SXNonNull Application pApplication, @SXNonNull String pCustomerlyAppID) {
         Customerly.configure(pApplication, pCustomerlyAppID);
     }
 
@@ -70,7 +71,7 @@ public class CustomerlyBackSupport {
      * @param pWidgetColor The custom widget_color. If Color.TRANSPARENT, it will be ignored
      */
     @Deprecated
-    public static void configure(@NonNull Application pApplication, @NonNull String pCustomerlyAppID, @ColorInt int pWidgetColor) {
+    public static void configure(@SXNonNull Application pApplication, @SXNonNull String pCustomerlyAppID, @SXColorInt int pWidgetColor) {
         Customerly.configure(pApplication, pCustomerlyAppID, pWidgetColor);
     }
 
@@ -97,13 +98,14 @@ public class CustomerlyBackSupport {
          * @param successCallback To receive success async response
          * @return The Task itself for method chaining
          */
-        @CheckResult
-        @NonNull Task successCallback(@Nullable Callback successCallback);
+        @SXCheckResult
+        @SXNonNull Task successCallback(@SXNullable Callback successCallback);
         /**
          * @param failureCallback To receive failure async response
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull Task failureCallback(@Nullable Callback failureCallback);
+        @SXCheckResult
+        @SXNonNull Task failureCallback(@SXNullable Callback failureCallback);
         /**
          * Don't forget to call this method to start the task
          */
@@ -111,13 +113,13 @@ public class CustomerlyBackSupport {
     }
 
     private abstract class __Task implements Task{
-        @Nullable Callback successCallback;
-        @Nullable Callback failureCallback;
+        @SXNullable Callback successCallback;
+        @SXNullable Callback failureCallback;
         /**
          * @param successCallback To receive success async response
          * @return The Task itself for method chaining
          */
-        @CheckResult @Override @NonNull public Task successCallback(@Nullable Callback successCallback) {
+        @SXCheckResult @Override @SXNonNull public Task successCallback(@SXNullable Callback successCallback) {
             this.successCallback = successCallback;
             return this;
         }
@@ -125,15 +127,15 @@ public class CustomerlyBackSupport {
          * @param failureCallback To receive failure async response
          * @return The Task itself for method chaining
          */
-        @CheckResult @Override @NonNull public Task failureCallback(@Nullable Callback failureCallback) {
+        @SXCheckResult @Override @SXNonNull public Task failureCallback(@SXNullable Callback failureCallback) {
             this.failureCallback = failureCallback;
             return this;
         }
     }
 
     private class CallbackWrapper implements Function0<Unit> {
-        @Nullable private final Callback callback;
-        private CallbackWrapper(@Nullable Callback callback) {
+        @SXNullable private final Callback callback;
+        private CallbackWrapper(@SXNullable Callback callback) {
             this.callback = callback;
         }
         @Override
@@ -155,11 +157,11 @@ public class CustomerlyBackSupport {
     }
 
     public final class RegisterUserTask extends __Task {
-        @NonNull private final String email;
-        @Nullable private String user_id, name;
-        @Nullable private HashMap<String,Object> attributes, company;
+        @SXNonNull private final String email;
+        @SXNullable private String user_id, name;
+        @SXNullable private HashMap<String,Object> attributes, company;
 
-        private RegisterUserTask(@NonNull String email) {
+        private RegisterUserTask(@SXNonNull String email) {
             super();
             this.email = email.trim();
         }
@@ -168,7 +170,7 @@ public class CustomerlyBackSupport {
          * @param user_id The ID of the user
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull public RegisterUserTask user_id(@Nullable String user_id) {
+        @SXCheckResult @SXNonNull public RegisterUserTask user_id(@SXNullable String user_id) {
             if(user_id != null) {
                 user_id = user_id.trim();
                 if(user_id.length() != 0) {
@@ -184,7 +186,7 @@ public class CustomerlyBackSupport {
          * @param name The name of the user
          * @return The Task itself for method chaining
          */
-        @CheckResult @NonNull public RegisterUserTask name(@Nullable String name) {
+        @SXCheckResult @SXNonNull public RegisterUserTask name(@SXNullable String name) {
             if(name != null) {
                 name = name.trim();
                 if (name.length() != 0) {
@@ -201,7 +203,7 @@ public class CustomerlyBackSupport {
          * @return The Task itself for method chaining
          * @throws IllegalArgumentException if the attributes map check fails
          */
-        @CheckResult @NonNull public RegisterUserTask attributes(@Nullable HashMap<String,Object> pAttributes) throws IllegalArgumentException {
+        @SXCheckResult @SXNonNull public RegisterUserTask attributes(@SXNullable HashMap<String,Object> pAttributes) throws IllegalArgumentException {
             if(pAttributes != null) {
                 Collection<Object> attrs = pAttributes.values();
                 for (Object attr : attrs) {
@@ -229,7 +231,7 @@ public class CustomerlyBackSupport {
          * @return The Task itself for method chaining
          * @throws IllegalArgumentException if the company map check fails
          */
-        @CheckResult @NonNull public RegisterUserTask company(@Nullable HashMap<String,Object> pCompany) throws IllegalArgumentException{
+        @SXCheckResult @SXNonNull public RegisterUserTask company(@SXNullable HashMap<String,Object> pCompany) throws IllegalArgumentException{
             if(pCompany != null) {
                 Collection<Object> attrs = pCompany.values();
                 for(Object attr : attrs) {
@@ -262,12 +264,12 @@ public class CustomerlyBackSupport {
     }
 
     public final class SetAttributesTask extends __Task {
-        @NonNull private final HashMap<String,Object> attributes;
+        @SXNonNull private final HashMap<String,Object> attributes;
         /**
          * @param attributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
          * @throws IllegalArgumentException is thrown if the attributes check fails
          */
-        private SetAttributesTask (@NonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
+        private SetAttributesTask (@SXNonNull HashMap<String,Object> attributes) throws IllegalArgumentException {
             Collection<Object> attrs = attributes.values();
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
@@ -295,43 +297,43 @@ public class CustomerlyBackSupport {
     @Deprecated
     @SuppressWarnings("deprecation")
     public static class CompanyBuilder {
-        @NonNull private final HashMap<String,Object> company = new HashMap<>();
-        public CompanyBuilder(@NonNull String company_id, @NonNull String name) {
+        @SXNonNull private final HashMap<String,Object> company = new HashMap<>();
+        public CompanyBuilder(@SXNonNull String company_id, @SXNonNull String name) {
             super();
             this.company.put("company_id", company_id);
             this.company.put("name", name);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, @NonNull String value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, @SXNonNull String value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, int value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, int value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, byte value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, byte value) {
             return this.put(key, (Object)value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, long value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, long value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, double value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, double value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, float value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, float value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, char value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, char value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public CompanyBuilder put(@NonNull String key, boolean value) {
+        @SXNonNull @SXCheckResult public CompanyBuilder put(@SXNonNull String key, boolean value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult private CompanyBuilder put(@NonNull String key, Object value) {
+        @SXNonNull @SXCheckResult private CompanyBuilder put(@SXNonNull String key, Object value) {
             if(!("company_id".equals(key) || "name".equals(key))) {
                 this.company.put(key, value);
             }
             return this;
         }
-        @NonNull public HashMap<String,Object> build() {
+        @SXNonNull public HashMap<String,Object> build() {
             return this.company;
         }
     }
@@ -342,47 +344,47 @@ public class CustomerlyBackSupport {
     @Deprecated
     @SuppressWarnings("deprecation")
     public static class AttributesBuilder {
-        @NonNull private final HashMap<String,Object> attrs = new HashMap<>();
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, @NonNull String value) {
+        @SXNonNull private final HashMap<String,Object> attrs = new HashMap<>();
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, @SXNonNull String value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, int value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, int value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, byte value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, byte value) {
             return this.put(key, (Object)value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, long value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, long value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, double value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, double value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, float value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, float value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, char value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, char value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult public AttributesBuilder put(@NonNull String key, boolean value) {
+        @SXNonNull @SXCheckResult public AttributesBuilder put(@SXNonNull String key, boolean value) {
             return this.put(key, (Object) value);
         }
-        @NonNull @CheckResult private AttributesBuilder put(@NonNull String key, Object value) {
+        @SXNonNull @SXCheckResult private AttributesBuilder put(@SXNonNull String key, Object value) {
             this.attrs.put(key, value);
             return this;
         }
-        @NonNull public HashMap<String,Object> build() {
+        @SXNonNull public HashMap<String,Object> build() {
             return this.attrs;
         }
     }
 
     public final class SetCompanyTask extends __Task {
-        @NonNull private final HashMap<String,Object> company;
+        @SXNonNull private final HashMap<String,Object> company;
         /**
          * @param pCompany The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values.
          * @throws IllegalArgumentException is thrown if company map check fails
          */
-        private SetCompanyTask(@NonNull HashMap<String,Object> pCompany) throws IllegalArgumentException {
+        private SetCompanyTask(@SXNonNull HashMap<String,Object> pCompany) throws IllegalArgumentException {
             Collection<Object> attrs = pCompany.values();
             for(Object attr : attrs) {
                 if(     attr instanceof String ||
@@ -416,7 +418,7 @@ public class CustomerlyBackSupport {
      * @return The builded task that has to be started with his method {@link UpdateTask#start()}
      */
     @Deprecated
-    @CheckResult @NonNull public UpdateTask update() {
+    @SXCheckResult @SXNonNull public UpdateTask update() {
         return new UpdateTask();
     }
 
@@ -428,7 +430,7 @@ public class CustomerlyBackSupport {
      * @return The builded task that has to be started with his method {@link RegisterUserTask#start()}
      */
     @Deprecated
-    @CheckResult @NonNull public RegisterUserTask registerUser(@NonNull String email) {
+    @SXCheckResult @SXNonNull public RegisterUserTask registerUser(@SXNonNull String email) {
         return new RegisterUserTask(email);
     }
 
@@ -441,7 +443,7 @@ public class CustomerlyBackSupport {
      * @throws IllegalArgumentException is thrown if the attributes check fails
      */
     @Deprecated
-    @CheckResult @NonNull public SetAttributesTask setAttributes(@NonNull HashMap<String, Object> pAttributes) throws IllegalArgumentException {
+    @SXCheckResult @SXNonNull public SetAttributesTask setAttributes(@SXNonNull HashMap<String, Object> pAttributes) throws IllegalArgumentException {
         return new SetAttributesTask(pAttributes);
     }
 
@@ -453,7 +455,7 @@ public class CustomerlyBackSupport {
      * @throws IllegalArgumentException is thrown if company map check fails
      */
     @Deprecated
-    @CheckResult @NonNull public SetCompanyTask setCompany(@NonNull HashMap<String, Object> pCompany) throws IllegalArgumentException {
+    @SXCheckResult @SXNonNull public SetCompanyTask setCompany(@SXNonNull HashMap<String, Object> pCompany) throws IllegalArgumentException {
         return new SetCompanyTask(pCompany);
     }
 
@@ -465,7 +467,7 @@ public class CustomerlyBackSupport {
      * @param activity The current activity
      */
     @Deprecated
-    public void openSupport(@NonNull Activity activity) {
+    public void openSupport(@SXNonNull Activity activity) {
         Customerly.openSupport(activity);
     }
 
@@ -486,7 +488,7 @@ public class CustomerlyBackSupport {
      * @param pEventName The event custom label
      */
     @Deprecated
-    public void trackEvent(@NonNull final String pEventName) {
+    public void trackEvent(@SXNonNull final String pEventName) {
         Customerly.trackEvent(pEventName);
     }
 

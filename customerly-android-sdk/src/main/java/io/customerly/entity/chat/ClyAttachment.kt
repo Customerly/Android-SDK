@@ -26,12 +26,12 @@ import android.util.Base64
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
+import io.customerly.sxdependencies.SXAlertDialogBuilder
+import io.customerly.sxdependencies.SXContextCompat
+import io.customerly.sxdependencies.SXDrawableCompat
 import io.customerly.utils.getContrastBW
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.dp2px
@@ -127,9 +127,9 @@ internal class ClyAttachment internal constructor(
         inputActivity.attachments.add(this)
         val tv = TextView(inputActivity)
         tv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        ContextCompat.getDrawable(tv.context, R.drawable.io_customerly__ld_chat_attachment)?.apply {
-            DrawableCompat.setTintMode(this, PorterDuff.Mode.SRC_ATOP)
-            DrawableCompat.setTint(this, tintColor)
+        SXContextCompat.getDrawable(tv.context, R.drawable.io_customerly__ld_chat_attachment)?.apply {
+            SXDrawableCompat.setTintMode(this, PorterDuff.Mode.SRC_ATOP)
+            SXDrawableCompat.setTint(this, tintColor)
             tv.setCompoundDrawablesWithIntrinsicBounds(this, null, null, null)
             tv.compoundDrawablePadding = 5.dp2px
         }
@@ -143,7 +143,7 @@ internal class ClyAttachment internal constructor(
         tv.setOnClickListener { tvClicked ->
             val weakTv = WeakReference(tvClicked)
             tvClicked.activity?.also { activity ->
-                AlertDialog.Builder(activity)
+                SXAlertDialogBuilder(activity)
                         .setTitle(R.string.io_customerly__choose_a_file_to_attach)
                         .setMessage(activity.getString(R.string.io_customerly__cancel_attachment, tv.text))
                         .setNegativeButton(R.string.io_customerly__cancel, null)

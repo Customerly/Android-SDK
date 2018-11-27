@@ -22,7 +22,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.LruCache
 import android.util.SparseArray
-import androidx.annotation.UiThread
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.ggkext.resolveBitmapUrl
 import io.customerly.utils.ggkext.useSkipExeption
 import java.io.File
@@ -46,7 +46,7 @@ internal object ClyImageHandler {
     private var executorService: ExecutorService = Executors.newFixedThreadPool(5)
     private var diskCacheSize = -1L
 
-    @UiThread
+    @SXUiThread
     internal fun request(request: ClyImageRequest) {
         assert(request.handlerValidateRequest())
 
@@ -61,7 +61,7 @@ internal object ClyImageHandler {
         } ?: this.handleDisk(request = request, hashCode = request.handlerGetHashCode, diskKey = diskKey)
     }
 
-    @UiThread
+    @SXUiThread
     private fun handleDisk(request: ClyImageRequest, hashCode : Int, diskKey: String) {
         request.handlerLoadPlaceholder()
         synchronized(this.pendingRequests) {

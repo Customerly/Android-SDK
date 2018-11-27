@@ -29,10 +29,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.UiThread
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
@@ -46,6 +42,10 @@ import io.customerly.entity.chat.*
 import io.customerly.entity.iamAnonymous
 import io.customerly.entity.iamLead
 import io.customerly.entity.iamUser
+import io.customerly.sxdependencies.annotations.SXUiThread
+import io.customerly.sxdependencies.SXContextCompat
+import io.customerly.sxdependencies.SXSwipeRefreshLayoutOnRefreshListener
+import io.customerly.sxdependencies.SXLinearLayoutManager
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.playNotifSound
@@ -69,7 +69,7 @@ internal fun Activity.startClyConversationsActivity() {
 
 internal class ClyConversationsActivity : ClyIInputActivity() {
 
-    private val onRefreshListener = object : SwipeRefreshLayout.OnRefreshListener {
+    private val onRefreshListener = object : SXSwipeRefreshLayoutOnRefreshListener {
         private val weakActivity = this@ClyConversationsActivity.weak()
         override fun onRefresh() {
             weakActivity.get()?.also { activity ->
@@ -101,7 +101,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         if (this.onCreateLayout(R.layout.io_customerly__activity_list)) {
 
             this.io_customerly__recycler_view.also {
-                it.layoutManager = LinearLayoutManager(this.applicationContext)
+                it.layoutManager = SXLinearLayoutManager(this.applicationContext)
                 it.itemAnimator = null
                 it.setHasFixedSize(true)
                 it.addItemDecoration(RvDividerDecoration.Vertical(context = this, colorRes = R.color.io_customerly__li_conversation_divider_color, where = RVDIVIDER_V_BOTTOM))
@@ -118,7 +118,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
     }
 
-    @UiThread
+    @SXUiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {
         val newConversationList = ArrayList(this.conversationsList)
         newConversationList.apply {
@@ -169,7 +169,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         }
     }
 
-    @UiThread
+    @SXUiThread
     private fun displayInterface(conversationsList: ArrayList<ClyConversation>?) {
         if(conversationsList?.isNotEmpty() == true) {
             this.io_customerly__first_contact_swipe_refresh.visibility = View.GONE
@@ -237,7 +237,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                             this.addView(
                                     TextView(this.context).apply {
                                         this.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                                        this.setTextColor(ContextCompat.getColor(this.context, R.color.io_customerly__welcomecard_texts))
+                                        this.setTextColor(SXContextCompat.getColor(this.context, R.color.io_customerly__welcomecard_texts))
                                         this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                                         this.text = admin.name
                                         this.setSingleLine(false)

@@ -17,7 +17,8 @@ package io.customerly.activity.conversations
  */
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import io.customerly.sxdependencies.SXRecyclerView
+import io.customerly.sxdependencies.SXRecyclerViewAdapter
 import io.customerly.utils.ggkext.activity
 import io.customerly.utils.ggkext.weak
 import kotlinx.android.synthetic.main.io_customerly__activity_list.*
@@ -26,12 +27,12 @@ import kotlinx.android.synthetic.main.io_customerly__activity_list.*
  * Created by Gianni on 27/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-internal class ClyConversationsAdapter(conversationsActivity : ClyConversationsActivity) : RecyclerView.Adapter<ClyConversationViewHolder>() {
+internal class ClyConversationsAdapter(conversationsActivity : ClyConversationsActivity) : SXRecyclerViewAdapter<ClyConversationViewHolder>() {
 
     private val weakConversationsActivity = conversationsActivity.weak()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClyConversationViewHolder
-        = ClyConversationViewHolder(recyclerView = (parent as? RecyclerView) ?: (parent.activity as ClyConversationsActivity).io_customerly__recycler_view)
+        = ClyConversationViewHolder(recyclerView = (parent as? SXRecyclerView) ?: (parent.activity as ClyConversationsActivity).io_customerly__recycler_view)
 
     override fun onBindViewHolder(holder: ClyConversationViewHolder, position: Int) {
         this.weakConversationsActivity.get()?.let { holder.apply(conversationsActivity = it, conversation = it.conversationsList[position]) }

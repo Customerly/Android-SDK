@@ -53,7 +53,7 @@ internal fun File.decodeBitmap(requiredSize: Int): Bitmap? {
     return nullOnException { it.decodeBitmap(inSampleSize = it.findScale(requiredSize = requiredSize)) }
 }
 
-internal fun File.decodeBitmap(inSampleSize: Int? = null): Bitmap {
+internal fun File.decodeBitmap(inSampleSize: Int? = null): Bitmap? {
     return BitmapFactory.decodeStream(FileInputStream(this), null, inSampleSize?.let {
         BitmapFactory.Options().apply {
             this.inSampleSize = inSampleSize

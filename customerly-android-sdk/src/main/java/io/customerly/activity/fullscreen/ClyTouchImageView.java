@@ -46,10 +46,10 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.OverScroller;
 
-import androidx.appcompat.widget.AppCompatImageView;
+import io.customerly.sxdependencies.SXAppCompatImageView;
 
 @SuppressWarnings("unused")
-class ClyTouchImageView extends AppCompatImageView {
+class ClyTouchImageView extends SXAppCompatImageView {
 
 	private static final String DEBUG = "DEBUG";
 

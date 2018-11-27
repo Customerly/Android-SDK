@@ -20,11 +20,14 @@ buildscript {
         maven {
             url "https://dl.bintray.com/kotlin/kotlin-dev/"
         }
+        maven {
+            url 'https://dl.bintray.com/giannign1/maven'
+        }
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.16-eap-3-dev-1"
     }
 }
@@ -34,31 +37,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka-android'
 
-def CustomerlySDKVersion = '2.2.0'
-
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'customerly-android-sdk'
-
-    publishedGroupId = 'io.customerly'
-    libraryName = 'Customerly-Android-SDK'
-    artifact = 'customerly-android-sdk'
-
-    libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
-
-    siteUrl = 'https://github.com/customerly/Customerly-Android-SDK'
-    gitUrl = 'https://github.com/customerly/Customerly-Android-SDK.git'
-
-    libraryVersion = "$CustomerlySDKVersion"
-
-    developerId = 'giannign1'
-    developerName = 'Gianni Genovesi'
-    developerEmail = 'giannign1@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
+def CustomerlySDKVersion = '3.0.0'
 
 android {
     compileSdkVersion 28
@@ -76,10 +55,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-rules-kotlinx.pro'
         }
     }
-//    compileOptions {
-//        sourceCompatibility "1.8"
-//        targetCompatibility "1.8"
-//    }
     dexOptions {
         preDexLibraries = false
         javaMaxHeapSize "16g"
@@ -89,14 +64,38 @@ android {
     }
 }
 
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
+ext {
+    bintrayName = 'customerly-android-sdk'
+    artifact = 'customerly-android-sdk'
+    libraryName = 'Customerly-Android-SDK'
+    libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
+
+//    bintrayName = 'customerly-android-sdk-supportlibraries'
+//    artifact = 'customerly-android-sdk-supportlibraries'
+//    libraryName = 'Customerly-Android-SDK-SupportLibraries'
+//    libraryDescription = 'Customerly Android SDK for integration in android app that depend from support libraries. See more at: https://www.customerly.io/'
+
+    bintrayRepo = 'maven'
+
+    publishedGroupId = 'io.customerly'
+
+    siteUrl = 'https://github.com/customerly/Customerly-Android-SDK'
+    gitUrl = 'https://github.com/customerly/Customerly-Android-SDK.git'
+
+    libraryVersion = "$CustomerlySDKVersion"
+
+    developerId = 'giannign1'
+    developerName = 'Gianni Genovesi'
+    developerEmail = 'giannign1@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
 }
 
 dokka {
     outputFormat = 'html'
+    //noinspection GroovyAccessibility
     outputDirectory = "$buildDir/javadoc"
 }
 
@@ -104,20 +103,37 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-
-    api "com.google.android.material:material:1.1.0-alpha01"
-    api "androidx.cardview:cardview:1.0.0"
-    api "androidx.recyclerview:recyclerview:1.0.0"
-    api "androidx.appcompat:appcompat:1.0.2"
-    api "androidx.legacy:legacy-support-v13:1.0.0"
-    api "androidx.annotation:annotation:1.0.0"
-
     api ('io.socket:socket.io-client:1.0.0') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }
 
     api 'com.github.zafarkhaja:java-semver:0.9.0'
+
+    api 'com.google.android.material:material:1.1.0-alpha01'
+    api 'androidx.cardview:cardview:1.0.0'
+    api 'androidx.recyclerview:recyclerview:1.0.0'
+    api 'androidx.appcompat:appcompat:1.0.2'
+    api 'androidx.legacy:legacy-support-v13:1.0.0'
+    api 'androidx.annotation:annotation:1.0.0'
+
+    /*
+    AndroidX Dependencies
+    api 'com.google.android.material:material:1.1.0-alpha01'
+    api 'androidx.cardview:cardview:1.0.0'
+    api 'androidx.recyclerview:recyclerview:1.0.0'
+    api 'androidx.appcompat:appcompat:1.0.2'
+    api 'androidx.legacy:legacy-support-v13:1.0.0'
+    api 'androidx.annotation:annotation:1.0.0'
+
+    SUPPORT Dipendencies
+    api 'com.android.support:design:28.0.0'
+    api 'com.android.support:cardview-v7:28.0.0'
+    api 'com.android.support:recyclerview-v7:28.0.0'
+    api 'com.android.support:appcompat-v7:28.0.0'
+    api 'com.android.support:support-v13:28.0.0'
+    api 'com.android.support:support-annotations:28.0.0'
+    */
 }
 
 apply from: './installv1.gradle' //'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'

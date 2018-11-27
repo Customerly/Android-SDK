@@ -23,12 +23,12 @@
     tools:context=".activity.chat.ClyChatActivity"
     tools:ignore="UnusedAttribute" >
     
-    <com.google.android.material.appbar.AppBarLayout android:id="@+id/io_customerly__actionlayout"
+    <io.customerly.sxdependencies.SXAppBarLayout android:id="@+id/io_customerly__actionlayout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         tools:background="@color/io_customerly__blue_malibu">
         
-        <androidx.appcompat.widget.Toolbar android:id="@+id/io_customerly__toolbar"
+        <io.customerly.sxdependencies.SXToolbar android:id="@+id/io_customerly__toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize">
             
@@ -80,9 +80,9 @@
 
             </io.customerly.utils.ui.AllClickableLinearLayout>
             
-        </androidx.appcompat.widget.Toolbar>
+        </io.customerly.sxdependencies.SXToolbar>
         
-    </com.google.android.material.appbar.AppBarLayout>
+    </io.customerly.sxdependencies.SXAppBarLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -98,7 +98,7 @@
             android:contentDescription="@string/io_customerly__background"
             tools:src="@drawable/io_customerly__pic_placeholder_fullscreen" />
 
-        <androidx.recyclerview.widget.RecyclerView android:id="@id/io_customerly__recycler_view"
+        <io.customerly.sxdependencies.SXRecyclerView android:id="@id/io_customerly__recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="never"

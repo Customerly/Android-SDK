@@ -18,7 +18,7 @@ package io.customerly.entity.chat
 
 import android.content.Context
 import android.widget.ImageView
-import androidx.annotation.Px
+import io.customerly.sxdependencies.annotations.SXPx
 import io.customerly.R
 import io.customerly.entity.urlImageAccount
 import io.customerly.entity.urlImageUser
@@ -42,7 +42,7 @@ internal sealed class ClyWriter(@WriterType private val type : Int, internal var
         return this.name ?: context.getString(R.string.io_customerly__you)
     }
 
-    private fun getImageUrl(@Px sizePx: Int) : String {
+    private fun getImageUrl(@SXPx sizePx: Int) : String {
         return when {
             this.isUser -> urlImageUser(userID = this.id, sizePX = sizePx)
             this.isAccount -> urlImageAccount(accountId = this.id, sizePX = sizePx, name = this.name)
@@ -50,7 +50,7 @@ internal sealed class ClyWriter(@WriterType private val type : Int, internal var
         }
     }
 
-    internal fun loadUrl(into: ImageView, @Px sizePx: Int): ClyImageRequest? {
+    internal fun loadUrl(into: ImageView, @SXPx sizePx: Int): ClyImageRequest? {
         return when {
             this.isUser || this.isAccount -> {
                 ClyImageRequest(

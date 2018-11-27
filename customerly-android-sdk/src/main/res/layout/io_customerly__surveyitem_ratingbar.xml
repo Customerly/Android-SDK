@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<androidx.appcompat.widget.AppCompatRatingBar
+<io.customerly.sxdependencies.SXAppCompatRatingBar
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:theme="@style/io_customerly__RatingBar_ViewsAccent"
     android:layout_width="wrap_content"

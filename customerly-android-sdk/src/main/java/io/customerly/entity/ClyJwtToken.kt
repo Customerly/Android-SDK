@@ -17,8 +17,8 @@ package io.customerly.entity
  */
 
 import android.util.Base64
-import androidx.annotation.Size
 import io.customerly.Customerly
+import io.customerly.sxdependencies.annotations.SXSize
 import io.customerly.utils.USER_TYPE__ANONYMOUS
 import io.customerly.utils.USER_TYPE__LEAD
 import io.customerly.utils.USER_TYPE__USER
@@ -58,7 +58,7 @@ fun Customerly.iamAnonymous() = this.jwtToken?.isAnonymous == true
 internal class ClyJwtToken @Throws(IllegalArgumentException::class)
     constructor(
         @org.intellij.lang.annotations.Pattern(JWT_VALIDATOR_MATCHER)
-        @param:Size(min = 5)
+        @SXSize(min = 5)
         private val encodedJwt: String) {
 
     internal val userID: Long?

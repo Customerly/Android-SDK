@@ -43,7 +43,14 @@ internal object DeviceJson {
             this.put("app_package", context.packageName)
             this.put("app_name", context.nullOnException { it.applicationInfo.loadLabel(pm).toString() } ?: "<Error retrieving the app name>")
             this.put("app_version", pm.nullOnException { it.getPackageInfo(context.packageName, 0).versionName } ?: "<Error retrieving the app version>")
-            this.put("app_build", pm.nullOnException { it.getPackageInfo(context.packageName, 0).versionCode } ?: "<Error retrieving the app build>")
+            this.put("app_build", pm.nullOnException { it.getPackageInfo(context.packageName, 0).let { packageInfo ->
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    packageInfo.longVersionCode
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageInfo.versionCode.toLong()
+                }
+            } } ?: "<Error retrieving the app build>")
         }
     }
 }

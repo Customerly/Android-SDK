@@ -16,8 +16,8 @@ package io.customerly.utils
  * limitations under the License.
  */
 
-import androidx.annotation.ColorInt
-import androidx.annotation.IntDef
+import io.customerly.sxdependencies.annotations.SXColorInt
+import io.customerly.sxdependencies.annotations.SXIntDef
 import io.customerly.Customerly
 
 /**
@@ -30,7 +30,7 @@ const val USER_TYPE__LEAD = 2 //hex 0x02 dec: 0010
 //const val USER_TYPE__MAILLESS_LEAD = 8 //hex 0x08 bin: 1000 //but a maillessLead is 10dec, 0x0a, 1010b because needs to match LEAD MASK
 const val USER_TYPE__USER = 4 //hex 0x04 bin: 0100
 
-@IntDef(USER_TYPE__ANONYMOUS, USER_TYPE__LEAD, USER_TYPE__USER)
+@SXIntDef(USER_TYPE__ANONYMOUS, USER_TYPE__LEAD, USER_TYPE__USER)
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class UserType
 
@@ -38,11 +38,11 @@ const val WRITER_TYPE__BOT = -1//Local value
 const val WRITER_TYPE__ACCOUNT = 0
 const val WRITER_TYPE__USER = 1
 
-@IntDef(WRITER_TYPE__BOT, WRITER_TYPE__ACCOUNT, WRITER_TYPE__USER)
+@SXIntDef(WRITER_TYPE__BOT, WRITER_TYPE__ACCOUNT, WRITER_TYPE__USER)
 @Retention(value = AnnotationRetention.SOURCE)
 internal annotation class WriterType
 
-@ColorInt
+@SXColorInt
 internal const val COLORINT_BLUE_MALIBU = -0x9a5619//Blue Malibu
 
 internal const val JSON_COMPANY_KEY_ID = "company_id"

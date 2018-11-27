@@ -17,8 +17,9 @@ package io.customerly.utils
  */
 
 import android.graphics.Color
-import androidx.annotation.ColorInt
-import androidx.annotation.FloatRange
+import io.customerly.sxdependencies.annotations.SXColorInt
+import io.customerly.sxdependencies.annotations.SXFloatRange
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,8 +27,8 @@ import java.util.*
  * Created by Gianni on 04/04/18.
  * Project: Customerly-KAndroid-SDK
  */
-@ColorInt
-fun @receiver:ColorInt Int.getContrastBW(): Int {
+@SXColorInt
+fun Int.getContrastBW(): Int {
     return if (this == 0 || 0.299 * Color.red(this) + (0.587 * Color.green(this) + 0.114 * Color.blue(this)) > 186) {
         Color.BLACK
     } else {
@@ -36,8 +37,8 @@ fun @receiver:ColorInt Int.getContrastBW(): Int {
 }
 
 
-@ColorInt
-fun @receiver:ColorInt Int.alterColor(@FloatRange(from = 0.0, to = 255.0) factor: Float): Int {
+@SXColorInt
+fun Int.alterColor(@SXFloatRange(from = 0.0, to = 255.0) factor: Float): Int {
     return Color.argb(Color.alpha(this),
             Math.min(255f, Color.red(this) * factor).toInt(),
             Math.min(255f, Color.green(this) * factor).toInt(),
@@ -45,4 +46,4 @@ fun @receiver:ColorInt Int.alterColor(@FloatRange(from = 0.0, to = 255.0) factor
 }
 
 
-val shortDateFomatter by lazy { SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT, Locale.ITALIAN) }
+val shortDateFomatter: DateFormat? by lazy { SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT, Locale.ITALIAN) }
