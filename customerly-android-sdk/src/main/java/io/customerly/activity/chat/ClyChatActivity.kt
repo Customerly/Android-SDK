@@ -36,9 +36,9 @@ import io.customerly.api.*
 import io.customerly.entity.ClyAdminFull
 import io.customerly.entity.chat.*
 import io.customerly.entity.iamLead
+import io.customerly.sxdependencies.*
 import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.sxdependencies.annotations.SXUiThread
-import io.customerly.sxdependencies.*
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
 import io.customerly.utils.getContrastBW
@@ -306,7 +306,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                             messageId = activity.chatList.optAt(0)?.id
                                     ?: -System.currentTimeMillis(),
                             conversationId = conversationId,
-                            content = activity.getString(R.string.io_customerly__give_them_a_way_to_reach_you)))
+                            content = activity.getString(R.string.io_customerly__give_us_a_way_to_reach_you)))
 
                     activity.io_customerly__recycler_view.postDelayed( {
                         weakActivity.get()?.addMessageAt0(message = ClyMessage.Bot.Form.AskEmail(conversationId = conversationId, messageId = 1))
@@ -500,7 +500,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 && this.chatList.asSequence().none {
                     when (it) {
                         is ClyMessage.Bot.Form.Profiling -> !it.form.answerConfirmed
-                        is ClyMessage.Bot.Form.AskEmail -> Customerly.currentUser.email != null
+                        is ClyMessage.Bot.Form.AskEmail -> Customerly.currentUser.email == null
                         else -> false
                     }
                 }) {

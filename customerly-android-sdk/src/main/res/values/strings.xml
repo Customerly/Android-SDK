@@ -63,7 +63,7 @@
     <string name="io_customerly__outofoffice_nextweekend_atx" translatable="false">We are out of office at the moment. We will be back next saturday at %s</string><!-- TODO loc it,es -->
     <string name="io_customerly__outofoffice_today_atx" translatable="false">We are out of office at the moment. We will be back today at %s</string><!-- TODO loc it,es -->
 
-    <string name="io_customerly__give_them_a_way_to_reach_you" translatable="false">Give them a way to reach you:</string>
+    <string name="io_customerly__give_us_a_way_to_reach_you" translatable="false">Give us a way to reach you:</string>
 
     <!-- Localized -->
     <string name="io_customerly__write_your_question">Ask your question…</string>
@@ -108,7 +108,7 @@
     <string name="io_customerly__open_conversation">Open conversation</string>
     <string name="io_customerly__cant_access_external_memory">Can\'t access external memory</string>
     <string name="io_customerly__open_in_browser">Open in browser</string>
-    <string name="io_customerly__replytime_minutes">Team usually replies in some minutes.</string>
+    <string name="io_customerly__replytime_minutes">Team usually replies in a few minutes.</string>
     <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string>
     <string name="io_customerly__replytime_day">Team usually replies in a day.</string>
     <string name="io_customerly__botaskemail_title">Insert your email to send</string>

@@ -42,6 +42,6 @@ dependencies {
 
 
 
-//    implementation project(":customerly-android-sdk-supportlibraries")
+    implementation project(":customerly-android-sdk")
 
 }

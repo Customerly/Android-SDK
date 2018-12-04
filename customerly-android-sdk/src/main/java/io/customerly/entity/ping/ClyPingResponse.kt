@@ -18,11 +18,11 @@ package io.customerly.entity.ping
 
 import android.content.SharedPreferences
 import android.graphics.Color
-import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.Customerly
 import io.customerly.entity.*
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.chat.parseMessage
+import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.utils.COLORINT_BLUE_MALIBU
 import io.customerly.utils.ggkext.*
 import org.json.JSONException
