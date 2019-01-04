@@ -57,11 +57,17 @@
         <item quantity="other">Last activity %1$d days ago</item>
     </plurals>
 
-    <string name="io_customerly__outofoffice_dayx_atx" translatable="false">We are out of office at the moment. We will be back %s at %s</string><!-- TODO loc it,es -->
-    <string name="io_customerly__outofoffice_tomorrow_atx" translatable="false">We are out of office at the moment. We will be back tomorrow at %s</string><!-- TODO loc it,es -->
-    <string name="io_customerly__outofoffice_nextweekday_atx" translatable="false">We are out of office at the moment. We will be back next monday at %s</string><!-- TODO loc it,es -->
-    <string name="io_customerly__outofoffice_nextweekend_atx" translatable="false">We are out of office at the moment. We will be back next saturday at %s</string><!-- TODO loc it,es -->
     <string name="io_customerly__outofoffice_today_atx" translatable="false">We are out of office at the moment. We will be back today at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_tomorrow_atx" translatable="false">We are out of office at the moment. We will be back tomorrow at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_weekdays_fromx_toy" translatable="false">We are out of office at the moment. We will be back in week days from %s to %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_weekends_fromx_toy" translatable="false">We are out of office at the moment. We will be back in weekends from %s to %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_monday_atx" translatable="false">We are out of office at the moment. We will be back next Monday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_tuesday_atx" translatable="false">We are out of office at the moment. We will be back next Tuesday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_wednesday_atx" translatable="false">We are out of office at the moment. We will be back next Wednesday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_thursday_atx" translatable="false">We are out of office at the moment. We will be back next Thursday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_friday_atx" translatable="false">We are out of office at the moment. We will be back next Friday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_saturday_atx" translatable="false">We are out of office at the moment. We will be back next Saturday at %s</string><!-- TODO loc it,es -->
+    <string name="io_customerly__outofoffice_sunday_atx" translatable="false">We are out of office at the moment. We will be back next Sunday at %s</string><!-- TODO loc it,es -->
 
     <string name="io_customerly__give_us_a_way_to_reach_you" translatable="false">Give us a way to reach you:</string>
 
@@ -112,6 +118,7 @@
     <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string>
     <string name="io_customerly__replytime_day">Team usually replies in a day.</string>
     <string name="io_customerly__botaskemail_title">Insert your email to send</string>
+    <string name="io_customerly__botaskemail_title_nopending">Insert your email</string>
     <string name="io_customerly__botaskemail_content">Help us to reply by email if we are not ready to support you now.</string>
     <string name="io_customerly__botaskemail_pending_send">Pending send…</string>
 

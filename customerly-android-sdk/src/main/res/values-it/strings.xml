@@ -76,6 +76,7 @@
     <string name="io_customerly__replytime_hour">Il Team normalmente risponde entro un\'ora.</string>
     <string name="io_customerly__replytime_day">Il Team normalmente risponde in un giorno.</string>
     <string name="io_customerly__botaskemail_title">Inserisci la tua email per inviare</string>
+    <string name="io_customerly__botaskemail_title_nopending">Inserisci la tua email</string>
     <string name="io_customerly__botaskemail_content">Aiutaci a rispondere via email se non siamo pronti a supportarti subito.</string>
     <string name="io_customerly__botaskemail_pending_send">Invio sospeso…</string>
 

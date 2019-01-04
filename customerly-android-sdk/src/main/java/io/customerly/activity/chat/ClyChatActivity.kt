@@ -36,8 +36,10 @@ import io.customerly.api.*
 import io.customerly.entity.ClyAdminFull
 import io.customerly.entity.chat.*
 import io.customerly.entity.iamLead
+import io.customerly.entity.ping.ClyNextOfficeHours
 import io.customerly.sxdependencies.*
 import io.customerly.sxdependencies.annotations.SXColorInt
+import io.customerly.sxdependencies.annotations.SXStringRes
 import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.download.startFileDownload
@@ -272,27 +274,26 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
         val weakActivity = this.weak()
         this.io_customerly__recycler_view.postDelayed( {
-            val now = Calendar.getInstance()
+            weakActivity.reference { activity ->
+                if (activity.chatList.count { it.writer.isAccount } == 0) {
+                    var botMessageContent: String? = null
 
-            Customerly.lastPing.replyTime?.stringResId?.also { replyTimeStringResId ->
-                weakActivity.reference { activity ->
-                    if(activity.chatList.count { it.writer.isAccount } == 0) {
-                        val nearestOfficeHours = Customerly.lastPing.officeHours?.map { it to it.getNearestFactor(now = now) }?.minBy { (_, factor) -> factor }
-                        if (nearestOfficeHours == null || nearestOfficeHours.second == 0L) {
-                            activity.addMessageAt0(message = ClyMessage.Bot.Text(
-                                    messageId = activity.chatList.optAt(0)?.id
-                                            ?: -System.currentTimeMillis(),
-                                    conversationId = conversationId,
-                                    content = activity.getString(replyTimeStringResId)))
-                        } else {
-                            nearestOfficeHours.first.getBotMessage(context = activity, now = now)?.apply {
-                                activity.addMessageAt0(message = ClyMessage.Bot.Text(
-                                        messageId = activity.chatList.optAt(0)?.id
-                                                ?: -System.currentTimeMillis(),
-                                        conversationId = conversationId,
-                                        content = this))
-                            }
-                        }
+                    val nextOfficeHours: ClyNextOfficeHours? = Customerly.lastPing.nextOfficeHours
+                    if(nextOfficeHours?.isOfficeOpen() == false) {
+                        botMessageContent = nextOfficeHours.getBotMessage(context = activity)
+                    }
+
+                    @SXStringRes val replyTimeStringResId: Int? = Customerly.lastPing.replyTime?.stringResId
+                    if(botMessageContent == null && replyTimeStringResId != null && replyTimeStringResId > 0) {
+                        botMessageContent = activity.getString(replyTimeStringResId)
+                    }
+
+                    if(botMessageContent != null) {
+                        activity.addMessageAt0(message = ClyMessage.Bot.Text(
+                                messageId = activity.chatList.optAt(0)?.id
+                                        ?: -System.currentTimeMillis(),
+                                conversationId = conversationId,
+                                content = botMessageContent))
                     }
                 }
             }

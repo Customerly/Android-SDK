@@ -93,7 +93,7 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     welcomeMessageUsers = appConfig.optTyped(name = "welcome_message_users"),
                     welcomeMessageVisitors = appConfig.optTyped(name = "welcome_message_visitors"),
                     formsDetails = formsDetails,
-                    officeHours = appConfig.optArray<JSONObject, ClyOfficeHours>(name = "office_hours", map = { it.parseOfficeHours() }),
+                    nextOfficeHours = appConfig.optJSONObject("office_hour_next").parseNextOfficeHours(),
                     replyTime = appConfig.optTyped(name = "reply_time", fallback = 0).toClyReplyTime,
                     activeAdmins = activeAdmins,
                     lastSurveys = lastSurveys,
@@ -156,7 +156,7 @@ internal class ClyPingResponse(
         internal val lastSurveys: Array<ClySurvey>? = null,
         internal val lastMessages: Array<ClyMessage>? = null,
         private val formsDetails: ArrayList<ClyFormDetails>? = null,
-        internal val officeHours: Array<ClyOfficeHours>? = null,
+        internal val nextOfficeHours: ClyNextOfficeHours? = null,
         internal val replyTime: ClyReplyTime? = null,
         internal val allowAnonymousChat: Boolean = false) {
 

@@ -17,7 +17,6 @@ package io.customerly.activity.chat
  */
 
 import android.app.DatePickerDialog
-import android.content.DialogInterface
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
@@ -27,6 +26,7 @@ import android.text.method.LinkMovementMethod
 import android.text.style.ForegroundColorSpan
 import android.util.Base64
 import android.util.Patterns
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -759,6 +759,17 @@ internal sealed class ClyChatViewHolder (
                         override fun apply(chatActivity: ClyChatActivity, message: ClyMessage?, dateToDisplay: String?, isFirstMessageOfSender: Boolean) {
                             super.apply(chatActivity = chatActivity, message = message, dateToDisplay = dateToDisplay, isFirstMessageOfSender = true)
                             this.pendingMessage = (message as? ClyMessage.Bot.Form.AskEmail)?.pendingMessage
+                            this.itemView.findViewById<TextView>(R.id.io_customerly__title)?.also { title ->
+                                if (this.pendingMessage != null) {
+                                    title.setText(R.string.io_customerly__botaskemail_title)
+                                    title.setTypeface(null, Typeface.BOLD)
+                                    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+                                } else {
+                                    title.setText(R.string.io_customerly__botaskemail_title_nopending)
+                                    title.setTypeface(null, Typeface.NORMAL)
+                                    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+                                }
+                            }
                             ( Customerly.currentUser.email?.let { it to false } ?: null to true )
                                     .also { (email,formEnabled) ->
                                         this.input.isEnabled = formEnabled

@@ -71,6 +71,7 @@
   <string name="io_customerly__replytime_hour">Team usually replies in an hour.</string><!-- TODO loc es -->
   <string name="io_customerly__replytime_day">Team usually replies in a day.</string><!-- TODO loc es -->
   <string name="io_customerly__botaskemail_title">Insert your email to send</string><!-- TODO loc es -->
+  <string name="io_customerly__botaskemail_title_nopending">Insert your email</string>
   <string name="io_customerly__botaskemail_content">Help us to reply by email if we are not ready to support you now.</string><!-- TODO loc es -->
   <string name="io_customerly__botaskemail_pending_send">Pending send…</string><!-- TODO loc es -->
 </resources>
