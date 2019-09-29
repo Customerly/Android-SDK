@@ -169,7 +169,7 @@ internal class ClySurveyDialog : SXDialogFragment() {
                 }
             }
 
-            if (Customerly.lastPing.poweredBy) {
+            if (Customerly.lastPing.brandedWidget) {
                 view.io_customerly__survey_by_customerly.setOnClickListener { it.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_SURVEY_SITE) }
                 view.io_customerly__survey_by_customerly.visibility = View.VISIBLE
             } else {
@@ -182,8 +182,8 @@ internal class ClySurveyDialog : SXDialogFragment() {
     }
 
     override fun onDestroyView() {
-        synchronized(ClySurveyDialog.lock) {
-            ClySurveyDialog.displayed = false
+        synchronized(lock) {
+            displayed = false
         }
         super.onDestroyView()
     }

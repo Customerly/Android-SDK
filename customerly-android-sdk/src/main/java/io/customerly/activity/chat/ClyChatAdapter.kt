@@ -45,8 +45,7 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : SXRecyclerViewAd
     }
 
     override fun getItemViewType(position: Int): Int {
-        val listIndex = this.position2listIndex(position = position)
-        return when(listIndex) {
+        return when(val listIndex = this.position2listIndex(position = position)) {
             -1 -> R.layout.io_customerly__li_bubble_account_typing
             else -> {
                 when (position) {
@@ -54,8 +53,7 @@ internal class ClyChatAdapter(chatActivity : ClyChatActivity) : SXRecyclerViewAd
                         R.layout.io_customerly__li_bubble_accountinfos
                     }
                     else -> {
-                        val message = this.weakChatActivity.get()?.chatList?.get(index = listIndex)
-                        when(message) {
+                        when(val message = this.weakChatActivity.get()?.chatList?.get(index = listIndex)) {
                             null -> R.layout.io_customerly__li_bubble_account_rich
                             is ClyMessage.Human -> when {
                                 message.writer.isUser -> R.layout.io_customerly__li_bubble_user

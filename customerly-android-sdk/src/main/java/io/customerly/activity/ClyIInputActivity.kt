@@ -35,13 +35,9 @@ import io.customerly.R
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
 import io.customerly.entity.chat.ClyAttachment
 import io.customerly.entity.clySendError
-import io.customerly.sxdependencies.SXActivityCompat
-import io.customerly.sxdependencies.SXToolbar
+import io.customerly.sxdependencies.*
 import io.customerly.sxdependencies.annotations.SXLayoutRes
 import io.customerly.sxdependencies.annotations.SXUiThread
-import io.customerly.sxdependencies.SXContextCompat
-import io.customerly.sxdependencies.SXImageViewCompat
-import io.customerly.sxdependencies.SXSnackbar
 import io.customerly.utils.CUSTOMERLY_WEB_SITE
 import io.customerly.utils.alterColor
 import io.customerly.utils.download.imagehandler.ClyImageRequest
@@ -50,6 +46,7 @@ import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.spannedFromHtml
 import java.lang.ref.WeakReference
 import java.util.*
+import kotlin.math.min
 
 /**
  * Created by Gianni on 03/09/16.
@@ -188,7 +185,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             actionBar.setDisplayHomeAsUpEnabled(true)
         }
 
-        if (Customerly.lastPing.poweredBy) {
+        if (Customerly.lastPing.brandedWidget) {
             poweredBy.setOnClickListener { it.activity?.startClyWebViewActivity(targetUrl = CUSTOMERLY_WEB_SITE) }
             poweredBy.visibility = View.VISIBLE
         } else {
@@ -244,7 +241,7 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_REQUEST__READ_EXTERNAL_STORAGE -> {
-                val length = Math.min(grantResults.size, permissions.size)
+                val length = min(grantResults.size, permissions.size)
                 if (length > 0) {
                     for (i in 0 until length) {
                         if (Manifest.permission.READ_EXTERNAL_STORAGE == permissions[i] && grantResults[i] == PackageManager.PERMISSION_GRANTED) {

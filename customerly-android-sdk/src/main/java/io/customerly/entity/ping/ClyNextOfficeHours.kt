@@ -59,29 +59,29 @@ internal data class ClyNextOfficeHours(
         val localDay = startLocalTz.get(Calendar.DAY_OF_WEEK)
 
         val periodLocalized = when(this.period) {
-            ClyNextOfficeHours.PERIOD_WEEKENDS -> {
+            PERIOD_WEEKENDS -> {
                 when(localDay) {
-                    Calendar.SATURDAY,Calendar.SUNDAY -> ClyNextOfficeHours.PERIOD_WEEKENDS
-                    else -> ClyNextOfficeHours.PERIOD_A_SINGLE_DAY
+                    Calendar.SATURDAY,Calendar.SUNDAY -> PERIOD_WEEKENDS
+                    else -> PERIOD_A_SINGLE_DAY
                 }
             }
-            ClyNextOfficeHours.PERIOD_WEEKDAYS -> {
+            PERIOD_WEEKDAYS -> {
                 when(localDay) {
-                    Calendar.MONDAY,Calendar.TUESDAY,Calendar.WEDNESDAY,Calendar.THURSDAY,Calendar.FRIDAY -> ClyNextOfficeHours.PERIOD_WEEKDAYS
-                    else -> ClyNextOfficeHours.PERIOD_A_SINGLE_DAY
+                    Calendar.MONDAY,Calendar.TUESDAY,Calendar.WEDNESDAY,Calendar.THURSDAY,Calendar.FRIDAY -> PERIOD_WEEKDAYS
+                    else -> PERIOD_A_SINGLE_DAY
                 }
             }
-            else -> ClyNextOfficeHours.PERIOD_A_SINGLE_DAY
+            else -> PERIOD_A_SINGLE_DAY
         }
 
         val startTimeString: String = String.format(Locale.ITALIAN, "%d:%02d", startLocalTz.get(Calendar.HOUR_OF_DAY), startLocalTz.get(Calendar.MINUTE))
         val endTimeString: String = String.format(Locale.ITALIAN, "%d:%02d", endLocalTz.get(Calendar.HOUR_OF_DAY), endLocalTz.get(Calendar.MINUTE))
 
         return when(periodLocalized) {
-            ClyNextOfficeHours.PERIOD_WEEKENDS -> {
+            PERIOD_WEEKENDS -> {
                 context.getString(R.string.io_customerly__outofoffice_weekends_fromx_toy, startTimeString, endTimeString)
             }
-            ClyNextOfficeHours.PERIOD_WEEKDAYS -> {
+            PERIOD_WEEKDAYS -> {
                 context.getString(R.string.io_customerly__outofoffice_weekdays_fromx_toy, startTimeString, endTimeString)
             }
             else -> {

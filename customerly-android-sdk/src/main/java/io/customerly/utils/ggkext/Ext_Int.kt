@@ -19,6 +19,8 @@
 package io.customerly.utils.ggkext
 
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Created by Gianni on 11/11/17.
@@ -29,7 +31,7 @@ import java.util.*
  */
 internal fun Int.sum2n() = IntRange(0, this).sum()
 
-internal fun Int.inside(minInclusive : Int, maxInclusive : Int) = Math.max(minInclusive, Math.min(maxInclusive, this))
+internal fun Int.inside(minInclusive : Int, maxInclusive : Int) = max(minInclusive, min(maxInclusive, this))
 
 internal fun getStartOfTodaySeconds()
         = Calendar.getInstance()

@@ -524,8 +524,8 @@ internal sealed class ClyChatViewHolder (
                                                     }
 
                                                     DatePickerDialog(it.context,
-                                                            android.app.DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                                                                (it.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
+                                                            DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                                                                (it.parent as? View)?.findViewById<TextView>(R.id.io_customerly__profilingform_date)?.apply {
                                                                     this.text = Calendar.getInstance().apply {
                                                                         this.set(Calendar.YEAR, year)
                                                                         this.set(Calendar.MONTH, month)
@@ -547,7 +547,7 @@ internal sealed class ClyChatViewHolder (
                                                 val weakSendingSpinner = sendingSpinner.weak()
                                                 this.setOnClickListener { submitDate ->
                                                     if (form.answer != null) {
-                                                        (submitDate.parent as? View)?.findViewById<android.widget.TextView>(R.id.io_customerly__profilingform_date)?.apply {
+                                                        (submitDate.parent as? View)?.findViewById<TextView>(R.id.io_customerly__profilingform_date)?.apply {
                                                             this.isEnabled = false
                                                             submitDate.isEnabled = false
                                                             form.answerConfirmed = true

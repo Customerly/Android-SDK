@@ -62,14 +62,21 @@ internal fun Uri.getFileSize(context: Context): Long {
 
 private fun Uri.getPath(context: Context): String? {
     return when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, this) -> {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                && DocumentsContract.isDocumentUri(context, this) -> {
+
             return when(this.authority) {
                 "com.android.externalstorage.documents" -> {
-                    val split = DocumentsContract.getDocumentId(this).split(":")
-                    if ("primary".equals(/* type = */split[0], ignoreCase = true)) {
-                        Environment.getExternalStorageDirectory().toString() + "/" + split[1]
-                    } else {
-                        null
+                    val split = DocumentsContract.getDocumentId(this).split(":").dropLastWhile { it.isEmpty() }.toTypedArray()
+                    when {
+                        "primary".equals(/* type = */split[0], ignoreCase = true) -> {
+                            @Suppress("DEPRECATION")
+                            "${Environment.getExternalStorageDirectory()}/${split[1]}"
+                        }
+                        else -> {
+                            null
+                        }
                     }
                 }
                 "com.android.providers.downloads.documents" -> {
@@ -80,7 +87,7 @@ private fun Uri.getPath(context: Context): String? {
                             .getDataColumn(context, null, null)
                 }
                 "com.android.providers.media.documents" -> {
-                    val split = DocumentsContract.getDocumentId(this).split(":")
+                    val split = DocumentsContract.getDocumentId(this).split(":").dropLastWhile { it.isEmpty() }.toTypedArray()
                     when (/* type = */split[0]) {
                         "image" -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                         "video" -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -122,9 +129,7 @@ private fun Uri?.getDataColumn(context: Context, selection: String?, selectionAr
                 null
             }
         } finally {
-            if (cursor != null) {
-                cursor.close()
-            }
+            cursor?.close()
         }
     }
 }

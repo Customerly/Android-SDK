@@ -23,12 +23,17 @@ import android.os.Build
 import android.os.Looper
 import java.lang.ref.WeakReference
 import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.KProperty0
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * Created by Gianni on 12/08/17.
  */
+
+internal inline fun <T> T.apiMax(apiLevel :Int, block: T.() -> Unit): T {
+    if(Build.VERSION.SDK_INT <= apiLevel) {
+        block()
+    }
+    return this
+}
 
 internal inline fun <T> T.apiMin(apiLevel :Int, block: T.() -> Unit): T {
     if(Build.VERSION.SDK_INT >= apiLevel) {

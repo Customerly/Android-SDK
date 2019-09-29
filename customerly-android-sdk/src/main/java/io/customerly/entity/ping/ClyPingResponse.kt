@@ -89,11 +89,11 @@ internal fun JSONObject.parsePing(): ClyPingResponse {
                     widgetColor = widgetColor,
                     widgetBackgroundUrl = appConfig.optTyped(name = "widget_background_url"),
                     privacyUrl = appConfig.optTyped(name = "widget_privacy_url"),
-                    poweredBy = appConfig.optTyped(name = "powered_by", fallback = 0L) == 1L,
+                    brandedWidget = appConfig.optTyped(name = "branded_widget", fallback = 0L) == 1L,
                     welcomeMessageUsers = appConfig.optTyped(name = "welcome_message_users"),
                     welcomeMessageVisitors = appConfig.optTyped(name = "welcome_message_visitors"),
                     formsDetails = formsDetails,
-                    nextOfficeHours = appConfig.optJSONObject("office_hour_next").parseNextOfficeHours(),
+                    nextOfficeHours = appConfig.optJSONObject("office_hour_next")?.parseNextOfficeHours(),
                     replyTime = appConfig.optTyped(name = "reply_time", fallback = 0).toClyReplyTime,
                     activeAdmins = activeAdmins,
                     lastSurveys = lastSurveys,
@@ -114,21 +114,21 @@ private const val PREFS_KEY_MIN_VERSION             = "CUSTOMERLY_LASTPING_MIN_V
 private const val PREFS_KEY_WIDGET_COLOR            = "CUSTOMERLY_LASTPING_WIDGET_COLOR"
 private const val PREFS_KEY_BACKGROUND_THEME_URL    = "CUSTOMERLY_LASTPING_BACKGROUND_THEME_URL"
 private const val PREFS_KEY_PRIVACY_URL             = "CUSTOMERLY_LASTPING_PRIVACY_URL"
-private const val PREFS_KEY_POWERED_BY              = "CUSTOMERLY_LASTPING_POWERED_BY"
+private const val PREFS_KEY_BRANDED_WIDGET          = "CUSTOMERLY_LASTPING_POWERED_BY"
 private const val PREFS_KEY_WELCOME_USERS           = "CUSTOMERLY_LASTPING_WELCOME_USERS"
 private const val PREFS_KEY_WELCOME_VISITORS        = "CUSTOMERLY_LASTPING_WELCOME_VISITORS"
 private const val PREFS_KEY_ALLOW_ANONYMOUS_CHAT    = "CUSTOMERLY_LASTPING_ALLOW_ANONYMOUS_CHAT"
 
 internal fun SharedPreferences.lastPingRestore() : ClyPingResponse {
     return ClyPingResponse(
-            minVersion = this.safeString(io.customerly.entity.ping.PREFS_KEY_MIN_VERSION, "0.0.0"),
-            widgetColor = this.safeInt(io.customerly.entity.ping.PREFS_KEY_WIDGET_COLOR, Customerly.widgetColorFallback),
-            widgetBackgroundUrl = this.safeString(io.customerly.entity.ping.PREFS_KEY_BACKGROUND_THEME_URL),
-            privacyUrl = this.safeString(io.customerly.entity.ping.PREFS_KEY_PRIVACY_URL),
-            poweredBy = this.safeBoolean(io.customerly.entity.ping.PREFS_KEY_POWERED_BY, true),
-            welcomeMessageUsers = this.safeString(io.customerly.entity.ping.PREFS_KEY_WELCOME_USERS),
-            welcomeMessageVisitors = this.safeString(io.customerly.entity.ping.PREFS_KEY_WELCOME_VISITORS),
-            allowAnonymousChat = this.safeBoolean(io.customerly.entity.ping.PREFS_KEY_ALLOW_ANONYMOUS_CHAT, false))
+            minVersion = this.safeString(PREFS_KEY_MIN_VERSION, "0.0.0"),
+            widgetColor = this.safeInt(PREFS_KEY_WIDGET_COLOR, Customerly.widgetColorFallback),
+            widgetBackgroundUrl = this.safeString(PREFS_KEY_BACKGROUND_THEME_URL),
+            privacyUrl = this.safeString(PREFS_KEY_PRIVACY_URL),
+            brandedWidget = this.safeBoolean(PREFS_KEY_BRANDED_WIDGET, true),
+            welcomeMessageUsers = this.safeString(PREFS_KEY_WELCOME_USERS),
+            welcomeMessageVisitors = this.safeString(PREFS_KEY_WELCOME_VISITORS),
+            allowAnonymousChat = this.safeBoolean(PREFS_KEY_ALLOW_ANONYMOUS_CHAT, false))
 }
 
 private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
@@ -137,7 +137,7 @@ private fun SharedPreferences?.lastPingStore(lastPing: ClyPingResponse) {
             ?.putInt(PREFS_KEY_WIDGET_COLOR, lastPing.widgetColor)
             ?.putString(PREFS_KEY_BACKGROUND_THEME_URL, lastPing.widgetBackgroundUrl)
             ?.putString(PREFS_KEY_PRIVACY_URL, lastPing.privacyUrl)
-            ?.putBoolean(PREFS_KEY_POWERED_BY, lastPing.poweredBy)
+            ?.putBoolean(PREFS_KEY_BRANDED_WIDGET, lastPing.brandedWidget)
             ?.putString(PREFS_KEY_WELCOME_USERS, lastPing.welcomeMessageUsers)
             ?.putString(PREFS_KEY_WELCOME_VISITORS, lastPing.welcomeMessageVisitors)
             ?.putBoolean(PREFS_KEY_ALLOW_ANONYMOUS_CHAT, lastPing.allowAnonymousChat)
@@ -149,7 +149,7 @@ internal class ClyPingResponse(
         @SXColorInt internal val widgetColor: Int = Customerly.widgetColorFallback,
         internal val widgetBackgroundUrl: String? = null,
         internal val privacyUrl: String? = null,
-        internal val poweredBy: Boolean = true,
+        internal val brandedWidget: Boolean = true,
         internal val welcomeMessageUsers: String? = null,
         internal val welcomeMessageVisitors:String? = null,
         internal val activeAdmins: Array<ClyAdmin>? = null,

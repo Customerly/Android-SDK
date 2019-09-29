@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package io.customerly.sxdependencies.annotations
 
 /***********************************************************

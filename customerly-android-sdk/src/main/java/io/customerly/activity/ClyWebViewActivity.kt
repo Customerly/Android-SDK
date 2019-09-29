@@ -33,14 +33,11 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import io.customerly.Customerly
 import io.customerly.R
-import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.sxdependencies.SXAppCompatActivity
+import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.utils.alterColor
 import io.customerly.utils.getContrastBW
-import io.customerly.utils.ggkext.activity
-import io.customerly.utils.ggkext.startUrl
-import io.customerly.utils.ggkext.statusBarColorInt
-import io.customerly.utils.ggkext.weak
+import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.spannedFromHtml
 import kotlinx.android.synthetic.main.io_customerly__activity_webview.*
 
@@ -98,7 +95,7 @@ internal class ClyWebViewActivity: SXAppCompatActivity() {
             }
 
             val weakProgressView = this.io_customerly__progress_view.let {
-                it.indeterminateDrawable.setColorFilter(widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
+                it.indeterminateDrawable.setColorFilterMultiply(color = widgetColor)
                 it.weak()
             }
 

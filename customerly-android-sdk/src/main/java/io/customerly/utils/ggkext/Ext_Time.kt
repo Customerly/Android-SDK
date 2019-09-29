@@ -19,6 +19,7 @@
 package io.customerly.utils.ggkext
 
 import java.util.*
+import kotlin.math.max
 
 /**
  * Created by Gianni on 02/10/17.
@@ -113,7 +114,7 @@ internal fun <RESULT> Long.formatByTimeAgo(
 
     assert( areAnyNotNull( seconds, minutes, hours, days, weeks, months, years ) )
 
-    var timeAgo = Math.max(0, (System.currentTimeMillis() / 1000) - this)
+    var timeAgo = max(0, (System.currentTimeMillis() / 1000) - this)
 
     //Less than a minute ago or not up level
     if( (timeAgo < 60 && seconds != null) || areAllNull(minutes, hours, days, weeks, months, years) ) {

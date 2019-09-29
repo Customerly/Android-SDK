@@ -62,7 +62,7 @@ internal inline fun <reified TYPE> JSONArray.asSequence() : Sequence<TYPE>
         } else {
             (0 until this.length())
             .asSequence()
-            .map { this.getTyped<TYPE>(index = it) }
+            .map { this.getTyped(index = it) }
         }
 
 internal inline fun <reified TYPE> JSONArray.asSequenceOpt(fallback : TYPE) : Sequence<TYPE>
@@ -124,16 +124,14 @@ internal inline fun <reified TYPE> JSONObject.optTyped(name : String) : TYPE? {
         null
     } else when(TYPE::class) {
         Boolean::class ->   {
-            val value = this.opt(name)
-            when(value) {
+            when(val value = this.opt(name)) {
                 is Boolean  ->  value as? TYPE
                 is String   -> value.toBooleanOrNull() as? TYPE
                 else    ->  null
             }
         }
         Double::class -> {
-            val value = this.opt(name)
-            when (value) {
+            when (val value = this.opt(name)) {
                 is Double -> value as? TYPE
                 is Number -> value.toDouble() as? TYPE
                 is String -> value.toDoubleOrNull() as? TYPE
@@ -141,8 +139,7 @@ internal inline fun <reified TYPE> JSONObject.optTyped(name : String) : TYPE? {
             }
         }
         Int::class -> {
-            val value = this.opt(name)
-            when (value) {
+            when (val value = this.opt(name)) {
                 is Int -> value as? TYPE
                 is Number -> value.toInt() as? TYPE
                 is String -> value.toIntOrNull() as? TYPE
@@ -150,15 +147,19 @@ internal inline fun <reified TYPE> JSONObject.optTyped(name : String) : TYPE? {
             }
         }
         Long::class -> {
-            val value = this.opt(name)
-            when (value) {
+            when (val value = this.opt(name)) {
                 is Long -> value as? TYPE
                 is Number -> value.toLong() as? TYPE
                 is String -> value.toLongOrNull() as? TYPE
                 else -> null
             }
         }
-        String::class ->    this.optString(name, null) as? TYPE
+        String::class -> {
+            when {
+                this.isNull(name) -> null
+                else -> this.getString(name) as? TYPE
+            }
+        }
         JSONArray::class -> this.optJSONArray(name) as? TYPE
         JSONObject::class ->this.optJSONObject(name) as? TYPE
         else -> throw JSONException("Only can be retrieved Boolean,Double,Int,Long,String,JSONArray or JSONObject from a JSONObject")
@@ -195,16 +196,14 @@ internal inline fun <reified TYPE> JSONArray.optTyped(index : Int) : TYPE? {
         null
     } else when(TYPE::class) {
         Boolean::class ->   {
-            val value = this.opt(index)
-            when(value) {
+            when(val value = this.opt(index)) {
                 is Boolean  ->  value as TYPE
                 is String   -> value.toBooleanOrNull() as TYPE
                 else    ->  null
             }
         }
         Double::class -> {
-            val value = this.opt(index)
-            when (value) {
+            when (val value = this.opt(index)) {
                 is Double -> value as TYPE
                 is Number -> value.toDouble() as TYPE
                 is String -> value.toDoubleOrNull() as TYPE
@@ -212,8 +211,7 @@ internal inline fun <reified TYPE> JSONArray.optTyped(index : Int) : TYPE? {
             }
         }
         Int::class -> {
-            val value = this.opt(index)
-            when (value) {
+            when (val value = this.opt(index)) {
                 is Int -> value as TYPE
                 is Number -> value.toInt() as TYPE
                 is String -> value.toIntOrNull() as TYPE
@@ -221,8 +219,7 @@ internal inline fun <reified TYPE> JSONArray.optTyped(index : Int) : TYPE? {
             }
         }
         Long::class -> {
-            val value = this.opt(index)
-            when (value) {
+            when (val value = this.opt(index)) {
                 is Long -> value as TYPE
                 is Number -> value.toLong() as TYPE
                 is String -> value.toLongOrNull() as TYPE

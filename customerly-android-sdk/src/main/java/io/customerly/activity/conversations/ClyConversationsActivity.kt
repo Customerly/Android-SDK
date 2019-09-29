@@ -240,7 +240,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                                         this.setTextColor(SXContextCompat.getColor(this.context, R.color.io_customerly__welcomecard_texts))
                                         this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                                         this.text = admin.name
-                                        this.setSingleLine(false)
+                                        this.isSingleLine = false
                                         this.minLines = 2
                                         this.maxLines = 3
                                         this.gravity = Gravity.CENTER_HORIZONTAL

@@ -26,7 +26,6 @@ import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.ggkext.resolveBitmapUrl
 import io.customerly.utils.ggkext.useSkipExeption
 import java.io.File
-import java.io.FileFilter
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.ExecutorService
@@ -146,13 +145,13 @@ internal object ClyImageHandler {
                                         FileOutputStream(bitmapFile).useSkipExeption {
                                             bmp.compress(Bitmap.CompressFormat.PNG, 100, it)
                                             if (this.diskCacheSize == -1L) {
-                                                this.diskCacheSize = cacheDir.listFiles(FileFilter { it.isFile }).asSequence().map { it.length() }.sum()
+                                                this.diskCacheSize = cacheDir.listFiles { file -> file.isFile }?.asSequence()?.map { file -> file.length() }?.sum() ?: 0
                                             } else {
                                                 this.diskCacheSize += bitmapFile.length()
                                             }
                                         }
                                         if (this.diskCacheSize > MAX_DISK_CACHE_SIZE) {
-                                            cacheDir.listFiles(FileFilter { it.isFile }).minBy { it.lastModified() }?.let {
+                                            cacheDir.listFiles { file -> file.isFile }?.minBy { file -> file.lastModified() }?.let {
                                                 val fileSize = it.length()
                                                 if (it.delete()) {
                                                     this.diskCacheSize -= fileSize

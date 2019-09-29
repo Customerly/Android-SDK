@@ -42,7 +42,7 @@ internal class ClyAdminFull
 
     val jobTitle: String? = adminFullJson.optTyped(name = "job_title")
 
-    val timezone: String? = adminFullJson.optTyped(name = "timezone")
+    //val timezone: String? = adminFullJson.optTyped(name = "timezone")
     val location: String? = adminFullJson.optTyped(name = "location")
 
 }

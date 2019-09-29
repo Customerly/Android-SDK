@@ -50,6 +50,7 @@ import io.customerly.utils.ui.RvProgressiveScrollListener
 import kotlinx.android.synthetic.main.io_customerly__activity_chat.*
 import java.lang.ref.WeakReference
 import java.util.*
+import kotlin.math.min
 
 /**
  * Created by Gianni on 03/09/16.
@@ -188,7 +189,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
         if (this.onCreateLayout(R.layout.io_customerly__activity_chat)) {
             this.io_customerly__actionlayout.setBackgroundColor(Customerly.lastPing.widgetColor)
-            this.io_customerly__progress_view.indeterminateDrawable.setColorFilter(Customerly.lastPing.widgetColor, android.graphics.PorterDuff.Mode.MULTIPLY)
+            this.io_customerly__progress_view.indeterminateDrawable.setColorFilterMultiply(color = Customerly.lastPing.widgetColor)
             this.io_customerly__recycler_view.also { recyclerView ->
                 recyclerView.layoutManager = SXLinearLayoutManager(this.applicationContext).also { llm ->
                     llm.reverseLayout = true
@@ -212,7 +213,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                     this.onSendMessage(
                             content = messageContent,
                             attachments = this.intent.getParcelableArrayListExtra<ClyAttachment>(EXTRA_MESSAGE_ATTACHMENTS)?.toTypedArray()
-                                    ?: kotlin.emptyArray())
+                                    ?: emptyArray())
                 }
 
                 this.updateAccountInfos(fallbackUserOnLastActive = false)
@@ -361,7 +362,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE -> {
-                for (i in 0 until Math.min(grantResults.size, permissions.size)) {
+                for (i in 0 until min(grantResults.size, permissions.size)) {
                     if (permissions[i] == Manifest.permission.WRITE_EXTERNAL_STORAGE && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                         val pendingFileName = this.permissionRequestPendingFileName
                         val pendingPath = this.permissionRequestPendingPath

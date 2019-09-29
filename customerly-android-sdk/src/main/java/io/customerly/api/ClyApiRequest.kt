@@ -45,6 +45,7 @@ import java.security.SecureRandom
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
+import kotlin.math.max
 
 /**
  * Created by Gianni on 19/04/18.
@@ -72,7 +73,7 @@ internal class ClyApiRequest<RESPONSE: Any>
     internal fun p(key: String, value: Double?) = this.apply { if(value != null) this.params.skipException { it.put(key, value) } }
     internal fun p(key: String, value: Int?) = this.apply { if(value != null) this.params.skipException { it.put(key, value) } }
     internal fun p(key: String, value: Long?) = this.apply { if(value != null) this.params.skipException { it.put(key, value) } }
-    internal fun p(key: String, value: HashMap<String,Any>?) = this.apply { if(value != null) this.params.skipException { it.putOpt(key, JSONObject(value)) } }
+    internal fun p(key: String, value: HashMap<*,*>?) = this.apply { if(value != null) this.params.skipException { it.putOpt(key, JSONObject(value)) } }
     internal fun p(key: String, value: Any?) = this.apply { if(value != null) this.params.skipException { it.putOpt(key, value) } }
 
     internal fun start() {
@@ -165,10 +166,11 @@ internal class ClyApiRequest<RESPONSE: Any>
                         it.put("params", params)
                     } catch (exception: Exception) { }
                 }
-        return (0 until Math.max(1, this.trials)).asSequence().map {
+        return (0 until max(1, this.trials)).asSequence().map {
             val conn = (URL(endpoint).openConnection() as HttpURLConnection).apply {
                 this.doOutput = true
                 this.requestMethod = "POST"
+                this.setRequestProperty(HEADER_X_CUSTOMERLY_SDK_KEY, HEADER_X_CUSTOMERLY_SDK_VALUE)
                 this.setRequestProperty("Content-Type", "application/json")
                 this.setRequestProperty("Accept-Language", Locale.getDefault().toString())//es: "it_IT"
                 this.connectTimeout = 10000

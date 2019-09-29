@@ -40,11 +40,11 @@ apply plugin: 'org.jetbrains.dokka-android'
 def CustomerlySDKVersion = '3.0.1'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     resourcePrefix "io_customerly__"
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 3
         versionName "$CustomerlySDKVersion"
         consumerProguardFiles 'proguard-rules.pro', 'proguard-rules-kotlinx.pro'
@@ -110,21 +110,21 @@ dependencies {
 
     api 'com.github.zafarkhaja:java-semver:0.9.0'
 
-    api 'com.google.android.material:material:1.1.0-alpha02'
+    api 'com.google.android.material:material:1.1.0-alpha09'
     api 'androidx.cardview:cardview:1.0.0'
     api 'androidx.recyclerview:recyclerview:1.0.0'
     api 'androidx.appcompat:appcompat:1.0.2'
     api 'androidx.legacy:legacy-support-v13:1.0.0'
-    api 'androidx.annotation:annotation:1.0.1'
+    api 'androidx.annotation:annotation:1.1.0'
 
     /*
     AndroidX Dependencies
-    api 'com.google.android.material:material:1.1.0-alpha02'
+    api 'com.google.android.material:material:1.1.0-alpha09'
     api 'androidx.cardview:cardview:1.0.0'
     api 'androidx.recyclerview:recyclerview:1.0.0'
     api 'androidx.appcompat:appcompat:1.0.2'
     api 'androidx.legacy:legacy-support-v13:1.0.0'
-    api 'androidx.annotation:annotation:1.0.1'
+    api 'androidx.annotation:annotation:1.1.0'
 
     SUPPORT Dipendencies
     api 'com.android.support:design:28.0.0'

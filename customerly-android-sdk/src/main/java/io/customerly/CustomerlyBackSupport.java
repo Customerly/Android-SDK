@@ -29,7 +29,7 @@ import io.customerly.sxdependencies.annotations.SXNullable;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("ALL")//TODO remove on android studio fix
 @Deprecated
 public class CustomerlyBackSupport {
 

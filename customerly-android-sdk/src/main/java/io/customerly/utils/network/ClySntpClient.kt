@@ -125,9 +125,7 @@ internal object ClySntpClient {
             //if (false) Log.d(TAG, "request time failed: " + e);
             return null
         } finally {
-            if (socket != null) {
-                socket.close()
-            }
+            socket?.close()
         }
     }
 

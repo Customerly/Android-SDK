@@ -22,6 +22,7 @@ import io.customerly.sxdependencies.annotations.SXFloatRange
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.min
 
 /**
  * Created by Gianni on 04/04/18.
@@ -40,9 +41,9 @@ fun Int.getContrastBW(): Int {
 @SXColorInt
 fun Int.alterColor(@SXFloatRange(from = 0.0, to = 255.0) factor: Float): Int {
     return Color.argb(Color.alpha(this),
-            Math.min(255f, Color.red(this) * factor).toInt(),
-            Math.min(255f, Color.green(this) * factor).toInt(),
-            Math.min(255f, Color.blue(this) * factor).toInt())
+            min(255f, Color.red(this) * factor).toInt(),
+            min(255f, Color.green(this) * factor).toInt(),
+            min(255f, Color.blue(this) * factor).toInt())
 }
 
 

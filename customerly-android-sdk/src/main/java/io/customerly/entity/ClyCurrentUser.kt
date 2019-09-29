@@ -19,6 +19,7 @@ package io.customerly.entity
 import io.customerly.Customerly
 import io.customerly.utils.JSON_COMPANY_KEY_ID
 import io.customerly.utils.JSON_COMPANY_KEY_NAME
+import io.customerly.utils.ggkext.nullOnException
 import org.json.JSONObject
 
 /**
@@ -47,17 +48,21 @@ internal class ClyCurrentUser {
         this.userEmail = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_EMAIL, null)
         this.userId = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_USERID, null)
         this.name = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_NAME, null)
-        this.company = try {
-            val json = JSONObject(Customerly.preferences?.getString(CUSTOMERLY_LOGGED_COMPANYINFO, null))
-            val map = HashMap<String,Any>()
-            json.keys().asSequence().forEach {  key ->
-                json.opt(key)?.let { value ->
-                    map.put(key, value)
-                }
+        this.company = nullOnException {
+            HashMap<String,Any>().apply {
+                Customerly.preferences?.getString(CUSTOMERLY_LOGGED_COMPANYINFO, null)
+                        ?.let { JSONObject(it) }
+                        ?.also { json ->
+                            json.keys()
+                                    .asSequence()
+                                    .mapNotNull { key ->
+                                        json.opt(key)?.let { value ->
+                                            key to value
+                                        }
+                                    }
+                                    .forEach { (key,value) -> this[key] = value }
+                        }
             }
-            map
-        } catch (exception: Exception) {
-            null
         }
     }
 

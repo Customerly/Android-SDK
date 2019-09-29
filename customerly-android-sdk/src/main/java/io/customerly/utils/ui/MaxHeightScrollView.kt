@@ -20,7 +20,6 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
-import android.view.View
 import android.widget.ScrollView
 import io.customerly.R
 
@@ -60,6 +59,6 @@ internal class MaxHeightScrollView : ScrollView {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(this.maxHeight, View.MeasureSpec.AT_MOST))
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(this.maxHeight, MeasureSpec.AT_MOST))
     }
 }

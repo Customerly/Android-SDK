@@ -16,9 +16,9 @@ package io.customerly.utils
  * limitations under the License.
  */
 
+import io.customerly.Customerly
 import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.sxdependencies.annotations.SXIntDef
-import io.customerly.Customerly
 
 /**
  * Created by Gianni on 11/04/18.
@@ -51,7 +51,7 @@ internal const val JSON_COMPANY_KEY_NAME = "name"
 internal const val CUSTOMERLY_WEB_SITE = "https://www.customerly.io/"
 internal const val CUSTOMERLY_SDK_NAME = "Customerly"
 internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "http://pictures.customerly.io/"
-internal const val CUSTOMERLY_API_ENDPOINT_BASEURL = "https://tracking.customerly.io/"
+internal const val CUSTOMERLY_API_ENDPOINT_BASEURL = "https://chat.customerly.io/"
 internal const val CUSTOMERLY_API_VERSION = "v1"
 internal const val CUSTOMERLY_SOCKET_VERSION = "1"
 internal const val CUSTOMERLY_DEV_MODE = false

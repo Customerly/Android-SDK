@@ -28,6 +28,7 @@ import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.sxdependencies.annotations.SXColorRes
 import io.customerly.sxdependencies.annotations.SXIntDef
 import io.customerly.utils.ggkext.dp2px
+import kotlin.math.max
 
 /**
  * Created by Gianni on 24/06/15.
@@ -52,7 +53,7 @@ internal const val RVDIVIDER_V_BOTH = 3
 @Retention(AnnotationRetention.SOURCE)
 internal annotation class RvDividerVertical
 
-private val dp1 = Math.max(1f, 1f.dp2px)
+private val dp1 = max(1f, 1f.dp2px)
 
 @SXColorRes
 private val DEFAULT_COLOR_RES = R.color.io_customerly__grey_cc

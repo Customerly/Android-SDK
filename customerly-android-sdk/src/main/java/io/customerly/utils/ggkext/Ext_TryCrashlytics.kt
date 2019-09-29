@@ -23,6 +23,7 @@ package io.customerly.utils.ggkext
 
 private const val CRASHLYTICS_PACKAGE = "com.crashlytics.android.Crashlytics"
 
+@Suppress("unused")
 internal fun Throwable.tryCrashlyticsLog() {
     try {
         Class.forName(CRASHLYTICS_PACKAGE)

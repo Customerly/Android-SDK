@@ -36,6 +36,7 @@ import io.customerly.utils.ggkext.dp2px
 import io.customerly.utils.ggkext.weak
 import io.customerly.utils.playNotifSound
 import kotlinx.android.synthetic.main.io_customerly__alert_message.view.*
+import kotlin.math.abs
 
 /**
  * Created by Gianni on 28/01/17.
@@ -113,7 +114,7 @@ internal class ClyAlertMessage
                         return true
                     }
                     MotionEvent.ACTION_MOVE -> {
-                        if (this.dragging || Math.abs((event.rawX - this.downRawXStart).toInt()) > DRAG_MIN_DISTANCE) {
+                        if (this.dragging || abs((event.rawX - this.downRawXStart).toInt()) > DRAG_MIN_DISTANCE) {
                             this.dragging = true
                             view.animate()
                                     .x(event.rawX + this.viewXStart - this.downRawXStart)
@@ -126,7 +127,7 @@ internal class ClyAlertMessage
                         this.dragging = false
                         val alert = wAlertMessage.get()
                         when {
-                            Math.abs(event.rawX - this.downRawXStart) > SWIPE_MIN_DISTANCE -> {
+                            abs(event.rawX - this.downRawXStart) > SWIPE_MIN_DISTANCE -> {
                                 alert?.dismissAllowingStateLoss()
                             }
                             alert?.message != null && event.eventTime - event.downTime < ABORT_CLICK_AFTER_MS -> {

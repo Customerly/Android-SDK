@@ -26,6 +26,7 @@ import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.view.Gravity
 import android.widget.Toast
@@ -33,6 +34,7 @@ import io.customerly.R
 import io.customerly.activity.ClyOpenDownloadedFileActivity
 import io.customerly.sxdependencies.SXFileProvider
 import io.customerly.sxdependencies.SXNotificationCompatBuilder
+import io.customerly.utils.ggkext.apiMax
 import java.io.File
 
 /**
@@ -87,8 +89,11 @@ internal fun startFileDownload(context: Context, filename: String, fullPath: Str
                     id = dm.enqueue(
                             DownloadManager.Request(Uri.parse(fullPath))
                                     .setTitle(filename)
-                                    .setDestinationUri(Uri.fromFile(File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename)))
-                                    .setVisibleInDownloadsUi(true)
+                                    .setDestinationUri(Uri.fromFile(File(context.getExternalFilesDir(null), filename)))
+                                    .apiMax(Build.VERSION_CODES.P) {
+                                        @Suppress("DEPRECATION")
+                                        this.setVisibleInDownloadsUi(true)
+                                    }
                                     .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)))
         }
     } else {
@@ -100,7 +105,7 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if(intent.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
-            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+            val dm = context.getSystemService(DOWNLOAD_SERVICE) as? DownloadManager
             if(dm != null) {
                 var c: Cursor? = null
                 try {
@@ -109,25 +114,27 @@ class ClyDownloadBroadcastReceiver : BroadcastReceiver() {
 
                         c = dm.query(DownloadManager.Query().setFilterById(downloadId))
                         if (c.moveToFirst() && DownloadManager.STATUS_SUCCESSFUL == c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-                            File(Uri.parse(c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))).path).name.takeIf { it.isNotEmpty() }?.let { filename ->
-                                File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename).takeIf { it.exists() }?.let { file ->
-                                    (context.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
-                                            ?.notify(downloadId.toInt(), SXNotificationCompatBuilder(context, CHANNEL_ID_DOWNLOAD)
-                                            .setSmallIcon(R.drawable.io_customerly__ic_file_download)
-                                            .setContentTitle(context.getString(R.string.io_customerly__download_complete))
-                                            .setContentText(filename)
-                                            .setAutoCancel(true)
-                                            .setContentIntent(
-                                                    PendingIntent.getActivity(
-                                                            context,
-                                                            0,
-                                                            Intent(context, ClyOpenDownloadedFileActivity::class.java)
-                                                                    .setData(SXFileProvider.getUriForFile(context, "io.customerly.provider.${context.packageName}", file)),
-                                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                                    )).build())
-                                    val toast = Toast.makeText(context, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT)
-                                    toast.setGravity(Gravity.TOP, 25, 400)
-                                    toast.show()
+                            Uri.parse(c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))).path?.also { path ->
+                                File(path).name.takeIf { it.isNotEmpty() }?.let { filename ->
+                                    File(context.getExternalFilesDir(null), filename).takeIf { it.exists() }?.let { file ->
+                                        (context.getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
+                                                ?.notify(downloadId.toInt(), SXNotificationCompatBuilder(context, CHANNEL_ID_DOWNLOAD)
+                                                        .setSmallIcon(R.drawable.io_customerly__ic_file_download)
+                                                        .setContentTitle(context.getString(R.string.io_customerly__download_complete))
+                                                        .setContentText(filename)
+                                                        .setAutoCancel(true)
+                                                        .setContentIntent(
+                                                                PendingIntent.getActivity(
+                                                                        context,
+                                                                        0,
+                                                                        Intent(context, ClyOpenDownloadedFileActivity::class.java)
+                                                                                .setData(SXFileProvider.getUriForFile(context, "io.customerly.provider.${context.packageName}", file)),
+                                                                        PendingIntent.FLAG_UPDATE_CURRENT
+                                                                )).build())
+                                        Toast.makeText(context, R.string.io_customerly__download_complete, Toast.LENGTH_SHORT).apply {
+                                            this.setGravity(Gravity.TOP, 25, 400)
+                                        }.show()
+                                    }
                                 }
                             }
                         }

@@ -29,7 +29,6 @@ import android.os.Build
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
-import io.customerly.sxdependencies.annotations.SXColorInt
 import com.github.zafarkhaja.semver.Version
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.activity.conversations.startClyConversationsActivity
@@ -39,6 +38,7 @@ import io.customerly.dialogfragment.dismissClySurveyDialog
 import io.customerly.entity.*
 import io.customerly.entity.ping.ClyPingResponse
 import io.customerly.entity.ping.lastPingRestore
+import io.customerly.sxdependencies.annotations.SXColorInt
 import io.customerly.utils.*
 import io.customerly.utils.download.CHANNEL_ID_DOWNLOAD
 import io.customerly.utils.ggkext.*
@@ -75,18 +75,18 @@ object Customerly {
     @JvmStatic
     @JvmOverloads
     fun configure(application: Application, customerlyAppId: String, @SXColorInt widgetColorInt: Int? = null) {
-        Customerly.initialize(context = application.applicationContext)
-        Customerly.preferences?.edit()
+        initialize(context = application.applicationContext)
+        preferences?.edit()
                 ?.putString(PREF_KEY_APP_ID, customerlyAppId)
                 ?.apply()
-        Customerly.appId = customerlyAppId
-        Customerly.widgetColorHardcoded = widgetColorInt
+        appId = customerlyAppId
+        widgetColorHardcoded = widgetColorInt
 
         ClyActivityLifecycleCallback.registerOn(application = application)
 
-        Customerly.configured = true
+        configured = true
 
-        Customerly.ping()
+        ping()
     }
 
 
@@ -125,18 +125,18 @@ object Customerly {
     fun logoutUser() {
         this.checkConfigured {
             ignoreException {
-                Customerly.jwtToken = null
-                Customerly.currentUser.logout()
-                Customerly.clySocket.disconnect()
-                Customerly.nextPingAllowed = 0
+                jwtToken = null
+                currentUser.logout()
+                clySocket.disconnect()
+                nextPingAllowed = 0
                 dismissAlertMessageOnUserLogout()
 
                 ClyActivityLifecycleCallback.getLastDisplayedActivity()?.apply {
                     this.dismissClySurveyDialog()
                     (this as? ClyAppCompatActivity)?.onLogoutUser()
                 }
-                Customerly.log(message = "logoutUser completed successfully")
-                Customerly.ping()
+                log(message = "logoutUser completed successfully")
+                ping()
             }
         }
     }
@@ -154,9 +154,9 @@ object Customerly {
             this.isSupportEnabled = true
             try {
                 activity.startClyConversationsActivity()
-                Customerly.log(message = "openSupport completed successfully")
+                log(message = "openSupport completed successfully")
             } catch (exception: Exception) {
-                Customerly.log(message = "A generic error occurred in openSupport")
+                log(message = "A generic error occurred in openSupport")
                 clySendError(errorCode = ERROR_CODE__GENERIC, description = "Generic error in openSupport", throwable = exception)
             }
         }
@@ -181,7 +181,7 @@ object Customerly {
     @Throws(IllegalArgumentException::class)
     @JvmStatic
     fun setAttributes(attributes: HashMap<String, Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setJsonAttributes(attributes = attributes, success = success, failure = failure)
+        setJsonAttributes(attributes = attributes, success = success, failure = failure)
     }
 
     /**
@@ -196,7 +196,7 @@ object Customerly {
     @JvmOverloads
     @Throws(IllegalArgumentException::class)
     fun setAttributes(vararg attributes: Pair<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setJsonAttributes(attributes = hashMapOf(*attributes), success = success, failure = failure)
+        setJsonAttributes(attributes = hashMapOf(*attributes), success = success, failure = failure)
     }
 
     /**
@@ -214,14 +214,14 @@ object Customerly {
     fun setCompany(company: HashMap<String,Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
         company.assertValidCompanyMap()
 
-        if(Customerly.iamUser()) {
-            Customerly.tryClyTask(failure = failure) {
-                Customerly.ping(trySurvey = false, tryLastMessage = false, company = company,
+        if(iamUser()) {
+            tryClyTask(failure = failure) {
+                ping(trySurvey = false, tryLastMessage = false, company = company,
                         success = success, successLog = "setCompany task completed successfully",
                         failure = failure, failureLog = "A generic error occurred in setCompany")
             }
         } else {
-            Customerly.log(message = "Cannot setCompany for lead users")
+            log(message = "Cannot setCompany for lead users")
             failure()
         }
     }
@@ -239,7 +239,7 @@ object Customerly {
      */
     @Throws(IllegalArgumentException::class)
     fun setCompany(vararg values: Pair<String,Any>, companyId: String, companyName: String, success: ()->Unit = {}, failure: ()->Unit = {}) {
-        Customerly.setCompany(company = Customerly.company(*values, companyId = companyId, companyName = companyName), success = success, failure = failure)
+        setCompany(company = company(*values, companyId = companyId, companyName = companyName), success = success, failure = failure)
     }
 
     /**
@@ -262,15 +262,15 @@ object Customerly {
                      success: ()->Unit = {}, failure: ()->Unit = {}) {
         val emailTrimmed = email.trim()
         if(! Patterns.EMAIL_ADDRESS.matcher(emailTrimmed).matches()) {
-            Customerly.log(message = "registerUser require a valid email address to be passed")
+            log(message = "registerUser require a valid email address to be passed")
             failure()
         }
 
         attributes?.assertValidAttributesMap()
         company?.assertValidCompanyMap()
 
-        Customerly.tryClyTask(failure = failure) {
-            Customerly.ping(trySurvey = false, tryLastMessage = true,
+        tryClyTask(failure = failure) {
+            ping(trySurvey = false, tryLastMessage = true,
                     registerEmail = email, registerUserId = userId?.takeIf { it.isNotBlank() }, registerName = name?.takeIf { it.isNotBlank() },
                     attributes = attributes, company = company,
                     success = success, successLog = "registerUser task completed successfully",
@@ -288,12 +288,12 @@ object Customerly {
             when {
                 field && !value -> {
                     field = false
-                    Customerly.clySocket.disconnect()
+                    clySocket.disconnect()
                 }
                 !field && value -> {
                     field = true
                     this.checkConfigured {
-                        Customerly.clySocket.connect()
+                        clySocket.connect()
                     }
                 }
             }
@@ -315,16 +315,16 @@ object Customerly {
     @JvmStatic
     fun trackEvent(eventName: String) {
         if(eventName.isNotEmpty()) {
-            Customerly.tryClyTask {
-                if(Customerly.iamLead() || Customerly.iamUser()) {
+            tryClyTask {
+                if(iamLead() || iamUser()) {
                     ClyApiRequest(
                             endpoint = ENDPOINT_EVENT_TRACKING,
                             trials = 2,
-                            jsonObjectConverter = { Customerly.log(message = "trackEvent completed successfully for event $eventName") })
+                            jsonObjectConverter = { log(message = "trackEvent completed successfully for event $eventName") })
                             .p(key = "name", value = eventName)
                             .start()
                 } else {
-                    Customerly.log(message = "Only lead and registered users can track events")
+                    log(message = "Only lead and registered users can track events")
                 }
             }
         }
@@ -338,12 +338,12 @@ object Customerly {
     @JvmOverloads
     @JvmStatic
     fun update(success: ()->Unit = {}, failure: ()->Unit = {}) {
-        if(System.currentTimeMillis() > Customerly.nextPingAllowed) {
-            Customerly.ping(
+        if(System.currentTimeMillis() > nextPingAllowed) {
+            ping(
                     success = success, successLog = "update task completed successfully",
                     failure = failure, failureLog = "A generic error occurred in update")
         } else {
-            Customerly.log(message = "You cannot call twice the update so fast. You have to wait ${(Customerly.nextPingAllowed - System.currentTimeMillis()).msAsSeconds} seconds.")
+            log(message = "You cannot call twice the update so fast. You have to wait ${(nextPingAllowed - System.currentTimeMillis()).msAsSeconds} seconds.")
             failure()
         }
     }
@@ -429,7 +429,7 @@ object Customerly {
 
     internal val currentUser: ClyCurrentUser = ClyCurrentUser()
 
-    internal var lastPing: ClyPingResponse by DefaultInitializerDelegate(constructor = { Customerly.preferences?.lastPingRestore() ?: ClyPingResponse() })
+    internal var lastPing: ClyPingResponse by DefaultInitializerDelegate(constructor = { preferences?.lastPingRestore() ?: ClyPingResponse() })
 
     internal var nextPingAllowed: Long = 0L
 
@@ -441,10 +441,10 @@ object Customerly {
                 }
             }
 
-    internal var appId: String? by TryOnceDelegate(attempt = { Customerly.preferences?.safeString(key = PREF_KEY_APP_ID) })
+    internal var appId: String? by TryOnceDelegate(attempt = { preferences?.safeString(key = PREF_KEY_APP_ID) })
 
     internal val welcomeMessage: Spanned? get() = fromHtml(message = when {
-        Customerly.iamUser()    ->  this.lastPing.welcomeMessageUsers
+        iamUser()    ->  this.lastPing.welcomeMessageUsers
         else    ->  this.lastPing.welcomeMessageVisitors
     })
 
@@ -525,47 +525,47 @@ object Customerly {
                              attributes: HashMap<String, Any>? = null, company: HashMap<String,Any>? = null,
                              crossinline success: ()->Unit = {}, successLog: String? = null,
                              crossinline failure: ()->Unit = {}, failureLog: String? = null) {
-        Customerly.checkConfigured(ok = {
+        checkConfigured(ok = {
             ClyApiRequest(
                     endpoint = ENDPOINT_PING,
                     jsonObjectConverter = {
-                        //Customerly.lastPing = it.parsePing()
-                        (trySurvey && Customerly.lastPing.tryShowSurvey()) || (tryLastMessage && Customerly.lastPing.tryShowLastMessage())
+                        //lastPing = it.parsePing()
+                        (trySurvey && lastPing.tryShowSurvey()) || (tryLastMessage && lastPing.tryShowLastMessage())
                     },
                     callback = {
                         when(it) {
                             is ClyApiResponse.Success -> {
                                 if(successLog != null) {
-                                    Customerly.log(message = successLog)
+                                    log(message = successLog)
                                 }
                                 if(company != null) {
-                                    Customerly.currentUser.updateCompany(company = company)
+                                    currentUser.updateCompany(company = company)
                                 }
                                 success()
                             }
                             is ClyApiResponse.Failure -> {
                                 if (failureLog != null) {
-                                    Customerly.log(message = failureLog)
+                                    log(message = failureLog)
                                 }
                                 failure()
                             }
                         }
                     })
-                    .p(key = "email", value = registerEmail ?: Customerly.currentUser.userEmail)
-                    .p(key = "user_id", value = registerUserId ?: Customerly.currentUser.userId)
+                    .p(key = "email", value = registerEmail ?: currentUser.userEmail)
+                    .p(key = "user_id", value = registerUserId ?: currentUser.userId)
                     .p(key = "name", value = registerName)
                     .p(key = "attributes", value = attributes)
-                    .p(key = "company", value = company?.also { Customerly.currentUser.removeCompany() } ?: Customerly.currentUser.company)
+                    .p(key = "company", value = company?.also { currentUser.removeCompany() } ?: currentUser.company)
                     .start()
         }, not = failure)
     }
 
     private inline fun tryClyTask(failure: (()->Unit) = {}, crossinline task: ()->Unit) {
-        Customerly.checkConfigured(not = failure, ok = {
+        checkConfigured(not = failure, ok = {
             try {
                 task()
             } catch (exception: Exception) {
-                Customerly.log(message = "Generic error while executing a task")
+                log(message = "Generic error while executing a task")
                 exception.printStackTrace()
                 clySendError(errorCode = ERROR_CODE__GENERIC, description = "Generic error while executing a task", throwable = exception)
                 failure()
@@ -576,14 +576,14 @@ object Customerly {
     @Throws(IllegalArgumentException::class)
     private fun setJsonAttributes(attributes: HashMap<String, Any>, success: ()->Unit = {}, failure: ()->Unit = {}) {
         attributes.assertValidAttributesMap()
-        if(Customerly.iamUser()) {
-            Customerly.tryClyTask(failure = failure) {
-                Customerly.ping(trySurvey = false, tryLastMessage = false, attributes = attributes,
+        if(iamUser()) {
+            tryClyTask(failure = failure) {
+                ping(trySurvey = false, tryLastMessage = false, attributes = attributes,
                         success = success, successLog = "setAttributes task completed successfully",
                         failure = failure, failureLog = "A generic error occurred in setAttributes")
             }
         } else {
-            Customerly.log(message = "Cannot setAttributes for lead users")
+            log(message = "Cannot setAttributes for lead users")
             failure()
         }
     }
@@ -596,7 +596,7 @@ object Customerly {
                 else -> false
             }
         }) {
-            Customerly.log(message = "Attributes Map can only contain String, char, byte, int, long, float or double values")
+            log(message = "Attributes Map can only contain String, char, byte, int, long, float or double values")
             throw IllegalArgumentException("Attributes Map can contain only Strings, int, float, long, double or char values")
         }
     }
@@ -605,11 +605,11 @@ object Customerly {
     private fun HashMap<String,Any>.assertValidCompanyMap() {
         when {
             !this.containsKey(JSON_COMPANY_KEY_ID) -> {
-                Customerly.log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_ID\" containing the Company ID")
+                log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_ID\" containing the Company ID")
                 throw IllegalArgumentException("Company Map must contain a String value with key \"$JSON_COMPANY_KEY_ID\" containing the Company ID")
             }
             !this.containsKey(JSON_COMPANY_KEY_NAME) -> {
-                Customerly.log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
+                log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
                 throw IllegalArgumentException("Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
             }
             ! this.values.asSequence().all {
@@ -618,16 +618,16 @@ object Customerly {
                     else -> false
                 }
             } -> {
-                Customerly.log(message = "Company Map can only contain String, char, byte, int, long, float or double values")
+                log(message = "Company Map can only contain String, char, byte, int, long, float or double values")
                 throw IllegalArgumentException("Company Map can contain only Strings, int, float, long, double or char values")
             }
         }
     }
 
     internal fun getAccountDetails(callback: (Array<ClyAdminFull>?)->Unit) {
-        Customerly.adminsFullDetails?.apply {
+        adminsFullDetails?.apply {
             callback(this)
-        } ?: Customerly.checkConfigured(ok = {
+        } ?: checkConfigured(ok = {
             if(iamLead() || iamUser()) {
                 ClyApiRequest(
                         endpoint = ENDPOINT_ACCOUNT_DETAILS,
@@ -638,7 +638,7 @@ object Customerly {
                         callback = {
                             when (it) {
                                 is ClyApiResponse.Success -> {
-                                    Customerly.adminsFullDetails = it.result
+                                    adminsFullDetails = it.result
                                     callback(it.result)
                                 }
                                 is ClyApiResponse.Failure -> {

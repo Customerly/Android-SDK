@@ -25,8 +25,6 @@ import android.text.Spanned
 import android.text.SpannedString
 import android.view.WindowManager
 import android.widget.TextView
-import io.customerly.sxdependencies.annotations.SXIntDef
-import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
@@ -35,6 +33,8 @@ import io.customerly.api.ENDPOINT_CONVERSATION_DISCARD
 import io.customerly.entity.ERROR_CODE__GENERIC
 import io.customerly.entity.clySendError
 import io.customerly.entity.ping.ClyFormDetails
+import io.customerly.sxdependencies.annotations.SXIntDef
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.ClyActivityLifecycleCallback
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.htmlformatter.fromHtml
@@ -123,7 +123,7 @@ internal sealed class ClyMessage(
             internal class Profiling(conversationId: Long, messageId: Long, internal val form: ClyFormDetails)
                 : Bot.Form(conversationId = conversationId, messageId = messageId, content = form.label.takeIf { it.isNotEmpty() } ?: form.hint ?: "")
 
-            internal class AskEmail(conversationId: Long, messageId: Long, val pendingMessage: ClyMessage.Human.UserLocal? = null)
+            internal class AskEmail(conversationId: Long, messageId: Long, val pendingMessage: Human.UserLocal? = null)
                 : Bot.Form(messageId = messageId, content = "", conversationId = conversationId)
         }
     }

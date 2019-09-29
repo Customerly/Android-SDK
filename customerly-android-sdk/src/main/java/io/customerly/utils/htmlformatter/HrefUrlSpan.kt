@@ -38,7 +38,7 @@ internal class HrefUrlSpan internal constructor(private val url: String) : Click
         try {
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Log.w("URLSpan", "Actvity was not found for intent, " + intent.toString())
+            Log.w("URLSpan", "Actvity was not found for intent, $intent")
         }
     }
 }

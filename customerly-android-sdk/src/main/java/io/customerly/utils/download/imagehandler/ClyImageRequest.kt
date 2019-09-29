@@ -27,6 +27,8 @@ import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ggkext.weak
 import java.io.File
 import java.lang.ref.WeakReference
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Created by Gianni on 16/04/18.
@@ -84,8 +86,8 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
     }
 
     internal fun resize(@SXIntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE) width : Int, @SXIntRange(from = IMAGE_REQUEST_DONT_RESIZE.toLong(), to = Long.MAX_VALUE) height: Int = width ) = this.apply {
-        this.resizeWidth = Math.max(width, IMAGE_REQUEST_DONT_RESIZE)
-        this.resizeHeight = Math.max(height, IMAGE_REQUEST_DONT_RESIZE)
+        this.resizeWidth = max(width, IMAGE_REQUEST_DONT_RESIZE)
+        this.resizeHeight = max(height, IMAGE_REQUEST_DONT_RESIZE)
     }
 
     internal fun transformCircle() = this.apply {
@@ -108,7 +110,7 @@ internal class ClyImageRequest(context : Context, internal val url : String ) {
 
     internal fun handlerApplyTransformations(bmp: Bitmap) : Bitmap {
         return if(this.applyCircleTransformation) {
-            val size = Math.min(bmp.width, bmp.height)
+            val size = min(bmp.width, bmp.height)
             val r = size / 2f
             val squared = Bitmap.createBitmap(bmp, (bmp.width - size) / 2, (bmp.height - size) / 2, size, size)
             val result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
