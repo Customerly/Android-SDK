@@ -466,14 +466,14 @@ object Customerly {
 
         DeviceJson.loadContextInfos(context = context)
 
-        this.preferences = context.getSharedPreferences(BuildConfig.APPLICATION_ID + ".SharedPreferences", Context.MODE_PRIVATE)
+        this.preferences = context.getSharedPreferences(BuildConfig.LIBRARY_PACKAGE_NAME + ".SharedPreferences", Context.MODE_PRIVATE)
         this.currentUser.restore()
 
         jwtRestore()
 
         context.registerLollipopNetworkReceiver()
 
-        tryCrashlyticsSetString(key = BuildConfig.APPLICATION_ID + " version", value = BuildConfig.VERSION_NAME)
+        tryCrashlyticsSetString(key = BuildConfig.LIBRARY_PACKAGE_NAME + " version", value = BuildConfig.VERSION_NAME)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
