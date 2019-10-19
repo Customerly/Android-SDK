@@ -1,1 +1,1 @@
-include ':customerly-android-sdk', ':demoapp'
+include ':customerly-android-sdk',':demoapp'
