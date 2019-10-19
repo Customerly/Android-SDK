@@ -62,7 +62,7 @@ internal inline fun <reified TYPE> JSONArray.asSequence() : Sequence<TYPE>
         } else {
             (0 until this.length())
             .asSequence()
-            .map { this.getTyped(index = it) }
+            .map { this.getTyped<TYPE>(index = it) }
         }
 
 internal inline fun <reified TYPE> JSONArray.asSequenceOpt(fallback : TYPE) : Sequence<TYPE>

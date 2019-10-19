@@ -50,7 +50,7 @@ internal const val JSON_COMPANY_KEY_NAME = "name"
 
 internal const val CUSTOMERLY_WEB_SITE = "https://www.customerly.io/"
 internal const val CUSTOMERLY_SDK_NAME = "Customerly"
-internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "http://pictures.customerly.io/"
+internal const val CUSTOMERLY_PICTURE_ENDPOINT_BASEURL = "https://pictures.customerly.io/"
 internal const val CUSTOMERLY_API_ENDPOINT_BASEURL = "https://chat.customerly.io/"
 internal const val CUSTOMERLY_API_VERSION = "v1"
 internal const val CUSTOMERLY_SOCKET_VERSION = "1"
