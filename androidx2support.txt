@@ -4,10 +4,10 @@ AndroidX version:
 
 - In customerly-android-sdk/build.gradle:
     + Replace support libraries dependencies with the following:
-        api 'com.google.android.material:material:1.1.0-alpha02'
+        api 'com.google.android.material:material:1.1.0-beta01'
         api 'androidx.cardview:cardview:1.0.0'
         api 'androidx.recyclerview:recyclerview:1.0.0'
-        api 'androidx.appcompat:appcompat:1.0.2'
+        api 'androidx.appcompat:appcompat:1.1.0'
         api 'androidx.legacy:legacy-support-v13:1.0.0'
         api 'androidx.annotation:annotation:1.0.1'
 
