@@ -37,7 +37,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka-android'
 
-def CustomerlySDKVersion = '3.0.2'
+def CustomerlySDKVersion = '3.0.3'
 
 android {
     compileSdkVersion 29

@@ -478,7 +478,18 @@ public class CustomerlyBackSupport {
      */
     @Deprecated
     public void logoutUser() {
-        Customerly.logoutUser();
+        Customerly.logoutUser(new CallbackWrapper(null));
+    }
+
+    /**
+     * Call this method to close the user's Customerly session.<br>
+     * <br>
+     * You have to configure the Customerly SDK before using this method with {@link #configure(Application,String)}
+     * @param then Optional. The callback to be called when the task completes
+     */
+    @Deprecated
+    public void logoutUser(@SXNullable Callback then) {
+        Customerly.logoutUser(new CallbackWrapper(then));
     }
 
     /**

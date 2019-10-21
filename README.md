@@ -293,6 +293,41 @@ Customerly.logoutUser()
 ```java
 Customerly.logoutUser();
 ```
+*OPTIONALLY,* you can pass a callback that will be executed when the logout task is completed:
+`Kotlin`
+```kotlin
+Customerly.logoutUser {
+    // Do something
+}
+```
+`Java`
+```java
+Customerly.logoutUser(
+    new Callback() {        //OPTIONALLY you can pass a callback to be notified of the success of the task or null
+        @Override
+        public Unit invoke() {
+            // Do something
+            return null;
+        }
+    }
+);
+```
+
+Please mind that the logoutUser task is not runned synchronously, so if you try to do something like this in your code:
+
+```kotlin
+Customerly.logoutUser()
+Customerly.registerUser(email)
+```
+
+the two task will conflict and the result won't be garanteed
+Try something like this instead:
+
+```kotlin
+Customerly.logoutUser {
+    Customerly.registerUser(email)
+}
+```
 
 ### Attributes (Optional)
 

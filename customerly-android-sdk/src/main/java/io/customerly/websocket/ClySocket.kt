@@ -19,7 +19,6 @@ package io.customerly.websocket
 import android.app.Activity
 import android.util.Log
 import android.view.WindowManager
-import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
 import io.customerly.alert.showClyAlertMessage
@@ -32,6 +31,7 @@ import io.customerly.entity.chat.parseMessagesList
 import io.customerly.entity.parseSocketParams
 import io.customerly.entity.ping.ClyFormCast
 import io.customerly.sxdependencies.annotations.SXStringDef
+import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.CUSTOMERLY_DEV_MODE
 import io.customerly.utils.CUSTOMERLY_SDK_NAME
 import io.customerly.utils.ClyActivityLifecycleCallback
@@ -41,6 +41,7 @@ import io.customerly.utils.ggkext.nullOnException
 import io.customerly.utils.ggkext.optTyped
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.engineio.client.transports.WebSocket
 import org.json.JSONObject
 
 /**
@@ -86,6 +87,7 @@ internal class ClySocket {
                                 //this.reconnectionDelay = 15000;
                                 //this.reconnectionDelayMax = 60000;
                                 this.query = params.query
+                                this.transports = arrayOf(WebSocket.NAME)
                             }).also { socket ->
                                 socket.on(SOCKET_EVENT__TYPING) { payload ->
                                     (payload?.firstOrNull() as? JSONObject)?.ignoreException { payloadJson ->

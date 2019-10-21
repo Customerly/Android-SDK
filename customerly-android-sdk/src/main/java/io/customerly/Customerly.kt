@@ -120,9 +120,10 @@ object Customerly {
      * Call this method to close the user's Customerly session.<br>
      * <br>
      * You have to configure the Customerly SDK before using this method with [.configure]
+     * @param then Optional. The callback to be called when the task completes
      */
     @JvmStatic
-    fun logoutUser() {
+    fun logoutUser(then: ()->Unit = {}) {
         this.checkConfigured {
             ignoreException {
                 jwtToken = null
@@ -136,7 +137,7 @@ object Customerly {
                     (this as? ClyAppCompatActivity)?.onLogoutUser()
                 }
                 log(message = "logoutUser completed successfully")
-                ping()
+                ping(success = then, failure = then)
             }
         }
     }
