@@ -28,19 +28,20 @@ buildscript {
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.16-eap-3-dev-1"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.10.0"
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'org.jetbrains.dokka-android'
+apply plugin: "org.jetbrains.dokka"
 
-def CustomerlySDKVersion = '3.0.3'
+def CustomerlySDKVersion = '3.0.4'
 
 android {
     compileSdkVersion 29
+    buildToolsVersion "29.0.2"
     resourcePrefix "io_customerly__"
     defaultConfig {
         minSdkVersion 14
@@ -110,7 +111,7 @@ dependencies {
 
     api 'com.github.zafarkhaja:java-semver:0.9.0'
 
-    api 'com.google.android.material:material:1.1.0-beta01'
+    api 'com.google.android.material:material:1.2.0-alpha01'
     api 'androidx.cardview:cardview:1.0.0'
     api 'androidx.recyclerview:recyclerview:1.0.0'
     api 'androidx.appcompat:appcompat:1.1.0'
