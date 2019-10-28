@@ -97,7 +97,7 @@ If your project is still using support libraries dependencies i suggest to migra
 A project using support libraries can't depend from libraries with androidx dependencies.
 But if you can't or don't want or don't have time now, please don't worry:
 A variant version of customerly sdk with support libraries dependencies is available, just use `customerly-android-sdk-supportlibraries` instead of `customerly-android-sdk` as the artifact name. 
-UPDATE: Sorry to annunce that the 3.0.1 is the last version of Customerly SDK distributed for support libraries too. Since version 3.0.2 only AndroidX libraries are supported.
+UPDATE: Sorry to annunce that the 3.0.4 is the last version of Customerly SDK distributed for support libraries too. Since next version only AndroidX libraries are supported.
 
 ### Configuration (Mandatory)
 
