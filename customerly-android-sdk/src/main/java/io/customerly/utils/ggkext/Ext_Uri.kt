@@ -27,6 +27,7 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import io.customerly.sxdependencies.BUILD_VERSION_CODES_Q
 import java.io.File
 
 /**
@@ -63,7 +64,7 @@ internal fun Uri.getFileSize(context: Context): Long {
 private fun Uri.getPath(context: Context): String? {
     return when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                && Build.VERSION.SDK_INT < BUILD_VERSION_CODES_Q
                 && DocumentsContract.isDocumentUri(context, this) -> {
 
             return when(this.authority) {

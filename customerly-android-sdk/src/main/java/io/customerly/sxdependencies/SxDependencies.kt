@@ -1,8 +1,14 @@
 package io.customerly.sxdependencies
 
 import android.content.Context
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.AttributeSet
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.*
@@ -46,6 +52,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
+import android.os.Build
+import android.widget.TextView
  */
 
 /* Support Libraries
@@ -63,12 +75,46 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.*
 import android.util.AttributeSet
+import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
+import android.widget.TextView
  */
 
 /**
  * Created by Gianni on 20/11/2018.
  * Project: Customerly-KAndroid-SDK
  */
+
+/* targetSdkVersion >=29 */
+
+fun sxSetColorFilterMultiply(drawable: Drawable, color: Int) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        drawable.colorFilter = BlendModeColorFilter(color, BlendMode.MULTIPLY)
+    } else {
+        @Suppress("DEPRECATION")
+        drawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
+    }
+}
+
+const val BUILD_VERSION_CODES_Q = Build.VERSION_CODES.Q
+
+fun textviewSingleLine(textView: TextView, isSingleLine: Boolean) {
+    textView.isSingleLine = isSingleLine
+}
+
+/* targetSdkVersion <=28
+
+fun sxSetColorFilterMultiply(drawable: Drawable, color: Int) {
+    drawable.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
+}
+
+const val BUILD_VERSION_CODES_Q = 29
+
+fun textviewSingleLine(textView: TextView, isSingleLine: Boolean) {
+    textView.setSingleLine(isSingleLine)
+}
+
+*/
 
 // androidx.appcompat
 typealias SXAlertDialogBuilder = AlertDialog.Builder

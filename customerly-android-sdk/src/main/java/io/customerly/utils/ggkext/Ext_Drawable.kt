@@ -18,21 +18,13 @@
 
 package io.customerly.utils.ggkext
 
-import android.graphics.BlendMode
-import android.graphics.BlendModeColorFilter
-import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
-import android.os.Build
+import io.customerly.sxdependencies.sxSetColorFilterMultiply
 
 /**
  * Created by Gianni on 12/08/17
  */
 
 fun Drawable.setColorFilterMultiply(color: Int) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        this.colorFilter = BlendModeColorFilter(color, BlendMode.MULTIPLY)
-    } else {
-        @Suppress("DEPRECATION")
-        this.setColorFilter(color, PorterDuff.Mode.MULTIPLY)
-    }
+    sxSetColorFilterMultiply(drawable = this, color = color)
 }

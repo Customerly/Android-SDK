@@ -3,13 +3,17 @@ AndroidX version:
 - Rename module to: customerly-android-sdk
 
 - In customerly-android-sdk/build.gradle:
+
+    + Set android.compileSdkVersion to 29+
+    + Set android.defaultConfig.targetSdkVersion to 29+
+
     + Replace support libraries dependencies with the following:
-        api 'com.google.android.material:material:1.1.0-beta01'
-        api 'androidx.cardview:cardview:1.0.0'
-        api 'androidx.recyclerview:recyclerview:1.0.0'
-        api 'androidx.appcompat:appcompat:1.1.0'
-        api 'androidx.legacy:legacy-support-v13:1.0.0'
-        api 'androidx.annotation:annotation:1.0.1'
+    api 'com.google.android.material:material:1.2.0-alpha01'
+    api 'androidx.cardview:cardview:1.0.0'
+    api 'androidx.recyclerview:recyclerview:1.0.0'
+    api 'androidx.appcompat:appcompat:1.1.0'
+    api 'androidx.legacy:legacy-support-v13:1.0.0'
+    api 'androidx.annotation:annotation:1.1.0'
 
     + In ext {} valorize the following attributes:
         bintrayName = 'customerly-android-sdk'
@@ -45,6 +49,15 @@ AndroidX version:
         import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         import com.google.android.material.appbar.AppBarLayout
         import com.google.android.material.snackbar.Snackbar
+        import android.graphics.BlendMode
+        import android.graphics.BlendModeColorFilter
+        import android.graphics.PorterDuff
+        import android.graphics.drawable.Drawable
+        import android.os.Build
+        import android.widget.TextView
+
+    + Comment out targetSdkVersion <=28 code
+    + Comment in targetSdkVersion >=29 code
 
 - Check library version name
 
@@ -57,6 +70,8 @@ Support libraries version:
 - Rename module to: customerly-android-sdk-supportlibraries
 
 - In customerly-android-sdk/build.gradle:
+    + Set android.compileSdkVersion to 28
+    + Set android.defaultConfig.targetSdkVersion to 28
     + Replace androidx libraries dependencies with the following:
         api 'com.android.support:design:28.0.0'
         api 'com.android.support:cardview-v7:28.0.0'
@@ -91,5 +106,11 @@ Support libraries version:
         import android.support.v7.app.AppCompatActivity
         import android.support.v7.widget.*
         import android.util.AttributeSet
+        import android.graphics.PorterDuff
+        import android.graphics.drawable.Drawable
+        import android.widget.TextView
+
+    + Comment out targetSdkVersion >=29 code
+    + Comment in targetSdkVersion <=28 code
 
 - Check library version name

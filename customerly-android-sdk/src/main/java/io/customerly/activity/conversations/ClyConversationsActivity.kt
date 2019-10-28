@@ -46,6 +46,7 @@ import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.sxdependencies.SXContextCompat
 import io.customerly.sxdependencies.SXSwipeRefreshLayoutOnRefreshListener
 import io.customerly.sxdependencies.SXLinearLayoutManager
+import io.customerly.sxdependencies.textviewSingleLine
 import io.customerly.utils.download.imagehandler.ClyImageRequest
 import io.customerly.utils.ggkext.*
 import io.customerly.utils.playNotifSound
@@ -240,7 +241,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                                         this.setTextColor(SXContextCompat.getColor(this.context, R.color.io_customerly__welcomecard_texts))
                                         this.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                                         this.text = admin.name
-                                        this.isSingleLine = false
+                                        textviewSingleLine(this, false)
                                         this.minLines = 2
                                         this.maxLines = 3
                                         this.gravity = Gravity.CENTER_HORIZONTAL
