@@ -123,6 +123,7 @@ object Customerly {
      * @param then Optional. The callback to be called when the task completes
      */
     @JvmStatic
+    @JvmOverloads
     fun logoutUser(then: ()->Unit = {}) {
         this.checkConfigured {
             ignoreException {
