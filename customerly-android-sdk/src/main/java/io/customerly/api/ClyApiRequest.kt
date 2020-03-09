@@ -21,6 +21,7 @@ package io.customerly.api
 import android.Manifest
 import android.content.Context
 import android.util.Log
+import io.customerly.BuildConfig
 import io.customerly.Customerly
 import io.customerly.entity.ClyJwtToken
 import io.customerly.entity.ERROR_CODE__GENERIC
@@ -171,6 +172,7 @@ internal class ClyApiRequest<RESPONSE: Any>
                 this.doOutput = true
                 this.requestMethod = "POST"
                 this.setRequestProperty(HEADER_X_CUSTOMERLY_SDK_KEY, HEADER_X_CUSTOMERLY_SDK_VALUE)
+                this.setRequestProperty(HEADER_X_CUSTOMERLY_SDK_VERSION_KEY, BuildConfig.VERSION_NAME)
                 this.setRequestProperty("Content-Type", "application/json")
                 this.setRequestProperty("Accept-Language", Locale.getDefault().toString())//es: "it_IT"
                 this.connectTimeout = 10000

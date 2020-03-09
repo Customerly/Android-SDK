@@ -73,3 +73,5 @@ internal const val RESPONSE_STATE__NO_APPID_AVAILABLE = -7
 
 internal const val HEADER_X_CUSTOMERLY_SDK_KEY = "X-Customerly-sdk"
 internal const val HEADER_X_CUSTOMERLY_SDK_VALUE = "android"
+
+internal const val HEADER_X_CUSTOMERLY_SDK_VERSION_KEY = "X-Customerly-sdk-version"
