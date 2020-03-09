@@ -154,7 +154,7 @@ internal object ClySntpClient {
      * Writes system time (milliseconds since January 1, 1970) as an NTP time stamp
      * at the given offset in the buffer.
      */
-    private fun writeTimeStamp(buffer: ByteArray, offset: Int, time: Long) {
+    private fun writeTimeStamp(buffer: ByteArray, @Suppress("SameParameterValue") offset: Int, time: Long) {
         var offset2 = offset
         var seconds : Long = time / 1000L
         val milliseconds : Long = time - seconds * 1000L

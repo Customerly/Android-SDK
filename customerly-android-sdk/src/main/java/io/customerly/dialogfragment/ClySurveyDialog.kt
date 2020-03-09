@@ -119,11 +119,7 @@ internal class ClySurveyDialog : SXDialogFragment() {
                                         trials = 2,
                                         onPreExecute = {
                                             weakDialog.get()?.let { dialog ->
-                                                dialog.io_customerly__progress_view.layoutParams.height =
-                                                        dialog.io_customerly__title.height
-                                                        + dialog.io_customerly__subtitle.height
-                                                        + dialog.io_customerly__input_layout.height
-
+                                                dialog.io_customerly__progress_view.layoutParams.height = dialog.io_customerly__title.height + dialog.io_customerly__subtitle.height + dialog.io_customerly__input_layout.height
                                                 dialog.io_customerly__title.visibility = View.GONE
                                                 dialog.io_customerly__subtitle.visibility = View.GONE
                                                 dialog.io_customerly__input_layout.removeAllViews()

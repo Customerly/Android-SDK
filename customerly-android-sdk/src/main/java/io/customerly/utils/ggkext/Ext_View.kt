@@ -78,7 +78,7 @@ internal fun viewsGone(vararg hide : View) {
 }
 
 internal fun <R1, VIEW : View> VIEW.setOnClickListenerWithWeak(r1 : R1, onClick : (View,R1?)->Unit) {
-    val w1 = WeakReference<R1>(r1)
+    val w1 = WeakReference(r1)
     this.setOnClickListener {
         @Suppress("UNCHECKED_CAST")
         onClick(it as VIEW,w1.get())

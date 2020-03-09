@@ -62,7 +62,10 @@ internal inline fun <reified TYPE> JSONArray.asSequence() : Sequence<TYPE>
         } else {
             (0 until this.length())
             .asSequence()
-            .map { this.getTyped<TYPE>(index = it) }
+            .map {
+                @Suppress("RemoveExplicitTypeArguments")
+                this.getTyped<TYPE>(index = it)
+            }
         }
 
 internal inline fun <reified TYPE> JSONArray.asSequenceOpt(fallback : TYPE) : Sequence<TYPE>

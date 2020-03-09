@@ -68,6 +68,7 @@ private fun JSONObject?.parseSurvey(use : (id: Int, thankYouYext: String, step: 
     return if(this != null) {
         try {
             val (id, thankYouYext) = this.optTyped<JSONObject>(name = "survey")?.let { s ->
+                @Suppress("RemoveExplicitTypeArguments")
                 s.getTyped<Int>(name = "survey_id") to s.getTyped<String>(name = "thankyou_text")
             } ?: 0 to ""
             val seen = this.optTyped("seen_at", -1L) != -1L
