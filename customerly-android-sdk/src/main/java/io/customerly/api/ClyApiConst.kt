@@ -71,7 +71,7 @@ internal const val RESPONSE_STATE__SERVERERROR_APP_INSOLVENT = 17
 internal const val RESPONSE_STATE__NO_TOKEN_AVAILABLE = -6
 internal const val RESPONSE_STATE__NO_APPID_AVAILABLE = -7
 
-internal const val HEADER_X_CUSTOMERLY_SDK_KEY = "X-Customerly-sdk"
+internal const val HEADER_X_CUSTOMERLY_SDK_KEY = "customerly-sdk"
 internal const val HEADER_X_CUSTOMERLY_SDK_VALUE = "android"
 
-internal const val HEADER_X_CUSTOMERLY_SDK_VERSION_KEY = "X-Customerly-sdk-version"
+internal const val HEADER_X_CUSTOMERLY_SDK_VERSION_KEY = "customerly-sdk-version"
