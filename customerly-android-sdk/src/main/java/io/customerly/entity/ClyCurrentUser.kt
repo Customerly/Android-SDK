@@ -30,6 +30,7 @@ private const val CUSTOMERLY_LEAD_EMAIL = "CUSTOMERLY_LEAD_EMAIL"
 private const val CUSTOMERLY_LOGGED_EMAIL = "CUSTOMERLY_LOGGED_EMAIL"
 private const val CUSTOMERLY_LOGGED_USERID = "CUSTOMERLY_LOGGED_USERID"
 private const val CUSTOMERLY_LOGGED_NAME = "CUSTOMERLY_LOGGED_NAME"
+private const val CUSTOMERLY_LOGGED_LEAD_HASH = "CUSTOMERLY_LOGGED_LEAD_HASH"
 private const val CUSTOMERLY_LOGGED_COMPANYINFO = "CUSTOMERLY_LOGGED_COMPANYINFO"
 internal class ClyCurrentUser {
     internal val email: String? get() = this.userEmail ?: this.leadEmail
@@ -42,12 +43,14 @@ internal class ClyCurrentUser {
             private set
     internal var company: HashMap<String,Any>? = null
             private set
+    internal var leadHash: String? = null
 
     fun restore() {
         this.leadEmail = Customerly.preferences?.getString(CUSTOMERLY_LEAD_EMAIL, null)
         this.userEmail = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_EMAIL, null)
         this.userId = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_USERID, null)
         this.name = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_NAME, null)
+        this.leadHash = Customerly.preferences?.getString(CUSTOMERLY_LOGGED_LEAD_HASH, null)
         this.company = nullOnException {
             HashMap<String,Any>().apply {
                 Customerly.preferences?.getString(CUSTOMERLY_LOGGED_COMPANYINFO, null)
@@ -71,6 +74,7 @@ internal class ClyCurrentUser {
         this.userEmail = null
         this.userId = null
         this.name = null
+        this.leadHash = null
         this.company = null
         Customerly.preferences
                 ?.edit()
@@ -79,6 +83,7 @@ internal class ClyCurrentUser {
                 ?.remove(CUSTOMERLY_LOGGED_USERID)
                 ?.remove(CUSTOMERLY_LOGGED_NAME)
                 ?.remove(CUSTOMERLY_LOGGED_COMPANYINFO)
+                ?.remove(CUSTOMERLY_LOGGED_LEAD_HASH)
                 ?.apply()
     }
 

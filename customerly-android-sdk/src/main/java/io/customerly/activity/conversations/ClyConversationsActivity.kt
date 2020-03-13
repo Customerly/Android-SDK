@@ -87,6 +87,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                                     is ClyApiResponse.Failure -> null
                                 })
                             })
+                            .p(key = "lead_hash", value = Customerly.currentUser.leadHash)
                             .start()
                 } else {
                     activity.displayInterface(conversationsList = null)

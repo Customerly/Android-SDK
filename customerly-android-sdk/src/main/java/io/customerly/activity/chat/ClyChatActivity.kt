@@ -406,9 +406,10 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 endpoint = ENDPOINT_MESSAGE_SEND,
                 requireToken = true,
                 trials = 2,
-                jsonObjectConverter = {
-                    Customerly.clySocket.sendMessage(timestamp = it.optLong("timestamp", -1L))
-                    it.optJSONObject("message")?.parseMessage()
+                jsonObjectConverter = { response ->
+                    Customerly.clySocket.sendMessage(timestamp = response.optLong("timestamp", -1L))
+                    Customerly.currentUser.leadHash = response.optString("lead_hash").takeIf { it != "" }
+                    response.optJSONObject("message")?.parseMessage()
                 },
                 callback = { response ->
                     weakAct.get()?.also { activity ->
@@ -438,6 +439,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 }
                 .p(key = "message", value = message.content)
                 .p(key = "attachments", value = message.attachments.toJSON(context = this))
+                .p(key = "lead_hash", value = Customerly.currentUser.leadHash)
                 .start()
     }
 
