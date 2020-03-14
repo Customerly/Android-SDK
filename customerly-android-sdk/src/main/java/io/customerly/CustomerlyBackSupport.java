@@ -112,7 +112,7 @@ public class CustomerlyBackSupport {
         void start();
     }
 
-    private abstract class __Task implements Task{
+    private static abstract class __Task implements Task{
         @SXNullable Callback successCallback;
         @SXNullable Callback failureCallback;
         /**
@@ -133,7 +133,7 @@ public class CustomerlyBackSupport {
         }
     }
 
-    private class CallbackWrapper implements Function0<Unit> {
+    private static class CallbackWrapper implements Function0<Unit> {
         @SXNullable private final Callback callback;
         private CallbackWrapper(@SXNullable Callback callback) {
             this.callback = callback;
@@ -147,7 +147,7 @@ public class CustomerlyBackSupport {
         }
     }
 
-    public final class UpdateTask extends __Task {
+    public static final class UpdateTask extends __Task {
         private UpdateTask() {
             super();
         }
@@ -156,7 +156,7 @@ public class CustomerlyBackSupport {
         }
     }
 
-    public final class RegisterUserTask extends __Task {
+    public static final class RegisterUserTask extends __Task {
         @SXNonNull private final String email;
         @SXNullable private String user_id, name;
         @SXNullable private HashMap<String,Object> attributes, company;
@@ -263,7 +263,7 @@ public class CustomerlyBackSupport {
         }
     }
 
-    public final class SetAttributesTask extends __Task {
+    public static final class SetAttributesTask extends __Task {
         @SXNonNull private final HashMap<String,Object> attributes;
         /**
          * @param attributes The attributes of the user. Can contain only String, char, byte, int, long, float or double values
@@ -378,7 +378,7 @@ public class CustomerlyBackSupport {
         }
     }
 
-    public final class SetCompanyTask extends __Task {
+    public static final class SetCompanyTask extends __Task {
         @SXNonNull private final HashMap<String,Object> company;
         /**
          * @param pCompany The company of the user. The map must contain a String value with key "company_id" containing to the Company ID and a String value with key "name" containing the Company name. Can contain only String, char, int, long, float or double values.

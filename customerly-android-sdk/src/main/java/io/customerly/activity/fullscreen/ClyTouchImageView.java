@@ -1187,7 +1187,7 @@ class ClyTouchImageView extends SXAppCompatImageView {
     }
     
     @TargetApi(VERSION_CODES.GINGERBREAD)
-	private class CompatScroller {
+	private static class CompatScroller {
 //    	Scroller scroller;
     	OverScroller overScroller;
 //    	boolean isPreGingerbread;
@@ -1262,7 +1262,7 @@ class ClyTouchImageView extends SXAppCompatImageView {
         }
     }
     
-    private class ZoomVariables {
+    private static class ZoomVariables {
         private float scale;
         private float focusX;
         private float focusY;

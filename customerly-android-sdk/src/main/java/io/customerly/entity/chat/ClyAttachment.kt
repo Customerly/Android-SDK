@@ -17,7 +17,6 @@ package io.customerly.entity.chat
  */
 
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.net.Uri

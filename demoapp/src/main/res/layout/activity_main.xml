@@ -9,12 +9,12 @@
     <Button android:id="@+id/button_support"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Support"/>
+        android:text="@string/support"/>
 
     <Button android:id="@+id/button_logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout"/>
+        android:text="@string/logout"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -25,12 +25,14 @@
             android:id="@+id/edittext_register"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            android:importantForAutofill="no"
+            tools:ignore="LabelFor" />
 
         <Button android:id="@+id/button_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register"/>
+            android:text="@string/register"/>
 
     </LinearLayout>
 

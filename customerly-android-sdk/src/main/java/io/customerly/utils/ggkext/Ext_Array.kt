@@ -187,13 +187,13 @@ internal inline fun <E> LongSparseArray<E>.forEachIndexed(filterNotNullValues : 
     }
 }
 
-internal fun <T> Collection<T>.random()  = this.takeIf(Collection<T>::isNotEmpty)?.elementAtOrNull((0 until this.size).random())
-internal fun <T> Array<T>.random()       = this.takeIf(Array<T>::isNotEmpty)?.get((0 until this.size).random())
-internal fun ByteArray.random()          = this.takeIf(ByteArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun CharArray.random()          = this.takeIf(CharArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun ShortArray.random()         = this.takeIf(ShortArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun IntArray.random()           = this.takeIf(IntArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun LongArray.random()          = this.takeIf(LongArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun FloatArray.random()         = this.takeIf(FloatArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun DoubleArray.random()        = this.takeIf(DoubleArray::isNotEmpty)?.get((0 until this.size).random())
-internal fun BooleanArray.random()       = this.takeIf(BooleanArray::isNotEmpty)?.get((0 until this.size).random())
+internal fun <T> Collection<T>.random()  = this.takeIf(Collection<T>::isNotEmpty)?.elementAtOrNull(this.indices.random())
+internal fun <T> Array<T>.random()       = this.takeIf(Array<T>::isNotEmpty)?.get(this.indices.random())
+internal fun ByteArray.random()          = this.takeIf(ByteArray::isNotEmpty)?.get(this.indices.random())
+internal fun CharArray.random()          = this.takeIf(CharArray::isNotEmpty)?.get(this.indices.random())
+internal fun ShortArray.random()         = this.takeIf(ShortArray::isNotEmpty)?.get(this.indices.random())
+internal fun IntArray.random()           = this.takeIf(IntArray::isNotEmpty)?.get(this.indices.random())
+internal fun LongArray.random()          = this.takeIf(LongArray::isNotEmpty)?.get(this.indices.random())
+internal fun FloatArray.random()         = this.takeIf(FloatArray::isNotEmpty)?.get(this.indices.random())
+internal fun DoubleArray.random()        = this.takeIf(DoubleArray::isNotEmpty)?.get(this.indices.random())
+internal fun BooleanArray.random()       = this.takeIf(BooleanArray::isNotEmpty)?.get(this.indices.random())

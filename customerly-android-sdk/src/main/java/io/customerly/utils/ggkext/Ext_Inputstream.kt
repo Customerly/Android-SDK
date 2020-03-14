@@ -20,6 +20,8 @@ internal fun InputStream.write(on: OutputStream) {
         }
     }
 }
+/*
 internal fun URLConnection.write(on: OutputStream) {
     on.use { BufferedInputStream(this.inputStream).write(on = it) }
 }
+*/
