@@ -135,6 +135,7 @@ internal class ClySocket {
                                                                 }
                                                             })
                                                             .p(key = "timestamp", value = timestamp)
+                                                            .p(key = "lead_hash", value = Customerly.currentUser.leadHash)
                                                             .start()
                                                 }
                                             }
