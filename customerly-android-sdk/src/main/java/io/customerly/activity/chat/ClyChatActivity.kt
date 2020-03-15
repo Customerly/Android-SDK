@@ -170,11 +170,12 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                             }
                                         }
                                     }
-                                }).also {
-                            it.p(key = "conversation_id", value = conversationId)
-                            it.p(key = "per_page", value = MESSAGES_PER_PAGE)
-                            it.p(key = "messages_before_id", value = activity.chatList.mapNotNull { msg -> if(msg.id > 0) msg.id else null }.min() ?: Long.MAX_VALUE)
-                        }.start()
+                                })
+                                .p(key = "conversation_id", value = conversationId)
+                                .p(key = "per_page", value = MESSAGES_PER_PAGE)
+                                .p(key = "messages_before_id", value = activity.chatList.mapNotNull { msg -> if(msg.id > 0) msg.id else null }.min() ?: Long.MAX_VALUE)
+                                .p(key = "lead_hash", value = Customerly.currentUser.leadHash)
+                                .start()
                     }
                 }
             }
