@@ -101,6 +101,7 @@ internal class ClyWebViewActivity: SXAppCompatActivity() {
 
             this.io_customerly__webview.let { wv ->
                 wv.settings.javaScriptEnabled = true
+                wv.settings.domStorageEnabled = true
                 wv.webViewClient = object : WebViewClient() {
                     @Suppress("OverridingDeprecatedMember")
                     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {

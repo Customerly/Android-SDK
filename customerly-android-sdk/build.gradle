@@ -37,7 +37,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "org.jetbrains.dokka"
 
-def CustomerlySDKVersion = '3.0.8'
+def CustomerlySDKVersion = '3.0.10'
 
 android {
     compileSdkVersion 29
@@ -113,7 +113,7 @@ dependencies {
 
     api 'com.github.zafarkhaja:java-semver:0.9.0'
 
-    api 'com.google.android.material:material:1.2.0-alpha05'
+    api 'com.google.android.material:material:1.2.0-alpha06'
     api 'androidx.cardview:cardview:1.0.0'
     api 'androidx.recyclerview:recyclerview:1.1.0'
     api 'androidx.appcompat:appcompat:1.1.0'
