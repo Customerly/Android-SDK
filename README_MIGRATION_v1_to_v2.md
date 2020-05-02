@@ -376,4 +376,4 @@ By the way, like as before, should not be necessary to explicitly add them in yo
 
 ## License
 Customerly Android SDK is available under the Apache License 2.0.
-See the [Customerly_LICENSE.txt](https://github.com/customerly/Customerly-Android-SDK/blob/master/Customerly_LICENSE.txt) file for more info.
+See the [Customerly_LICENSE.txt](https://github.com/customerly/Android-SDK/blob/master/Customerly_LICENSE.txt) file for more info.

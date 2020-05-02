@@ -18,7 +18,7 @@ AndroidX version:
     + In ext {} valorize the following attributes:
         bintrayName = 'customerly-android-sdk'
         artifact = 'customerly-android-sdk'
-        libraryName = 'Customerly-Android-SDK'
+        libraryName = 'Android-SDK'
         libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
 
 - In project/gradle.properties uncomment the following lines:
@@ -83,7 +83,7 @@ Support libraries version:
     + In ext {} valorize the following attributes:
         bintrayName = 'customerly-android-sdk-supportlibraries'
         artifact = 'customerly-android-sdk-supportlibraries'
-        libraryName = 'Customerly-Android-SDK-SupportLibraries'
+        libraryName = 'Android-SDK-SupportLibraries'
         libraryDescription = 'Customerly Android SDK for integration in android app that depend from support libraries. See more at: https://www.customerly.io/'
 
 - In project/gradle.properties comment the following lines:

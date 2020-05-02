@@ -68,13 +68,13 @@ android {
 ext {
     bintrayName = 'customerly-android-sdk'
     artifact = 'customerly-android-sdk'
-    libraryName = 'Customerly-Android-SDK'
+    libraryName = 'Android-SDK'
     libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
 
     /*
     bintrayName = 'customerly-android-sdk-supportlibraries'
     artifact = 'customerly-android-sdk-supportlibraries'
-    libraryName = 'Customerly-Android-SDK-SupportLibraries'
+    libraryName = 'Android-SDK-SupportLibraries'
     libraryDescription = 'Customerly Android SDK for integration in android app that depend from support libraries. See more at: https://www.customerly.io/'
     */
 
@@ -82,8 +82,8 @@ ext {
 
     publishedGroupId = 'io.customerly'
 
-    siteUrl = 'https://github.com/customerly/Customerly-Android-SDK'
-    gitUrl = 'https://github.com/customerly/Customerly-Android-SDK.git'
+    siteUrl = 'https://github.com/customerly/Android-SDK'
+    gitUrl = 'https://github.com/customerly/Android-SDK.git'
 
     libraryVersion = "$CustomerlySDKVersion"
 
