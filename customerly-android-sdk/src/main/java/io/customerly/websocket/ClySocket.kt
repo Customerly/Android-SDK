@@ -21,13 +21,17 @@ import android.util.Log
 import android.view.WindowManager
 import io.customerly.Customerly
 import io.customerly.activity.ClyAppCompatActivity
+import io.customerly.activity.ClyRealtimeActivity
+import io.customerly.activity.startClyRealtimeActivity
 import io.customerly.alert.showClyAlertMessage
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_MESSAGE_NEWS
+import io.customerly.entity.ClyRealtimePayload
 import io.customerly.entity.ClySocketParams
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.entity.chat.parseMessagesList
+import io.customerly.entity.parseRealtimePayload
 import io.customerly.entity.parseSocketParams
 import io.customerly.entity.ping.ClyFormCast
 import io.customerly.sxdependencies.annotations.SXStringDef
@@ -53,6 +57,12 @@ private const val SOCKET_EVENT__TYPING = "typing"
 private const val SOCKET_EVENT__SEEN = "seen"
 private const val SOCKET_EVENT__MESSAGE = "message"
 private const val SOCKET_EVENT__ATTRIBUTE_SET = "attribute:set"
+private const val SOCKET_EVENT__REALTIME_CALL = "rt-call"
+private const val SOCKET_EVENT__REALTIME_CANCEL = "rt-cancel"
+private const val SOCKET_EVENT__REALTIME_RINGING = "rt-ringing"
+private const val SOCKET_EVENT__REALTIME_UNAVAILABLE = "rt-unavailable"
+private const val SOCKET_EVENT__REALTIME_ACCEPT = "rt-accept"
+private const val SOCKET_EVENT__REALTIME_REJECT = "rt-reject"
 
 @SXStringDef(SOCKET_EVENT__TYPING, SOCKET_EVENT__SEEN, SOCKET_EVENT__MESSAGE, SOCKET_EVENT__ATTRIBUTE_SET)
 @Retention(AnnotationRetention.SOURCE)
@@ -172,13 +182,32 @@ internal class ClySocket {
                                     }
                                 }
 
-                                val connectTime = System.currentTimeMillis()
-                                socket.on(Socket.EVENT_DISCONNECT) {
-                                    if (System.currentTimeMillis() > connectTime + 15000L) {
-                                        //Trick to avoid reconnection loop caused by disconnection after connection
-                                        this.check()
+                                    socket.on(SOCKET_EVENT__REALTIME_CALL) { payload ->
+                                        (payload?.firstOrNull() as? JSONObject)?.ignoreException { payloadJson ->
+                                            this.logSocket(event = SOCKET_EVENT__REALTIME_CALL, payloadJson = payloadJson)
+                                            payloadJson.parseRealtimePayload()?.let { realtimePayload ->
+                                                this.sendRealtimeRinging(realtimePayload)
+                                                this.onRealtimeCall(realtimePayload)
+                                            }
+                                        }
                                     }
-                                }
+
+                                    socket.on(SOCKET_EVENT__REALTIME_CANCEL) { payload ->
+                                        (payload?.firstOrNull() as? JSONObject)?.ignoreException { payloadJson ->
+                                            this.logSocket(event = SOCKET_EVENT__REALTIME_CANCEL, payloadJson = payloadJson)
+                                            payloadJson.parseRealtimePayload()?.let { realtimePayload ->
+                                                this.onRealtimeCancel(realtimePayload)
+                                            }
+                                        }
+                                    }
+
+                                    val connectTime = System.currentTimeMillis()
+                                    socket.on(Socket.EVENT_DISCONNECT) {
+                                        if (System.currentTimeMillis() > connectTime + 15000L) {
+                                            //Trick to avoid reconnection loop caused by disconnection after connection
+                                            this.check()
+                                        }
+                                    }
 
                                 socket.on(Socket.EVENT_CONNECT){
                                     synchronized(this.CONNECT_LOCK) {
@@ -273,6 +302,31 @@ internal class ClySocket {
         }
     }
 
+    @SXUiThread
+    private fun onRealtimeCall(realtimePayload: ClyRealtimePayload) {
+        val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()
+        if (currentActivity != null) {
+            when (currentActivity) {
+                is ClyRealtimeActivity -> {
+                    if(currentActivity.realtimePayload.conversation_id != realtimePayload.conversation_id) {
+                        this.sendRealtimeUnavaliable(realtimePayload = realtimePayload)
+                    }
+                }
+                else -> {
+                    currentActivity.startClyRealtimeActivity(realtimePayload = realtimePayload)
+                }
+            }
+        }
+    }
+
+    @SXUiThread
+    private fun onRealtimeCancel(realtimePayload: ClyRealtimePayload) {
+        val currentActivity: Activity? = ClyActivityLifecycleCallback.getLastDisplayedActivity()
+        if (currentActivity != null && currentActivity is ClyRealtimeActivity && currentActivity.realtimePayload.conversation_id == realtimePayload.conversation_id) {
+            currentActivity.finish()
+        }
+    }
+
     internal fun check() {
         if (this.shouldBeConnected && this.socket?.connected() != true) {
             this.connect()
@@ -350,5 +404,21 @@ internal class ClySocket {
                             .put("attribute_cast", cast.intValue)
                             .put("user_data", userData))
         }
+    }
+
+    internal fun sendRealtimeRinging(realtimePayload: ClyRealtimePayload) {
+        this.send(event = SOCKET_EVENT__REALTIME_RINGING, payloadJson = realtimePayload.toJson())
+    }
+
+    internal fun sendRealtimeUnavaliable(realtimePayload: ClyRealtimePayload) {
+        this.send(event = SOCKET_EVENT__REALTIME_UNAVAILABLE, payloadJson = realtimePayload.toJson())
+    }
+
+    internal fun sendRealtimeReject(realtimePayload: ClyRealtimePayload) {
+        this.send(event = SOCKET_EVENT__REALTIME_REJECT, payloadJson = realtimePayload.toJson())
+    }
+
+    internal fun sendRealtimeAccept(realtimePayload: ClyRealtimePayload) {
+        this.send(event = SOCKET_EVENT__REALTIME_ACCEPT, payloadJson = realtimePayload.toJson())
     }
 }
