@@ -63,19 +63,48 @@ internal class ClySocket {
     private var shouldBeConnected: Boolean = false
     private var socket: Socket? = null
     private var activeParams: ClySocketParams? = null
-
     internal var typingListener: ((conversationId: Long, accountId: Long, accountName: String?, isTyping: Boolean)->Unit)? = null
 
+    @Suppress("PrivatePropertyName")
+    private val CONNECT_LOCK = arrayOfNulls<Any>(0)
+    private var postConnectWithParams: ClySocketParams? = null
+    private var connectingAt: Long = 0L
+
     internal fun connect(newParams: JSONObject? = null) {
+        val params = newParams?.takeIf { Customerly.isSdkAvailable && !Customerly.appInsolvent }?.parseSocketParams()
+                ?: this.activeParams
+        synchronized(this.CONNECT_LOCK) {
+            if(this.connectingAt != 0L && this.connectingAt > System.currentTimeMillis() - 10000) {
+                this.postConnectWithParams = params
+                return
+            }
+        }
+        this.connectIfScheduled()
+    }
 
-        val params = newParams?.takeIf { Customerly.isSdkAvailable && !Customerly.appInsolvent }?.parseSocketParams() ?: this.activeParams
 
-        if(Customerly.isSupportEnabled) {
+    private fun connectIfScheduled() {
+        val params: ClySocketParams?
+        synchronized(this.CONNECT_LOCK) {
+            if (this.connectingAt != 0L && this.connectingAt > System.currentTimeMillis() - 10000) {
+                return
+            } else {
+                params = this.postConnectWithParams
+                this.postConnectWithParams = null
+                if (params == null) {
+                    return
+                } else {
+                    this.connectingAt = System.currentTimeMillis()
+                }
+            }
+        }
+
+        if (Customerly.isSupportEnabled) {
             this.shouldBeConnected = true
             Customerly.checkConfigured {
-                if(params != null) {
+                if (params != null) {
                     val currentSocket = this.socket
-                    if(currentSocket?.connected() != true || this.activeParams?.equals(params) != true) {
+                    if (currentSocket?.connected() != true || this.activeParams?.equals(params) != true) {
                         //if socket is null or disconnected or connected with different params
                         this.disconnect(reconnecting = true, socket = currentSocket)
 
@@ -92,19 +121,19 @@ internal class ClySocket {
                                 socket.on(SOCKET_EVENT__TYPING) { payload ->
                                     (payload?.firstOrNull() as? JSONObject)?.ignoreException { payloadJson ->
                                         /*  {   "conversation":{"conversation_id":"327298","account_id":82,"user_id":310083,"is_note":false},
-                                                "is_typing":"y",
-                                                "client":{"account_id":82,"name":"Gianni"}
-                                            }   */
+                                            "is_typing":"y",
+                                            "client":{"account_id":82,"name":"Gianni"}
+                                        }   */
                                         val (accountId, accountName) = payloadJson.optTyped<JSONObject>(name = "client")?.let { client ->
                                             client.optTyped<Long>(name = "account_id") to client.optTyped<String>(name = "name")
                                         } ?: null to null
-                                        if(accountId != null) {
+                                        if (accountId != null) {
                                             this.logSocket(event = SOCKET_EVENT__TYPING, payloadJson = payloadJson)
 
                                             payloadJson.optTyped<JSONObject>(name = "conversation")?.let { conversation ->
-                                                if(Customerly.jwtToken?.userID == conversation.optTyped(name = "user_id", fallback = -1L)
+                                                if (Customerly.jwtToken?.userID == conversation.optTyped(name = "user_id", fallback = -1L)
                                                         && !conversation.optTyped(name = "is_note", fallback = false)) {
-                                                    conversation.optTyped<Long>(name = "conversation_id")?.let {  conversationId ->
+                                                    conversation.optTyped<Long>(name = "conversation_id")?.let { conversationId ->
                                                         this.typingListener?.invoke(conversationId, accountId, accountName, "y" == payloadJson.optTyped<String>("is_typing"))
                                                     }
                                                 }
@@ -116,12 +145,12 @@ internal class ClySocket {
                                 socket.on(SOCKET_EVENT__MESSAGE) { payload ->
                                     (payload?.firstOrNull() as? JSONObject)?.ignoreException { payloadJson ->
                                         //  {   user_id: 41897, account_id: 82, timestamp: 1483388854, from_account: true, conversation : {is_note: false} }
-                                        if(payloadJson.optTyped(name = "from_account", fallback = false)) {
+                                        if (payloadJson.optTyped(name = "from_account", fallback = false)) {
                                             this.logSocket(event = SOCKET_EVENT__MESSAGE, payloadJson = payloadJson)
 
                                             payloadJson.optTyped<Long>("timestamp")?.let { timestamp ->
 
-                                                if(Customerly.jwtToken?.userID == payloadJson.optTyped(name = "user_id", fallback = -1L)
+                                                if (Customerly.jwtToken?.userID == payloadJson.optTyped(name = "user_id", fallback = -1L)
                                                         && payloadJson.optTyped<JSONObject>(name = "conversation")?.optTyped(name = "is_note", fallback = false) == false) {
 
                                                     ClyApiRequest(
@@ -145,17 +174,24 @@ internal class ClySocket {
 
                                 val connectTime = System.currentTimeMillis()
                                 socket.on(Socket.EVENT_DISCONNECT) {
+                                    Log.d("cly", "disconnect");//TODO
                                     if (System.currentTimeMillis() > connectTime + 15000L) {
-                                        //Trick to avoid reconnection loop caused by disconnection after connection
+                                        //Trick to avoid reconnection loop caused by disconnection after connection TODO serve ancora questo trick?
                                         this.check()
                                     }
                                 }
 
-                                this.activeParams = params
+                                socket.on(Socket.EVENT_CONNECT) {
+                                    Log.d("cly", "connect");//TODO
+                                    this.activeParams = params
+                                    this.connectingAt = 0L
+                                    this.connectIfScheduled()
+                                }
+                                //TODO on FAILED CONNECT ??? vedere cosa fare
                             }.connect()
-
                             setCurrentSocket(newSocket = newSocket)
-                        } catch (ignored: Exception) { }
+                        } catch (ignored: Exception) {
+                        }
                     }
                 }
             }
