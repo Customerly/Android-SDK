@@ -73,43 +73,43 @@ internal class ClySocket {
     internal fun connect(newParams: JSONObject? = null) {
         val params = newParams?.takeIf { Customerly.isSdkAvailable && !Customerly.appInsolvent }?.parseSocketParams()
                 ?: this.activeParams
-        synchronized(this.CONNECT_LOCK) {
-            if(this.connectingAt != 0L && this.connectingAt > System.currentTimeMillis() - 10000) {
+        if(params != null) {
+            if (synchronized(this.CONNECT_LOCK) {
                 this.postConnectWithParams = params
-                return
+                this.connectingAt <= System.currentTimeMillis() - 10000
+            }) {
+                this.connectIfScheduled()
             }
         }
-        this.connectIfScheduled()
     }
 
 
     private fun connectIfScheduled() {
-        val params: ClySocketParams?
-        synchronized(this.CONNECT_LOCK) {
-            if (this.connectingAt != 0L && this.connectingAt > System.currentTimeMillis() - 10000) {
-                return
+        val params: ClySocketParams? = synchronized(this.CONNECT_LOCK) {
+            if (this.connectingAt > System.currentTimeMillis() - 10000) {
+                null
             } else {
-                params = this.postConnectWithParams
+                val params = this.postConnectWithParams
                 this.postConnectWithParams = null
                 if (params == null) {
-                    return
+                    null
                 } else {
                     this.connectingAt = System.currentTimeMillis()
+                    params
                 }
             }
         }
 
-        if (Customerly.isSupportEnabled) {
+        if (params != null && Customerly.isSupportEnabled) {
             this.shouldBeConnected = true
             Customerly.checkConfigured {
-                if (params != null) {
-                    val currentSocket = this.socket
-                    if (currentSocket?.connected() != true || this.activeParams?.equals(params) != true) {
+                val currentSocket = this.socket
+                if (currentSocket?.connected() != true || this.activeParams?.equals(params) != true) {
                         //if socket is null or disconnected or connected with different params
                         this.disconnect(reconnecting = true, socket = currentSocket)
 
                         try {
-                            val newSocket = IO.socket(params.uri, IO.Options().apply {
+                            IO.socket(params.uri, IO.Options().apply {
                                 this.secure = true
                                 this.forceNew = true
                                 this.reconnection = true
@@ -174,26 +174,34 @@ internal class ClySocket {
 
                                 val connectTime = System.currentTimeMillis()
                                 socket.on(Socket.EVENT_DISCONNECT) {
-                                    Log.d("cly", "disconnect");//TODO
                                     if (System.currentTimeMillis() > connectTime + 15000L) {
-                                        //Trick to avoid reconnection loop caused by disconnection after connection TODO serve ancora questo trick?
+                                        //Trick to avoid reconnection loop caused by disconnection after connection
                                         this.check()
                                     }
                                 }
 
-                                socket.on(Socket.EVENT_CONNECT) {
-                                    Log.d("cly", "connect");//TODO
-                                    this.activeParams = params
-                                    this.connectingAt = 0L
+                                socket.on(Socket.EVENT_CONNECT){
+                                    synchronized(this.CONNECT_LOCK) {
+                                        this.activeParams = params
+                                        this.connectingAt = 0L
+                                        setCurrentSocket(newSocket = socket)
+                                    }
                                     this.connectIfScheduled()
                                 }
-                                //TODO on FAILED CONNECT ??? vedere cosa fare
+
+                                socket.on(Socket.EVENT_CONNECT_ERROR) {
+                                    synchronized(this.CONNECT_LOCK) {
+                                        this.activeParams = params
+                                        this.connectingAt = 0L
+                                    }
+                                    this.connectIfScheduled()
+                                }
+
                             }.connect()
-                            setCurrentSocket(newSocket = newSocket)
+
                         } catch (ignored: Exception) {
                         }
                     }
-                }
             }
         }
     }
