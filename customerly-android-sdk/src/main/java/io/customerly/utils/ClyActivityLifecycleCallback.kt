@@ -30,18 +30,23 @@ import io.customerly.alert.dismissAlertMessageOnActivityDestroyed
  */
 internal object ClyActivityLifecycleCallback : ForegroundAppChecker() {
 
+    private var lastGoneBackgroundAt = 0L
+
     fun registerOn(application: Application) {
         application.registerActivityLifecycleCallbacks(this)
     }
 
     override fun doOnAppGoBackground(applicationContext: Context) {
         Customerly.clySocket.disconnect()
+        this.lastGoneBackgroundAt = System.currentTimeMillis()
     }
     override fun doOnActivityResumed(activity: Activity, fromBackground: Boolean) {
         if(fromBackground) {
             Customerly.checkConfigured {
                 Customerly.clySocket.connect()
-                Customerly.ping()
+                if(this.lastGoneBackgroundAt != 0L && this.lastGoneBackgroundAt < System.currentTimeMillis() - 2000) {
+                    Customerly.ping()
+                }
             }
         }
 
