@@ -86,6 +86,7 @@
     <string name="io_customerly__permission_request">Permission Request</string>
     <string name="io_customerly__permission_request_explanation_write">The permission to access the external memory is needed to store the attachments</string>
     <string name="io_customerly__permission_request_explanation_read">The permission to access the external memory is needed to upload the attachments</string>
+    <string name="io_customerly__permission_request_explanation_realtime">These permissions are required to perform a video call</string>
     <string name="io_customerly__permission_denied_write">You denied the permission necessary to store the attachments. You can authorize it from the system settings of the app</string>
     <string name="io_customerly__permission_denied_read">You denied the permission necessary to upload the attachments. You can authorize it from the system settings of the app</string>
     <string name="io_customerly__download_ongoing">Download ongoing</string>

@@ -406,11 +406,11 @@ internal class ClySocket {
         }
     }
 
-    internal fun sendRealtimeRinging(realtimePayload: ClyRealtimePayload) {
+    private fun sendRealtimeRinging(realtimePayload: ClyRealtimePayload) {
         this.send(event = SOCKET_EVENT__REALTIME_RINGING, payloadJson = realtimePayload.toJson())
     }
 
-    internal fun sendRealtimeUnavaliable(realtimePayload: ClyRealtimePayload) {
+    private fun sendRealtimeUnavaliable(realtimePayload: ClyRealtimePayload) {
         this.send(event = SOCKET_EVENT__REALTIME_UNAVAILABLE, payloadJson = realtimePayload.toJson())
     }
 

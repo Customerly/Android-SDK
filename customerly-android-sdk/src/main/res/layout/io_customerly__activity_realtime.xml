@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/io_customerly__realtime_prompt_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/io_customerly__realtime_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/io_customerly__realtime_accept"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="ACCEPT" />
+
+            <Button
+                android:id="@+id/io_customerly__realtime_reject"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="REJECT" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/io_customerly__webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"  />
+
+</FrameLayout>

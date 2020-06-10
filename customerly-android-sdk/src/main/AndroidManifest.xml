@@ -20,7 +20,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <application>
         <activity
             android:name=".activity.conversations.ClyConversationsActivity"
@@ -48,7 +52,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.ClyRealtimeActivity"
-            android:label="@string/io_customerly__webview_act_label"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:windowSoftInputMode="adjustResize" />
