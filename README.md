@@ -54,9 +54,29 @@ Check the [Migration Guide](README_MIGRATION_v1_to_v2.md) for a rapid (10 second
 
 To integrate the Customerly SDK we recommend to use Gradle or Maven dependency
 
-Instead of VERSION_NAME use the latest version name hosted on bintray:  [ ![Download](https://api.bintray.com/packages/giannign1/maven/customerly-android-sdk/images/download.svg) ](https://bintray.com/giannign1/maven/customerly-android-sdk/_latestVersion)
+Instead of VERSION_NAME use the latest version name.
 
-##### Gradle
+##### Since v3.1.0 the sdk is now hosted on [![](https://jitpack.io/v/io.customerly/Android-SDK.svg)](https://jitpack.io/#io.customerly/Android-SDK)  
+
+Add it in your root `build.gradle` at the end of repositories:  
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+Add the dependency to your app `build.gradle`
+```gradle
+dependencies {
+    implementation 'io.customerly:Android-SDK:<VERSION_NAME>'
+}
+```
+
+You can find also `maven`, `sbt` and `leiningen` instruction in the [sdk JitPack page](https://jitpack.io/#io.customerly/Android-SDK)
+
+##### Gradle (Deprecated, only up to v3.0.10)
 In your module `build.gradle` add:
 
 ```gradle
@@ -71,7 +91,7 @@ dependencies {
 }
 ```
 
-##### Maven
+##### Maven (Deprecated, only up to v3.0.10)
 ```xml
 <dependency>
   <groupId>io.customerly</groupId>
