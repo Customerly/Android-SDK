@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+def CustomerlySDKVersion = '3.1.0'
+
 buildscript {
     repositories {
         jcenter()
@@ -20,14 +23,9 @@ buildscript {
         maven {
             url "https://dl.bintray.com/kotlin/kotlin-dev/"
         }
-        maven {
-            url 'https://dl.bintray.com/giannign1/maven'
-        }
     }
 
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.10.0"
     }
 }
@@ -36,16 +34,15 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "org.jetbrains.dokka"
-
-def CustomerlySDKVersion = '3.0.10'
+apply plugin: "maven-publish"
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 31
+    buildToolsVersion "30.0.3"
     resourcePrefix "io_customerly__"
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 29
+        targetSdkVersion 31
         versionCode 3
         versionName "$CustomerlySDKVersion"
         consumerProguardFiles 'proguard-rules.pro', 'proguard-rules-kotlinx.pro'
@@ -54,6 +51,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-rules-kotlinx.pro'
+            buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
+        }
+        debug {
+            buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
         }
     }
     dexOptions {
@@ -63,37 +66,6 @@ android {
     androidExtensions {
         experimental = true
     }
-}
-
-ext {
-    bintrayName = 'customerly-android-sdk'
-    artifact = 'customerly-android-sdk'
-    libraryName = 'Android-SDK'
-    libraryDescription = 'Customerly Android SDK for integration in android app. See more at: https://www.customerly.io/'
-
-    /*
-    bintrayName = 'customerly-android-sdk-supportlibraries'
-    artifact = 'customerly-android-sdk-supportlibraries'
-    libraryName = 'Android-SDK-SupportLibraries'
-    libraryDescription = 'Customerly Android SDK for integration in android app that depend from support libraries. See more at: https://www.customerly.io/'
-    */
-
-    bintrayRepo = 'maven'
-
-    publishedGroupId = 'io.customerly'
-
-    siteUrl = 'https://github.com/customerly/Android-SDK'
-    gitUrl = 'https://github.com/customerly/Android-SDK.git'
-
-    libraryVersion = "$CustomerlySDKVersion"
-
-    developerId = 'giannign1'
-    developerName = 'Gianni Genovesi'
-    developerEmail = 'giannign1@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
 }
 
 dokka {
@@ -115,29 +87,25 @@ dependencies {
 
     api 'com.google.android.material:material:1.4.0-alpha02'
     api 'androidx.cardview:cardview:1.0.0'
-    api 'androidx.recyclerview:recyclerview:1.2.0'
-    api 'androidx.appcompat:appcompat:1.2.0'
+    api 'androidx.recyclerview:recyclerview:1.2.1'
+    api 'androidx.appcompat:appcompat:1.3.0'
     api 'androidx.legacy:legacy-support-v13:1.0.0'
     api 'androidx.annotation:annotation:1.2.0'
-
-    /*
-    AndroidX Dependencies
-    api 'com.google.android.material:material:1.4.0-alpha02'
-    api 'androidx.cardview:cardview:1.0.0'
-    api 'androidx.recyclerview:recyclerview:1.2.0'
-    api 'androidx.appcompat:appcompat:1.2.0'
-    api 'androidx.legacy:legacy-support-v13:1.0.0'
-    api 'androidx.annotation:annotation:1.2.0'
-
-    SUPPORT Dipendencies
-    api 'com.android.support:design:28.0.0'
-    api 'com.android.support:cardview-v7:28.0.0'
-    api 'com.android.support:recyclerview-v7:28.0.0'
-    api 'com.android.support:appcompat-v7:28.0.0'
-    api 'com.android.support:support-v13:28.0.0'
-    api 'com.android.support:support-annotations:28.0.0'
-    */
 }
 
-apply from: './installv1.gradle' //'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: './bintrayv1.gradle' //'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // You can then customize attributes of the publication as shown below.
+                groupId = 'io.customerly'
+                artifactId = 'customerly-android-sdk'
+                version = "$CustomerlySDKVersion"
+            }
+        }
+    }
+}

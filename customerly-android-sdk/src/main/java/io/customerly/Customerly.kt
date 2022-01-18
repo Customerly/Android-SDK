@@ -445,7 +445,8 @@ object Customerly {
 
     internal var appId: String? by TryOnceDelegate(attempt = { preferences?.safeString(key = PREF_KEY_APP_ID) })
 
-    internal val welcomeMessage: Spanned? get() = fromHtml(message = when {
+    internal val welcomeMessage: Spanned
+        get() = fromHtml(message = when {
         iamUser()    ->  this.lastPing.welcomeMessageUsers
         else    ->  this.lastPing.welcomeMessageVisitors
     })
@@ -592,7 +593,7 @@ object Customerly {
 
     @Throws(IllegalArgumentException::class)
     private fun HashMap<String, Any>.assertValidAttributesMap() {
-        if(! this.values.asSequence().all {
+        if(! this.values.all {
             when(it) {
                 is String,is Int, is Byte,is Long,is Double,is Float,is Char,is Boolean -> true
                 else -> false
@@ -614,7 +615,7 @@ object Customerly {
                 log(message = "Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
                 throw IllegalArgumentException("Company Map must contain a String value with key \"$JSON_COMPANY_KEY_NAME\" containing the Company Name")
             }
-            ! this.values.asSequence().all {
+            ! this.values.all {
                 when(it) {
                     is String,is Int, is Byte,is Long,is Double,is Float,is Char,is Boolean -> true
                     else -> false

@@ -22,6 +22,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.LruCache
 import android.util.SparseArray
+import io.customerly.BuildConfig
 import io.customerly.sxdependencies.annotations.SXUiThread
 import io.customerly.utils.ggkext.resolveBitmapUrl
 import io.customerly.utils.ggkext.useSkipExeption
@@ -47,7 +48,9 @@ internal object ClyImageHandler {
 
     @SXUiThread
     internal fun request(request: ClyImageRequest) {
-        assert(request.handlerValidateRequest())
+        if (BuildConfig.DEBUG && !request.handlerValidateRequest()) {
+            error("Assertion failed")
+        }
 
         request.handlerSetScaleType()
         val diskKey = request.handlerGetDiskKey()
@@ -57,7 +60,8 @@ internal object ClyImageHandler {
             null
         }?.let {
             request.handlerOnResponse(bmp = it)
-        } ?: this.handleDisk(request = request, hashCode = request.handlerGetHashCode, diskKey = diskKey)
+        }
+                ?: this.handleDisk(request = request, hashCode = request.handlerGetHashCode, diskKey = diskKey)
     }
 
     @SXUiThread
@@ -151,7 +155,7 @@ internal object ClyImageHandler {
                                             }
                                         }
                                         if (this.diskCacheSize > MAX_DISK_CACHE_SIZE) {
-                                            cacheDir.listFiles { file -> file.isFile }?.minBy { file -> file.lastModified() }?.let {
+                                            cacheDir.listFiles { file -> file.isFile }?.minByOrNull { file -> file.lastModified() }?.let {
                                                 val fileSize = it.length()
                                                 if (it.delete()) {
                                                     this.diskCacheSize -= fileSize

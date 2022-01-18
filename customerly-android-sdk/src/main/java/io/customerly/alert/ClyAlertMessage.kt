@@ -26,7 +26,8 @@ import android.widget.ImageView
 import android.widget.PopupWindow
 import io.customerly.Customerly
 import io.customerly.R
-import io.customerly.activity.chat.startClyChatActivity
+import io.customerly.activity.CLYINPUT_EXTRA_MUST_SHOW_BACK
+import io.customerly.activity.chat.ClyChatActivity
 import io.customerly.activity.startClyWebViewActivity
 import io.customerly.entity.chat.ClyMessage
 import io.customerly.sxdependencies.annotations.SXUiThread
@@ -151,7 +152,16 @@ internal class ClyAlertMessage
         this.contentView.setOnClickListener {
             it.activity?.also { act ->
                 wAlertMessage.get()?.message?.let { message ->
-                    act.startClyChatActivity(mustShowBack = false, conversationId = message.conversationId)
+                    val intent = ClyChatActivity.buildIntent(activity = act, mustShowBack = false, conversationId = message.conversationId)
+                    if (act is ClyChatActivity) {
+                        //If i am starting a IAct_Chat Activity from a IAct_Chat activity i'll show the back button only if it is visible in the current IAct_Chat activity.
+                        //Then i finish the current activity to avoid long stack of IAct_Chat activities
+                        intent.putExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, act.mustShowBack)
+                        act.startActivity(intent)
+                        act.finish()
+                    } else {
+                        act.startActivity(intent)
+                    }
                     message.richMailLink?.apply {
                         act.startClyWebViewActivity(targetUrl = this)
                     }

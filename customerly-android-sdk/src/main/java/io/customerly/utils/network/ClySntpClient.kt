@@ -172,7 +172,7 @@ internal object ClySntpClient {
         buffer[offset2++] = (fraction shr 16).toByte()
         buffer[offset2++] = (fraction shr 8).toByte()
         // low order bits should be random data
-        buffer[offset2] = (Math.random() * 255.0).toByte()
+        buffer[offset2] = (Math.random() * 255.0).toInt().toByte()
     }
 
     @MSTimestamp

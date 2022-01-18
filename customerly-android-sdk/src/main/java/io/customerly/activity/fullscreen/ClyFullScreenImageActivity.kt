@@ -129,9 +129,8 @@ internal class ClyFullScreenImageActivity : ClyAppCompatActivity() {
         this.finish()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
-            null -> false
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
             R.id.io_customerly__menu__download -> {
                 this.startAttachmentDownload()
                 true

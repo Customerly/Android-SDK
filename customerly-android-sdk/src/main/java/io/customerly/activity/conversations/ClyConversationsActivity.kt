@@ -29,10 +29,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.activity.ClyIInputActivity
-import io.customerly.activity.chat.startClyChatActivity
+import io.customerly.activity.chat.ClyChatActivity
 import io.customerly.api.ClyApiRequest
 import io.customerly.api.ClyApiResponse
 import io.customerly.api.ENDPOINT_CONVERSATION_DISCARD
@@ -60,7 +62,6 @@ import org.json.JSONObject
  * Created by Gianni on 03/09/16.
  * Project: Customerly Android SDK
  */
-private const val REQUEST_CODE_THEN_REFRESH_LIST = 100
 
 internal fun Activity.startClyConversationsActivity() {
     if (this !is ClyConversationsActivity) {
@@ -69,6 +70,8 @@ internal fun Activity.startClyConversationsActivity() {
 }
 
 internal class ClyConversationsActivity : ClyIInputActivity() {
+
+    private lateinit var chatActivityLauncher: ActivityResultLauncher<Intent>
 
     private val onRefreshListener = object : SXSwipeRefreshLayoutOnRefreshListener {
         private val weakActivity = this@ClyConversationsActivity.weak()
@@ -99,6 +102,11 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     internal var conversationsList: ArrayList<ClyConversation> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        this.chatActivityLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                this.onReconnection()
+            }
+        }
         super.onCreate(savedInstanceState)
         if (this.onCreateLayout(R.layout.io_customerly__activity_list)) {
 
@@ -111,7 +119,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
             }
 
             this.io_customerly__new_conversation_button.setOnClickListener {
-                (it.activity as? ClyConversationsActivity)?.startClyChatActivity(conversationId = CONVERSATIONID_UNKNOWN_FOR_MESSAGE, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+                (it.activity as? ClyConversationsActivity)?.launchClyChatActivity(conversationId = CONVERSATIONID_UNKNOWN_FOR_MESSAGE, mustShowBack = true)
             }
 
             this.io_customerly__recycler_view_swipe_refresh.setOnRefreshListener(this.onRefreshListener)
@@ -125,10 +133,10 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         val newConversationList = ArrayList(this.conversationsList)
         newConversationList.apply {
             this.addAll(
-                    elements = messages.asSequence().groupBy { it.conversationId }
+                    elements = messages.groupBy { it.conversationId }
                             .mapNotNull { (conversationId,messages) ->
                                 //Get list of most recent message groupedBy conversationId
-                                messages.maxBy { it.id }?.let { lastMessage ->
+                                messages.maxByOrNull { it.id }?.let { lastMessage ->
                                     val existingConversation = this.find { it.id == conversationId }
                                     if(existingConversation != null) {
                                         //if the message belongs to a conversation already in list, the conversation item is updated and discarded from this sequence
@@ -162,13 +170,6 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
         this.io_customerly__recycler_view_swipe_refresh.isRefreshing = true
         this.io_customerly__first_contact_swipe_refresh.isRefreshing = true
         this.onRefreshListener.onRefresh()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_THEN_REFRESH_LIST) {
-            this.onReconnection()
-        }
     }
 
     @SXUiThread
@@ -251,7 +252,7 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                         })
             }
 
-            admins?.asSequence()?.mapNotNull { it.lastActive }?.max()?.let { lastActiveAdmin ->
+            admins?.asSequence()?.mapNotNull { it.lastActive }?.maxOrNull()?.let { lastActiveAdmin ->
                 showWelcomeCard = true
                 this.io_customerly__layout_first_contact__last_activity.also { tv ->
                     tv.text = lastActiveAdmin.formatByTimeAgo(
@@ -264,8 +265,8 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
                 }
             }
 
-            val welcome : Spanned? = Customerly.welcomeMessage
-            if (welcome?.isNotEmpty() == true) {
+            val welcome : Spanned = Customerly.welcomeMessage
+            if (welcome.isNotEmpty()) {
                 showWelcomeCard = true
                 this.io_customerly__layout_first_contact__welcome.apply {
                     this.text = welcome
@@ -280,12 +281,12 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
     }
 
     override fun onSendMessage(content: String, attachments: Array<ClyAttachment>) {
-        this.startClyChatActivity(
+        this.launchClyChatActivity(
                 conversationId = CONVERSATIONID_UNKNOWN_FOR_MESSAGE,
                 messageContent = content,
                 attachments = attachments.toList().toArrayList(),
-                mustShowBack = Customerly.iamLead() || Customerly.iamUser(),
-                requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+                mustShowBack = Customerly.iamLead() || Customerly.iamUser()
+        )
         if(Customerly.iamAnonymous()) {
             this.finish()
         }
@@ -305,10 +306,15 @@ internal class ClyConversationsActivity : ClyIInputActivity() {
 
     internal fun openConversationById(conversationId: Long) {
         if(conversationId != 0L && this.checkConnection()) {
-            this.startClyChatActivity(conversationId = conversationId, mustShowBack = true, requestCode = REQUEST_CODE_THEN_REFRESH_LIST)
+            this.launchClyChatActivity(conversationId = conversationId, mustShowBack = true)
         } else {
             Toast.makeText(this.applicationContext, R.string.io_customerly__connection_error, Toast.LENGTH_SHORT).show()
         }
     }
 
+    private fun launchClyChatActivity(conversationId: Long, messageContent:String? = null, attachments: java.util.ArrayList<ClyAttachment>? = null, mustShowBack: Boolean = true) {
+        this.chatActivityLauncher.launch(
+                ClyChatActivity.buildIntent(activity = this, conversationId = conversationId, messageContent =  messageContent, attachments =  attachments, mustShowBack = mustShowBack)
+        )
+    }
 }

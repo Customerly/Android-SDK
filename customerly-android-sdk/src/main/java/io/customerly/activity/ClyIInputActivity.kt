@@ -27,9 +27,13 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
 import android.os.Build
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import io.customerly.Customerly
 import io.customerly.R
 import io.customerly.entity.ERROR_CODE__ATTACHMENT_ERROR
@@ -53,12 +57,13 @@ import kotlin.math.min
  * Project: CustomerlySDK
  */
 private val CONNECTIVITY_ACTION_INTENT_FILTER = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-private const val REQUESTCODE_FILE_SELECT = 5
 private const val PERMISSION_REQUEST__READ_EXTERNAL_STORAGE = 1234
 
 internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 
 internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
+
+    private lateinit var attachmentFileChooserLauncher: ActivityResultLauncher<Intent>
 
     internal var mustShowBack: Boolean = false
     private var activityThemed = false
@@ -94,9 +99,9 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
                     || SXContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
-                    this.startActivityForResult(
-                            Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
-                                    this.getString(R.string.io_customerly__choose_a_file_to_attach)), REQUESTCODE_FILE_SELECT)
+                    this.attachmentFileChooserLauncher.launch(Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
+                            this.getString(R.string.io_customerly__choose_a_file_to_attach))
+                    )
                 } catch (ex: ActivityNotFoundException) {
                     Toast.makeText(this, this.getString(R.string.io_customerly__install_a_file_manager), Toast.LENGTH_SHORT).show()
                 }
@@ -113,6 +118,15 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        this.attachmentFileChooserLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                onRequestFileSelected(result.resultCode, result.data)
+            }
+        }
+        super.onCreate(savedInstanceState, persistentState)
     }
 
     protected abstract fun onReconnection()
@@ -252,6 +266,9 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
                 }
                 Toast.makeText(this, R.string.io_customerly__permission_denied_read, Toast.LENGTH_LONG).show()
             }
+            else -> {
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            }
         }
     }
 
@@ -268,41 +285,38 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when (requestCode) {
-            REQUESTCODE_FILE_SELECT -> if (resultCode == Activity.RESULT_OK) {
-                val fileUri = data?.data
-                if (fileUri != null) {
-                    try {
-                        for (att in this.attachments) {
-                            if (fileUri == att.uri) {
-                                this.inputInput?.let {
-                                    SXSnackbar.make(it, R.string.io_customerly__attachments_already_attached_error, SXSnackbar.LENGTH_INDEFINITE)
-                                            .setAction(android.R.string.ok) {}.setActionTextColor(Customerly.lastPing.widgetColor).show()
-                                    it.requestFocus()
-                                }
-                                return
-                            }
-                        }
-                        if (fileUri.getFileSize(context = this) > 5000000) {
+    private fun onRequestFileSelected(resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            val fileUri = data?.data
+            if (fileUri != null) {
+                try {
+                    for (att in this.attachments) {
+                        if (fileUri == att.uri) {
                             this.inputInput?.let {
-                                SXSnackbar.make(it, R.string.io_customerly__attachments_max_size_error, SXSnackbar.LENGTH_INDEFINITE)
+                                SXSnackbar.make(it, R.string.io_customerly__attachments_already_attached_error, SXSnackbar.LENGTH_INDEFINITE)
                                         .setAction(android.R.string.ok) {}.setActionTextColor(Customerly.lastPing.widgetColor).show()
                                 it.requestFocus()
                             }
                             return
                         }
-
-                        ClyAttachment(context = this, uri = fileUri).addAttachmentToInput(this)
-                    } catch (exception: Exception) {
-                        clySendError(errorCode = ERROR_CODE__ATTACHMENT_ERROR, description = "Error while attaching file: " + exception.message, throwable = exception)
+                    }
+                    if (fileUri.getFileSize(context = this) > 5000000) {
+                        this.inputInput?.let {
+                            SXSnackbar.make(it, R.string.io_customerly__attachments_max_size_error, SXSnackbar.LENGTH_INDEFINITE)
+                                    .setAction(android.R.string.ok) {}.setActionTextColor(Customerly.lastPing.widgetColor).show()
+                            it.requestFocus()
+                        }
+                        return
                     }
 
+                    ClyAttachment(context = this, uri = fileUri).addAttachmentToInput(this)
+                } catch (exception: Exception) {
+                    clySendError(errorCode = ERROR_CODE__ATTACHMENT_ERROR, description = "Error while attaching file: " + exception.message, throwable = exception)
                 }
-                this.inputInput?.requestFocus()
+
             }
+            this.inputInput?.requestFocus()
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     internal fun restoreAttachments() {

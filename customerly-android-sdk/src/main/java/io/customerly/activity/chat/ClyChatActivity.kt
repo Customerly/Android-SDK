@@ -64,32 +64,24 @@ private const val MESSAGES_PER_PAGE = 20
 internal const val TYPING_NO_ONE = 0L
 private const val PERMISSION_REQUEST__WRITE_EXTERNAL_STORAGE = 4321
 
-internal fun Activity.startClyChatActivity(conversationId: Long, messageContent:String? = null, attachments: ArrayList<ClyAttachment>? = null, mustShowBack: Boolean = true, requestCode: Int = -1) {
-    val intent = Intent(this, ClyChatActivity::class.java)
-    if (conversationId != CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
-        intent.putExtra(EXTRA_CONVERSATION_ID, conversationId)
-    }
-    if (messageContent != null) {
-        intent.putExtra(EXTRA_MESSAGE_CONTENT, messageContent)
-    }
-    if (attachments != null && attachments.isNotEmpty()) {
-        intent.putParcelableArrayListExtra(EXTRA_MESSAGE_ATTACHMENTS, attachments)
-    }
-    if (requestCode == -1) {
-        if (this is ClyChatActivity) {
-            //If i am starting a IAct_Chat Activity from a IAct_Chat activity i'll show the back button only if it is visible in the current IAct_Chat activity.
-            //Then i finish the current activity to avoid long stack of IAct_Chat activities
-            this.startActivity(intent.putExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, this.mustShowBack))
-            this.finish()
-        } else {
-            this.startActivity(intent.putExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, mustShowBack))
-        }
-    } else {
-        this.startActivityForResult(intent.putExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, mustShowBack), requestCode)
-    }
-}
-
 internal class ClyChatActivity : ClyIInputActivity() {
+
+    companion object {
+        fun buildIntent(activity: Activity, conversationId:Long, messageContent:String? = null, attachments: ArrayList<ClyAttachment>? = null, mustShowBack: Boolean = true): Intent{
+            val intent = Intent(activity, ClyChatActivity::class.java)
+            if (conversationId != CONVERSATIONID_UNKNOWN_FOR_MESSAGE) {
+                intent.putExtra(EXTRA_CONVERSATION_ID, conversationId)
+            }
+            if (messageContent != null) {
+                intent.putExtra(EXTRA_MESSAGE_CONTENT, messageContent)
+            }
+            if (attachments != null && attachments.isNotEmpty()) {
+                intent.putParcelableArrayListExtra(EXTRA_MESSAGE_ATTACHMENTS, attachments)
+            }
+            intent.putExtra(CLYINPUT_EXTRA_MUST_SHOW_BACK, mustShowBack)
+            return intent
+        }
+    }
 
     private var conversationId: Long = CONVERSATIONID_UNKNOWN_FOR_MESSAGE
     internal var typingAccountId = TYPING_NO_ONE
@@ -129,7 +121,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                                                 null
                                                             }
                                                         }
-                                                        .min() ?: -1
+                                                        .minOrNull() ?: -1
                                                 val addedMessagesCount = newChatList.size - previousSize
 
                                                 activity.io_customerly__progress_view.visibility = View.GONE
@@ -173,7 +165,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                                 })
                                 .p(key = "conversation_id", value = conversationId)
                                 .p(key = "per_page", value = MESSAGES_PER_PAGE)
-                                .p(key = "messages_before_id", value = activity.chatList.mapNotNull { msg -> if(msg.id > 0) msg.id else null }.min() ?: Long.MAX_VALUE)
+                                .p(key = "messages_before_id", value = activity.chatList.mapNotNull { msg -> if(msg.id > 0) msg.id else null }.minOrNull() ?: Long.MAX_VALUE)
                                 .p(key = "lead_hash", value = Customerly.currentUser.leadHash)
                                 .start()
                     }
@@ -470,7 +462,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
                 ClyApiRequest(
                         context = this.applicationContext,
                         endpoint = ENDPOINT_PING,
-                        jsonObjectConverter = { Unit },
+                        jsonObjectConverter = { },
                         callback = { response ->
                             Customerly.jwtToken?.userID?.apply { pendingMessage.writer.id = this }
                             weakActivity.reference { clyChatActivity ->
@@ -502,7 +494,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
     internal fun tryLoadForm() {
         if(Customerly.iamLead()
-                && this.chatList.asSequence().none {
+                && this.chatList.none {
                     when (it) {
                         is ClyMessage.Bot.Form.Profiling -> !it.form.answerConfirmed
                         is ClyMessage.Bot.Form.AskEmail -> Customerly.currentUser.email == null
@@ -533,7 +525,6 @@ internal class ClyChatActivity : ClyIInputActivity() {
     @SXUiThread
     override fun onNewSocketMessages(messages: ArrayList<ClyMessage>) {
         messages
-                .asSequence()
                 .lastOrNull { it.conversationId != this.conversationId}
                 ?.let { otherConversationMessage ->
                     try {
@@ -573,7 +564,7 @@ internal class ClyChatActivity : ClyIInputActivity() {
 
                 val fullAdmin = when {
                     lastAccountId != null -> adminsFullDetails?.firstOrNull { it.accountId == lastAccountId }
-                    fallbackUserOnLastActive -> adminsFullDetails?.maxBy { it.lastActive }
+                    fallbackUserOnLastActive -> adminsFullDetails?.maxByOrNull { it.lastActive }
                     else -> null
                 }
 
