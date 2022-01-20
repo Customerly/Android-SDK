@@ -27,29 +27,34 @@
             android:label="@string/io_customerly__support"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
         <activity
             android:name=".activity.chat.ClyChatActivity"
             android:label="@string/io_customerly__activity_title_chat"
             android:theme="@style/io_customerly__Activity.NoActionBar"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
         <activity
             android:name=".activity.fullscreen.ClyFullScreenImageActivity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
             android:label="@string/io_customerly__image"
             android:theme="@style/io_customerly__Activity"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
         <activity
             android:name=".activity.ClyWebViewActivity"
             android:label="@string/io_customerly__webview_act_label"
             android:theme="@style/io_customerly__Activity"
             android:configChanges = "orientation|keyboard|keyboardHidden|screenLayout|screenSize"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
         <activity
             android:name=".activity.ClyOpenDownloadedFileActivity"
             android:theme="@android:style/Theme.NoDisplay"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:exported="false" />
         <provider
             android:name=".utils.download.ClyFileProvider"
             android:authorities="io.customerly.provider.${applicationId}"
@@ -59,12 +64,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/io_customerly__provider_paths" />
         </provider>
-        <receiver android:name=".utils.download.ClyDownloadBroadcastReceiver" >
+        <receiver android:name=".utils.download.ClyDownloadBroadcastReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".utils.network.ClyNetworkReceiver" >
+        <receiver android:name=".utils.network.ClyNetworkReceiver" android:exported="true">
             <intent-filter>
                 <!-- Only api <21 -->
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
