@@ -63,7 +63,13 @@ internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 
 internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
 
-    private lateinit var attachmentFileChooserLauncher: ActivityResultLauncher<Intent>
+    private val attachmentFileChooserLauncher : ActivityResultLauncher<Intent> by lazy {
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                onRequestFileSelected(result.resultCode, result.data)
+            }
+        }
+    }
 
     internal var mustShowBack: Boolean = false
     private var activityThemed = false
@@ -121,11 +127,6 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        this.attachmentFileChooserLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                onRequestFileSelected(result.resultCode, result.data)
-            }
-        }
         super.onCreate(savedInstanceState, persistentState)
     }
 
