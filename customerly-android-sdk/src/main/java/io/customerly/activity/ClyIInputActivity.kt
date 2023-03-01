@@ -63,13 +63,7 @@ internal const val CLYINPUT_EXTRA_MUST_SHOW_BACK = "EXTRA_MUST_SHOW_BACK"
 
 internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
 
-    private val attachmentFileChooserLauncher : ActivityResultLauncher<Intent> by lazy {
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                onRequestFileSelected(result.resultCode, result.data)
-            }
-        }
-    }
+    private var attachmentFileChooserLauncher : ActivityResultLauncher<Intent>? = null
 
     internal var mustShowBack: Boolean = false
     private var activityThemed = false
@@ -105,8 +99,13 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN //Manifest.permission.READ_EXTERNAL_STORAGE has been added in api
                     || SXContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 try {
-                    this.attachmentFileChooserLauncher.launch(Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
-                            this.getString(R.string.io_customerly__choose_a_file_to_attach))
+                    this.attachmentFileChooserLauncher?.launch(
+                        Intent.createChooser(
+                            Intent(Intent.ACTION_GET_CONTENT)
+                                .setType("*/*")
+                                .addCategory(Intent.CATEGORY_OPENABLE),
+                            this.getString(R.string.io_customerly__choose_a_file_to_attach)
+                        )
                     )
                 } catch (ex: ActivityNotFoundException) {
                     Toast.makeText(this, this.getString(R.string.io_customerly__install_a_file_manager), Toast.LENGTH_SHORT).show()
@@ -126,8 +125,13 @@ internal abstract class ClyIInputActivity : ClyAppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        this.attachmentFileChooserLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                onRequestFileSelected(result.resultCode, result.data)
+            }
+        }
     }
 
     protected abstract fun onReconnection()

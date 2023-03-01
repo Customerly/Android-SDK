@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-def CustomerlySDKVersion = '3.1.2'
+def CustomerlySDKVersion = '3.1.3'
 
 buildscript {
     repositories {
