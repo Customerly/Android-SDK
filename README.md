@@ -1,3 +1,18 @@
+<div align="center">
+
+🚨🚨🚨
+
+<h1>DEPRECATION NOTICE</h1>
+<p><strong>This SDK is DEPRECATED and no longer maintained.</strong></p>
+<p>Please use the new and improved Customerly React Native SDK here:</p>
+<a href="https://github.com/Customerly/CustomerlyReactNativeSDK" style="font-size:1.5em; font-weight:bold; color:#007aff;">https://github.com/Customerly/CustomerlyReactNativeSDK</a>
+
+🚨🚨🚨
+
+</div>
+
+---
+
 <p align="left">
 <a href="http://www.customerly.io">
   <img src="https://avatars1.githubusercontent.com/u/23583405?s=200&v=4" height="100" alt="Live Chat ios Android Help Desk"></a>
