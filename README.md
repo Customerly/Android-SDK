@@ -4,8 +4,8 @@
 
 <h1>DEPRECATION NOTICE</h1>
 <p><strong>This SDK is DEPRECATED and no longer maintained.</strong></p>
-<p>Please use the new and improved Customerly React Native SDK here:</p>
-<a href="https://github.com/Customerly/CustomerlyReactNativeSDK" style="font-size:1.5em; font-weight:bold; color:#007aff;">https://github.com/Customerly/CustomerlyReactNativeSDK</a>
+<p>Please use the new and improved Customerly Android SDK here:</p>
+<a href="https://github.com/Customerly/CustomerlyAndroidSDK" style="font-size:1.5em; font-weight:bold; color:#007aff;">https://github.com/Customerly/CustomerlyAndroidSDK</a>
 
 🚨🚨🚨
 
